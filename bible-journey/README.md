@@ -77,6 +77,19 @@ src/
   styles/app.css    tokens and all styling
 ```
 
+## Brand assets
+
+`brand/logo-source.png` is the master. Everything shipped in `public/` is generated from it:
+
+```bash
+npm run icons
+```
+
+That writes `icon-32` (favicon), `icon-64` (header mark), `icon-180` (iOS home screen),
+and `icon-192` / `icon-512` (web manifest). The script quantizes to a palette, which takes the
+512px icon from 345 KB to 62 KB with no visible loss at icon sizes. Replace the source file and
+re-run rather than hand-editing anything in `public/`.
+
 ## Design
 
 Red (`#c81d25`) carries the weight: hero, chapter tiles, active nav, chart series. Yellow

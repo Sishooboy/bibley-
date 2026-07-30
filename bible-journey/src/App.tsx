@@ -23,7 +23,14 @@ function Shell() {
       <header className="topbar">
         <div className="container topbar__inner">
           <div className="wordmark">
-            <span className="wordmark__mark" aria-hidden="true" />
+            <img
+              className="wordmark__mark"
+              src="/icon-64.png"
+              width={30}
+              height={30}
+              alt=""
+              decoding="async"
+            />
             <span>Bibley</span>
             <span className="wordmark__sub">reading journey</span>
           </div>

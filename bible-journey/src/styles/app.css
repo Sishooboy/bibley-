@@ -120,6 +120,12 @@ select {
   .nav__item {
     padding-block: 0.6rem;
   }
+
+  .syncBadge {
+    min-width: 38px;
+    min-height: 38px;
+    justify-content: center;
+  }
 }
 
 :focus-visible {
@@ -176,12 +182,12 @@ select {
 }
 
 .wordmark__mark {
-  width: 12px;
-  height: 12px;
-  background: var(--red-600);
-  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
   align-self: center;
-  box-shadow: 0 0 0 3px var(--red-900);
+  display: block;
+  flex: none;
 }
 
 .wordmark__sub {
@@ -1534,13 +1540,32 @@ select {
 }
 
 @media (max-width: 620px) {
+  /* One row, always: a sticky header that wraps costs real screen on a phone. */
   .topbar__inner {
-    flex-wrap: wrap;
-    padding-block: 0.6rem;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    min-height: 56px;
   }
 
   .wordmark__sub {
     display: none;
+  }
+
+  .topbar__right {
+    gap: 0.4rem;
+  }
+
+  /* The dot alone still says what the badge said. */
+  .syncBadge__label {
+    display: none;
+  }
+
+  .syncBadge {
+    padding: 0.5rem;
+  }
+
+  .nav__item {
+    padding-inline: 0.6rem;
   }
 
   .phase {
