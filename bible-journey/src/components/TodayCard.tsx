@@ -1,0 +1,78 @@
+import { PHASES } from '../data/plan';
+import { formatRefs } from '../lib/format';
+import { nextUnread } from '../lib/progress';
+import { useStore } from '../state/useStore';
+import { Check } from './icons';
+
+const SUGGESTION_SIZE = 3;
+/** One tap for however much you actually got through. */
+const QUICK_AMOUNTS = [1, 3, 5, 10];
+
+export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }) {
+  const { data, markNext, derived } = useStore();
+  const refs = nextUnread(data.read, SUGGESTION_SIZE);
+
+  if (refs.length === 0) {
+    return (
+      <section className="panel" aria-label="Today's reading">
+        <p className="eyebrow">Today’s reading</p>
+        <h2 className="today__ref" style={{ marginTop: '0.6rem' }}>
+          All 1,168 chapters read
+        </h2>
+        <p className="today__rest">
+          Twelve phases, sixty-five books, done. Revisit anything from the journey below.
+        </p>
+      </section>
+    );
+  }
+
+  const first = refs[0];
+  const phase = PHASES.find((p) => p.phase === first.phase);
+  const started = derived.pace.chaptersLogged > 0;
+
+  return (
+    <section className="panel" aria-label="Today's reading">
+      <div className="today__head">
+        <p className="eyebrow">Today’s reading</p>
+        <p className="today__rest" style={{ marginTop: 0 }}>
+          Phase {first.phase} · {phase?.title}
+        </p>
+      </div>
+
+      <h2 className="today__ref">{formatRefs(refs)}</h2>
+      <p className="today__rest">
+        Next up in sequence. Pick up here, or jump anywhere in the plan. Nothing is locked.
+      </p>
+
+      <div className="quickMark">
+        <span className="quickMark__label">I read</span>
+        <div className="quickMark__row">
+          {QUICK_AMOUNTS.map((n) => (
+            <button
+              key={n}
+              type="button"
+              className={`btn btn--sm${n === SUGGESTION_SIZE ? ' btn--primary' : ''}`}
+              onClick={() => markNext(n)}
+            >
+              {n === SUGGESTION_SIZE && <Check size={14} />}
+              {n} ch
+            </button>
+          ))}
+          <button
+            type="button"
+            className="btn btn--sm btn--ghost"
+            onClick={() => onOpenBook(first.book)}
+          >
+            Open {first.book}
+          </button>
+        </div>
+      </div>
+
+      {!started && (
+        <p className="today__rest" style={{ marginTop: '0.9rem' }}>
+          Marking your first chapter starts the streak.
+        </p>
+      )}
+    </section>
+  );
+}

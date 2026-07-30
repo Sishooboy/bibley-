@@ -1,0 +1,195 @@
+import { PROLOGUE } from '../data/plan';
+import type { DayKey } from './dates';
+import { today } from './dates';
+
+export const STORAGE_KEY = 'bible-journey/v1';
+/** Written once a day, one revision behind, so a bad write is never the only copy. */
+export const BACKUP_KEY = 'bible-journey/v1.backup';
+const CORRUPT_PREFIX = 'bible-journey/v1.corrupt.';
+
+/** `null` marks a chapter that was read before the journal started (John). */
+export type ReadValue = DayKey | null;
+
+/** Key format: `${book}|${chapter}`. Book names are unique across the plan. */
+export type ReadMap = Record<string, ReadValue>;
+
+export type Note = {
+  id: string;
+  book: string;
+  /** `null` = a note on the whole book. */
+  chapter: number | null;
+  text: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AppData = {
+  version: 1;
+  read: ReadMap;
+  notes: Note[];
+  startedAt: DayKey;
+  /** Day of the last backup snapshot, so we only take one per day. */
+  backedUpAt?: DayKey;
+};
+
+export type LoadResult = {
+  data: AppData;
+  /** How the data came back, for the UI to report honestly. */
+  source: 'fresh' | 'primary' | 'backup';
+  /** Set when the primary record was unreadable and got quarantined. */
+  quarantinedKey?: string;
+};
+
+export function chapterKey(book: string, chapter: number): string {
+  return `${book}|${chapter}`;
+}
+
+export function parseChapterKey(key: string): { book: string; chapter: number } {
+  const i = key.lastIndexOf('|');
+  return { book: key.slice(0, i), chapter: Number(key.slice(i + 1)) };
+}
+
+/** John is seeded as already read, with no journal dates so it can't inflate stats. */
+function seedRead(): ReadMap {
+  const read: ReadMap = {};
+  for (let c = 1; c <= PROLOGUE.chapters; c++) read[chapterKey(PROLOGUE.name, c)] = null;
+  return read;
+}
+
+export function emptyData(): AppData {
+  return { version: 1, read: seedRead(), notes: [], startedAt: today() };
+}
+
+/** Accepts anything shaped like a journal; unknown fields are dropped, not trusted. */
+export function normalize(input: unknown): AppData | null {
+  if (typeof input !== 'object' || input === null) return null;
+  const raw = input as Partial<AppData>;
+  if (typeof raw.read !== 'object' || raw.read === null) return null;
+
+  const read: ReadMap = { ...seedRead() };
+  for (const [key, value] of Object.entries(raw.read)) {
+    if (typeof key !== 'string' || !key.includes('|')) continue;
+    if (value === null || typeof value === 'string') read[key] = value;
+  }
+
+  const notes: Note[] = Array.isArray(raw.notes)
+    ? raw.notes.filter(
+        (n): n is Note =>
+          !!n &&
+          typeof n.id === 'string' &&
+          typeof n.book === 'string' &&
+          typeof n.text === 'string' &&
+          (n.chapter === null || typeof n.chapter === 'number'),
+      )
+    : [];
+
+  return {
+    version: 1,
+    read,
+    notes,
+    startedAt: typeof raw.startedAt === 'string' ? raw.startedAt : today(),
+    backedUpAt: typeof raw.backedUpAt === 'string' ? raw.backedUpAt : undefined,
+  };
+}
+
+function readKey(key: string): AppData | null {
+  const raw = localStorage.getItem(key);
+  if (!raw) return null;
+  try {
+    return normalize(JSON.parse(raw));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Primary first, then the daily backup. A primary that exists but won't parse is
+ * copied aside rather than overwritten, so nothing is ever silently destroyed.
+ */
+export function loadData(): LoadResult {
+  try {
+    const primary = readKey(STORAGE_KEY);
+    if (primary) return { data: primary, source: 'primary' };
+
+    const hadPrimary = localStorage.getItem(STORAGE_KEY) !== null;
+    let quarantinedKey: string | undefined;
+    if (hadPrimary) {
+      quarantinedKey = `${CORRUPT_PREFIX}${Date.now()}`;
+      localStorage.setItem(quarantinedKey, localStorage.getItem(STORAGE_KEY) ?? '');
+    }
+
+    const backup = readKey(BACKUP_KEY);
+    if (backup) return { data: backup, source: 'backup', quarantinedKey };
+
+    return { data: emptyData(), source: 'fresh', quarantinedKey };
+  } catch (err) {
+    console.error('Storage unavailable, running in memory only.', err);
+    return { data: emptyData(), source: 'fresh' };
+  }
+}
+
+export function saveData(data: AppData): void {
+  try {
+    const day = today();
+    const previous = localStorage.getItem(STORAGE_KEY);
+
+    // Before the first write of a new day, park yesterday's copy as the backup.
+    // Only ever back up a blob that parses, so a good backup can't be clobbered.
+    if (previous) {
+      let parsed: Partial<AppData> | null = null;
+      try {
+        parsed = JSON.parse(previous) as Partial<AppData>;
+      } catch {
+        parsed = null;
+      }
+      if (parsed && parsed.backedUpAt !== day) localStorage.setItem(BACKUP_KEY, previous);
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...data, backedUpAt: day }));
+  } catch (err) {
+    console.error('Could not save progress.', err);
+  }
+}
+
+/**
+ * Ask the browser to exempt this origin from automatic eviction. Chrome grants it
+ * on engagement, Safari grants it once the app is on the home screen.
+ */
+export async function requestPersistence(): Promise<boolean> {
+  if (!navigator.storage?.persist) return false;
+  try {
+    if (await navigator.storage.persisted()) return true;
+    return await navigator.storage.persist();
+  } catch {
+    return false;
+  }
+}
+
+export async function isPersisted(): Promise<boolean> {
+  try {
+    return (await navigator.storage?.persisted?.()) ?? false;
+  } catch {
+    return false;
+  }
+}
+
+/** Age and size of the daily safety copy, read from storage rather than memory. */
+export function backupInfo(): { exists: boolean; day: DayKey | null; chapters: number } {
+  try {
+    const raw = localStorage.getItem(BACKUP_KEY);
+    if (!raw) return { exists: false, day: null, chapters: 0 };
+    const parsed = JSON.parse(raw) as Partial<AppData>;
+    const chapters = Object.values(parsed.read ?? {}).filter(Boolean).length;
+    return { exists: true, day: parsed.backedUpAt ?? null, chapters };
+  } catch {
+    return { exists: false, day: null, chapters: 0 };
+  }
+}
+
+export function exportFilename(): string {
+  return `bibley-backup-${today()}.json`;
+}
+
+export function newId(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}

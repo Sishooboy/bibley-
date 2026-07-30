@@ -1,0 +1,17 @@
+{
+  "name": "Bibley reading journey",
+  "short_name": "Bibley",
+  "description": "A personal Bible reading plan: 12 phases, 65 books, 1,168 chapters.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f2e9",
+  "theme_color": "#1a1512",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
