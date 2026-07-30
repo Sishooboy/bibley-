@@ -1,9 +1,8 @@
 import {
   CHAPTER_SEQUENCE,
   PHASES,
-  PLAN_BOOKS,
-  PLAN_CHAPTER_COUNT,
   PROLOGUE,
+  TOTAL_BOOK_COUNT,
   TOTAL_CHAPTER_COUNT,
   type ChapterRef,
 } from '../data/plan';
@@ -74,29 +73,27 @@ export function phaseStatuses(phases: PhaseProgress[]): Map<number, PhaseStatus>
 }
 
 export type OverallProgress = {
-  /** Chapters read in the 12-phase plan (excludes the John prologue). */
+  /** Chapters read across John and the twelve phases. */
   planRead: number;
   planTotal: number;
-  /** Including John. */
-  totalRead: number;
-  total: number;
   booksDone: number;
   booksTotal: number;
   percent: number;
 };
 
 export function overallProgress(read: ReadMap, phases: PhaseProgress[]): OverallProgress {
-  const planRead = phases.reduce((n, p) => n + p.read, 0);
-  const booksDone = phases.reduce((n, p) => n + p.books.filter((b) => b.done).length, 0);
-  const totalRead = planRead + bookProgress(read, PROLOGUE.name, PROLOGUE.chapters).read;
+  const prologue = bookProgress(read, PROLOGUE.name, PROLOGUE.chapters);
+  const planRead = phases.reduce((n, p) => n + p.read, prologue.read);
+  const booksDone = phases.reduce(
+    (n, p) => n + p.books.filter((b) => b.done).length,
+    prologue.done ? 1 : 0,
+  );
   return {
     planRead,
-    planTotal: PLAN_CHAPTER_COUNT,
-    totalRead,
-    total: TOTAL_CHAPTER_COUNT,
+    planTotal: TOTAL_CHAPTER_COUNT,
     booksDone,
-    booksTotal: PLAN_BOOKS.length,
-    percent: (planRead / PLAN_CHAPTER_COUNT) * 100,
+    booksTotal: TOTAL_BOOK_COUNT,
+    percent: (planRead / TOTAL_CHAPTER_COUNT) * 100,
   };
 }
 
@@ -156,7 +153,7 @@ export function pace(read: ReadMap, planRead: number): Pace {
   const byDay = readsByDay(read);
   const days = [...byDay.keys()].sort();
   const chaptersLogged = [...byDay.values()].reduce((a, b) => a + b, 0);
-  const remaining = PLAN_CHAPTER_COUNT - planRead;
+  const remaining = TOTAL_CHAPTER_COUNT - planRead;
 
   if (days.length === 0) {
     return { perWeek: 0, daysActive: 0, chaptersLogged: 0, finishBy: null, remaining };

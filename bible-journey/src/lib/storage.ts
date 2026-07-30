@@ -1,4 +1,3 @@
-import { PROLOGUE } from '../data/plan';
 import type { DayKey } from './dates';
 import { today } from './dates';
 
@@ -7,7 +6,7 @@ export const STORAGE_KEY = 'bible-journey/v1';
 export const BACKUP_KEY = 'bible-journey/v1.backup';
 const CORRUPT_PREFIX = 'bible-journey/v1.corrupt.';
 
-/** `null` marks a chapter that was read before the journal started (John). */
+/** `null` marks a chapter read before the journal started, from an imported file. */
 export type ReadValue = DayKey | null;
 
 /** Key format: `${book}|${chapter}`. Book names are unique across the plan. */
@@ -49,15 +48,8 @@ export function parseChapterKey(key: string): { book: string; chapter: number } 
   return { book: key.slice(0, i), chapter: Number(key.slice(i + 1)) };
 }
 
-/** John is seeded as already read, with no journal dates so it can't inflate stats. */
-function seedRead(): ReadMap {
-  const read: ReadMap = {};
-  for (let c = 1; c <= PROLOGUE.chapters; c++) read[chapterKey(PROLOGUE.name, c)] = null;
-  return read;
-}
-
 export function emptyData(): AppData {
-  return { version: 1, read: seedRead(), notes: [], startedAt: today() };
+  return { version: 1, read: {}, notes: [], startedAt: today() };
 }
 
 /** Accepts anything shaped like a journal; unknown fields are dropped, not trusted. */
@@ -66,7 +58,7 @@ export function normalize(input: unknown): AppData | null {
   const raw = input as Partial<AppData>;
   if (typeof raw.read !== 'object' || raw.read === null) return null;
 
-  const read: ReadMap = { ...seedRead() };
+  const read: ReadMap = {};
   for (const [key, value] of Object.entries(raw.read)) {
     if (typeof key !== 'string' || !key.includes('|')) continue;
     if (value === null || typeof value === 'string') read[key] = value;

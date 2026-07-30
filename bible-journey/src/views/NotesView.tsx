@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react';
-import { PHASES, PHASE_OF_BOOK, PROLOGUE } from '../data/plan';
+import { PHASES, PHASE_OF_BOOK, PROLOGUE, PROLOGUE_PHASE } from '../data/plan';
 import { plural } from '../lib/format';
 import type { Note } from '../lib/storage';
 import { useStore } from '../state/useStore';
 
 function phaseLabel(book: string): string {
   const phase = PHASE_OF_BOOK.get(book);
-  if (!phase) return 'Prologue';
+  if (phase === undefined) return 'Unlisted';
+  if (phase === PROLOGUE_PHASE) return 'Start here · Meet Jesus first';
   return `Phase ${phase} · ${PHASES[phase - 1].title}`;
 }
 
@@ -117,7 +118,7 @@ export function NotesView() {
         if (bookFilter !== 'all' && n.book !== bookFilter) return false;
         if (phaseFilter !== 'all') {
           const phase = PHASE_OF_BOOK.get(n.book);
-          const key = phase ? String(phase) : 'prologue';
+          const key = phase === undefined || phase === PROLOGUE_PHASE ? 'prologue' : String(phase);
           if (key !== phaseFilter) return false;
         }
         if (q && !n.text.toLowerCase().includes(q) && !n.book.toLowerCase().includes(q)) {
@@ -153,7 +154,7 @@ export function NotesView() {
           aria-label="Filter by phase"
         >
           <option value="all">All phases</option>
-          <option value="prologue">Prologue · {PROLOGUE.name}</option>
+          <option value="prologue">Start here · {PROLOGUE.name}</option>
           {PHASES.map((p) => (
             <option key={p.phase} value={String(p.phase)}>
               Phase {p.phase} · {p.title}

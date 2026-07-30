@@ -12,11 +12,9 @@ type Props = {
   read: number;
   open: boolean;
   onToggle: () => void;
-  /** John: read before the journal existed, so its chapters aren't editable. */
-  seeded?: boolean;
 };
 
-export function BookRow({ name, chapters, read, open, onToggle, seeded }: Props) {
+export function BookRow({ name, chapters, read, open, onToggle }: Props) {
   const { data, toggleChapter, markThrough, clearBook } = useStore();
   const ref = useRef<HTMLDivElement>(null);
   const done = read === chapters;
@@ -77,8 +75,7 @@ export function BookRow({ name, chapters, read, open, onToggle, seeded }: Props)
 
       {open && (
         <div className="book__panel" id={panelId}>
-          {!seeded && (
-            <div className="readTo">
+          <div className="readTo">
               <div className="readTo__head">
                 <label className="eyebrow" htmlFor={`${panelId}-slider`}>
                   Read through chapter
@@ -135,7 +132,6 @@ export function BookRow({ name, chapters, read, open, onToggle, seeded }: Props)
                 </span>
               </div>
             </div>
-          )}
 
           <div className="chapters">
             {all.map((c) => {
@@ -146,16 +142,9 @@ export function BookRow({ name, chapters, read, open, onToggle, seeded }: Props)
                 <button
                   key={c}
                   type="button"
-                  className={[
-                    'chapter',
-                    seeded ? 'chapter--seeded' : '',
-                    readToday ? 'chapter--today' : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
+                  className={`chapter${readToday ? ' chapter--today' : ''}`}
                   aria-pressed={isRead}
                   aria-label={`${name} chapter ${c}${isRead ? ', read' : ''}`}
-                  disabled={seeded}
                   onClick={() => toggleChapter(name, c)}
                 >
                   {c}
@@ -164,8 +153,7 @@ export function BookRow({ name, chapters, read, open, onToggle, seeded }: Props)
             })}
           </div>
 
-          {!seeded && (
-            <div className="bookTools">
+          <div className="bookTools">
               <button
                 type="button"
                 className="btn btn--sm"
@@ -204,8 +192,7 @@ export function BookRow({ name, chapters, read, open, onToggle, seeded }: Props)
                   Clear
                 </button>
               )}
-            </div>
-          )}
+          </div>
 
           <NoteEditor book={name} chapters={chapters} />
         </div>

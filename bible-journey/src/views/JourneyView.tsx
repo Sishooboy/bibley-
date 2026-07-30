@@ -5,14 +5,17 @@ import { ProgressBar } from '../components/ProgressBar';
 import { QuoteCard } from '../components/QuoteCard';
 import { TodayCard } from '../components/TodayCard';
 import { Flame } from '../components/icons';
-import { PHASES, PROLOGUE } from '../data/plan';
+import { PHASES, PROLOGUE, PROLOGUE_WHY } from '../data/plan';
 import { formatNumber } from '../lib/format';
+import { bookProgress } from '../lib/progress';
 import { useStore } from '../state/useStore';
 
 export function JourneyView() {
-  const { derived } = useStore();
+  const { data, derived } = useStore();
   const { overall, streak, phases, statuses, currentPhase } = derived;
   const [openBook, setOpenBook] = useState<string | null>(null);
+  const prologue = bookProgress(data.read, PROLOGUE.name, PROLOGUE.chapters);
+  const prologueDone = prologue.done;
 
   return (
     <>
@@ -20,11 +23,10 @@ export function JourneyView() {
         <div className="container hero__inner">
           <div>
             <p className="eyebrow eyebrow--onDark">The reading plan</p>
-            <h1>Sixty-five books, in order.</h1>
+            <h1>Sixty-six books, in order.</h1>
             <p className="hero__lede">
-              John is already behind you. What follows is twelve phases built so each book lands
-              with the context of the one before it: history before prophets, Acts before Paul,
-              Revelation last.
+              John first, then twelve phases built so each book lands with the context of the one
+              before it: history before prophets, Acts before Paul, Revelation last.
             </p>
           </div>
 
@@ -49,10 +51,13 @@ export function JourneyView() {
                 <b>{overall.booksDone}</b>/{overall.booksTotal} books
               </span>
               <span>
-                Phase <b>{currentPhase}</b> of 12
-              </span>
-              <span>
-                <b>{formatNumber(overall.totalRead)}</b>/{formatNumber(overall.total)} with John
+                {prologueDone ? (
+                  <>
+                    Phase <b>{currentPhase}</b> of 12
+                  </>
+                ) : (
+                  <b>Start with John</b>
+                )}
               </span>
             </div>
 
@@ -92,25 +97,43 @@ export function JourneyView() {
           </p>
         </div>
 
-        <p className="prologue">
-          <span className="prologue__badge" aria-hidden="true">
-            ✓
-          </span>
-          <span>
-            Before the plan: <b>{PROLOGUE.name}</b>, all {PROLOGUE.chapters} chapters, already read.
-          </span>
-        </p>
+        <section className={`phase phase--${prologueDone ? 'done' : 'current'}`}>
+          <div className="phase__num" aria-hidden="true">
+            00
+          </div>
+          <div>
+            <div className="phase__head">
+              <h3>Meet Jesus first</h3>
+              <span
+                className={`phase__tag phase__tag--${prologueDone ? 'done' : 'current'}`}
+              >
+                {prologueDone ? 'Complete' : 'Start here'}
+              </span>
+              <span className="phase__count">
+                {prologue.read}/{prologue.chapters} ch · 1 book
+              </span>
+            </div>
 
-        <div className="books" style={{ marginBottom: '2.5rem' }}>
-          <BookRow
-            name={PROLOGUE.name}
-            chapters={PROLOGUE.chapters}
-            read={PROLOGUE.chapters}
-            seeded
-            open={openBook === PROLOGUE.name}
-            onToggle={() => setOpenBook(openBook === PROLOGUE.name ? null : PROLOGUE.name)}
-          />
-        </div>
+            <p className="phase__why">{PROLOGUE_WHY}</p>
+
+            <ProgressBar
+              value={prologue.read}
+              max={prologue.chapters}
+              label="John progress"
+              className="phase__bar"
+            />
+
+            <div className="books">
+              <BookRow
+                name={PROLOGUE.name}
+                chapters={PROLOGUE.chapters}
+                read={prologue.read}
+                open={openBook === PROLOGUE.name}
+                onToggle={() => setOpenBook(openBook === PROLOGUE.name ? null : PROLOGUE.name)}
+              />
+            </div>
+          </div>
+        </section>
 
         {PHASES.map((phase, i) => (
           <PhaseSection

@@ -1,5 +1,5 @@
-import { PHASES } from '../data/plan';
-import { formatRefs } from '../lib/format';
+import { PHASES, PROLOGUE_PHASE, PROLOGUE_WHY, TOTAL_CHAPTER_COUNT } from '../data/plan';
+import { formatNumber, formatRefs } from '../lib/format';
 import { nextUnread } from '../lib/progress';
 import { useStore } from '../state/useStore';
 import { Check } from './icons';
@@ -17,10 +17,10 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
       <section className="panel" aria-label="Today's reading">
         <p className="eyebrow">Today’s reading</p>
         <h2 className="today__ref" style={{ marginTop: '0.6rem' }}>
-          All 1,168 chapters read
+          All {formatNumber(TOTAL_CHAPTER_COUNT)} chapters read
         </h2>
         <p className="today__rest">
-          Twelve phases, sixty-five books, done. Revisit anything from the journey below.
+          Sixty-six books, twelve phases, done. Revisit anything from the journey below.
         </p>
       </section>
     );
@@ -29,19 +29,22 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
   const first = refs[0];
   const phase = PHASES.find((p) => p.phase === first.phase);
   const started = derived.pace.chaptersLogged > 0;
+  const isPrologue = first.phase === PROLOGUE_PHASE;
 
   return (
     <section className="panel" aria-label="Today's reading">
       <div className="today__head">
         <p className="eyebrow">Today’s reading</p>
         <p className="today__rest" style={{ marginTop: 0 }}>
-          Phase {first.phase} · {phase?.title}
+          {isPrologue ? 'Start here · Meet Jesus first' : `Phase ${first.phase} · ${phase?.title}`}
         </p>
       </div>
 
       <h2 className="today__ref">{formatRefs(refs)}</h2>
       <p className="today__rest">
-        Next up in sequence. Pick up here, or jump anywhere in the plan. Nothing is locked.
+        {isPrologue
+          ? PROLOGUE_WHY
+          : 'Next up in sequence. Pick up here, or jump anywhere in the plan. Nothing is locked.'}
       </p>
 
       <div className="quickMark">

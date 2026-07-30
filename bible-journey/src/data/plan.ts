@@ -7,8 +7,16 @@ export type Phase = {
   books: Book[];
 };
 
-/** Already read before the plan started. Rendered as a completed prologue. */
+/**
+ * Step zero. The twelve phases are ordered on the assumption that you have met
+ * Jesus in John first, so John leads rather than being assumed.
+ */
 export const PROLOGUE: Book = { name: 'John', chapters: 21 };
+
+export const PROLOGUE_PHASE = 0;
+
+export const PROLOGUE_WHY =
+  'Start here. The order of everything below is built around this one book: meet Jesus first, then go back to the beginning and watch the whole story lead to him.';
 
 export const PHASES: Phase[] = [
   {
@@ -158,30 +166,40 @@ export const PHASES: Phase[] = [
   },
 ];
 
-/** Every book in the plan, in reading order (excludes the John prologue). */
+/** The 65 books of the twelve phases, in reading order (excludes John). */
 export const PLAN_BOOKS: Book[] = PHASES.flatMap((p) => p.books);
+
+/** Everything to read, John first. */
+export const ALL_BOOKS: Book[] = [PROLOGUE, ...PLAN_BOOKS];
 
 /** Reading order as flat chapter references. Drives the daily suggestion. */
 export type ChapterRef = { book: string; chapter: number; phase: number };
 
-export const CHAPTER_SEQUENCE: ChapterRef[] = PHASES.flatMap((p) =>
-  p.books.flatMap((b) =>
-    Array.from({ length: b.chapters }, (_, i) => ({
-      book: b.name,
-      chapter: i + 1,
-      phase: p.phase,
-    })),
+const prologueSequence: ChapterRef[] = Array.from(
+  { length: PROLOGUE.chapters },
+  (_, i) => ({ book: PROLOGUE.name, chapter: i + 1, phase: PROLOGUE_PHASE }),
+);
+
+export const CHAPTER_SEQUENCE: ChapterRef[] = [
+  ...prologueSequence,
+  ...PHASES.flatMap((p) =>
+    p.books.flatMap((b) =>
+      Array.from({ length: b.chapters }, (_, i) => ({
+        book: b.name,
+        chapter: i + 1,
+        phase: p.phase,
+      })),
+    ),
   ),
-);
+];
 
-export const PHASE_OF_BOOK = new Map<string, number>(
-  PHASES.flatMap((p) => p.books.map((b) => [b.name, p.phase] as [string, number])),
-);
+export const PHASE_OF_BOOK = new Map<string, number>([
+  [PROLOGUE.name, PROLOGUE_PHASE],
+  ...PHASES.flatMap((p) => p.books.map((b) => [b.name, p.phase] as [string, number])),
+]);
 
-export const BOOK_BY_NAME = new Map<string, Book>(
-  [...PLAN_BOOKS, PROLOGUE].map((b) => [b.name, b]),
-);
+export const BOOK_BY_NAME = new Map<string, Book>(ALL_BOOKS.map((b) => [b.name, b]));
 
-export const PLAN_BOOK_COUNT = PLAN_BOOKS.length; // 65
-export const PLAN_CHAPTER_COUNT = PLAN_BOOKS.reduce((n, b) => n + b.chapters, 0); // 1168
-export const TOTAL_CHAPTER_COUNT = PLAN_CHAPTER_COUNT + PROLOGUE.chapters; // 1189
+export const PHASES_CHAPTER_COUNT = PLAN_BOOKS.reduce((n, b) => n + b.chapters, 0); // 1168
+export const TOTAL_BOOK_COUNT = ALL_BOOKS.length; // 66
+export const TOTAL_CHAPTER_COUNT = PHASES_CHAPTER_COUNT + PROLOGUE.chapters; // 1189
