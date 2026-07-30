@@ -38,6 +38,32 @@ anywhere if you'd rather not run the dev server.
 - **Touch:** all form controls are 16px on coarse pointers, which is what stops iOS from zooming
   into a focused field and leaving the page pannable sideways.
 
+## Sync
+
+Optional and local-first. Without a session the app is exactly what it was: local storage only.
+Sign in and the same journal is mirrored to Supabase so a phone and a laptop stay in step.
+
+- **Auth:** magic link, no passwords stored anywhere.
+- **Shape:** one row per user in `journals` (`user_id`, `data` jsonb, `updated_at`), protected by
+  row-level security. The publishable key is public by design; the policies are the boundary.
+- **Merge, not overwrite.** `mergeJournals` unions the read maps (earliest date wins, `null` from
+  the John prologue outranks any date) and resolves notes per book and chapter by `updatedAt`.
+  A sync can only add progress.
+- **The tradeoff:** unmarking does not travel. Clear a chapter on one device while another still
+  has it and the next merge restores it. Chosen deliberately, since losing a streak is worse than
+  re-clearing a chapter.
+- **When it runs:** on sign-in, when the tab regains focus, and 1.5s after any local edit.
+
+Configure with `.env.local` (see `.env.example`). Leave it unset and the sync UI reports that the
+app is local-only rather than breaking.
+
+## Deploying
+
+Any static host works. For Vercel: import the repo, set the **Root Directory** to `bible-journey`,
+framework preset Vite, and add `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` as
+environment variables. Then add the deployed origin to Supabase under Authentication, URL
+Configuration, or magic links will bounce to the wrong place.
+
 ## Layout
 
 ```
