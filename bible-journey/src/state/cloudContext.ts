@@ -21,6 +21,7 @@ export type Cloud = {
   pendingEmail: string | null;
   /** Seconds until another code can be requested. Supabase rate-limits per address. */
   resendIn: number;
+  signInWithGoogle: () => Promise<void>;
   signIn: (email: string) => Promise<void>;
   verifyCode: (code: string) => Promise<boolean>;
   resend: () => Promise<void>;

@@ -142,6 +142,17 @@ export function CloudProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(timer);
   }, [data, session, push]);
 
+  const signInWithGoogle = useCallback(async () => {
+    if (!supabase) return;
+    setError(null);
+    // Google redirects back here, and detectSessionInUrl picks the session up.
+    const { error: authError } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    });
+    if (authError) setError(authError.message);
+  }, []);
+
   const sendCode = useCallback(async (email: string) => {
     if (!supabase) return false;
     setError(null);
@@ -220,6 +231,7 @@ export function CloudProvider({ children }: { children: ReactNode }) {
       linkSent,
       pendingEmail,
       resendIn,
+      signInWithGoogle,
       signIn,
       verifyCode,
       resend,
@@ -235,6 +247,7 @@ export function CloudProvider({ children }: { children: ReactNode }) {
       linkSent,
       pendingEmail,
       resendIn,
+      signInWithGoogle,
       signIn,
       verifyCode,
       resend,
