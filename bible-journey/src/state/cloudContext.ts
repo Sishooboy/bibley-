@@ -15,9 +15,16 @@ export type Cloud = {
   email: string | null;
   lastSyncedAt: string | null;
   error: string | null;
-  /** True between requesting a magic link and that link being used. */
+  /** True once a code has been emailed and we're waiting for it to be typed in. */
   linkSent: boolean;
+  /** The address a pending code was sent to. */
+  pendingEmail: string | null;
+  /** Seconds until another code can be requested. Supabase rate-limits per address. */
+  resendIn: number;
   signIn: (email: string) => Promise<void>;
+  verifyCode: (code: string) => Promise<boolean>;
+  resend: () => Promise<void>;
+  cancelSignIn: () => void;
   signOut: () => Promise<void>;
   syncNow: () => Promise<void>;
 };

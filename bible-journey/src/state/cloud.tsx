@@ -8,6 +8,8 @@ import { useStore } from './useStore';
 
 /** Local edits settle for this long before a write goes out. */
 const PUSH_DELAY_MS = 1500;
+/** Supabase rate-limits sign-in emails per address, so don't let the button spam it. */
+const RESEND_COOLDOWN_S = 60;
 
 export function CloudProvider({ children }: { children: ReactNode }) {
   const { data, mergeRemote } = useStore();
@@ -17,6 +19,14 @@ export function CloudProvider({ children }: { children: ReactNode }) {
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [linkSent, setLinkSent] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  const [resendIn, setResendIn] = useState(0);
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const timer = setTimeout(() => setResendIn((n) => n - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendIn]);
 
   // The pushers read through a ref so they never capture stale journal state.
   const dataRef = useRef(data);
@@ -132,19 +142,65 @@ export function CloudProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(timer);
   }, [data, session, push]);
 
-  const signIn = useCallback(async (email: string) => {
-    if (!supabase) return;
+  const sendCode = useCallback(async (email: string) => {
+    if (!supabase) return false;
     setError(null);
+    // emailRedirectTo still lets the link in the same email work on this device,
+    // but the typed code is what makes signing in on a second device possible.
     const { error: authError } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: window.location.origin },
+      options: { emailRedirectTo: window.location.origin, shouldCreateUser: true },
     });
     if (authError) {
       setError(authError.message);
-      setStatus('error');
-      return;
+      return false;
     }
+    setPendingEmail(email);
     setLinkSent(true);
+    setResendIn(RESEND_COOLDOWN_S);
+    return true;
+  }, []);
+
+  const signIn = useCallback(
+    async (email: string) => {
+      await sendCode(email);
+    },
+    [sendCode],
+  );
+
+  const resend = useCallback(async () => {
+    if (!pendingEmail || resendIn > 0) return;
+    await sendCode(pendingEmail);
+  }, [pendingEmail, resendIn, sendCode]);
+
+  const verifyCode = useCallback(
+    async (code: string) => {
+      if (!supabase || !pendingEmail) return false;
+      setError(null);
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: pendingEmail,
+        token: code.trim(),
+        type: 'email',
+      });
+      if (verifyError) {
+        setError(
+          verifyError.message.toLowerCase().includes('expired')
+            ? 'That code has expired. Send yourself a new one.'
+            : 'That code was not right. Check the latest email and try again.',
+        );
+        return false;
+      }
+      setLinkSent(false);
+      setPendingEmail(null);
+      return true;
+    },
+    [pendingEmail],
+  );
+
+  const cancelSignIn = useCallback(() => {
+    setLinkSent(false);
+    setPendingEmail(null);
+    setError(null);
   }, []);
 
   const signOut = useCallback(async () => {
@@ -162,11 +218,30 @@ export function CloudProvider({ children }: { children: ReactNode }) {
       lastSyncedAt,
       error,
       linkSent,
+      pendingEmail,
+      resendIn,
       signIn,
+      verifyCode,
+      resend,
+      cancelSignIn,
       signOut,
       syncNow,
     }),
-    [status, session, lastSyncedAt, error, linkSent, signIn, signOut, syncNow],
+    [
+      status,
+      session,
+      lastSyncedAt,
+      error,
+      linkSent,
+      pendingEmail,
+      resendIn,
+      signIn,
+      verifyCode,
+      resend,
+      cancelSignIn,
+      signOut,
+      syncNow,
+    ],
   );
 
   return <CloudContext value={value}>{children}</CloudContext>;
