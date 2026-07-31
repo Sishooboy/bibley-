@@ -1,5 +1,4 @@
 import { AccountPanel } from '../components/AccountPanel';
-import { BackupPanel } from '../components/BackupPanel';
 import { PLANS, PLAN_ORDER } from '../data/plans';
 import { formatNumber, plural } from '../lib/format';
 import { formatTime } from '../lib/prefs';
@@ -17,7 +16,7 @@ export function SettingsView() {
     <div className="container statsView">
       <div className="sectionHead">
         <div>
-          <p className="eyebrow">Account, reminders and your data</p>
+          <p className="eyebrow">Account, plan and reminders</p>
           <h2>Settings</h2>
         </div>
       </div>
@@ -137,7 +136,6 @@ export function SettingsView() {
           </p>
         </section>
 
-        <BackupPanel />
       </div>
     </div>
   );

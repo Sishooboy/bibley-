@@ -14,9 +14,9 @@ anywhere if you'd rather not run the dev server.
 ## How it works
 
 - **Stack:** Vite + React + TypeScript. No backend, no accounts, no network calls at runtime.
-- **Storage:** everything lives in one `localStorage` key, `bible-journey/v1`, as a single JSON blob:
-  `{ version, read, notes, startedAt, backedUpAt }`. Export and restore are wired to that exact
-  shape, so a downloaded file is a complete journal.
+- **Storage:** the journal is one row per account in Supabase, mirrored into a single
+  `localStorage` key, `bible-journey/v1`, so the app is instant and works offline. Sign in on any
+  device and the same journal is there.
 - **Everything is account data.** Progress, notes, the chosen plan and the reminder settings all
   live in the synced journal. The only thing kept per device is which day that device last fired a
   notification, since that records what a device did rather than what the reader wants.
@@ -24,7 +24,7 @@ anywhere if you'd rather not run the dev server.
   before the first save of each new day. A primary record that exists but will not parse is copied
   to `bible-journey/v1.corrupt.<timestamp>` instead of being overwritten, and the app falls back to
   the daily copy. The app also calls `navigator.storage.persist()` to ask the browser not to evict
-  the origin. Manual export stays the only real off-device backup.
+  the origin. Those layers protect the local cache; the server row is the copy that matters.
 - **Read map:** `read` is keyed `"<Book>|<chapter>"` and holds the local day (`YYYY-MM-DD`) the
   chapter was marked. John's 21 chapters are seeded with `null`, which is what "read before the
   journal started" means. They count toward totals but never toward streaks, pace, or charts.

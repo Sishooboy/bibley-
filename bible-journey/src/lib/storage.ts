@@ -194,30 +194,8 @@ export async function requestPersistence(): Promise<boolean> {
   }
 }
 
-export async function isPersisted(): Promise<boolean> {
-  try {
-    return (await navigator.storage?.persisted?.()) ?? false;
-  } catch {
-    return false;
-  }
-}
 
-/** Age and size of the daily safety copy, read from storage rather than memory. */
-export function backupInfo(): { exists: boolean; day: DayKey | null; chapters: number } {
-  try {
-    const raw = localStorage.getItem(BACKUP_KEY);
-    if (!raw) return { exists: false, day: null, chapters: 0 };
-    const parsed = JSON.parse(raw) as Partial<AppData>;
-    const chapters = Object.values(parsed.read ?? {}).filter(Boolean).length;
-    return { exists: true, day: parsed.backedUpAt ?? null, chapters };
-  } catch {
-    return { exists: false, day: null, chapters: 0 };
-  }
-}
 
-export function exportFilename(): string {
-  return `bibley-backup-${today()}.json`;
-}
 
 export function newId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
