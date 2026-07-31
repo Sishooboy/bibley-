@@ -1,3 +1,6 @@
 # Never commit provider credentials
 client_secret*.json
 *.pem
+
+# Exported journals are personal data, not source
+bibley-backup-*.json
