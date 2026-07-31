@@ -38,9 +38,18 @@ anywhere if you'd rather not run the dev server.
 - **Touch:** all form controls are 16px on coarse pointers, which is what stops iOS from zooming
   into a focused field and leaving the page pannable sideways.
 
-## Sync
+## Accounts and sync
 
-Optional and local-first. Without a session the app is exactly what it was: local storage only.
+Sign-in is required whenever a Supabase project is configured: no session, no app. A build with
+no `VITE_SUPABASE_*` values falls through to a local-only journal with a visible banner, since
+gating there would lock everyone out of a working app with no way back in.
+
+The local cache is stamped with `ownerId`. An unstamped journal (from before any sign-in) merges
+into the first account that claims it, so nothing you logged before signing up is lost. A cache
+stamped with a *different* account is replaced by that account's server copy rather than merged,
+which keeps two people sharing a browser from pooling their progress.
+
+Local-first still holds. Without a session the app is exactly what it was: local storage only.
 Sign in and the same journal is mirrored to Supabase so a phone and a laptop stay in step.
 
 - **Auth:** magic link, no passwords stored anywhere.

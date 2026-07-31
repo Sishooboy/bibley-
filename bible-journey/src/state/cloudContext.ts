@@ -3,6 +3,8 @@ import { createContext } from 'react';
 export type CloudStatus =
   /** No Supabase project configured: the app is purely local. */
   | 'off'
+  /** Restoring a stored session. Gating on this avoids a sign-in flash on reload. */
+  | 'loading'
   | 'signed-out'
   | 'syncing'
   | 'synced'

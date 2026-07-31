@@ -29,6 +29,12 @@ export type AppData = {
   startedAt: DayKey;
   /** Day of the last backup snapshot, so we only take one per day. */
   backedUpAt?: DayKey;
+  /**
+   * Which account this cache belongs to. Undefined means it predates any sign-in,
+   * so it merges into the first account that claims it. A mismatch means another
+   * account used this browser, and the cache is replaced rather than merged.
+   */
+  ownerId?: string;
 };
 
 export type LoadResult = {
@@ -81,6 +87,7 @@ export function normalize(input: unknown): AppData | null {
     notes,
     startedAt: typeof raw.startedAt === 'string' ? raw.startedAt : today(),
     backedUpAt: typeof raw.backedUpAt === 'string' ? raw.backedUpAt : undefined,
+    ownerId: typeof raw.ownerId === 'string' ? raw.ownerId : undefined,
   };
 }
 

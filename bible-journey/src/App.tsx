@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { SignInScreen } from './components/SignInScreen';
 import { SyncBadge } from './components/SyncBadge';
 import { UndoBar } from './components/UndoBar';
 import { CloudProvider } from './state/cloud';
+import { useCloud } from './state/useCloud';
 import { StoreProvider } from './state/store';
 import { JourneyView } from './views/JourneyView';
 import { NotesView } from './views/NotesView';
@@ -65,11 +67,35 @@ function Shell() {
   );
 }
 
+/**
+ * The app is behind a sign-in wall whenever a cloud project is configured. If it
+ * isn't (a build with no Supabase env vars), gating would lock everyone out of a
+ * perfectly working local journal, so it falls through with a visible warning.
+ */
+function Gate() {
+  const { status, email } = useCloud();
+
+  if (status === 'off') {
+    return (
+      <>
+        <p className="configWarning">
+          No cloud project configured for this build. Progress stays on this device only.
+        </p>
+        <Shell />
+      </>
+    );
+  }
+
+  if (status === 'loading') return <div className="gate" aria-busy="true" />;
+
+  return email ? <Shell /> : <SignInScreen />;
+}
+
 export default function App() {
   return (
     <StoreProvider>
       <CloudProvider>
-        <Shell />
+        <Gate />
       </CloudProvider>
     </StoreProvider>
   );

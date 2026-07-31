@@ -1,6 +1,7 @@
 import { useCloud } from '../state/useCloud';
 
 const LABELS: Record<string, string> = {
+  loading: 'Checking',
   'signed-out': 'Local only',
   syncing: 'Syncing',
   synced: 'Synced',

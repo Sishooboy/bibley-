@@ -1,7 +1,7 @@
 import type { Session } from '@supabase/supabase-js';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { mergeJournals, sameJournal } from '../lib/merge';
-import { normalize, type AppData } from '../lib/storage';
+import { emptyData, normalize, type AppData } from '../lib/storage';
 import { JOURNALS_TABLE, cloudConfigured, supabase } from '../lib/supabase';
 import { CloudContext, type Cloud, type CloudStatus } from './cloudContext';
 import { useStore } from './useStore';
@@ -12,7 +12,8 @@ const PUSH_DELAY_MS = 1500;
 export function CloudProvider({ children }: { children: ReactNode }) {
   const { data, mergeRemote } = useStore();
   const [session, setSession] = useState<Session | null>(null);
-  const [status, setStatus] = useState<CloudStatus>(cloudConfigured ? 'signed-out' : 'off');
+  const [status, setStatus] = useState<CloudStatus>(cloudConfigured ? 'loading' : 'off');
+  const [ready, setReady] = useState(!cloudConfigured);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [linkSent, setLinkSent] = useState(false);
@@ -23,7 +24,10 @@ export function CloudProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!supabase) return;
-    void supabase.auth.getSession().then(({ data: result }) => setSession(result.session));
+    void supabase.auth.getSession().then(({ data: result }) => {
+      setSession(result.session);
+      setReady(true);
+    });
     const { data: listener } = supabase.auth.onAuthStateChange((_event, next) => {
       setSession(next);
       if (next) setLinkSent(false);
@@ -58,13 +62,24 @@ export function CloudProvider({ children }: { children: ReactNode }) {
 
       const local = dataRef.current;
       const remote = row ? normalize(row.data) : null;
+      // A cache stamped with a different account belongs to someone else's
+      // journal, so it is replaced outright instead of merged into this one.
+      const foreignCache = local.ownerId !== undefined && local.ownerId !== userId;
 
       if (!remote) {
-        // First device for this account: seed the row from what's on this one.
-        await push(local, userId);
+        const seed = foreignCache
+          ? { ...emptyData(), ownerId: userId }
+          : { ...local, ownerId: userId };
+        if (foreignCache) mergeRemote(seed);
+        else if (local.ownerId !== userId) mergeRemote(seed);
+        // First device for this account: seed the row from what is on this one.
+        await push(seed, userId);
+      } else if (foreignCache) {
+        const claimed = { ...remote, ownerId: userId };
+        mergeRemote(claimed);
       } else {
-        const merged = mergeJournals(local, remote);
-        if (!sameJournal(merged, local)) mergeRemote(merged);
+        const merged = { ...mergeJournals(local, remote), ownerId: userId };
+        if (!sameJournal(merged, local) || local.ownerId !== userId) mergeRemote(merged);
         if (!sameJournal(merged, remote)) await push(merged, userId);
       }
 
@@ -79,9 +94,10 @@ export function CloudProvider({ children }: { children: ReactNode }) {
 
   // Pull whenever a session appears, and whenever the tab comes back into view.
   useEffect(() => {
+    if (!ready) return;
     if (session) void syncNow();
     else if (cloudConfigured) setStatus('signed-out');
-  }, [session, syncNow]);
+  }, [ready, session, syncNow]);
 
   useEffect(() => {
     if (!session) return;
