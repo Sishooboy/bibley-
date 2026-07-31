@@ -54,7 +54,7 @@ export function SettingsView() {
             />
           </div>
 
-          <div className="settingRow">
+          <div className="settingRow settingRow--stack">
             <label className="settingRow__main" htmlFor="reminder-time">
               <span className="settingRow__label">Time of day</span>
               <span className="settingRow__hint">Late enough that you've had a chance to read</span>
