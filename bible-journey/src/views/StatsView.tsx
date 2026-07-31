@@ -12,6 +12,7 @@ import {
   YAxis,
 } from 'recharts';
 import { ProgressBar } from '../components/ProgressBar';
+import { ViewHeader } from '../components/ViewHeader';
 import { formatDay, today } from '../lib/dates';
 import { formatNumber, plural } from '../lib/format';
 import { cumulative, last30Days } from '../lib/progress';
@@ -63,14 +64,20 @@ export function StatsView() {
   const tickStyle = { fill: MUTED, fontSize: 11, fontFamily: 'Inter Variable, sans-serif' };
 
   return (
-    <div className="container statsView">
-      <div className="sectionHead">
-        <div>
-          <p className="eyebrow">How it’s actually going</p>
-          <h2>Stats</h2>
-        </div>
-      </div>
+    <>
+      <ViewHeader
+        eyebrow="How it’s actually going"
+        title="Stats"
+        lede="Pace, streaks and where the chapters have gone."
+        aside={
+          <>
+            <span className="viewHead__stat">{overall.percent.toFixed(1)}%</span>
+            <span className="viewHead__statLabel">of {formatNumber(overall.planTotal)} chapters</span>
+          </>
+        }
+      />
 
+      <div className="container statsView">
       <div className="tiles">
         <div className="tile">
           <span className="tile__label">Chapters read</span>
@@ -276,5 +283,6 @@ export function StatsView() {
 
       </div>
     </div>
+    </>
   );
 }

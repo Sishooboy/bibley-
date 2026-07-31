@@ -1,4 +1,5 @@
 import { AccountPanel } from '../components/AccountPanel';
+import { ViewHeader } from '../components/ViewHeader';
 import { PLANS, PLAN_ORDER } from '../data/plans';
 import { formatNumber, plural } from '../lib/format';
 import { formatTime } from '../lib/prefs';
@@ -13,14 +14,14 @@ export function SettingsView() {
   const unsupported = permission === 'unsupported';
 
   return (
-    <div className="container statsView">
-      <div className="sectionHead">
-        <div>
-          <p className="eyebrow">Account, plan and reminders</p>
-          <h2>Settings</h2>
-        </div>
-      </div>
+    <>
+      <ViewHeader
+        eyebrow="Account, plan and reminders"
+        title="Settings"
+        lede="Everything here is saved to your account, not this device."
+      />
 
+      <div className="container statsView">
       <div className="charts">
         <section className="chartBlock backup">
           <div className="chartBlock__head">
@@ -138,5 +139,6 @@ export function SettingsView() {
 
       </div>
     </div>
+    </>
   );
 }

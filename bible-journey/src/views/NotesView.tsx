@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { ViewHeader } from '../components/ViewHeader';
 import { plural } from '../lib/format';
 import type { Plan } from '../data/plans';
 import type { Note } from '../lib/storage';
@@ -131,14 +132,20 @@ export function NotesView() {
   }, [data.notes, query, phaseFilter, bookFilter, plan]);
 
   return (
-    <div className="container notesView">
-      <div className="sectionHead">
-        <div>
-          <p className="eyebrow">Everything you wrote down</p>
-          <h2>My notes</h2>
-        </div>
-      </div>
+    <>
+      <ViewHeader
+        eyebrow="Everything you wrote down"
+        title="My notes"
+        lede="Verses that stuck, questions, summaries. Searchable, and filed by phase."
+        aside={
+          <>
+            <span className="viewHead__stat">{data.notes.length}</span>
+            <span className="viewHead__statLabel">{data.notes.length === 1 ? 'note' : 'notes'}</span>
+          </>
+        }
+      />
 
+      <div className="container notesView">
       <div className="notesBar">
         <input
           className="field"
@@ -194,5 +201,6 @@ export function NotesView() {
         </div>
       )}
     </div>
+    </>
   );
 }
