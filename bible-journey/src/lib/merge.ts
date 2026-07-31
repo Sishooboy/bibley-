@@ -10,13 +10,21 @@ import type { AppData, Note, ReadMap } from './storage';
  * tombstone removes the chapter unless it was read again afterwards.
  */
 export function mergeJournals(a: AppData, b: AppData): AppData {
-  const removed = mergeRemoved(a.removed, b.removed);
-  const read = applyRemovals(mergeRead(a.read, b.read), removed);
+  const markedAt = mergeStamps(a.markedAt, b.markedAt);
+  const removed = mergeStamps(a.removed, b.removed);
+  // A mark that came after its tombstone retires it, so the pair can't keep
+  // re-fighting on every sync.
+  for (const [key, at] of Object.entries(removed)) {
+    if (markedAt[key] && markedAt[key] > at) delete removed[key];
+  }
+
+  const read = applyRemovals(mergeRead(a.read, b.read), removed, markedAt);
 
   return {
     version: 1,
     read,
     removed: Object.keys(removed).length > 0 ? removed : undefined,
+    markedAt: Object.keys(markedAt).length > 0 ? markedAt : undefined,
     notes: mergeNotes(a.notes, b.notes),
     startedAt: a.startedAt < b.startedAt ? a.startedAt : b.startedAt,
     backedUpAt: a.backedUpAt,
@@ -39,7 +47,8 @@ function mergeRead(a: ReadMap, b: ReadMap): ReadMap {
   return out;
 }
 
-function mergeRemoved(
+/** Latest timestamp per key wins. Used for both marks and tombstones. */
+function mergeStamps(
   a: Record<string, string> = {},
   b: Record<string, string> = {},
 ): Record<string, string> {
@@ -50,14 +59,28 @@ function mergeRemoved(
   return out;
 }
 
-/** A read entry survives its tombstone only if it was logged on a later day. */
-function applyRemovals(read: ReadMap, removed: Record<string, string>): ReadMap {
+/**
+ * A tombstone removes a chapter unless it was marked again afterwards. Journals
+ * written before marks were timestamped fall back to comparing days, which is
+ * the best that data supports.
+ */
+function applyRemovals(
+  read: ReadMap,
+  removed: Record<string, string>,
+  markedAt: Record<string, string>,
+): ReadMap {
   const out = { ...read };
   for (const [key, at] of Object.entries(removed)) {
     if (!(key in out)) continue;
     const value = out[key];
+    // null is the "read before this journal existed" marker: never tombstoned.
     if (value === null) continue;
-    if (value > at.slice(0, 10)) continue;
+    const marked = markedAt[key];
+    if (marked) {
+      if (marked > at) continue;
+    } else if (value > at.slice(0, 10)) {
+      continue;
+    }
     delete out[key];
   }
   return out;

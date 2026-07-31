@@ -40,6 +40,11 @@ export type AppData = {
    * union merge treats a deletion as "missing" and helpfully restores it.
    */
   removed?: Record<string, string>;
+  /**
+   * When each chapter was last marked. `read` only holds the day, which cannot
+   * settle a clear and a re-mark that happen on the same day. This can.
+   */
+  markedAt?: Record<string, string>;
 };
 
 export type LoadResult = {
@@ -94,9 +99,11 @@ export function normalize(input: unknown): AppData | null {
     backedUpAt: typeof raw.backedUpAt === 'string' ? raw.backedUpAt : undefined,
     ownerId: typeof raw.ownerId === 'string' ? raw.ownerId : undefined,
     removed: normalizeRemoved(raw.removed),
+    markedAt: normalizeRemoved(raw.markedAt),
   };
 }
 
+/** Shared shape: chapter key to ISO timestamp. Used by `removed` and `markedAt`. */
 function normalizeRemoved(input: unknown): Record<string, string> | undefined {
   if (typeof input !== 'object' || input === null) return undefined;
   const out: Record<string, string> = {};

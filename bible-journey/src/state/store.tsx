@@ -49,12 +49,23 @@ function tombstone(data: AppData, keys: string[]): Record<string, string> {
   return removed;
 }
 
-/** Reading it again retracts the tombstone. */
+/** Reading it again retracts the tombstone and stamps when that happened. */
 function untomb(data: AppData, keys: string[]): Record<string, string> | undefined {
   if (!data.removed) return undefined;
   const removed = { ...data.removed };
   for (const key of keys) delete removed[key];
   return Object.keys(removed).length > 0 ? removed : undefined;
+}
+
+/**
+ * A mark has to out-rank a tombstone made the same day, so record the moment
+ * rather than relying on the reading day alone.
+ */
+function stampMarks(data: AppData, keys: string[]): Record<string, string> {
+  const at = new Date().toISOString();
+  const markedAt = { ...(data.markedAt ?? {}) };
+  for (const key of keys) markedAt[key] = at;
+  return markedAt;
 }
 
 function reducer(state: State, action: Action): State {
@@ -70,7 +81,15 @@ function reducer(state: State, action: Action): State {
         return { ...state, data: { ...data, read, removed: tombstone(data, [key]) } };
       }
       read[key] = today();
-      return { ...state, data: { ...data, read, removed: untomb(data, [key]) } };
+      return {
+        ...state,
+        data: {
+          ...data,
+          read,
+          removed: untomb(data, [key]),
+          markedAt: stampMarks(data, [key]),
+        },
+      };
     }
     case 'markNext': {
       const refs = nextUnread(data.read, action.count);
@@ -82,7 +101,11 @@ function reducer(state: State, action: Action): State {
         refs.length === 1
           ? `Marked ${refs[0].book} ${refs[0].chapter}`
           : `Marked ${refs.length} chapters`;
-      return withUndo(state, { ...data, read, removed: untomb(data, keys) }, label);
+      return withUndo(
+        state,
+        { ...data, read, removed: untomb(data, keys), markedAt: stampMarks(data, keys) },
+        label,
+      );
     }
     case 'markThrough': {
       const read = { ...data.read };
@@ -96,7 +119,7 @@ function reducer(state: State, action: Action): State {
       if (marked.length === 0) return state;
       return withUndo(
         state,
-        { ...data, read, removed: untomb(data, marked) },
+        { ...data, read, removed: untomb(data, marked), markedAt: stampMarks(data, marked) },
         `Marked ${action.book} through ${action.chapter}`,
       );
     }
