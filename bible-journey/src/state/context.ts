@@ -7,6 +7,7 @@ import type {
   Streak,
 } from '../lib/progress';
 import type { Plan, PlanId } from '../data/plans';
+import type { Prefs } from '../lib/prefs';
 import type { AppData, LoadResult, Note } from '../lib/storage';
 
 export type Derived = {
@@ -41,6 +42,7 @@ export type Store = {
   /** Applies an already-merged journal pulled from the cloud. Not undoable. */
   mergeRemote: (data: AppData) => void;
   choosePlan: (id: PlanId) => void;
+  setPrefs: (prefs: Prefs) => void;
   undo: () => void;
 };
 

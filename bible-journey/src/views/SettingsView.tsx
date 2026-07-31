@@ -63,7 +63,8 @@ export function SettingsView() {
             <div>
               <h3>Daily reminder</h3>
               <p className="chartBlock__note">
-                One nudge a day, only if you haven't read yet. No nudge on days you already have.
+                One nudge a day, only if you haven't read yet. Saved to your account, so it
+                follows you to every device you sign in on.
               </p>
             </div>
           </div>

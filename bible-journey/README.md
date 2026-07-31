@@ -17,6 +17,9 @@ anywhere if you'd rather not run the dev server.
 - **Storage:** everything lives in one `localStorage` key, `bible-journey/v1`, as a single JSON blob:
   `{ version, read, notes, startedAt, backedUpAt }`. Export and restore are wired to that exact
   shape, so a downloaded file is a complete journal.
+- **Everything is account data.** Progress, notes, the chosen plan and the reminder settings all
+  live in the synced journal. The only thing kept per device is which day that device last fired a
+  notification, since that records what a device did rather than what the reader wants.
 - **Durability:** three layers. `bible-journey/v1.backup` holds the previous day's copy, written
   before the first save of each new day. A primary record that exists but will not parse is copied
   to `bible-journey/v1.corrupt.<timestamp>` instead of being overwritten, and the app falls back to

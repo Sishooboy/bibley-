@@ -30,7 +30,15 @@ export function mergeJournals(a: AppData, b: AppData): AppData {
     startedAt: a.startedAt < b.startedAt ? a.startedAt : b.startedAt,
     backedUpAt: a.backedUpAt,
     ownerId: a.ownerId ?? b.ownerId,
+    prefs: newerPrefs(a.prefs, b.prefs),
   };
+}
+
+/** Settings are a single small object, so the later edit simply wins. */
+function newerPrefs(a: AppData['prefs'], b: AppData['prefs']): AppData['prefs'] {
+  if (!a) return b;
+  if (!b) return a;
+  return (b.updatedAt ?? '') > (a.updatedAt ?? '') ? b : a;
 }
 
 function mergeRead(a: ReadMap, b: ReadMap): ReadMap {

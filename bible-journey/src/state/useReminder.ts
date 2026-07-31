@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import { today } from '../lib/dates';
-import { loadPrefs, reminderDue, savePrefs, type Prefs } from '../lib/prefs';
+import {
+  DEFAULT_PREFS,
+  loadNotifiedDay,
+  reminderDue,
+  saveNotifiedDay,
+  type Prefs,
+} from '../lib/prefs';
 import { nextUnread, readsByDay } from '../lib/progress';
 import { useStore } from './useStore';
 
@@ -17,8 +23,8 @@ export type ReminderState = {
 };
 
 export function useReminder(): ReminderState {
-  const { data, derived } = useStore();
-  const [prefs, setPrefsState] = useState<Prefs>(loadPrefs);
+  const { data, derived, setPrefs } = useStore();
+  const prefs = data.prefs ?? DEFAULT_PREFS;
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>(
     typeof Notification === 'undefined' ? 'unsupported' : Notification.permission,
   );
@@ -27,14 +33,14 @@ export function useReminder(): ReminderState {
   const readToday = (readsByDay(data.read).get(today()) ?? 0) > 0;
   const streakAtRisk = derived.streak.current > 0 && !readToday;
 
-  const setPrefs = (next: Prefs) => {
-    setPrefsState(next);
-    savePrefs(next);
-  };
-
   function notify(body: string) {
     if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
-    new Notification('Bibley', { body, icon: '/icon-192.png', badge: '/icon-192.png', tag: 'bibley-daily' });
+    new Notification('Bibley', {
+      body,
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      tag: 'bibley-daily',
+    });
   }
 
   const notifyNow = () => {
@@ -49,7 +55,7 @@ export function useReminder(): ReminderState {
   }, []);
 
   useEffect(() => {
-    if (readToday || !reminderDue(prefs)) return;
+    if (readToday || !reminderDue(prefs, loadNotifiedDay())) return;
     const next = nextUnread(data.read, 1, derived.plan)[0];
     const streakLine =
       derived.streak.current > 0
@@ -58,10 +64,10 @@ export function useReminder(): ReminderState {
     notify(
       next ? `${streakLine}Next up: ${next.book} ${next.chapter}.` : `${streakLine}Time to read.`,
     );
-    setPrefs({ ...prefs, lastNotifiedDay: today() });
+    saveNotifiedDay(today());
     // `tick` drives the re-check; the rest are inputs to the message.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tick, readToday, prefs.remindersEnabled, prefs.reminderTime, prefs.lastNotifiedDay]);
+  }, [tick, readToday, prefs.remindersEnabled, prefs.reminderTime]);
 
   const requestPermission = async () => {
     if (typeof Notification === 'undefined') return;

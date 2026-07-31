@@ -1,17 +1,14 @@
 import { today, type DayKey } from './dates';
 
-const PREFS_KEY = 'bible-journey/prefs';
+/** Only a device event log lives here now: the settings themselves are synced. */
+const NOTIFIED_KEY = 'bible-journey/notified';
 
-/**
- * Device-level settings, deliberately not synced. A reminder time that makes
- * sense on your phone is not one you want firing on a laptop at work.
- */
 export type Prefs = {
   remindersEnabled: boolean;
   /** 24h `HH:MM`. */
   reminderTime: string;
-  /** Guards against nagging twice in one day. */
-  lastNotifiedDay?: DayKey;
+  /** Set on every change so two devices can be compared. */
+  updatedAt?: string;
 };
 
 export const DEFAULT_PREFS: Prefs = {
@@ -19,35 +16,43 @@ export const DEFAULT_PREFS: Prefs = {
   reminderTime: '20:00',
 };
 
-export function loadPrefs(): Prefs {
+export function normalizePrefs(input: unknown): Prefs | undefined {
+  if (typeof input !== 'object' || input === null) return undefined;
+  const raw = input as Partial<Prefs>;
+  return {
+    remindersEnabled: raw.remindersEnabled === true,
+    reminderTime: /^\d{2}:\d{2}$/.test(raw.reminderTime ?? '')
+      ? (raw.reminderTime as string)
+      : DEFAULT_PREFS.reminderTime,
+    updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : undefined,
+  };
+}
+
+/**
+ * Which day this device last fired a notification. Deliberately not synced: it
+ * records what a device did, not what the reader wants, and syncing it would let
+ * one device's nudge silence another's.
+ */
+export function loadNotifiedDay(): DayKey | null {
   try {
-    const raw = localStorage.getItem(PREFS_KEY);
-    if (!raw) return DEFAULT_PREFS;
-    const parsed = JSON.parse(raw) as Partial<Prefs>;
-    return {
-      remindersEnabled: parsed.remindersEnabled === true,
-      reminderTime: /^\d{2}:\d{2}$/.test(parsed.reminderTime ?? '')
-        ? (parsed.reminderTime as string)
-        : DEFAULT_PREFS.reminderTime,
-      lastNotifiedDay: typeof parsed.lastNotifiedDay === 'string' ? parsed.lastNotifiedDay : undefined,
-    };
+    return localStorage.getItem(NOTIFIED_KEY);
   } catch {
-    return DEFAULT_PREFS;
+    return null;
   }
 }
 
-export function savePrefs(prefs: Prefs): void {
+export function saveNotifiedDay(day: DayKey): void {
   try {
-    localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+    localStorage.setItem(NOTIFIED_KEY, day);
   } catch (err) {
-    console.error('Could not save settings.', err);
+    console.error('Could not record the reminder.', err);
   }
 }
 
 /** True once the clock has passed the reminder time today. */
-export function reminderDue(prefs: Prefs, now = new Date()): boolean {
+export function reminderDue(prefs: Prefs, notifiedDay: DayKey | null, now = new Date()): boolean {
   if (!prefs.remindersEnabled) return false;
-  if (prefs.lastNotifiedDay === today()) return false;
+  if (notifiedDay === today()) return false;
   const [h, m] = prefs.reminderTime.split(':').map(Number);
   return now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m);
 }

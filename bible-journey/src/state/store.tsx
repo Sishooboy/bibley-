@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer, type ReactNode } from 'react';
 import { getPlan, type PlanId } from '../data/plans';
+import type { Prefs } from '../lib/prefs';
 import { today } from '../lib/dates';
 import {
   nextUnread,
@@ -31,6 +32,7 @@ type Action =
   | { type: 'importData'; data: AppData }
   | { type: 'mergeRemote'; data: AppData }
   | { type: 'choosePlan'; id: PlanId }
+  | { type: 'setPrefs'; prefs: Prefs }
   | { type: 'undo' };
 
 type State = {
@@ -188,6 +190,11 @@ function reducer(state: State, action: Action): State {
       // Progress is keyed by book and chapter, so switching plans keeps every
       // chapter that both plans contain.
       return { ...state, data: { ...data, planId: action.id } };
+    case 'setPrefs':
+      return {
+        ...state,
+        data: { ...data, prefs: { ...action.prefs, updatedAt: new Date().toISOString() } },
+      };
     case 'importData':
       return withUndo(state, action.data, 'Restored from file');
     case 'mergeRemote':
@@ -254,6 +261,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       importData: (imported) => dispatch({ type: 'importData', data: imported }),
       mergeRemote: (merged) => dispatch({ type: 'mergeRemote', data: merged }),
       choosePlan: (id) => dispatch({ type: 'choosePlan', id }),
+      setPrefs: (prefs) => dispatch({ type: 'setPrefs', prefs }),
       undo: () => dispatch({ type: 'undo' }),
     }),
     [data, derived, load, undoable, noteFor],

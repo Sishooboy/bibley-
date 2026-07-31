@@ -1,4 +1,5 @@
 import { isPlanId, type PlanId } from '../data/plans';
+import { normalizePrefs, type Prefs } from './prefs';
 import type { DayKey } from './dates';
 import { today } from './dates';
 
@@ -48,6 +49,8 @@ export type AppData = {
    * settle a clear and a re-mark that happen on the same day. This can.
    */
   markedAt?: Record<string, string>;
+  /** Reader settings, synced so they follow the account rather than the device. */
+  prefs?: Prefs;
 };
 
 export type LoadResult = {
@@ -104,6 +107,7 @@ export function normalize(input: unknown): AppData | null {
     ownerId: typeof raw.ownerId === 'string' ? raw.ownerId : undefined,
     removed: normalizeRemoved(raw.removed),
     markedAt: normalizeRemoved(raw.markedAt),
+    prefs: normalizePrefs(raw.prefs),
   };
 }
 
