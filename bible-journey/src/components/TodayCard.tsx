@@ -1,8 +1,9 @@
 import { PHASES, PROLOGUE_PHASE, PROLOGUE_WHY, TOTAL_CHAPTER_COUNT } from '../data/plan';
 import { formatNumber, formatRefs } from '../lib/format';
 import { nextUnread } from '../lib/progress';
+import { useReminder } from '../state/useReminder';
 import { useStore } from '../state/useStore';
-import { Check } from './icons';
+import { Check, Flame } from './icons';
 
 const SUGGESTION_SIZE = 3;
 /** One tap for however much you actually got through. */
@@ -10,6 +11,7 @@ const QUICK_AMOUNTS = [1, 3, 5, 10];
 
 export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }) {
   const { data, markNext, derived } = useStore();
+  const { streakAtRisk } = useReminder();
   const refs = nextUnread(data.read, SUGGESTION_SIZE);
 
   if (refs.length === 0) {
@@ -33,6 +35,13 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
 
   return (
     <section className="panel" aria-label="Today's reading">
+      {streakAtRisk && (
+        <p className="riskNote">
+          <Flame size={14} />
+          Your {derived.streak.current} day streak is still waiting on today.
+        </p>
+      )}
+
       <div className="today__head">
         <p className="eyebrow">Today’s reading</p>
         <p className="today__rest" style={{ marginTop: 0 }}>

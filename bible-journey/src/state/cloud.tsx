@@ -20,6 +20,8 @@ export function CloudProvider({ children }: { children: ReactNode }) {
   // The pushers read through a ref so they never capture stale journal state.
   const dataRef = useRef(data);
   dataRef.current = data;
+  /** Local edits not yet written to the server. */
+  const dirtyRef = useRef(false);
 
   useEffect(() => {
     if (!supabase) return;
@@ -51,6 +53,13 @@ export function CloudProvider({ children }: { children: ReactNode }) {
     setStatus('syncing');
     setError(null);
     try {
+      // Flush local edits first. Pulling while a deletion is still only local
+      // would merge it against a server copy that still has the chapter.
+      if (dirtyRef.current) {
+        await push(dataRef.current, userId);
+        dirtyRef.current = false;
+      }
+
       const { data: row, error: readError } = await supabase
         .from(JOURNALS_TABLE)
         .select('data')
@@ -114,10 +123,12 @@ export function CloudProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const userId = session?.user.id;
     if (!supabase || !userId) return;
+    dirtyRef.current = true;
     const timer = setTimeout(() => {
       setStatus('syncing');
       push(data, userId)
         .then(() => {
+          dirtyRef.current = false;
           setStatus('synced');
           setLastSyncedAt(new Date().toISOString());
         })

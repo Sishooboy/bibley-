@@ -41,6 +41,22 @@ function withUndo(state: State, data: AppData, label: string): State {
   return { data, previous: { data: state.data, label } };
 }
 
+/** Unmarking has to be recorded, or the next union merge quietly restores it. */
+function tombstone(data: AppData, keys: string[]): Record<string, string> {
+  const at = new Date().toISOString();
+  const removed = { ...(data.removed ?? {}) };
+  for (const key of keys) removed[key] = at;
+  return removed;
+}
+
+/** Reading it again retracts the tombstone. */
+function untomb(data: AppData, keys: string[]): Record<string, string> | undefined {
+  if (!data.removed) return undefined;
+  const removed = { ...data.removed };
+  for (const key of keys) delete removed[key];
+  return Object.keys(removed).length > 0 ? removed : undefined;
+}
+
 function reducer(state: State, action: Action): State {
   const { data } = state;
 
@@ -49,45 +65,57 @@ function reducer(state: State, action: Action): State {
       // Self-reversing, so it deliberately doesn't consume the undo slot.
       const key = chapterKey(action.book, action.chapter);
       const read = { ...data.read };
-      if (key in read) delete read[key];
-      else read[key] = today();
-      return { ...state, data: { ...data, read } };
+      if (key in read) {
+        delete read[key];
+        return { ...state, data: { ...data, read, removed: tombstone(data, [key]) } };
+      }
+      read[key] = today();
+      return { ...state, data: { ...data, read, removed: untomb(data, [key]) } };
     }
     case 'markNext': {
       const refs = nextUnread(data.read, action.count);
       if (refs.length === 0) return state;
       const read = { ...data.read };
-      for (const ref of refs) read[chapterKey(ref.book, ref.chapter)] = today();
+      const keys = refs.map((ref) => chapterKey(ref.book, ref.chapter));
+      for (const key of keys) read[key] = today();
       const label =
         refs.length === 1
           ? `Marked ${refs[0].book} ${refs[0].chapter}`
           : `Marked ${refs.length} chapters`;
-      return withUndo(state, { ...data, read }, label);
+      return withUndo(state, { ...data, read, removed: untomb(data, keys) }, label);
     }
     case 'markThrough': {
       const read = { ...data.read };
-      let added = 0;
+      const marked: string[] = [];
       for (let c = 1; c <= action.chapter; c++) {
         const key = chapterKey(action.book, c);
         if (key in read) continue;
         read[key] = today();
-        added++;
+        marked.push(key);
       }
-      if (added === 0) return state;
-      return withUndo(state, { ...data, read }, `Marked ${action.book} through ${action.chapter}`);
+      if (marked.length === 0) return state;
+      return withUndo(
+        state,
+        { ...data, read, removed: untomb(data, marked) },
+        `Marked ${action.book} through ${action.chapter}`,
+      );
     }
     case 'clearBook': {
       const read = { ...data.read };
-      let removed = 0;
+      const cleared: string[] = [];
       for (let c = 1; c <= action.chapters; c++) {
         const key = chapterKey(action.book, c);
         if (key in read) {
           delete read[key];
-          removed++;
+          cleared.push(key);
         }
       }
-      if (removed === 0) return state;
-      return withUndo(state, { ...data, read }, `Cleared ${action.book}`);
+      if (cleared.length === 0) return state;
+      return withUndo(
+        state,
+        { ...data, read, removed: tombstone(data, cleared) },
+        `Cleared ${action.book}`,
+      );
     }
     case 'saveNote': {
       const now = new Date().toISOString();

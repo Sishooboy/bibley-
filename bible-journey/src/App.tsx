@@ -9,12 +9,14 @@ import { useCloud } from './state/useCloud';
 import { StoreProvider } from './state/store';
 import { JourneyView } from './views/JourneyView';
 import { NotesView } from './views/NotesView';
+import { SettingsView } from './views/SettingsView';
 import { StatsView } from './views/StatsView';
 
 const VIEWS = [
   { id: 'journey', label: 'Journey' },
   { id: 'notes', label: 'Notes' },
   { id: 'stats', label: 'Stats' },
+  { id: 'settings', label: 'Settings' },
 ] as const;
 
 type ViewId = (typeof VIEWS)[number]['id'];
@@ -62,6 +64,7 @@ function Shell() {
         {view === 'journey' && <JourneyView />}
         {view === 'notes' && <NotesView />}
         {view === 'stats' && <StatsView />}
+        {view === 'settings' && <SettingsView />}
       </main>
 
       <UndoBar />

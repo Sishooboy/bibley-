@@ -1,23 +1,26 @@
 import type { AppData, Note, ReadMap } from './storage';
 
 /**
- * Union merge, deliberately.
+ * Adds win by union, deletions are explicit.
  *
- * Two devices editing the same journal can only disagree in ways this data shape
- * resolves without asking: a chapter is read or it isn't, and the earlier date is
- * the true one. Notes are per book and chapter, so the later edit wins.
- *
- * The tradeoff is that unmarking does not travel. Clear a chapter on your phone
- * while your laptop still has it, and the next merge brings it back. That is the
- * failure mode worth having: progress is never lost, only occasionally resurrected.
+ * A chapter is read or it isn't, so unioning the read maps and keeping the
+ * earlier date resolves two devices without asking anyone anything. Unmarking is
+ * the case a union gets wrong, since an absent key is indistinguishable from one
+ * the other device hasn't seen yet. So unmarking writes a tombstone, and a
+ * tombstone removes the chapter unless it was read again afterwards.
  */
 export function mergeJournals(a: AppData, b: AppData): AppData {
+  const removed = mergeRemoved(a.removed, b.removed);
+  const read = applyRemovals(mergeRead(a.read, b.read), removed);
+
   return {
     version: 1,
-    read: mergeRead(a.read, b.read),
+    read,
+    removed: Object.keys(removed).length > 0 ? removed : undefined,
     notes: mergeNotes(a.notes, b.notes),
     startedAt: a.startedAt < b.startedAt ? a.startedAt : b.startedAt,
     backedUpAt: a.backedUpAt,
+    ownerId: a.ownerId ?? b.ownerId,
   };
 }
 
@@ -30,11 +33,32 @@ function mergeRead(a: ReadMap, b: ReadMap): ReadMap {
     }
     const existing = out[key];
     // null means "read before the journal started", which outranks any date.
-    if (existing === null || value === null) {
-      out[key] = null;
-    } else {
-      out[key] = existing < value ? existing : value;
-    }
+    if (existing === null || value === null) out[key] = null;
+    else out[key] = existing < value ? existing : value;
+  }
+  return out;
+}
+
+function mergeRemoved(
+  a: Record<string, string> = {},
+  b: Record<string, string> = {},
+): Record<string, string> {
+  const out = { ...a };
+  for (const [key, at] of Object.entries(b)) {
+    if (!out[key] || at > out[key]) out[key] = at;
+  }
+  return out;
+}
+
+/** A read entry survives its tombstone only if it was logged on a later day. */
+function applyRemovals(read: ReadMap, removed: Record<string, string>): ReadMap {
+  const out = { ...read };
+  for (const [key, at] of Object.entries(removed)) {
+    if (!(key in out)) continue;
+    const value = out[key];
+    if (value === null) continue;
+    if (value > at.slice(0, 10)) continue;
+    delete out[key];
   }
   return out;
 }
@@ -60,6 +84,11 @@ export function sameJournal(a: AppData, b: AppData): boolean {
   if (aRead.length !== Object.keys(b.read).length) return false;
   for (const key of aRead) {
     if (!(key in b.read) || a.read[key] !== b.read[key]) return false;
+  }
+  const aRemoved = Object.keys(a.removed ?? {});
+  if (aRemoved.length !== Object.keys(b.removed ?? {}).length) return false;
+  for (const key of aRemoved) {
+    if (a.removed?.[key] !== b.removed?.[key]) return false;
   }
   for (const note of a.notes) {
     const match = b.notes.find((n) => n.id === note.id);

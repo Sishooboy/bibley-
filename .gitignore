@@ -1,0 +1,3 @@
+# Never commit provider credentials
+client_secret*.json
+*.pem

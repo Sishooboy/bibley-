@@ -1256,6 +1256,94 @@ select {
   color: var(--muted);
 }
 
+.riskNote {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fdf3dc;
+  border-left: 3px solid var(--yellow);
+  color: #6a5000;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.settingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding-block: 0.9rem;
+  border-top: 1px solid var(--line);
+}
+
+.settingRow__main {
+  display: grid;
+  gap: 0.15rem;
+  cursor: pointer;
+}
+
+.settingRow__label {
+  font-weight: 500;
+}
+
+.settingRow__hint {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.settingRow__time {
+  width: auto;
+  flex: none;
+  padding-block: 0.45rem;
+}
+
+/* A switch rather than a checkbox: this is a preference, not a form field. */
+.switch {
+  appearance: none;
+  width: 46px;
+  height: 27px;
+  flex: none;
+  border-radius: 99px;
+  background: var(--line-strong);
+  position: relative;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 160ms ease;
+}
+
+.switch:checked {
+  background: var(--red-600);
+}
+
+.switch:checked::after {
+  transform: translateX(19px);
+}
+
+.switch:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switch,
+  .switch::after {
+    transition: none;
+  }
+}
+
 .quickMark {
   margin-top: 1.1rem;
 }

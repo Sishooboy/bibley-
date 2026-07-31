@@ -35,6 +35,11 @@ export type AppData = {
    * account used this browser, and the cache is replaced rather than merged.
    */
   ownerId?: string;
+  /**
+   * Chapter keys that were deliberately unmarked, with when. Without these a
+   * union merge treats a deletion as "missing" and helpfully restores it.
+   */
+  removed?: Record<string, string>;
 };
 
 export type LoadResult = {
@@ -88,7 +93,17 @@ export function normalize(input: unknown): AppData | null {
     startedAt: typeof raw.startedAt === 'string' ? raw.startedAt : today(),
     backedUpAt: typeof raw.backedUpAt === 'string' ? raw.backedUpAt : undefined,
     ownerId: typeof raw.ownerId === 'string' ? raw.ownerId : undefined,
+    removed: normalizeRemoved(raw.removed),
   };
+}
+
+function normalizeRemoved(input: unknown): Record<string, string> | undefined {
+  if (typeof input !== 'object' || input === null) return undefined;
+  const out: Record<string, string> = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (key.includes('|') && typeof value === 'string') out[key] = value;
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
 }
 
 function readKey(key: string): AppData | null {

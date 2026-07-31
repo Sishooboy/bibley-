@@ -11,8 +11,6 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { AccountPanel } from '../components/AccountPanel';
-import { BackupPanel } from '../components/BackupPanel';
 import { ProgressBar } from '../components/ProgressBar';
 import { PHASES, PROLOGUE } from '../data/plan';
 import { formatDay, today } from '../lib/dates';
@@ -294,8 +292,6 @@ export function StatsView() {
           </div>
         </section>
 
-        <AccountPanel />
-        <BackupPanel />
       </div>
     </div>
   );
