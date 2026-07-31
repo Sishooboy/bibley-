@@ -3,6 +3,7 @@ import { SignInScreen } from './components/SignInScreen';
 import { SPLASH_MS, Splash } from './components/Splash';
 import { SyncBadge } from './components/SyncBadge';
 import { UndoBar } from './components/UndoBar';
+import { Menu } from './components/icons';
 import { returnedFromOAuth } from './lib/supabase';
 import { CloudProvider } from './state/cloud';
 import { useCloud } from './state/useCloud';
@@ -23,6 +24,24 @@ type ViewId = (typeof VIEWS)[number]['id'];
 
 function Shell() {
   const [view, setView] = useState<ViewId>('journey');
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Dismiss the small-screen menu the way a menu should be dismissable.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    const onPointer = (e: PointerEvent) => {
+      if (!(e.target as HTMLElement).closest('.topbar__right')) setMenuOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onPointer);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onPointer);
+    };
+  }, [menuOpen]);
 
   return (
     <div className="app">
@@ -43,14 +62,33 @@ function Shell() {
 
           <div className="topbar__right">
             <SyncBadge onOpenStats={() => setView('stats')} />
-            <nav className="nav" aria-label="Views">
+
+            <button
+              type="button"
+              className="menuBtn"
+              aria-expanded={menuOpen}
+              aria-controls="main-nav"
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              onClick={() => setMenuOpen((open) => !open)}
+            >
+              <Menu size={18} open={menuOpen} />
+            </button>
+
+            <nav
+              id="main-nav"
+              className={`nav${menuOpen ? ' nav--open' : ''}`}
+              aria-label="Views"
+            >
               {VIEWS.map((v) => (
                 <button
                   key={v.id}
                   type="button"
                   className="nav__item"
                   aria-current={view === v.id ? 'page' : undefined}
-                  onClick={() => setView(v.id)}
+                  onClick={() => {
+                    setView(v.id);
+                    setMenuOpen(false);
+                  }}
                 >
                   {v.label}
                 </button>

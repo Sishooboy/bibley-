@@ -34,6 +34,35 @@ export function Check({ size = 16, className }: IconProps) {
   );
 }
 
+export function Menu({ size = 18, className, open }: IconProps & { open?: boolean }) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 18 18"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      {open ? (
+        <>
+          <path d="m4 4 10 10" />
+          <path d="M14 4 4 14" />
+        </>
+      ) : (
+        <>
+          <path d="M2.5 5h13" />
+          <path d="M2.5 9h13" />
+          <path d="M2.5 13h13" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 export function Chevron({ size = 16, className }: IconProps) {
   return (
     <svg
