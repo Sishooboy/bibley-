@@ -3,8 +3,7 @@ import { TOTAL_BOOK_COUNT, TOTAL_CHAPTER_COUNT } from '../data/plan';
 import { formatNumber } from '../lib/format';
 import { useCloud } from '../state/useCloud';
 
-const CODE_LENGTH = 6;
-
+/** The official mark. Google's branding rules govern this button's wording and icon. */
 function GoogleMark() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
@@ -26,147 +25,42 @@ function GoogleMark() {
 }
 
 export function SignInScreen() {
-  const {
-    signInWithGoogle,
-    signIn,
-    verifyCode,
-    resend,
-    cancelSignIn,
-    linkSent,
-    pendingEmail,
-    resendIn,
-    error,
-  } = useCloud();
-  const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
+  const { signInWithGoogle, error } = useCloud();
   const [busy, setBusy] = useState(false);
-  /** Email is the fallback now, so it stays folded away until asked for. */
-  const [emailMode, setEmailMode] = useState(false);
 
   return (
     <div className="gate">
       <div className="gate__panel">
-        <img className="gate__mark" src="/icon-192.png" width={72} height={72} alt="" />
+        <img className="gate__mark" src="/icon-192.png" width={76} height={76} alt="" />
+
+        <p className="eyebrow eyebrow--onDark gate__eyebrow">The whole story, in order</p>
         <h1 className="gate__title">Bibley</h1>
         <p className="gate__lede">
-          A reading journey through all {TOTAL_BOOK_COUNT} books,{' '}
-          {formatNumber(TOTAL_CHAPTER_COUNT)} chapters, in an order built so each book lands with
-          the context of the one before it.
+          All {TOTAL_BOOK_COUNT} books and {formatNumber(TOTAL_CHAPTER_COUNT)} chapters, arranged so
+          each one lands with the context of the book before it.
         </p>
 
-        {linkSent ? (
-          <form
-            className="gate__form"
-            onSubmit={async (e) => {
-              e.preventDefault();
+        <div className="gate__signIn">
+          <button
+            type="button"
+            className="gate__google"
+            disabled={busy}
+            onClick={() => {
               setBusy(true);
-              const ok = await verifyCode(code);
-              setBusy(false);
-              if (!ok) setCode('');
+              void signInWithGoogle();
             }}
           >
-            <label className="eyebrow" htmlFor="gate-code">
-              Enter the code sent to {pendingEmail}
-            </label>
-            <input
-              id="gate-code"
-              className="field gate__code"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              pattern="[0-9]*"
-              maxLength={CODE_LENGTH}
-              required
-              autoFocus
-              placeholder="000000"
-              value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, CODE_LENGTH))}
-            />
-            <button
-              type="submit"
-              className="btn btn--primary gate__submit"
-              disabled={busy || code.length < CODE_LENGTH}
-            >
-              {busy ? 'Checking…' : 'Sign in'}
-            </button>
-
-            <div className="gate__altRow">
-              <button
-                type="button"
-                className="gate__link"
-                onClick={() => void resend()}
-                disabled={resendIn > 0}
-              >
-                {resendIn > 0 ? `Resend in ${resendIn}s` : 'Send a new code'}
-              </button>
-              <button
-                type="button"
-                className="gate__link"
-                onClick={() => {
-                  cancelSignIn();
-                  setCode('');
-                }}
-              >
-                Use a different email
-              </button>
-            </div>
-
-            <p className="gate__note">
-              The code works on any device, so you can request it here and type it on your phone.
-              The same email also has a link, which only works on the device you opened it from.
-            </p>
-          </form>
-        ) : (
-          <div className="gate__form">
-            <button
-              type="button"
-              className="btn gate__google"
-              onClick={() => void signInWithGoogle()}
-            >
+            <span className="gate__googleIcon">
               <GoogleMark />
-              Continue with Google
-            </button>
+            </span>
+            <span>{busy ? 'Opening Google…' : 'Continue with Google'}</span>
+          </button>
 
-            {emailMode ? (
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  setBusy(true);
-                  await signIn(email.trim());
-                  setBusy(false);
-                }}
-              >
-                <label className="eyebrow" htmlFor="gate-email">
-                  Or sign in with an emailed code
-                </label>
-                <input
-                  id="gate-email"
-                  className="field"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  autoFocus
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                <button type="submit" className="btn btn--primary gate__submit" disabled={busy}>
-                  {busy ? 'Sending…' : 'Email me a code'}
-                </button>
-              </form>
-            ) : (
-              <div className="gate__altRow">
-                <button type="button" className="gate__link" onClick={() => setEmailMode(true)}>
-                  Use an email code instead
-                </button>
-              </div>
-            )}
-
-            <p className="gate__note">
-              Your progress is tied to the account you pick, so signing in on your phone and your
-              laptop keeps both on the same journey.
-            </p>
-          </div>
-        )}
+          <p className="gate__note">
+            Your streak, notes and progress follow the account you pick, so your phone and your
+            laptop stay on the same journey.
+          </p>
+        </div>
 
         {error && <p className="gate__error">{error}</p>}
       </div>

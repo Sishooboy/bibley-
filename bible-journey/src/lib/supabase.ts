@@ -16,4 +16,13 @@ export const supabase: SupabaseClient | null =
 
 export const cloudConfigured = supabase !== null;
 
+/**
+ * Read before the client strips the OAuth params out of the URL. Signing in with
+ * Google reloads the page, so this is the only way to tell a fresh sign-in from
+ * an ordinary launch with a stored session.
+ */
+export const returnedFromOAuth =
+  typeof window !== 'undefined' &&
+  /[?&]code=|access_token=/.test(window.location.search + window.location.hash);
+
 export const JOURNALS_TABLE = 'journals';

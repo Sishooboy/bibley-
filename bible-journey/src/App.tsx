@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SignInScreen } from './components/SignInScreen';
+import { SPLASH_MS, Splash } from './components/Splash';
 import { SyncBadge } from './components/SyncBadge';
 import { UndoBar } from './components/UndoBar';
+import { returnedFromOAuth } from './lib/supabase';
 import { CloudProvider } from './state/cloud';
 import { useCloud } from './state/useCloud';
 import { StoreProvider } from './state/store';
@@ -74,6 +76,15 @@ function Shell() {
  */
 function Gate() {
   const { status, email } = useCloud();
+  // Only a fresh Google round trip earns the full splash. An ordinary launch
+  // shows it just long enough to cover restoring the session.
+  const [held, setHeld] = useState(returnedFromOAuth);
+
+  useEffect(() => {
+    if (!held) return;
+    const timer = setTimeout(() => setHeld(false), SPLASH_MS);
+    return () => clearTimeout(timer);
+  }, [held]);
 
   if (status === 'off') {
     return (
@@ -86,9 +97,15 @@ function Gate() {
     );
   }
 
-  if (status === 'loading') return <div className="gate" aria-busy="true" />;
+  if (status === 'loading') return <Splash held={held} />;
+  if (!email) return <SignInScreen />;
+  if (held) return <Splash held />;
 
-  return email ? <Shell /> : <SignInScreen />;
+  return (
+    <div className="appEnter">
+      <Shell />
+    </div>
+  );
 }
 
 export default function App() {
