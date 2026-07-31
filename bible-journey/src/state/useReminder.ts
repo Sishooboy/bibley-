@@ -38,7 +38,7 @@ export function useReminder(): ReminderState {
   }
 
   const notifyNow = () => {
-    const next = nextUnread(data.read, 1)[0];
+    const next = nextUnread(data.read, 1, derived.plan)[0];
     notify(next ? `Today's reading: ${next.book} ${next.chapter}` : 'Time to read.');
   };
 
@@ -50,7 +50,7 @@ export function useReminder(): ReminderState {
 
   useEffect(() => {
     if (readToday || !reminderDue(prefs)) return;
-    const next = nextUnread(data.read, 1)[0];
+    const next = nextUnread(data.read, 1, derived.plan)[0];
     const streakLine =
       derived.streak.current > 0
         ? `Your ${derived.streak.current} day streak needs a chapter. `

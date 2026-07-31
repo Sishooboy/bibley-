@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useReducer, type ReactNode } from 'react';
+import { getPlan, type PlanId } from '../data/plans';
 import { today } from '../lib/dates';
 import {
   nextUnread,
@@ -29,6 +30,7 @@ type Action =
   | { type: 'deleteNote'; id: string }
   | { type: 'importData'; data: AppData }
   | { type: 'mergeRemote'; data: AppData }
+  | { type: 'choosePlan'; id: PlanId }
   | { type: 'undo' };
 
 type State = {
@@ -92,7 +94,7 @@ function reducer(state: State, action: Action): State {
       };
     }
     case 'markNext': {
-      const refs = nextUnread(data.read, action.count);
+      const refs = nextUnread(data.read, action.count, getPlan(data.planId));
       if (refs.length === 0) return state;
       const read = { ...data.read };
       const keys = refs.map((ref) => chapterKey(ref.book, ref.chapter));
@@ -181,6 +183,11 @@ function reducer(state: State, action: Action): State {
       const next = { ...data, notes: data.notes.filter((n) => n.id !== action.id) };
       return withUndo(state, next, 'Deleted note');
     }
+    case 'choosePlan':
+      if (data.planId === action.id) return state;
+      // Progress is keyed by book and chapter, so switching plans keeps every
+      // chapter that both plans contain.
+      return { ...state, data: { ...data, planId: action.id } };
     case 'importData':
       return withUndo(state, action.data, 'Restored from file');
     case 'mergeRemote':
@@ -206,17 +213,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const derived = useMemo<Derived>(() => {
-    const phases = phaseProgressAll(data.read);
-    const overall = overallProgress(data.read, phases);
+    const plan = getPlan(data.planId);
+    const phases = phaseProgressAll(data.read, plan);
+    const overall = overallProgress(phases, plan);
     return {
+      plan,
       phases,
       statuses: phaseStatuses(phases),
       overall,
       streak: streak(data.read),
-      pace: pace(data.read, overall.planRead),
-      currentPhase: phases.find((p) => !p.done)?.phase ?? 12,
+      pace: pace(data.read, overall.planRead, plan),
+      currentPhase: phases.find((p) => !p.done)?.phase ?? plan.phases.length,
     };
-  }, [data.read]);
+  }, [data.read, data.planId]);
 
   const noteFor = useCallback(
     (book: string, chapter: number | null) =>
@@ -244,6 +253,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       deleteNote: (id) => dispatch({ type: 'deleteNote', id }),
       importData: (imported) => dispatch({ type: 'importData', data: imported }),
       mergeRemote: (merged) => dispatch({ type: 'mergeRemote', data: merged }),
+      choosePlan: (id) => dispatch({ type: 'choosePlan', id }),
       undo: () => dispatch({ type: 'undo' }),
     }),
     [data, derived, load, undoable, noteFor],

@@ -1,14 +1,14 @@
 import { useMemo, useState } from 'react';
-import { PHASES, PHASE_OF_BOOK, PROLOGUE, PROLOGUE_PHASE } from '../data/plan';
 import { plural } from '../lib/format';
+import type { Plan } from '../data/plans';
 import type { Note } from '../lib/storage';
 import { useStore } from '../state/useStore';
 
-function phaseLabel(book: string): string {
-  const phase = PHASE_OF_BOOK.get(book);
-  if (phase === undefined) return 'Unlisted';
-  if (phase === PROLOGUE_PHASE) return 'Start here · Meet Jesus first';
-  return `Phase ${phase} · ${PHASES[phase - 1].title}`;
+function phaseLabel(book: string, plan: Plan): string {
+  const phase = plan.phaseOfBook.get(book);
+  if (phase === undefined) return 'Not in this plan';
+  const title = plan.phases.find((p) => p.phase === phase)?.title ?? '';
+  return phase === 0 ? `Start here · ${title}` : `Phase ${phase} · ${title}`;
 }
 
 function Highlighted({ text, query }: { text: string; query: string }) {
@@ -23,7 +23,7 @@ function Highlighted({ text, query }: { text: string; query: string }) {
   );
 }
 
-function NoteCard({ note, query }: { note: Note; query: string }) {
+function NoteCard({ note, query, plan }: { note: Note; query: string; plan: Plan }) {
   const { saveNote, deleteNote } = useStore();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(note.text);
@@ -35,7 +35,7 @@ function NoteCard({ note, query }: { note: Note; query: string }) {
           {note.book}
           {note.chapter !== null && ` ${note.chapter}`}
         </h3>
-        <span className="noteCard__phase">{phaseLabel(note.book)}</span>
+        <span className="noteCard__phase">{phaseLabel(note.book, plan)}</span>
         <span className="noteCard__date">
           {new Date(note.updatedAt).toLocaleDateString(undefined, {
             month: 'short',
@@ -101,7 +101,8 @@ function NoteCard({ note, query }: { note: Note; query: string }) {
 }
 
 export function NotesView() {
-  const { data } = useStore();
+  const { data, derived } = useStore();
+  const { plan } = derived;
   const [query, setQuery] = useState('');
   const [phaseFilter, setPhaseFilter] = useState('all');
   const [bookFilter, setBookFilter] = useState('all');
@@ -117,8 +118,8 @@ export function NotesView() {
       .filter((n) => {
         if (bookFilter !== 'all' && n.book !== bookFilter) return false;
         if (phaseFilter !== 'all') {
-          const phase = PHASE_OF_BOOK.get(n.book);
-          const key = phase === undefined || phase === PROLOGUE_PHASE ? 'prologue' : String(phase);
+          const phase = plan.phaseOfBook.get(n.book);
+          const key = phase === undefined || phase === 0 ? 'prologue' : String(phase);
           if (key !== phaseFilter) return false;
         }
         if (q && !n.text.toLowerCase().includes(q) && !n.book.toLowerCase().includes(q)) {
@@ -127,7 +128,7 @@ export function NotesView() {
         return true;
       })
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-  }, [data.notes, query, phaseFilter, bookFilter]);
+  }, [data.notes, query, phaseFilter, bookFilter, plan]);
 
   return (
     <div className="container notesView">
@@ -154,10 +155,9 @@ export function NotesView() {
           aria-label="Filter by phase"
         >
           <option value="all">All phases</option>
-          <option value="prologue">Start here · {PROLOGUE.name}</option>
-          {PHASES.map((p) => (
-            <option key={p.phase} value={String(p.phase)}>
-              Phase {p.phase} · {p.title}
+          {plan.phases.map((p) => (
+            <option key={p.phase} value={p.phase === 0 ? 'prologue' : String(p.phase)}>
+              {p.phase === 0 ? 'Start here' : `Phase ${p.phase}`} · {p.title}
             </option>
           ))}
         </select>
@@ -189,7 +189,7 @@ export function NotesView() {
       ) : (
         <div className="noteList">
           {notes.map((note) => (
-            <NoteCard key={note.id} note={note} query={query} />
+            <NoteCard key={note.id} note={note} query={query} plan={plan} />
           ))}
         </div>
       )}

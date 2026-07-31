@@ -1,11 +1,4 @@
-import {
-  CHAPTER_SEQUENCE,
-  PHASES,
-  PROLOGUE,
-  TOTAL_BOOK_COUNT,
-  TOTAL_CHAPTER_COUNT,
-  type ChapterRef,
-} from '../data/plan';
+import type { ChapterRef, Plan } from '../data/plans';
 import { addDays, daysBetween, today, type DayKey } from './dates';
 import { chapterKey, type ReadMap } from './storage';
 
@@ -39,8 +32,8 @@ export function bookProgress(read: ReadMap, name: string, chapters: number): Boo
   return { name, chapters, read: n, done: n === chapters, started: n > 0 };
 }
 
-export function phaseProgressAll(read: ReadMap): PhaseProgress[] {
-  return PHASES.map((p) => {
+export function phaseProgressAll(read: ReadMap, plan: Plan): PhaseProgress[] {
+  return plan.phases.map((p) => {
     const books = p.books.map((b) => bookProgress(read, b.name, b.chapters));
     const chapters = books.reduce((n, b) => n + b.chapters, 0);
     const readCount = books.reduce((n, b) => n + b.read, 0);
@@ -73,7 +66,7 @@ export function phaseStatuses(phases: PhaseProgress[]): Map<number, PhaseStatus>
 }
 
 export type OverallProgress = {
-  /** Chapters read across John and the twelve phases. */
+  /** Chapters read across every phase of the active plan. */
   planRead: number;
   planTotal: number;
   booksDone: number;
@@ -81,26 +74,22 @@ export type OverallProgress = {
   percent: number;
 };
 
-export function overallProgress(read: ReadMap, phases: PhaseProgress[]): OverallProgress {
-  const prologue = bookProgress(read, PROLOGUE.name, PROLOGUE.chapters);
-  const planRead = phases.reduce((n, p) => n + p.read, prologue.read);
-  const booksDone = phases.reduce(
-    (n, p) => n + p.books.filter((b) => b.done).length,
-    prologue.done ? 1 : 0,
-  );
+export function overallProgress(phases: PhaseProgress[], plan: Plan): OverallProgress {
+  const planRead = phases.reduce((n, p) => n + p.read, 0);
+  const booksDone = phases.reduce((n, p) => n + p.books.filter((b) => b.done).length, 0);
   return {
     planRead,
-    planTotal: TOTAL_CHAPTER_COUNT,
+    planTotal: plan.chapterCount,
     booksDone,
-    booksTotal: TOTAL_BOOK_COUNT,
-    percent: (planRead / TOTAL_CHAPTER_COUNT) * 100,
+    booksTotal: plan.bookCount,
+    percent: plan.chapterCount === 0 ? 0 : (planRead / plan.chapterCount) * 100,
   };
 }
 
 /** Next unread chapters in plan order, starting from wherever you left off. */
-export function nextUnread(read: ReadMap, count: number): ChapterRef[] {
+export function nextUnread(read: ReadMap, count: number, plan: Plan): ChapterRef[] {
   const out: ChapterRef[] = [];
-  for (const ref of CHAPTER_SEQUENCE) {
+  for (const ref of plan.sequence) {
     if (isRead(read, ref.book, ref.chapter)) continue;
     out.push(ref);
     if (out.length === count) break;
@@ -149,11 +138,11 @@ export type Pace = {
   remaining: number;
 };
 
-export function pace(read: ReadMap, planRead: number): Pace {
+export function pace(read: ReadMap, planRead: number, plan: Plan): Pace {
   const byDay = readsByDay(read);
   const days = [...byDay.keys()].sort();
   const chaptersLogged = [...byDay.values()].reduce((a, b) => a + b, 0);
-  const remaining = TOTAL_CHAPTER_COUNT - planRead;
+  const remaining = plan.chapterCount - planRead;
 
   if (days.length === 0) {
     return { perWeek: 0, daysActive: 0, chaptersLogged: 0, finishBy: null, remaining };

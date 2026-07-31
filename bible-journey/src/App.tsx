@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
+import { PlanChooser } from './components/PlanChooser';
+import { PREPARING_MS, Preparing } from './components/Preparing';
 import { SignInScreen } from './components/SignInScreen';
 import { SPLASH_MS, Splash } from './components/Splash';
 import { SyncBadge } from './components/SyncBadge';
 import { UndoBar } from './components/UndoBar';
 import { Menu } from './components/icons';
+import type { PlanId } from './data/plans';
 import { returnedFromOAuth } from './lib/supabase';
 import { CloudProvider } from './state/cloud';
 import { useCloud } from './state/useCloud';
+import { useStore } from './state/useStore';
 import { StoreProvider } from './state/store';
 import { JourneyView } from './views/JourneyView';
 import { NotesView } from './views/NotesView';
@@ -117,6 +121,9 @@ function Shell() {
  */
 function Gate() {
   const { status, email } = useCloud();
+  const { data, choosePlan } = useStore();
+  /** Set while the chosen plan is being laid out, purely for the transition. */
+  const [preparing, setPreparing] = useState<PlanId | null>(null);
   // Only a fresh Google round trip earns the full splash. An ordinary launch
   // shows it just long enough to cover restoring the session.
   const [held, setHeld] = useState(returnedFromOAuth);
@@ -141,6 +148,20 @@ function Gate() {
   if (status === 'loading') return <Splash held={held} />;
   if (!email) return <SignInScreen />;
   if (held) return <Splash held />;
+  if (preparing) return <Preparing planId={preparing} />;
+
+  // No plan on the journal means this account has never started one.
+  if (!data.planId) {
+    return (
+      <PlanChooser
+        onChoose={(id) => {
+          choosePlan(id);
+          setPreparing(id);
+          setTimeout(() => setPreparing(null), PREPARING_MS);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="appEnter">

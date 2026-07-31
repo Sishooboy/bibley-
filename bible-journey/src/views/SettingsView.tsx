@@ -1,10 +1,15 @@
 import { AccountPanel } from '../components/AccountPanel';
 import { BackupPanel } from '../components/BackupPanel';
+import { PLANS, PLAN_ORDER } from '../data/plans';
+import { formatNumber, plural } from '../lib/format';
 import { formatTime } from '../lib/prefs';
 import { useReminder } from '../state/useReminder';
+import { useStore } from '../state/useStore';
 
 export function SettingsView() {
   const { prefs, setPrefs, permission, requestPermission, notifyNow } = useReminder();
+  const { derived, choosePlan } = useStore();
+  const { plan } = derived;
   const blocked = permission === 'denied';
   const unsupported = permission === 'unsupported';
 
@@ -18,6 +23,39 @@ export function SettingsView() {
       </div>
 
       <div className="charts">
+        <section className="chartBlock backup">
+          <div className="chartBlock__head">
+            <div>
+              <h3>Reading plan</h3>
+              <p className="chartBlock__note">
+                Switching keeps every chapter you have marked. Progress is stored per book, so
+                anything both plans contain carries straight over.
+              </p>
+            </div>
+          </div>
+
+          <div className="planSwitch">
+            {PLAN_ORDER.map((id) => {
+              const option = PLANS[id];
+              const active = option.id === plan.id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  className={`planSwitch__item${active ? ' planSwitch__item--active' : ''}`}
+                  aria-pressed={active}
+                  onClick={() => choosePlan(id)}
+                >
+                  <span className="planSwitch__name">{option.label}</span>
+                  <span className="planSwitch__meta">
+                    {plural(option.bookCount, 'book')} · {formatNumber(option.chapterCount)} ch
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
         <AccountPanel />
 
         <section className="chartBlock backup">

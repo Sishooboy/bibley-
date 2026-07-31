@@ -12,10 +12,9 @@ import {
   YAxis,
 } from 'recharts';
 import { ProgressBar } from '../components/ProgressBar';
-import { PHASES, PROLOGUE } from '../data/plan';
 import { formatDay, today } from '../lib/dates';
 import { formatNumber, plural } from '../lib/format';
-import { bookProgress, cumulative, last30Days } from '../lib/progress';
+import { cumulative, last30Days } from '../lib/progress';
 import { useStore } from '../state/useStore';
 
 const RED = '#c81d25';
@@ -51,7 +50,6 @@ export function StatsView() {
   const { data, derived } = useStore();
   const { overall, pace, phases, streak } = derived;
 
-  const prologue = bookProgress(data.read, PROLOGUE.name, PROLOGUE.chapters);
   const daily = last30Days(data.read);
   const running = cumulative(data.read);
   const todayKey = today();
@@ -255,27 +253,11 @@ export function StatsView() {
             </div>
           </div>
           <div className="phaseTable">
-            <div className="phaseTable__row">
-              <span className="phaseTable__num">00</span>
-              <span className="phaseTable__label">
-                <span>Meet Jesus first</span>
-                <ProgressBar
-                  value={prologue.read}
-                  max={prologue.chapters}
-                  label="John"
-                  thin
-                  className="phaseTable__bar"
-                />
-              </span>
-              <span className="phaseTable__count">
-                {prologue.read}/{prologue.chapters}
-              </span>
-            </div>
             {phases.map((p) => (
               <div className="phaseTable__row" key={p.phase}>
                 <span className="phaseTable__num">{String(p.phase).padStart(2, '0')}</span>
                 <span className="phaseTable__label">
-                  <span>{PHASES[p.phase - 1].title}</span>
+                  <span>{p.title}</span>
                   <ProgressBar
                     value={p.read}
                     max={p.chapters}

@@ -1,4 +1,3 @@
-import { PHASES, PROLOGUE_PHASE, PROLOGUE_WHY, TOTAL_CHAPTER_COUNT } from '../data/plan';
 import { formatNumber, formatRefs } from '../lib/format';
 import { nextUnread } from '../lib/progress';
 import { useReminder } from '../state/useReminder';
@@ -12,26 +11,28 @@ const QUICK_AMOUNTS = [1, 3, 5, 10];
 export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }) {
   const { data, markNext, derived } = useStore();
   const { streakAtRisk } = useReminder();
-  const refs = nextUnread(data.read, SUGGESTION_SIZE);
+  const plan = derived.plan;
+  const refs = nextUnread(data.read, SUGGESTION_SIZE, plan);
 
   if (refs.length === 0) {
     return (
       <section className="panel" aria-label="Today's reading">
         <p className="eyebrow">Today’s reading</p>
         <h2 className="today__ref" style={{ marginTop: '0.6rem' }}>
-          All {formatNumber(TOTAL_CHAPTER_COUNT)} chapters read
+          All {formatNumber(plan.chapterCount)} chapters read
         </h2>
         <p className="today__rest">
-          Sixty-six books, twelve phases, done. Revisit anything from the journey below.
+          {plan.bookCount} books, {plan.phases.length} phases, done. Revisit anything from the
+          journey below.
         </p>
       </section>
     );
   }
 
   const first = refs[0];
-  const phase = PHASES.find((p) => p.phase === first.phase);
+  const phase = plan.phases.find((p) => p.phase === first.phase);
   const started = derived.pace.chaptersLogged > 0;
-  const isPrologue = first.phase === PROLOGUE_PHASE;
+
 
   return (
     <section className="panel" aria-label="Today's reading">
@@ -45,14 +46,14 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
       <div className="today__head">
         <p className="eyebrow">Today’s reading</p>
         <p className="today__rest" style={{ marginTop: 0 }}>
-          {isPrologue ? 'Start here · Meet Jesus first' : `Phase ${first.phase} · ${phase?.title}`}
+          {first.phase === 0 ? `Start here · ${phase?.title}` : `Phase ${first.phase} · ${phase?.title}`}
         </p>
       </div>
 
       <h2 className="today__ref">{formatRefs(refs)}</h2>
       <p className="today__rest">
-        {isPrologue
-          ? PROLOGUE_WHY
+        {first.phase === 0
+          ? phase?.why
           : 'Next up in sequence. Pick up here, or jump anywhere in the plan. Nothing is locked.'}
       </p>
 

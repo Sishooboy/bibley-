@@ -6,9 +6,12 @@ import type {
   PhaseStatus,
   Streak,
 } from '../lib/progress';
+import type { Plan, PlanId } from '../data/plans';
 import type { AppData, LoadResult, Note } from '../lib/storage';
 
 export type Derived = {
+  /** The reading plan in force, resolved from the stored choice. */
+  plan: Plan;
   phases: PhaseProgress[];
   statuses: Map<number, PhaseStatus>;
   overall: OverallProgress;
@@ -37,6 +40,7 @@ export type Store = {
   importData: (data: AppData) => void;
   /** Applies an already-merged journal pulled from the cloud. Not undoable. */
   mergeRemote: (data: AppData) => void;
+  choosePlan: (id: PlanId) => void;
   undo: () => void;
 };
 

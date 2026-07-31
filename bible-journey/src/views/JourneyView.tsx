@@ -1,21 +1,16 @@
 import { useState } from 'react';
-import { BookRow } from '../components/BookRow';
 import { PhaseSection } from '../components/PhaseSection';
 import { ProgressBar } from '../components/ProgressBar';
 import { QuoteCard } from '../components/QuoteCard';
 import { TodayCard } from '../components/TodayCard';
 import { Flame } from '../components/icons';
-import { PHASES, PROLOGUE, PROLOGUE_WHY } from '../data/plan';
 import { formatNumber } from '../lib/format';
-import { bookProgress } from '../lib/progress';
 import { useStore } from '../state/useStore';
 
 export function JourneyView() {
-  const { data, derived } = useStore();
-  const { overall, streak, phases, statuses, currentPhase } = derived;
+  const { derived } = useStore();
+  const { plan, overall, streak, phases, statuses, currentPhase } = derived;
   const [openBook, setOpenBook] = useState<string | null>(null);
-  const prologue = bookProgress(data.read, PROLOGUE.name, PROLOGUE.chapters);
-  const prologueDone = prologue.done;
 
   return (
     <>
@@ -23,11 +18,8 @@ export function JourneyView() {
         <div className="container hero__inner">
           <div>
             <p className="eyebrow eyebrow--onDark">The reading plan</p>
-            <h1>Sixty-six books, in order.</h1>
-            <p className="hero__lede">
-              John first, then twelve phases built so each book lands with the context of the one
-              before it: history before prophets, Acts before Paul, Revelation last.
-            </p>
+            <h1>{plan.label}</h1>
+            <p className="hero__lede">{plan.rationale}</p>
           </div>
 
           <div className="hero__progress">
@@ -51,13 +43,7 @@ export function JourneyView() {
                 <b>{overall.booksDone}</b>/{overall.booksTotal} books
               </span>
               <span>
-                {prologueDone ? (
-                  <>
-                    Phase <b>{currentPhase}</b> of 12
-                  </>
-                ) : (
-                  <b>Start with John</b>
-                )}
+                Phase <b>{currentPhase}</b> of {plan.phases.length}
               </span>
             </div>
 
@@ -89,7 +75,7 @@ export function JourneyView() {
         <div className="sectionHead">
           <div>
             <p className="eyebrow">The journey</p>
-            <h2>Twelve phases</h2>
+            <h2>{plan.phases.length} phases</h2>
           </div>
           <p className="chartBlock__note" style={{ maxWidth: '34ch' }}>
             Nothing is locked. Jump ahead whenever you want. The phase order is a suggestion
@@ -97,45 +83,7 @@ export function JourneyView() {
           </p>
         </div>
 
-        <section className={`phase phase--${prologueDone ? 'done' : 'current'}`}>
-          <div className="phase__num" aria-hidden="true">
-            00
-          </div>
-          <div>
-            <div className="phase__head">
-              <h3>Meet Jesus first</h3>
-              <span
-                className={`phase__tag phase__tag--${prologueDone ? 'done' : 'current'}`}
-              >
-                {prologueDone ? 'Complete' : 'Start here'}
-              </span>
-              <span className="phase__count">
-                {prologue.read}/{prologue.chapters} ch · 1 book
-              </span>
-            </div>
-
-            <p className="phase__why">{PROLOGUE_WHY}</p>
-
-            <ProgressBar
-              value={prologue.read}
-              max={prologue.chapters}
-              label="John progress"
-              className="phase__bar"
-            />
-
-            <div className="books">
-              <BookRow
-                name={PROLOGUE.name}
-                chapters={PROLOGUE.chapters}
-                read={prologue.read}
-                open={openBook === PROLOGUE.name}
-                onToggle={() => setOpenBook(openBook === PROLOGUE.name ? null : PROLOGUE.name)}
-              />
-            </div>
-          </div>
-        </section>
-
-        {PHASES.map((phase, i) => (
+        {plan.phases.map((phase, i) => (
           <PhaseSection
             key={phase.phase}
             phase={phase}

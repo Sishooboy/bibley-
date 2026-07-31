@@ -22,6 +22,7 @@ export function mergeJournals(a: AppData, b: AppData): AppData {
 
   return {
     version: 1,
+    planId: a.planId ?? b.planId,
     read,
     removed: Object.keys(removed).length > 0 ? removed : undefined,
     markedAt: Object.keys(markedAt).length > 0 ? markedAt : undefined,
