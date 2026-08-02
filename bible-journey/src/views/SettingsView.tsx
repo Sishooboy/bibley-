@@ -52,11 +52,11 @@ export function SettingsView() {
       />
 
       <div className="container statsView">
-        <section ref={reveal} className="panel reveal">
-          <div className="panel__head">
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
             <div>
-              <h3 className="panel__title">Reading plan</h3>
-              <p className="panel__note">
+              <h3 className="card__title">Reading plan</h3>
+              <p className="card__note">
                 Switching keeps every chapter you have marked. Progress is stored per book, so
                 anything both plans contain carries straight over.
               </p>
@@ -101,11 +101,11 @@ export function SettingsView() {
 
         <AccountPanel reveal={reveal} />
 
-        <section ref={reveal} className="panel panel--locked reveal">
-          <div className="panel__head">
+        <section ref={reveal} className="card card--locked reveal">
+          <div className="card__head">
             <div>
-              <h3 className="panel__title">Daily reminder</h3>
-              <p className="panel__note">
+              <h3 className="card__title">Daily reminder</h3>
+              <p className="card__note">
                 One nudge a day, only if you haven't read yet.
               </p>
             </div>
@@ -170,7 +170,7 @@ export function SettingsView() {
                 </p>
               )}
 
-              <div className="panel__actions">
+              <div className="card__actions">
                 <button
                   type="button"
                   className="btn btn--sm"
@@ -188,7 +188,7 @@ export function SettingsView() {
               </span>
               <div>
                 <p className="locked__title">Coming with the app</p>
-                <p className="panel__note">
+                <p className="card__note">
                   A reminder in the browser only arrives while Bibley is open in a tab, which is not
                   much of a reminder. It is switched off until the App Store build lands, where a
                   notification can reach you with the app closed.

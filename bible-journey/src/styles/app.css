@@ -2065,7 +2065,7 @@ select {
   gap: clamp(1.25rem, 3vw, 1.75rem);
 }
 
-.panel {
+.card {
   position: relative;
   background: var(--paper);
   border: 1px solid var(--line-strong);
@@ -2076,7 +2076,7 @@ select {
 }
 
 /* Red into gold across the top edge: the two brand colours in their order. */
-.panel::before {
+.card::before {
   content: '';
   position: absolute;
   inset: 0 0 auto 0;
@@ -2084,7 +2084,7 @@ select {
   background: linear-gradient(90deg, var(--red-600), var(--yellow) 82%);
 }
 
-.panel__head {
+.card__head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -2095,7 +2095,7 @@ select {
   border-bottom: 1px solid var(--line);
 }
 
-.panel__title {
+.card__title {
   font-family: var(--font-display);
   font-size: 1.32rem;
   font-weight: 600;
@@ -2105,7 +2105,7 @@ select {
   gap: 0.55rem;
 }
 
-.panel__title::before {
+.card__title::before {
   content: '';
   width: 14px;
   height: 3px;
@@ -2114,7 +2114,7 @@ select {
   flex: none;
 }
 
-.panel__note,
+.card__note,
 .chartBlock__note {
   font-size: 0.85rem;
   color: var(--muted);
@@ -2122,7 +2122,7 @@ select {
   margin-top: 0.35rem;
 }
 
-.panel__actions {
+.card__actions {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
@@ -2467,7 +2467,7 @@ select {
   min-width: 0;
 }
 
-.streakPanel__body .panel__note {
+.streakPanel__body .card__note {
   margin-bottom: 1rem;
 }
 
@@ -2795,17 +2795,24 @@ select {
   box-shadow: 0 0 0 3px rgba(200, 29, 37, 0.12);
 }
 
+/* Journey's note editor uses this too, so the pill treatment stays scoped. */
 .select {
   border: 1px solid var(--line-strong);
   background: var(--surface);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.6rem;
+  font-size: 0.85rem;
+  max-width: 100%;
+}
+
+.notesBar .select {
   border-radius: 99px;
   padding: 0.45rem 0.75rem;
   font-size: 0.84rem;
-  max-width: 100%;
   transition: border-color 160ms ease;
 }
 
-.select:hover {
+.notesBar .select:hover {
   border-color: var(--red-500);
 }
 
@@ -3173,11 +3180,11 @@ select {
 }
 
 /* A held-back panel reads quieter: grey top rule instead of red into gold. */
-.panel--locked::before {
+.card--locked::before {
   background: linear-gradient(90deg, var(--line-strong), var(--line));
 }
 
-.panel--locked .panel__title::before {
+.card--locked .card__title::before {
   background: var(--line-strong);
 }
 
@@ -3211,7 +3218,7 @@ select {
   color: var(--ink-700);
 }
 
-.locked .panel__note {
+.locked .card__note {
   margin-top: 0.25rem;
 }
 

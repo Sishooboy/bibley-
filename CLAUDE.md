@@ -46,9 +46,14 @@ redeploy.**
   `bible-journey/v1`. `src/state/cloud.tsx` mirrors it to Supabase.
 - `src/lib/merge.ts` reconciles two copies of a journal. Read it before touching sync.
 - Views are `Journey`, `Notes`, `Stats`, `Settings`. Journey has its own hero and book rows. The
-  other three share one system: `ViewHeader` for the masthead, `.panel` for every card, and the
-  `Notes, Stats and Settings` block at the end of `app.css`. Change a panel there and all three move
+  other three share one system: `ViewHeader` for the masthead, `.card` for every panel, and the
+  `Notes, Stats and Settings` block at the end of `app.css`. Change `.card` there and all three move
   together.
+- **`.panel` belongs to Journey**, not to that block. It is the today card and the verse card, and
+  it is defined near `.panels` around line 1080. Redefining it later in the file silently repainted
+  the verse of the day cream on cream. Anything shared between Journey and the other three, `.select`
+  and `.chartBlock__note` for instance, needs the same care: scope the new treatment, do not
+  redefine the base.
 - `src/lib/motion.ts` holds `useReveal` (scroll-in stagger) and `useCountUp`. Both no-op under
   `prefers-reduced-motion`, and `useReveal` has a timeout that shows everything if the observer
   never fires, because `.reveal` starts at opacity 0 and a stuck observer is a blank page.

@@ -15,11 +15,11 @@ export function AccountPanel({ reveal }: Props) {
 
   if (status === 'off') {
     return (
-      <section ref={reveal} className="panel reveal">
-        <div className="panel__head">
+      <section ref={reveal} className="card reveal">
+        <div className="card__head">
           <div>
-            <h3 className="panel__title">Sync</h3>
-            <p className="panel__note">
+            <h3 className="card__title">Sync</h3>
+            <p className="card__note">
               No cloud project is configured for this build, so the journal is local to this
               browser.
             </p>
@@ -33,11 +33,11 @@ export function AccountPanel({ reveal }: Props) {
     status === 'syncing' ? 'syncing…' : status === 'error' ? 'sync problem' : syncLine(lastSyncedAt);
 
   return (
-    <section ref={reveal} className="panel reveal">
-      <div className="panel__head">
+    <section ref={reveal} className="card reveal">
+      <div className="card__head">
         <div>
-          <h3 className="panel__title">Your account</h3>
-          <p className="panel__note">
+          <h3 className="card__title">Your account</h3>
+          <p className="card__note">
             Your journal is stored against this account, so clearing this browser costs you nothing.
             Sign in anywhere and it comes back.
           </p>
@@ -58,7 +58,7 @@ export function AccountPanel({ reveal }: Props) {
         </span>
       </div>
 
-      <div className="panel__actions">
+      <div className="card__actions">
         <button type="button" className="btn btn--sm btn--primary" onClick={() => void syncNow()}>
           Sync now
         </button>

@@ -219,7 +219,7 @@ export function StatsView() {
           />
         </div>
 
-        <section ref={reveal} className="panel streakPanel reveal">
+        <section ref={reveal} className="card streakPanel reveal">
           <div className="streakPanel__figure">
             <Flame size={30} className={`flame${streak.current > 0 ? ' flame--lit' : ''}`} />
             <span className="streakPanel__count">{streak.current}</span>
@@ -228,8 +228,8 @@ export function StatsView() {
             </span>
           </div>
           <div className="streakPanel__body">
-            <h3 className="panel__title">Streak</h3>
-            <p className="panel__note">
+            <h3 className="card__title">Streak</h3>
+            <p className="card__note">
               {streak.current === 0
                 ? 'No streak going. Mark anything today and it starts at one.'
                 : `Longest run so far is ${plural(streak.longest, 'day')}.`}
@@ -252,11 +252,11 @@ export function StatsView() {
           </div>
         </section>
 
-        <section ref={reveal} className="panel reveal">
-          <div className="panel__head">
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
             <div>
-              <h3 className="panel__title">Chapters read, last 30 days</h3>
-              <p className="panel__note">
+              <h3 className="card__title">Chapters read, last 30 days</h3>
+              <p className="card__note">
                 Busiest day: {busiest} · current streak {streak.current} · longest {streak.longest}
               </p>
             </div>
@@ -309,11 +309,11 @@ export function StatsView() {
           </ResponsiveContainer>
         </section>
 
-        <section ref={reveal} className="panel reveal">
-          <div className="panel__head">
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
             <div>
-              <h3 className="panel__title">Reading rhythm</h3>
-              <p className="panel__note">
+              <h3 className="card__title">Reading rhythm</h3>
+              <p className="card__note">
                 Every day of the last eighteen weeks, darkest where you read most
               </p>
             </div>
@@ -322,11 +322,11 @@ export function StatsView() {
         </section>
 
         <div className="chartRow">
-          <section ref={reveal} className="panel reveal">
-            <div className="panel__head">
+          <section ref={reveal} className="card reveal">
+            <div className="card__head">
               <div>
-                <h3 className="panel__title">Cumulative progress</h3>
-                <p className="panel__note">Total plan chapters read, same 30-day window</p>
+                <h3 className="card__title">Cumulative progress</h3>
+                <p className="card__note">Total plan chapters read, same 30-day window</p>
               </div>
             </div>
             <ResponsiveContainer width="100%" height={220}>
@@ -367,11 +367,11 @@ export function StatsView() {
             </ResponsiveContainer>
           </section>
 
-          <section ref={reveal} className="panel reveal">
-            <div className="panel__head">
+          <section ref={reveal} className="card reveal">
+            <div className="card__head">
               <div>
-                <h3 className="panel__title">Books</h3>
-                <p className="panel__note">Completed vs. remaining</p>
+                <h3 className="card__title">Books</h3>
+                <p className="card__note">Completed vs. remaining</p>
               </div>
             </div>
             <div className="donut">
@@ -408,11 +408,11 @@ export function StatsView() {
           </section>
         </div>
 
-        <section ref={reveal} className="panel reveal">
-          <div className="panel__head">
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
             <div>
-              <h3 className="panel__title">Phase by phase</h3>
-              <p className="panel__note">Where the chapters have gone</p>
+              <h3 className="card__title">Phase by phase</h3>
+              <p className="card__note">Where the chapters have gone</p>
             </div>
           </div>
           <div className="phaseTable">
