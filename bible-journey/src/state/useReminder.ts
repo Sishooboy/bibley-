@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { today } from '../lib/dates';
 import {
   DEFAULT_PREFS,
+  REMINDERS_UNLOCKED,
   loadNotifiedDay,
   reminderDue,
   saveNotifiedDay,
@@ -34,6 +35,7 @@ export function useReminder(): ReminderState {
   const streakAtRisk = derived.streak.current > 0 && !readToday;
 
   function notify(body: string) {
+    if (!REMINDERS_UNLOCKED) return;
     if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
     new Notification('Bibley', {
       body,

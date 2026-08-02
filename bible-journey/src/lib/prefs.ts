@@ -16,6 +16,16 @@ export const DEFAULT_PREFS: Prefs = {
   reminderTime: '20:00',
 };
 
+/**
+ * Reminders are locked until the Capacitor shell can schedule them. A web
+ * notification only fires while the tab is alive, which is the wrong promise to
+ * make on a reminder, so the feature is held back rather than half delivered.
+ *
+ * Flip this to true to bring it back. Saved prefs are deliberately left alone,
+ * so every reader's own time and toggle return exactly as they left them.
+ */
+export const REMINDERS_UNLOCKED: boolean = false;
+
 export function normalizePrefs(input: unknown): Prefs | undefined {
   if (typeof input !== 'object' || input === null) return undefined;
   const raw = input as Partial<Prefs>;
@@ -51,6 +61,9 @@ export function saveNotifiedDay(day: DayKey): void {
 
 /** True once the clock has passed the reminder time today. */
 export function reminderDue(prefs: Prefs, notifiedDay: DayKey | null, now = new Date()): boolean {
+  // Checked here rather than in the view, so an account that already had
+  // reminders switched on stops being nudged too.
+  if (!REMINDERS_UNLOCKED) return false;
   if (!prefs.remindersEnabled) return false;
   if (notifiedDay === today()) return false;
   const [h, m] = prefs.reminderTime.split(':').map(Number);

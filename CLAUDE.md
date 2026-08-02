@@ -109,15 +109,23 @@ Progress is never lost, only occasionally resurrected. That direction is deliber
 
 Working: three plans with a chooser and a preparing transition, Google-only sign-in behind a gate,
 per-account sync with the merge rules above, chapter marking by slider, quick amounts and tap,
-undo, notes, stats, streaks, a daily reminder while the app is open, and a synced settings screen.
+undo, notes, stats, streaks, and a synced settings screen.
+
+**Daily reminders are locked**, behind `REMINDERS_UNLOCKED` in `src/lib/prefs.ts`. A web
+notification only fires while the tab is alive, which is the wrong promise for a reminder, so the
+settings panel shows a locked state and `reminderDue()` returns false before it reads any pref.
+The gate is in `reminderDue` rather than the view so an account that already had the toggle on
+stops being nudged too. Saved prefs are untouched, so flipping the flag restores each reader's own
+time. Unlock it when the Capacitor shell lands. The in-app streak nudge on the journey is separate
+and still runs.
 
 Not built yet, roughly in order:
 
 1. **In-app account deletion.** Required by App Store guideline 5.1.1(v). Must clear the Supabase
    row and the local cache.
 2. **Onboarding** for a first-time reader who lands on the journey with no context.
-3. **Capacitor shell**, which is what makes notifications fire with the app closed. Needs macOS or
-   GitHub Actions to build, and $99/year for Apple.
+3. **Capacitor shell**, which is what makes notifications fire with the app closed, and what
+   unlocks reminders. Needs macOS or GitHub Actions to build, and $99/year for Apple.
 4. **Sign in with Apple**, required by guideline 4.8 because Google sign-in is offered.
 5. A custom domain, which fixes the consent screen and gives somewhere to host a privacy policy.
 
