@@ -63,6 +63,25 @@ export function Menu({ size = 18, className, open }: IconProps & { open?: boolea
   );
 }
 
+export function Search({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <circle cx="7" cy="7" r="4.5" />
+      <path d="m10.5 10.5 3 3" />
+    </svg>
+  );
+}
+
 export function Chevron({ size = 16, className }: IconProps) {
   return (
     <svg
