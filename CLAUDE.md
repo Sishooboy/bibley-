@@ -15,8 +15,13 @@ Run these from `bible-journey/`.
 npm run dev      # vite --host, so a phone on the same wifi can reach it
 npm run build    # tsc -b && vite build, run before pushing anything substantial
 npm run lint     # oxlint
+npm test         # vitest run, covers merge, streaks and the plan invariants
+npm run preview  # serves dist on 4173, the only way to exercise the service worker
 npm run icons    # regenerate public/icon-*.png from brand/logo-source.png
 ```
+
+The service worker is production only, so `npm run dev` never has one in front of it. To test
+offline behaviour, build, `npm run preview`, then stop the server and reload the page.
 
 ## Stack
 
@@ -54,6 +59,14 @@ redeploy.**
   the verse of the day cream on cream. Anything shared between Journey and the other three, `.select`
   and `.chartBlock__note` for instance, needs the same care: scope the new treatment, do not
   redefine the base.
+- `public/sw.js` is hand written. Navigations are network first so a deploy lands as soon as there
+  is a connection, hashed assets are cache first, and anything cross-origin is ignored outright so
+  a Supabase response can never be served from cache. Bump `CACHE` to retire every old cache.
+- **Marking records the day you read, not the day you tapped.** `logOffset` in `store.tsx` is
+  session-only React state, held as an offset rather than a date so it cannot go stale over
+  midnight, and `LogDayPicker` sits beside every marking control and turns gold when it is not
+  today. `markedAt` still stamps the moment of the tap, because that is what settles a clear
+  against a re-mark. Do not collapse the two.
 - `src/lib/motion.ts` holds `useReveal` (scroll-in stagger) and `useCountUp`. Both no-op under
   `prefers-reduced-motion`, and `useReveal` has a timeout that shows everything if the observer
   never fires, because `.reveal` starts at opacity 0 and a stuck observer is a blank page.
@@ -95,7 +108,9 @@ Progress is never lost, only occasionally resurrected. That direction is deliber
   code fault. Restart it before debugging.
 - **Never `git add -A` blindly.** It has swept in a Google client secret (GitHub push protection
   caught it) and an exported journal (nothing caught it). Check `git status` first.
-- Supabase free projects **pause after about a week of inactivity**. Data is retained.
+- Supabase free projects **pause after about a week of inactivity**. Data is retained. A paused
+  project looks exactly like being offline from the client, so `describeSyncError` in `cloud.tsx`
+  covers both with the same reassurance, and a failed sync retries on the `online` event.
 - Google's consent screen shows the Supabase hostname because that is the OAuth redirect target.
   Only a custom domain changes it.
 
@@ -114,7 +129,8 @@ Progress is never lost, only occasionally resurrected. That direction is deliber
 
 Working: three plans with a chooser and a preparing transition, Google-only sign-in behind a gate,
 per-account sync with the merge rules above, chapter marking by slider, quick amounts and tap,
-undo, notes, stats, streaks, and a synced settings screen.
+undo, backdating so a chapter counts on the day it was read, notes, stats, streaks, an offline app
+shell, and a synced settings screen.
 
 **Daily reminders are locked**, behind `REMINDERS_UNLOCKED` in `src/lib/prefs.ts`. A web
 notification only fires while the tab is alive, which is the wrong promise for a reminder, so the

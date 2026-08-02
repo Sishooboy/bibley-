@@ -9,6 +9,35 @@ import { useStore } from './useStore';
 /** Local edits settle for this long before a write goes out. */
 const PUSH_DELAY_MS = 1500;
 
+/**
+ * Sync failures are mostly one of three things, and "sync problem" tells the
+ * reader none of them. The free Supabase project also sleeps after about a week
+ * of inactivity, which looks exactly like being offline, so both get the same
+ * reassurance: the journal on this device is fine and nothing has been lost.
+ */
+function describeSyncError(err: unknown): string {
+  const raw = err instanceof Error ? err.message : String(err ?? '');
+  const text = raw.toLowerCase();
+
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    return 'You are offline, so nothing could be saved to your account. Everything you mark is kept on this device and will sync by itself once you are back online.';
+  }
+  if (
+    text.includes('fetch') ||
+    text.includes('network') ||
+    text.includes('load failed') ||
+    text.includes('timeout') ||
+    text.includes('503') ||
+    text.includes('504')
+  ) {
+    return 'Could not reach the server. It may be asleep after a quiet spell, which sorts itself out in a few seconds. Your reading is safe on this device either way, so try again in a moment.';
+  }
+  if (text.includes('jwt') || text.includes('token') || text.includes('401')) {
+    return 'Your sign-in expired. Sign out and back in to reconnect this device. Nothing on it has been lost.';
+  }
+  return `${raw || 'Sync failed'}. Your reading is still safe on this device.`;
+}
+
 export function CloudProvider({ children }: { children: ReactNode }) {
   const { data, mergeRemote } = useStore();
   const [session, setSession] = useState<Session | null>(null);
@@ -95,7 +124,7 @@ export function CloudProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error('Sync failed', err);
       setStatus('error');
-      setError(err instanceof Error ? err.message : 'Sync failed');
+      setError(describeSyncError(err));
     }
   }, [session, mergeRemote, push]);
 
@@ -111,11 +140,16 @@ export function CloudProvider({ children }: { children: ReactNode }) {
     const onVisible = () => {
       if (document.visibilityState === 'visible') void syncNow();
     };
+    // A sync that failed while offline has no other trigger: the reader may not
+    // touch the app again, and the debounced push only runs on a fresh edit.
+    const onOnline = () => void syncNow();
     document.addEventListener('visibilitychange', onVisible);
     window.addEventListener('focus', onVisible);
+    window.addEventListener('online', onOnline);
     return () => {
       document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('focus', onVisible);
+      window.removeEventListener('online', onOnline);
     };
   }, [session, syncNow]);
 
@@ -135,7 +169,7 @@ export function CloudProvider({ children }: { children: ReactNode }) {
         .catch((err: unknown) => {
           console.error('Could not save to the cloud', err);
           setStatus('error');
-          setError(err instanceof Error ? err.message : 'Could not save to the cloud');
+          setError(describeSyncError(err));
         });
     }, PUSH_DELAY_MS);
     return () => clearTimeout(timer);
@@ -147,7 +181,14 @@ export function CloudProvider({ children }: { children: ReactNode }) {
     // Google redirects back here, and detectSessionInUrl picks the session up.
     const { error: authError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      options: {
+        redirectTo: window.location.origin,
+        // Signing out ends the Bibley session, not the Google one, so without
+        // this Google silently re-approves the account you just left and there
+        // is no way to switch. Costs one tap, and this screen only appears
+        // when there is no session to begin with.
+        queryParams: { prompt: 'select_account' },
+      },
     });
     if (authError) setError(authError.message);
   }, []);

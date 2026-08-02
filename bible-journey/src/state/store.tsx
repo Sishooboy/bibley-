@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useReducer, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useState, type ReactNode } from 'react';
 import { getPlan, type PlanId } from '../data/plans';
 import type { Prefs } from '../lib/prefs';
-import { today } from '../lib/dates';
+import { addDays, relativeDay, today, type DayKey } from '../lib/dates';
 import {
   nextUnread,
   overallProgress,
@@ -23,9 +23,9 @@ import {
 import { StoreContext, type Derived, type Store, type UndoState } from './context';
 
 type Action =
-  | { type: 'toggleChapter'; book: string; chapter: number }
-  | { type: 'markNext'; count: number }
-  | { type: 'markThrough'; book: string; chapter: number }
+  | { type: 'toggleChapter'; book: string; chapter: number; day: DayKey }
+  | { type: 'markNext'; count: number; day: DayKey }
+  | { type: 'markThrough'; book: string; chapter: number; day: DayKey }
   | { type: 'clearBook'; book: string; chapters: number }
   | { type: 'saveNote'; book: string; chapter: number | null; text: string }
   | { type: 'deleteNote'; id: string }
@@ -72,6 +72,14 @@ function stampMarks(data: AppData, keys: string[]): Record<string, string> {
   return markedAt;
 }
 
+/**
+ * Marking records the day you read, which is not always the day you tapped.
+ * The undo label has to say so, or backdating is invisible after the fact.
+ */
+function whenSuffix(day: DayKey): string {
+  return day === today() ? '' : `, ${relativeDay(day)}`;
+}
+
 function reducer(state: State, action: Action): State {
   const { data } = state;
 
@@ -84,7 +92,9 @@ function reducer(state: State, action: Action): State {
         delete read[key];
         return { ...state, data: { ...data, read, removed: tombstone(data, [key]) } };
       }
-      read[key] = today();
+      // The reading day comes from the action; markedAt still records the moment
+      // of the tap, because that is what settles a clear against a re-mark.
+      read[key] = action.day;
       return {
         ...state,
         data: {
@@ -100,7 +110,7 @@ function reducer(state: State, action: Action): State {
       if (refs.length === 0) return state;
       const read = { ...data.read };
       const keys = refs.map((ref) => chapterKey(ref.book, ref.chapter));
-      for (const key of keys) read[key] = today();
+      for (const key of keys) read[key] = action.day;
       const label =
         refs.length === 1
           ? `Marked ${refs[0].book} ${refs[0].chapter}`
@@ -108,7 +118,7 @@ function reducer(state: State, action: Action): State {
       return withUndo(
         state,
         { ...data, read, removed: untomb(data, keys), markedAt: stampMarks(data, keys) },
-        label,
+        label + whenSuffix(action.day),
       );
     }
     case 'markThrough': {
@@ -117,14 +127,14 @@ function reducer(state: State, action: Action): State {
       for (let c = 1; c <= action.chapter; c++) {
         const key = chapterKey(action.book, c);
         if (key in read) continue;
-        read[key] = today();
+        read[key] = action.day;
         marked.push(key);
       }
       if (marked.length === 0) return state;
       return withUndo(
         state,
         { ...data, read, removed: untomb(data, marked), markedAt: stampMarks(data, marked) },
-        `Marked ${action.book} through ${action.chapter}`,
+        `Marked ${action.book} through ${action.chapter}${whenSuffix(action.day)}`,
       );
     }
     case 'clearBook': {
@@ -209,6 +219,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const load = useMemo<LoadResult>(loadData, []);
   const [state, dispatch] = useReducer(reducer, { data: load.data, previous: null });
   const { data, previous } = state;
+  /**
+   * How many days back marking should be logged. Held as an offset rather than a
+   * date, and never persisted, so it cannot go stale over midnight or survive a
+   * reload as a silently wrong setting.
+   */
+  const [logOffset, setLogOffset] = useState(0);
+  const logDay = useCallback(() => addDays(today(), -logOffset), [logOffset]);
 
   useEffect(() => {
     saveData(data);
@@ -252,9 +269,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       load,
       undoable,
       noteFor,
-      toggleChapter: (book, chapter) => dispatch({ type: 'toggleChapter', book, chapter }),
-      markNext: (count) => dispatch({ type: 'markNext', count }),
-      markThrough: (book, chapter) => dispatch({ type: 'markThrough', book, chapter }),
+      logOffset,
+      setLogOffset,
+      toggleChapter: (book, chapter) =>
+        dispatch({ type: 'toggleChapter', book, chapter, day: logDay() }),
+      markNext: (count) => dispatch({ type: 'markNext', count, day: logDay() }),
+      markThrough: (book, chapter) =>
+        dispatch({ type: 'markThrough', book, chapter, day: logDay() }),
       clearBook: (book, chapters) => dispatch({ type: 'clearBook', book, chapters }),
       saveNote: (book, chapter, text) => dispatch({ type: 'saveNote', book, chapter, text }),
       deleteNote: (id) => dispatch({ type: 'deleteNote', id }),
@@ -264,7 +285,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setPrefs: (prefs) => dispatch({ type: 'setPrefs', prefs }),
       undo: () => dispatch({ type: 'undo' }),
     }),
-    [data, derived, load, undoable, noteFor],
+    [data, derived, load, undoable, noteFor, logOffset, logDay],
   );
 
   return <StoreContext value={value}>{children}</StoreContext>;

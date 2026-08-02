@@ -65,7 +65,7 @@ function Shell() {
           </div>
 
           <div className="topbar__right">
-            <SyncBadge onOpenStats={() => setView('stats')} />
+            <SyncBadge onOpenSettings={() => setView('settings')} />
 
             <button
               type="button"

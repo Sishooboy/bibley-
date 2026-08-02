@@ -29,6 +29,12 @@ export type Store = {
   /** How this session's data was loaded, surfaced in the backup panel. */
   load: LoadResult;
   undoable: UndoState;
+  /**
+   * Days back that marking is logged against. 0 is today. Session only: reading
+   * yesterday's chapters is a moment, not a setting.
+   */
+  logOffset: number;
+  setLogOffset: (days: number) => void;
   toggleChapter: (book: string, chapter: number) => void;
   /** Marks the next `count` unread chapters in plan order. */
   markNext: (count: number) => void;

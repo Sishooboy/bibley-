@@ -67,7 +67,14 @@ export function AccountPanel({ reveal }: Props) {
         </button>
       </div>
 
-      {error && <p className="notice notice--error">{error}</p>}
+      {error && (
+        <div className="notice notice--error">
+          <p>{error}</p>
+          <button type="button" className="btn btn--sm" onClick={() => void syncNow()}>
+            Try again
+          </button>
+        </div>
+      )}
     </section>
   );
 }

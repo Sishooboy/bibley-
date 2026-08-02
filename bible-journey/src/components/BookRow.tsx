@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { today } from '../lib/dates';
 import { chapterKey } from '../lib/storage';
 import { useStore } from '../state/useStore';
+import { LogDayPicker } from './LogDayPicker';
 import { NoteEditor } from './NoteEditor';
 import { ProgressBar } from './ProgressBar';
 import { Check, Chevron } from './icons';
@@ -154,6 +155,8 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
           </div>
 
           <div className="bookTools">
+              <LogDayPicker id={`${panelId}-log-day`} />
+              <span className="bookTools__spacer" />
               <button
                 type="button"
                 className="btn btn--sm"

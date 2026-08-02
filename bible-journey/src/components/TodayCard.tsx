@@ -2,6 +2,7 @@ import { formatNumber, formatRefs } from '../lib/format';
 import { nextUnread } from '../lib/progress';
 import { useReminder } from '../state/useReminder';
 import { useStore } from '../state/useStore';
+import { LogDayPicker } from './LogDayPicker';
 import { Check, Flame } from './icons';
 
 const SUGGESTION_SIZE = 3;
@@ -58,7 +59,10 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
       </p>
 
       <div className="quickMark">
-        <span className="quickMark__label">I read</span>
+        <div className="quickMark__head">
+          <span className="quickMark__label">I read</span>
+          <LogDayPicker id="today-log-day" />
+        </div>
         <div className="quickMark__row">
           {QUICK_AMOUNTS.map((n) => (
             <button

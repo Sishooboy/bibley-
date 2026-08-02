@@ -223,6 +223,12 @@ select {
   color: var(--muted-dark);
 }
 
+/* A sync failure is the one status worth interrupting for. */
+.syncBadge--error {
+  border-color: var(--red-500);
+  color: #ffb8bc;
+}
+
 .syncBadge:hover {
   color: var(--cream);
   border-color: rgba(255, 255, 255, 0.4);
@@ -1571,11 +1577,53 @@ select {
   color: var(--muted);
 }
 
+.quickMark__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .quickMark__row {
   display: flex;
   gap: 0.4rem;
   flex-wrap: wrap;
   margin-top: 0.5rem;
+}
+
+/* ── Which day a mark counts for ────────────────────────────────────────── */
+.logDay {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.logDay__label {
+  white-space: nowrap;
+}
+
+.logDay__select {
+  padding-block: 0.3rem;
+  font-size: 0.8rem;
+}
+
+/*
+ * Logging to an earlier day is worth shouting about while it is in force. A
+ * quiet version of this control is how a whole week ends up on the wrong date.
+ */
+.logDay--past {
+  color: #6a5000;
+  font-weight: 600;
+}
+
+.logDay--past .logDay__select {
+  border-color: var(--yellow-dim);
+  background: #fdf4dd;
+  color: #6a5000;
+  font-weight: 600;
 }
 
 .chapters {
@@ -3286,6 +3334,9 @@ select {
   background: #fdeaea;
   color: var(--red-800);
   font-weight: 500;
+  display: grid;
+  gap: 0.7rem;
+  justify-items: start;
 }
 
 /* The switch gets the gold treatment when on, matching every other "yes". */

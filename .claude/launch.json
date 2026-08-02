@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "bible-journey", "run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "bibley-built",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "bible-journey", "run", "preview"],
+      "port": 4173
     }
   ]
 }

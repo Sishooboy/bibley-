@@ -1,7 +1,7 @@
 {
   "name": "Bibley reading journey",
   "short_name": "Bibley",
-  "description": "A personal Bible reading plan: 12 phases, 65 books, 1,168 chapters.",
+  "description": "Read the Bible in an order that makes sense. Choose the whole Bible, the New Testament or the Old, mark chapters as you go, and keep the streak.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f7f2e9",
