@@ -13,6 +13,7 @@ import {
   YAxis,
 } from 'recharts';
 import { Heatmap } from '../components/Heatmap';
+import { ShareCard } from '../components/ShareCard';
 import { Sparkline } from '../components/Sparkline';
 import { StatRing } from '../components/StatRing';
 import { Flame } from '../components/icons';
@@ -318,6 +319,18 @@ export function StatsView() {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+        </section>
+
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
+            <div>
+              <h3 className="card__title">Share where you are</h3>
+              <p className="card__note">
+                Everything on one card. Save it, send it, or just screenshot what is below.
+              </p>
+            </div>
+          </div>
+          <ShareCard />
         </section>
 
         <section ref={reveal} className="card reveal">

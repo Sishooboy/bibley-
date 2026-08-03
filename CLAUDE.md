@@ -61,6 +61,11 @@ redeploy.**
   from the DOM, so they survive a re-render and a device swap. **`data-verse` goes on the text span,
   not the paragraph**: put it on the paragraph and the verse number counts as characters, so every
   highlight lands one place off, or two past verse nine.
+- The shareable card in Stats is **drawn on a canvas**, not styled in the DOM and converted after.
+  DOM-to-image loses the webfonts, and the card is almost entirely typography. Canvas text uses the
+  document's loaded faces, so `readyFonts()` awaits them before the first stroke. It exports JPEG,
+  not PNG: the full-bleed gradient makes the same image 1.4 MB as a PNG against 129 KB as a JPEG,
+  and it exists to be sent to someone.
 - The reader is a real modal: it claims `aria-modal`, so it moves focus in on open, traps Tab, and
   hands focus back to whatever opened it. Reading size lives in `prefs`, so it syncs with the
   account, and scales the whole passage through `--verse-scale` rather than the verses alone.

@@ -3996,3 +3996,21 @@ select {
     min-width: 0;
   }
 }
+
+/* ── The shareable card ─────────────────────────────────────────────────── */
+.shareCard {
+  display: flex;
+  justify-content: center;
+}
+
+/*
+ * The canvas is drawn at 1080 wide and scaled down here, so the picture is
+ * already retina and the file you save is the picture you were looking at.
+ */
+.shareCard__canvas {
+  width: min(420px, 100%);
+  height: auto;
+  display: block;
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+}
