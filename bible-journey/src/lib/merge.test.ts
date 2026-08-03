@@ -204,6 +204,73 @@ describe('mergeJournals', () => {
   });
 });
 
+describe('highlights', () => {
+  const hl = (over: Partial<import('./storage').Highlight> = {}) => ({
+    id: 'h1',
+    book: 'John',
+    chapter: 3,
+    from: { verse: 16, offset: 0 },
+    to: { verse: 16, offset: 10 },
+    text: 'For God so',
+    createdAt: '2026-02-01T00:00:00.000Z',
+    updatedAt: '2026-02-01T00:00:00.000Z',
+    ...over,
+  });
+
+  it('unions highlights made on two devices', () => {
+    const a = journal({ highlights: [hl()] });
+    const b = journal({ highlights: [hl({ id: 'h2', chapter: 1 })] });
+
+    expect(mergeJournals(a, b).highlights?.map((h) => h.id)).toEqual(['h1', 'h2']);
+  });
+
+  it('keeps the later edit of the same highlight', () => {
+    const older = journal({ highlights: [hl({ note: 'first thought' })] });
+    const newer = journal({
+      highlights: [hl({ note: 'second thought', updatedAt: '2026-03-01T00:00:00.000Z' })],
+    });
+
+    expect(mergeJournals(older, newer).highlights?.[0].note).toBe('second thought');
+    expect(mergeJournals(newer, older).highlights?.[0].note).toBe('second thought');
+  });
+
+  // The same bug that chapters had: without a tombstone a union brings it back.
+  it('honours a tombstone the other device has not seen', () => {
+    const removedOn = journal({
+      highlights: [],
+      removedHighlights: { h1: '2026-02-02T00:00:00.000Z' },
+    });
+    const stale = journal({ highlights: [hl()] });
+
+    expect(mergeJournals(removedOn, stale).highlights).toBeUndefined();
+    expect(mergeJournals(stale, removedOn).highlights).toBeUndefined();
+  });
+
+  it('lets an edit made after the deletion retire the tombstone', () => {
+    const removedOn = journal({
+      highlights: [],
+      removedHighlights: { h1: '2026-02-02T00:00:00.000Z' },
+    });
+    const edited = journal({
+      highlights: [hl({ note: 'came back to it', updatedAt: '2026-02-03T00:00:00.000Z' })],
+    });
+
+    const merged = mergeJournals(removedOn, edited);
+    expect(merged.highlights?.[0].note).toBe('came back to it');
+    expect(merged.removedHighlights ?? {}).not.toHaveProperty('h1');
+  });
+
+  it('notices a highlight change, so an edit is never skipped as a pointless write', () => {
+    const before = journal({ highlights: [hl()] });
+    const after = journal({
+      highlights: [hl({ note: 'a thought', updatedAt: '2026-03-01T00:00:00.000Z' })],
+    });
+
+    expect(sameJournal(before, after)).toBe(false);
+    expect(sameJournal(before, journal({ highlights: [hl()] }))).toBe(true);
+  });
+});
+
 describe('sameJournal', () => {
   it('spots a changed reading day, not just a changed key set', () => {
     const a = journal({ read: { 'John|1': '2026-02-01' } });

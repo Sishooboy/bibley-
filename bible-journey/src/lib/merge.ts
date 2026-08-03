@@ -1,4 +1,4 @@
-import type { AppData, Note, ReadMap, Slot } from './storage';
+import type { AppData, Highlight, Note, ReadMap, Slot } from './storage';
 
 /**
  * Adds win by union, deletions are explicit.
@@ -28,6 +28,7 @@ export function mergeJournals(a: AppData, b: AppData): AppData {
     removed: Object.keys(removed).length > 0 ? removed : undefined,
     markedAt: Object.keys(markedAt).length > 0 ? markedAt : undefined,
     slots: Object.keys(slots).length > 0 ? slots : undefined,
+    ...mergeHighlights(a, b),
     notes: mergeNotes(a.notes, b.notes),
     startedAt: a.startedAt < b.startedAt ? a.startedAt : b.startedAt,
     backedUpAt: a.backedUpAt,
@@ -125,6 +126,39 @@ function applyRemovals(
   return out;
 }
 
+/**
+ * Highlights follow the chapter rules rather than the note rules: they are
+ * identified by id, they union, and deleting one needs a tombstone, because an
+ * absent highlight is indistinguishable from one the other device has not seen.
+ * The same reasoning, and the same bug, as unmarking a chapter.
+ */
+function mergeHighlights(
+  a: AppData,
+  b: AppData,
+): Pick<AppData, 'highlights' | 'removedHighlights'> {
+  const removed = mergeStamps(a.removedHighlights, b.removedHighlights);
+
+  const byId = new Map<string, Highlight>();
+  for (const highlight of [...(a.highlights ?? []), ...(b.highlights ?? [])]) {
+    const existing = byId.get(highlight.id);
+    if (!existing || highlight.updatedAt > existing.updatedAt) byId.set(highlight.id, highlight);
+  }
+
+  // Editing a highlight after deleting it elsewhere retires the tombstone, the
+  // way re-marking a chapter retires its own.
+  for (const [id, at] of Object.entries(removed)) {
+    const live = byId.get(id);
+    if (live && live.updatedAt > at) delete removed[id];
+    else byId.delete(id);
+  }
+
+  const highlights = [...byId.values()].sort((x, y) => x.createdAt.localeCompare(y.createdAt));
+  return {
+    highlights: highlights.length > 0 ? highlights : undefined,
+    removedHighlights: Object.keys(removed).length > 0 ? removed : undefined,
+  };
+}
+
 function noteKey(note: Note): string {
   return `${note.book}|${note.chapter ?? 'book'}`;
 }
@@ -156,5 +190,23 @@ export function sameJournal(a: AppData, b: AppData): boolean {
     const match = b.notes.find((n) => n.id === note.id);
     if (!match || match.text !== note.text || match.updatedAt !== note.updatedAt) return false;
   }
+
+  // This decides whether a change is worth writing to the server, so anything
+  // missing from it is a change that silently never syncs.
+  const aHighlights = a.highlights ?? [];
+  const bHighlights = b.highlights ?? [];
+  if (aHighlights.length !== bHighlights.length) return false;
+  for (const highlight of aHighlights) {
+    const match = bHighlights.find((h) => h.id === highlight.id);
+    if (!match || match.updatedAt !== highlight.updatedAt || match.note !== highlight.note) {
+      return false;
+    }
+  }
+  const aRemovedHl = Object.keys(a.removedHighlights ?? {});
+  if (aRemovedHl.length !== Object.keys(b.removedHighlights ?? {}).length) return false;
+  for (const id of aRemovedHl) {
+    if (a.removedHighlights?.[id] !== b.removedHighlights?.[id]) return false;
+  }
+
   return true;
 }

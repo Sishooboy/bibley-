@@ -18,6 +18,7 @@ import {
   saveData,
   type AppData,
   type LoadResult,
+  type Highlight,
   type Note,
   type Slot,
 } from '../lib/storage';
@@ -28,6 +29,9 @@ type Action =
   | { type: 'markNext'; count: number; day: DayKey; slot: Slot | null }
   | { type: 'markThrough'; book: string; chapter: number; day: DayKey; slot: Slot | null }
   | { type: 'clearBook'; book: string; chapters: number }
+  | { type: 'addHighlight'; highlight: Highlight }
+  | { type: 'noteHighlight'; id: string; note: string }
+  | { type: 'removeHighlight'; id: string }
   | { type: 'saveNote'; book: string; chapter: number | null; text: string }
   | { type: 'deleteNote'; id: string }
   | { type: 'importData'; data: AppData }
@@ -89,6 +93,17 @@ function stampSlots(
     else delete slots[key];
   }
   return Object.keys(slots).length > 0 ? slots : undefined;
+}
+
+/** Removes keys from an optional stamp map, dropping the map when it empties. */
+function dropKeys(
+  map: Record<string, string> | undefined,
+  keys: string[],
+): Record<string, string> | undefined {
+  if (!map) return undefined;
+  const out = { ...map };
+  for (const key of keys) delete out[key];
+  return Object.keys(out).length > 0 ? out : undefined;
 }
 
 /** Dropping a chapter drops its tag with it. */
@@ -200,6 +215,47 @@ function reducer(state: State, action: Action): State {
         state,
         { ...data, read, removed: tombstone(data, cleared), slots: dropSlots(data, cleared) },
         `Cleared ${action.book}`,
+      );
+    }
+    case 'addHighlight':
+      return {
+        ...state,
+        data: {
+          ...data,
+          highlights: [...(data.highlights ?? []), action.highlight],
+          // A new highlight can reuse an id only if one was deleted and undone,
+          // but clearing the tombstone costs nothing and prevents a resurrection
+          // fight on the next sync.
+          removedHighlights: dropKeys(data.removedHighlights, [action.highlight.id]),
+        },
+      };
+    case 'noteHighlight': {
+      const now = new Date().toISOString();
+      const note = action.note.trim();
+      return {
+        ...state,
+        data: {
+          ...data,
+          highlights: (data.highlights ?? []).map((h) =>
+            h.id === action.id ? { ...h, note: note || undefined, updatedAt: now } : h,
+          ),
+        },
+      };
+    }
+    case 'removeHighlight': {
+      const highlight = (data.highlights ?? []).find((h) => h.id === action.id);
+      if (!highlight) return state;
+      return withUndo(
+        state,
+        {
+          ...data,
+          highlights: (data.highlights ?? []).filter((h) => h.id !== action.id),
+          removedHighlights: {
+            ...(data.removedHighlights ?? {}),
+            [action.id]: new Date().toISOString(),
+          },
+        },
+        'Removed highlight',
       );
     }
     case 'saveNote': {
@@ -329,6 +385,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       markThrough: (book, chapter) =>
         dispatch({ type: 'markThrough', book, chapter, day: logDay(), slot: logSlot }),
       clearBook: (book, chapters) => dispatch({ type: 'clearBook', book, chapters }),
+      addHighlight: (highlight) => dispatch({ type: 'addHighlight', highlight }),
+      noteHighlight: (id, note) => dispatch({ type: 'noteHighlight', id, note }),
+      removeHighlight: (id) => dispatch({ type: 'removeHighlight', id }),
       saveNote: (book, chapter, text) => dispatch({ type: 'saveNote', book, chapter, text }),
       deleteNote: (id) => dispatch({ type: 'deleteNote', id }),
       importData: (imported) => dispatch({ type: 'importData', data: imported }),

@@ -54,6 +54,20 @@ redeploy.**
   have nothing behind them in this translation's source. The slot stays so later numbering is right,
   and the reader skips it. `bible.test.ts` pins that list, so replacing the text trips a test rather
   than silently shifting verse numbers.
+- **Highlights are the chapter rules, not the note rules.** They carry an id, they union on merge,
+  and deleting one writes a tombstone in `removedHighlights`, because an absent highlight is
+  indistinguishable from one the other device has not seen. Exactly the bug unmarking a chapter
+  had. Positions are `{verse, offset}` character offsets *inside a verse*, never anything derived
+  from the DOM, so they survive a re-render and a device swap. **`data-verse` goes on the text span,
+  not the paragraph**: put it on the paragraph and the verse number counts as characters, so every
+  highlight lands one place off, or two past verse nine.
+- Anything that changes a journal must be visible to `sameJournal` in `merge.ts`. It decides whether
+  a change is worth writing to the server, so a field missing from it is a field that silently
+  never syncs.
+- `src/data/canon.ts` is the books in printed order, `src/lib/navigate.ts` the movement between
+  them. Inside a book both orders agree; at a book's last chapter the plan decides if it contains
+  that chapter, and printed order takes over if it does not. That is what lets a reader wander off
+  to a book their plan omits and still have Next behave like a Bible.
 - `src/data/plan.ts` holds the twelve-phase book data. `src/data/plans.ts` builds the three plans
   from it: `both` (66 books, 1,189 chapters), `nt` (27, 260), `ot` (39, 929).
 - `src/state/store.tsx` is a reducer over `AppData`, persisted to `localStorage` under
@@ -144,8 +158,12 @@ Progress is never lost, only occasionally resurrected. That direction is deliber
 Working: three plans with a chooser and a preparing transition, Google-only sign-in behind a gate,
 per-account sync with the merge rules above, chapter marking by slider, quick amounts and tap,
 undo, backdating so a chapter counts on the day it was read, an optional time of day, the text
-itself in a reader that walks the plan, notes, stats, streaks, an offline app shell, and a synced
-settings screen.
+itself in a reader that opens at any book and any chapter, highlighting with a thought attached,
+notes, stats, streaks, an offline app shell, and a synced settings screen.
+
+Notes and highlights share one feed in the Notes view, sorted by when each was last touched. They
+are different objects with the same purpose, so the filter switches between them rather than
+separating them into two screens.
 
 **Daily reminders are locked**, behind `REMINDERS_UNLOCKED` in `src/lib/prefs.ts`. A web
 notification only fires while the tab is alive, which is the wrong promise for a reminder, so the

@@ -3716,3 +3716,209 @@ select {
     font-size: 0.82rem;
   }
 }
+
+/* ── Highlights ─────────────────────────────────────────────────────────── */
+/*
+ * Gold wash rather than a block of colour: the verse still has to read as text,
+ * and a highlight is a mark on a page, not a replacement for it.
+ */
+.hl {
+  background: linear-gradient(180deg, rgba(247, 184, 1, 0.18), rgba(247, 184, 1, 0.42));
+  color: inherit;
+  border-radius: 2px;
+  padding: 0.05em 0;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.hl:hover {
+  background: rgba(247, 184, 1, 0.55);
+}
+
+/* A highlight carrying a thought earns an underline, so the page shows which
+   passages you actually wrote about without opening anything. */
+.hl--noted {
+  box-shadow: inset 0 -2px 0 var(--red-600);
+}
+
+.reader__book {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 12rem;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.24);
+  color: var(--cream);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  padding-block: 0.25rem;
+}
+
+.reader__book option,
+.reader__chapter option {
+  color: var(--text);
+  background: var(--surface);
+}
+
+/* ── The highlight sheet ────────────────────────────────────────────────── */
+.hlSheet {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 5;
+  background: rgba(26, 21, 18, 0.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 1rem;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  animation: sheetIn 200ms var(--ease-out);
+}
+
+@keyframes sheetIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hlSheet {
+    animation: none;
+  }
+}
+
+.hlSheet__inner {
+  width: min(34rem, 100%);
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-top: 3px solid var(--yellow);
+  border-radius: var(--panel-radius);
+  box-shadow: var(--shadow-lg);
+  padding: 1rem 1.1rem 1.1rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.hlSheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.hlSheet__ref {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--red-800);
+}
+
+.hlSheet__close {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.hlSheet__close:hover {
+  border-color: var(--red-600);
+  color: var(--red-700);
+}
+
+.hlSheet__quote {
+  margin: 0;
+  padding-left: 0.8rem;
+  border-left: 3px solid var(--yellow);
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--ink-700);
+  max-height: 7.5rem;
+  overflow-y: auto;
+}
+
+.hlSheet__note {
+  font-size: 0.95rem;
+}
+
+.hlSheet__actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* ── Notes feed: highlights alongside chapter notes ─────────────────────── */
+.kindSwitch {
+  display: inline-flex;
+  border: 1px solid var(--line-strong);
+  border-radius: 99px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.kindSwitch__item {
+  border: none;
+  background: none;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.kindSwitch__item:hover {
+  color: var(--red-700);
+}
+
+.kindSwitch__item--on {
+  background: var(--red-600);
+  color: #fff;
+  font-weight: 600;
+}
+
+.kindSwitch__item--on:hover {
+  color: #fff;
+}
+
+.noteCard--hl::before {
+  background: var(--yellow);
+}
+
+.noteCard--hl:hover::before {
+  background: var(--red-600);
+}
+
+.noteCard__passage {
+  margin: 0;
+  padding-left: 0.85rem;
+  border-left: 3px solid rgba(247, 184, 1, 0.75);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink-700);
+}
+
+.noteCard__text--empty {
+  color: var(--muted);
+  font-style: italic;
+}
+
+@media (max-width: 620px) {
+  .kindSwitch {
+    width: 100%;
+  }
+
+  .kindSwitch__item {
+    flex: 1;
+    text-align: center;
+  }
+}

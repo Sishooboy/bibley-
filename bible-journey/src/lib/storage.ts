@@ -39,6 +39,30 @@ export type Note = {
   updatedAt: string;
 };
 
+/** A point in a chapter: 1-based verse, character offset inside that verse. */
+export type Spot = { verse: number; offset: number };
+
+/**
+ * A passage the reader marked, optionally with what they thought about it.
+ *
+ * Offsets are character positions inside a verse rather than anything derived
+ * from the DOM, so a highlight survives a re-render, a font change and a device
+ * swap. `text` is stored alongside because a highlight has to read as a quote in
+ * the notes list without loading the book it came from.
+ */
+export type Highlight = {
+  id: string;
+  book: string;
+  chapter: number;
+  from: Spot;
+  to: Spot;
+  text: string;
+  /** Empty or absent when the reader highlighted without writing anything. */
+  note?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type AppData = {
   version: 1;
   /** Undefined until the reader picks one, which is what triggers the chooser. */
@@ -70,6 +94,14 @@ export type AppData = {
    * rhythm, not a field to fill in.
    */
   slots?: Record<string, Slot>;
+  /** Passages marked while reading, newest last. */
+  highlights?: Highlight[];
+  /**
+   * Deleted highlights, by id and when. Same reasoning as `removed`: without a
+   * tombstone a union merge cannot tell a deletion from a highlight the other
+   * device has not seen, and helpfully brings it back.
+   */
+  removedHighlights?: Record<string, string>;
   /** Reader settings, synced so they follow the account rather than the device. */
   prefs?: Prefs;
 };
@@ -129,8 +161,33 @@ export function normalize(input: unknown): AppData | null {
     removed: normalizeRemoved(raw.removed),
     markedAt: normalizeRemoved(raw.markedAt),
     slots: normalizeSlots(raw.slots),
+    highlights: normalizeHighlights(raw.highlights),
+    removedHighlights: normalizeRemoved(raw.removedHighlights),
     prefs: normalizePrefs(raw.prefs),
   };
+}
+
+function isSpot(value: unknown): value is Spot {
+  if (typeof value !== 'object' || value === null) return false;
+  const spot = value as Partial<Spot>;
+  return typeof spot.verse === 'number' && typeof spot.offset === 'number';
+}
+
+function normalizeHighlights(input: unknown): Highlight[] | undefined {
+  if (!Array.isArray(input)) return undefined;
+  const out = input.filter(
+    (h): h is Highlight =>
+      !!h &&
+      typeof h.id === 'string' &&
+      typeof h.book === 'string' &&
+      typeof h.chapter === 'number' &&
+      typeof h.text === 'string' &&
+      isSpot(h.from) &&
+      isSpot(h.to) &&
+      typeof h.createdAt === 'string' &&
+      typeof h.updatedAt === 'string',
+  );
+  return out.length > 0 ? out : undefined;
 }
 
 function normalizeSlots(input: unknown): Record<string, Slot> | undefined {

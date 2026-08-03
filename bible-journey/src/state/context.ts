@@ -8,7 +8,7 @@ import type {
 } from '../lib/progress';
 import type { Plan, PlanId } from '../data/plans';
 import type { Prefs } from '../lib/prefs';
-import type { AppData, LoadResult, Note, Slot } from '../lib/storage';
+import type { AppData, Highlight, LoadResult, Note, Slot } from '../lib/storage';
 
 export type Derived = {
   /** The reading plan in force, resolved from the stored choice. */
@@ -44,6 +44,10 @@ export type Store = {
   /** Marks chapters 1 through `chapter` of a book as read. */
   markThrough: (book: string, chapter: number) => void;
   clearBook: (book: string, chapters: number) => void;
+  addHighlight: (highlight: Highlight) => void;
+  /** Empty text clears the thought but keeps the highlight. */
+  noteHighlight: (id: string, note: string) => void;
+  removeHighlight: (id: string) => void;
   saveNote: (book: string, chapter: number | null, text: string) => void;
   deleteNote: (id: string) => void;
   noteFor: (book: string, chapter: number | null) => Note | undefined;
