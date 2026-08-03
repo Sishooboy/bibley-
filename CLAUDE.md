@@ -61,6 +61,9 @@ redeploy.**
   from the DOM, so they survive a re-render and a device swap. **`data-verse` goes on the text span,
   not the paragraph**: put it on the paragraph and the verse number counts as characters, so every
   highlight lands one place off, or two past verse nine.
+- The reader is a real modal: it claims `aria-modal`, so it moves focus in on open, traps Tab, and
+  hands focus back to whatever opened it. Reading size lives in `prefs`, so it syncs with the
+  account, and scales the whole passage through `--verse-scale` rather than the verses alone.
 - Anything that changes a journal must be visible to `sameJournal` in `merge.ts`. It decides whether
   a change is worth writing to the server, so a field missing from it is a field that silently
   never syncs.

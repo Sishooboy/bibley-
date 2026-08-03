@@ -3922,3 +3922,77 @@ select {
     text-align: center;
   }
 }
+
+/* ── Reading size ───────────────────────────────────────────────────────── */
+/*
+ * Set on the reader shell so the whole passage scales together, rather than the
+ * verses drifting out of proportion with the heading above them.
+ */
+.reader {
+  --verse-scale: 1;
+}
+
+.verse {
+  font-size: calc(1.12rem * var(--verse-scale));
+}
+
+.reader__heading {
+  font-size: calc(clamp(1.9rem, 5vw, 2.6rem) * var(--verse-scale));
+}
+
+.reader__size {
+  flex: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.1rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 99px;
+  background: none;
+  color: var(--cream);
+  font-family: var(--font-display);
+  line-height: 1;
+}
+
+.reader__size:hover {
+  border-color: var(--yellow);
+  color: var(--yellow);
+}
+
+.reader__sizeSmall {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.reader__sizeBig {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+@media (pointer: coarse) {
+  .reader__size {
+    min-height: 38px;
+  }
+}
+
+/*
+ * On a phone the footer was taking a fifth of the screen, which is a fifth less
+ * scripture. The two selects say "today" and "any time" on their faces, so the
+ * label is redundant here and they share a row instead of stacking.
+ */
+@media (max-width: 620px) {
+  .reader__log .logDay {
+    flex-wrap: nowrap;
+    width: 100%;
+    gap: 0.4rem;
+  }
+
+  .reader__log .logDay__label {
+    display: none;
+  }
+
+  .reader__log .logDay__select {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}

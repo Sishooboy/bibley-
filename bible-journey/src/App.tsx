@@ -31,6 +31,15 @@ function Shell() {
   const [view, setView] = useState<ViewId>('journey');
   const [menuOpen, setMenuOpen] = useState(false);
 
+  /*
+   * A new tab starts at its own beginning. Without this the scroll position
+   * carries over, so tapping Notes after scrolling down the journey lands you
+   * halfway down the notes with the masthead off screen.
+   */
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [view]);
+
   // Dismiss the small-screen menu the way a menu should be dismissable.
   useEffect(() => {
     if (!menuOpen) return;

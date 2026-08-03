@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { NEW_TESTAMENT, OLD_TESTAMENT } from '../data/canon';
 import { TRANSLATION_NAME, cachedBook, loadBook, type BookText } from '../lib/bible';
 import {
@@ -11,6 +11,7 @@ import {
   type Range,
 } from '../lib/highlight';
 import { neighbours } from '../lib/navigate';
+import { DEFAULT_PREFS, TEXT_SIZES, textScale } from '../lib/prefs';
 import { chapterKey, newId, type Highlight } from '../lib/storage';
 import { useStore } from '../state/useStore';
 import { HighlightSheet } from './HighlightSheet';
@@ -37,8 +38,9 @@ export function Reader({
   onNavigate: (book: string, chapter: number) => void;
   onClose: () => void;
 }) {
-  const { data, derived, toggleChapter, addHighlight } = useStore();
+  const { data, derived, toggleChapter, addHighlight, setPrefs } = useStore();
   const { plan } = derived;
+  const prefs = data.prefs ?? DEFAULT_PREFS;
   const [text, setText] = useState<BookText | undefined>(() => cachedBook(book));
   const [error, setError] = useState<string | null>(null);
   /** The highlight whose note is open, or a pending range not yet saved. */
@@ -46,6 +48,8 @@ export function Reader({
   const [pending, setPending] = useState<Range | null>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLElement>(null);
+  const shellRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   const key = chapterKey(book, chapter);
   const isRead = key in data.read;
@@ -113,6 +117,39 @@ export function Reader({
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = overflow;
+    };
+  }, []);
+
+  /*
+   * This claims aria-modal, so focus has to actually live inside it. Without
+   * this, opening the reader leaves focus on the button behind and a keyboard
+   * tabs through a page it cannot see. The opener gets its focus back on close.
+   */
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+
+    const onTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || !shellRef.current) return;
+      const focusable = shellRef.current.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), select, textarea, [href]',
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onTab);
+    return () => {
+      document.removeEventListener('keydown', onTab);
+      opener?.focus?.();
     };
   }, []);
 
@@ -215,9 +252,22 @@ export function Reader({
   const open = marks.find((h) => h.id === editing);
 
   return (
-    <div className="reader" role="dialog" aria-modal="true" aria-label={`${book} ${chapter}`}>
+    <div
+      className="reader"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${book} ${chapter}`}
+      ref={shellRef}
+      style={{ '--verse-scale': textScale(prefs.textSize) } as CSSProperties}
+    >
       <header className="reader__bar">
-        <button type="button" className="reader__close" onClick={onClose} aria-label="Close reader">
+        <button
+          type="button"
+          className="reader__close"
+          onClick={onClose}
+          aria-label="Close reader"
+          ref={closeRef}
+        >
           ✕
         </button>
 
@@ -253,13 +303,34 @@ export function Reader({
               onChange={(e) => onNavigate(book, Number(e.target.value))}
             >
               {Array.from({ length: chapterCount }, (_, i) => (
+                // A tick beside the chapters already read, so the picker doubles
+                // as the answer to "where had I got to".
                 <option key={i + 1} value={i + 1}>
                   {i + 1}
+                  {chapterKey(book, i + 1) in data.read ? ' ✓' : ''}
                 </option>
               ))}
             </select>
           )}
         </div>
+
+        <button
+          type="button"
+          className="reader__size"
+          // Cycles rather than opening a menu: four steps is short enough that
+          // tapping through them is faster than choosing from a list.
+          onClick={() =>
+            setPrefs({
+              ...prefs,
+              textSize: ((prefs.textSize ?? 1) + 1) % TEXT_SIZES.length,
+            })
+          }
+          aria-label={`Text size, currently ${(prefs.textSize ?? 1) + 1} of ${TEXT_SIZES.length}`}
+          title="Text size"
+        >
+          <span className="reader__sizeSmall">A</span>
+          <span className="reader__sizeBig">A</span>
+        </button>
 
         {isRead && (
           <span className="reader__done" title="Marked as read">

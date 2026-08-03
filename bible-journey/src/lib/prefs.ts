@@ -3,10 +3,15 @@ import { today, type DayKey } from './dates';
 /** Only a device event log lives here now: the settings themselves are synced. */
 const NOTIFIED_KEY = 'bible-journey/notified';
 
+/** Reading sizes, smallest first. Index 1 is the default. */
+export const TEXT_SIZES = [0.92, 1, 1.14, 1.32] as const;
+
 export type Prefs = {
   remindersEnabled: boolean;
   /** 24h `HH:MM`. */
   reminderTime: string;
+  /** Index into TEXT_SIZES. Synced, because comfortable reading is personal. */
+  textSize?: number;
   /** Set on every change so two devices can be compared. */
   updatedAt?: string;
 };
@@ -14,6 +19,7 @@ export type Prefs = {
 export const DEFAULT_PREFS: Prefs = {
   remindersEnabled: false,
   reminderTime: '20:00',
+  textSize: 1,
 };
 
 /**
@@ -34,8 +40,17 @@ export function normalizePrefs(input: unknown): Prefs | undefined {
     reminderTime: /^\d{2}:\d{2}$/.test(raw.reminderTime ?? '')
       ? (raw.reminderTime as string)
       : DEFAULT_PREFS.reminderTime,
+    textSize:
+      typeof raw.textSize === 'number' && raw.textSize >= 0 && raw.textSize < TEXT_SIZES.length
+        ? Math.floor(raw.textSize)
+        : DEFAULT_PREFS.textSize,
     updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : undefined,
   };
+}
+
+/** The reading scale for a stored index, tolerant of anything unexpected. */
+export function textScale(index: number | undefined): number {
+  return TEXT_SIZES[index ?? 1] ?? TEXT_SIZES[1];
 }
 
 /**
