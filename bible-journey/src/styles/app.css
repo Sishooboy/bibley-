@@ -488,12 +488,18 @@ select {
   justify-content: center;
 }
 
+/*
+ * A step still to come reads dimmer than a finished one, but it is text someone
+ * is watching, so dim stops at legible. 0.3 measured 2.7:1 against the 4.5:1
+ * this size needs; 0.5 clears it and is still plainly the quieter state next to
+ * the cream of a finished step.
+ */
 .preparing__step {
   display: flex;
   align-items: center;
   gap: 0.65rem;
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.5);
   transition: color 350ms ease;
 }
 
@@ -808,8 +814,13 @@ select {
   color: var(--muted);
 }
 
+/*
+ * The pale gold, not the full one. This is 11px on backgrounds that run as
+ * light as deep red, where `--yellow` measures 3.8:1 and small text needs 4.5.
+ * On the near-black surfaces it sits on elsewhere it simply reads brighter.
+ */
 .eyebrow--onDark {
-  color: var(--yellow);
+  color: var(--yellow-soft);
 }
 
 .btn {
@@ -1993,9 +2004,16 @@ select {
   color: #fff;
   padding-block: clamp(2rem, 5vw, 3.25rem);
   border-bottom: 3px solid var(--yellow);
+  /*
+   * The light end stops short of full red, and the gold wash is halved. Both
+   * measured rather than judged: at the old values the brightest corner left
+   * the eyebrow at 2.4:1 and the chips at 3.2:1, against the 4.5:1 small text
+   * needs. Every masthead colour now clears AA at the brightest point of the
+   * sweep, so none of it depends on where the text happens to sit.
+   */
   background:
-    radial-gradient(120% 150% at 88% -40%, rgba(247, 184, 1, 0.32), transparent 58%),
-    linear-gradient(135deg, #3d070c 0%, #8e1420 48%, #c81d25 100%);
+    radial-gradient(120% 150% at 88% -40%, rgba(247, 184, 1, 0.18), transparent 58%),
+    linear-gradient(135deg, #3d070c 0%, #7e121c 48%, #96161f 100%);
 }
 
 /* Fine diagonal weave, barely there, kills the flatness of a plain gradient. */
@@ -2139,7 +2157,7 @@ select {
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.68);
+  color: rgba(255, 255, 255, 0.82);
 }
 
 /* ── Panels ─────────────────────────────────────────────────────────────── */
@@ -3074,7 +3092,7 @@ select {
   gap: 0.7rem;
 }
 
-.planCard {
+.planPick {
   display: grid;
   gap: 0.35rem;
   text-align: left;
@@ -3088,27 +3106,27 @@ select {
     box-shadow 220ms ease;
 }
 
-.planCard:hover {
+.planPick:hover {
   border-color: var(--red-500);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
-.planCard__top {
+.planPick__top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
 }
 
-.planCard__name {
+.planPick__name {
   font-family: var(--font-display);
   font-size: 1.1rem;
   font-weight: 600;
   letter-spacing: -0.02em;
 }
 
-.planCard__tick {
+.planPick__tick {
   flex: none;
   width: 20px;
   height: 20px;
@@ -3119,13 +3137,13 @@ select {
   color: transparent;
 }
 
-.planCard__meta {
+.planPick__meta {
   font-size: 0.76rem;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
-.planCard__track {
+.planPick__track {
   height: 4px;
   border-radius: 99px;
   background: #ece2d2;
@@ -3133,7 +3151,7 @@ select {
   margin-top: 0.3rem;
 }
 
-.planCard__fill {
+.planPick__fill {
   display: block;
   height: 100%;
   border-radius: 99px;
@@ -3141,13 +3159,13 @@ select {
   transition: width 800ms var(--ease-out);
 }
 
-.planCard__pct {
+.planPick__pct {
   font-size: 0.72rem;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
-.planCard--active {
+.planPick--active {
   color: #fff;
   border-color: var(--red-800);
   background:
@@ -3156,26 +3174,26 @@ select {
   box-shadow: var(--shadow-md);
 }
 
-.planCard--active:hover {
+.planPick--active:hover {
   border-color: var(--yellow);
 }
 
-.planCard--active .planCard__meta,
-.planCard--active .planCard__pct {
+.planPick--active .planPick__meta,
+.planPick--active .planPick__pct {
   color: rgba(255, 255, 255, 0.82);
 }
 
-.planCard--active .planCard__tick {
+.planPick--active .planPick__tick {
   background: var(--yellow);
   border-color: var(--yellow);
   color: var(--ink);
 }
 
-.planCard--active .planCard__track {
+.planPick--active .planPick__track {
   background: rgba(0, 0, 0, 0.28);
 }
 
-.planCard--active .planCard__fill {
+.planPick--active .planPick__fill {
   background: linear-gradient(90deg, var(--yellow-dim), var(--yellow));
 }
 

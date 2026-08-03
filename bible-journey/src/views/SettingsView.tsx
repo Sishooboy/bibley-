@@ -75,22 +75,22 @@ export function SettingsView() {
                   type="button"
                   role="radio"
                   aria-checked={active}
-                  className={`planCard${active ? ' planCard--active' : ''}`}
+                  className={`planPick${active ? ' planPick--active' : ''}`}
                   onClick={() => choosePlan(id)}
                 >
-                  <span className="planCard__top">
-                    <span className="planCard__name">{option.label}</span>
-                    <span className="planCard__tick" aria-hidden="true">
+                  <span className="planPick__top">
+                    <span className="planPick__name">{option.label}</span>
+                    <span className="planPick__tick" aria-hidden="true">
                       {active && <Check size={13} />}
                     </span>
                   </span>
-                  <span className="planCard__meta">
+                  <span className="planPick__meta">
                     {plural(option.bookCount, 'book')} · {formatNumber(option.chapterCount)} chapters
                   </span>
-                  <span className="planCard__track" aria-hidden="true">
-                    <span className="planCard__fill" style={{ width: `${pct}%` }} />
+                  <span className="planPick__track" aria-hidden="true">
+                    <span className="planPick__fill" style={{ width: `${pct}%` }} />
                   </span>
-                  <span className="planCard__pct">
+                  <span className="planPick__pct">
                     {formatNumber(stats.planRead)} read · {pct.toFixed(1)}%
                   </span>
                 </button>

@@ -85,6 +85,19 @@ redeploy.**
   other three share one system: `ViewHeader` for the masthead, `.card` for every panel, and the
   `Notes, Stats and Settings` block at the end of `app.css`. Change `.card` there and all three move
   together.
+- **Before adding a class to `app.css`, check the name is not already taken.** This has bitten
+  twice: `.panel` (Journey's cards, redefined for the inner views, which repainted the verse of the
+  day cream on cream) and `.planCard` (the testament chooser's cards, redefined for the Settings
+  switcher, which made the chooser's plan names invisible at 1.09:1). Both were same specificity,
+  later rule wins, no warning anywhere. A component refining its own earlier rule is fine, so read
+  the output for names that belong to *two different components*. This finds them:
+  `node -e "const L=require('fs').readFileSync('src/styles/app.css','utf8').split(/\r?\n/);const m=new Map();L.forEach((l,i)=>{const s=l.match(/^(\.[\w-]+(?:__[\w-]+)?(?:--[\w-]+)?)\s*\{/);if(s){(m.get(s[1])??m.set(s[1],[]).get(s[1])).push(i+1)}});[...m].filter(([,v])=>v.length>1).forEach(([k,v])=>console.log(k,v))"`
+- **Contrast is measured, not judged.** Red and gold sit close in luminance, so eyeballing it fails.
+  The masthead gradient's light end is `--red-700`, not `--red-600`, and its gold wash is 0.18, both
+  chosen so every colour on it clears WCAG AA at the *brightest* point of the sweep rather than
+  wherever the text happens to sit. `.eyebrow--onDark` is `--yellow-soft` for the same reason: full
+  `--yellow` measures 3.8:1 there and 11px text needs 4.5. Solid `--red-600` carries white and cream
+  but not gold; `--red-500` carries no text at all, so keep it for dots and fills.
 - **`.panel` belongs to Journey**, not to that block. It is the today card and the verse card, and
   it is defined near `.panels` around line 1080. Redefining it later in the file silently repainted
   the verse of the day cream on cream. Anything shared between Journey and the other three, `.select`
