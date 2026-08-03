@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PLANS, PLAN_ORDER } from '../data/plans';
-import { addDays, daysBetween, toDayKey, today } from './dates';
+import { addDays, clampReadingDay, daysBetween, isDayKey, toDayKey, today } from './dates';
 import { last30Days, overallProgress, phaseProgressAll, streak } from './progress';
 import type { ReadMap } from './storage';
 
@@ -31,6 +31,45 @@ describe('dates', () => {
   it('survives a daylight saving change', () => {
     // Most northern DST shifts land in March. A 23 or 25 hour day still counts as one.
     expect(daysBetween('2026-03-07', '2026-03-09')).toBe(2);
+  });
+});
+
+describe('choosing a reading day', () => {
+  it('accepts a real date and keeps it', () => {
+    expect(clampReadingDay('2026-02-08', '2026-02-10')).toBe('2026-02-08');
+  });
+
+  it('accepts a date years back, since catching up is the point', () => {
+    expect(clampReadingDay('2019-07-04', '2026-02-10')).toBe('2019-07-04');
+  });
+
+  /*
+   * A future reading day would keep a streak alive without anyone reading:
+   * `streak` measures the gap from the last day read to today, and a day ahead
+   * of today makes that gap negative.
+   */
+  it('refuses a day in the future', () => {
+    expect(clampReadingDay('2026-03-01', '2026-02-10')).toBe('2026-02-10');
+    expect(clampReadingDay('2026-02-11', '2026-02-10')).toBe('2026-02-10');
+  });
+
+  it('allows today itself', () => {
+    expect(clampReadingDay('2026-02-10', '2026-02-10')).toBe('2026-02-10');
+  });
+
+  it('falls back to today for anything that is not a date', () => {
+    for (const bad of ['', 'yesterday', '2026-2-8', '10-02-2026', null, undefined, 42, {}]) {
+      expect(clampReadingDay(bad, '2026-02-10')).toBe('2026-02-10');
+    }
+  });
+
+  it('rejects a date that looks right but does not exist', () => {
+    // A Date object silently rolls 31 February into March, so the shape of the
+    // string is not enough on its own.
+    expect(clampReadingDay('2026-02-31', '2026-06-10')).toBe('2026-06-10');
+    expect(clampReadingDay('2026-13-01', '2026-06-10')).toBe('2026-06-10');
+    expect(isDayKey('2026-02-29')).toBe(false);
+    expect(isDayKey('2028-02-29')).toBe(true);
   });
 });
 

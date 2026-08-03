@@ -37,6 +37,25 @@ export function formatDay(key: DayKey, opts: Intl.DateTimeFormatOptions = {}): s
   });
 }
 
+export function isDayKey(value: unknown): value is DayKey {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  // A real Date rejects nothing, so 2026-02-31 has to be caught by round trip.
+  return toDayKey(fromDayKey(value)) === value;
+}
+
+/**
+ * A reading day the app will accept: a real date, and never in the future.
+ * Anything else falls back to today, which is the only safe guess.
+ *
+ * A future day is not merely odd. `streak` measures the gap from the last
+ * reading day to today, so a day ahead of today would keep a streak alive
+ * without anyone reading anything.
+ */
+export function clampReadingDay(value: unknown, now: DayKey = today()): DayKey {
+  if (!isDayKey(value)) return now;
+  return value > now ? now : value;
+}
+
 export function relativeDay(key: DayKey): string {
   const diff = daysBetween(key, today());
   if (diff === 0) return 'today';

@@ -8,6 +8,7 @@ import type {
 } from '../lib/progress';
 import type { Plan, PlanId } from '../data/plans';
 import type { Prefs } from '../lib/prefs';
+import type { DayKey } from '../lib/dates';
 import type { AppData, Highlight, LoadResult, Note, Slot } from '../lib/storage';
 
 export type Derived = {
@@ -30,11 +31,11 @@ export type Store = {
   load: LoadResult;
   undoable: UndoState;
   /**
-   * Days back that marking is logged against. 0 is today. Session only: reading
-   * yesterday's chapters is a moment, not a setting.
+   * The day marking is logged against, or null for whenever today is. Session
+   * only: reading yesterday's chapters is a moment, not a setting.
    */
-  logOffset: number;
-  setLogOffset: (days: number) => void;
+  logDay: DayKey | null;
+  setLogDay: (day: DayKey | null) => void;
   /** Optional time of day for the next mark. Null means the reader did not say. */
   logSlot: Slot | null;
   setLogSlot: (slot: Slot | null) => void;

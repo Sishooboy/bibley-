@@ -93,11 +93,14 @@ redeploy.**
 - `public/sw.js` is hand written. Navigations are network first so a deploy lands as soon as there
   is a connection, hashed assets are cache first, and anything cross-origin is ignored outright so
   a Supabase response can never be served from cache. Bump `CACHE` to retire every old cache.
-- **Marking records the day you read, not the day you tapped.** `logOffset` in `store.tsx` is
-  session-only React state, held as an offset rather than a date so it cannot go stale over
-  midnight, and `LogDayPicker` sits beside every marking control and turns gold when it is not
-  today. `markedAt` still stamps the moment of the tap, because that is what settles a clear
-  against a re-mark. Do not collapse the two.
+- **Marking records the day you read, not the day you tapped.** `logDay` in `store.tsx` is
+  session-only React state and **null means "whenever today is"**, not today's date: the default
+  has to keep tracking the clock so a session left open across midnight still logs correctly, while
+  a date picked from the calendar is an absolute answer and is kept as given. `clampReadingDay`
+  guards the input, since a future reading day would hold a streak open with nobody reading.
+  `LogDayPicker` is a native date input, so every phone offers its own calendar, and it sits beside
+  every marking control and turns gold when it is not today. `markedAt` still stamps the moment of
+  the tap, because that is what settles a clear against a re-mark. Do not collapse the two.
 - **Time of day is optional and stays optional.** `slots` on the journal, `logSlot` beside
   `logOffset`, four values, and no default. An untagged chapter is not missing anything, so nothing
   nags for it and the Stats panel counts only what was actually tagged rather than treating

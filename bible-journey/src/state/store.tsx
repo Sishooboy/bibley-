@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useState, type ReactNode } from 'react';
 import { getPlan, type PlanId } from '../data/plans';
 import type { Prefs } from '../lib/prefs';
-import { addDays, relativeDay, today, type DayKey } from '../lib/dates';
+import { clampReadingDay, relativeDay, today, type DayKey } from '../lib/dates';
 import {
   nextUnread,
   overallProgress,
@@ -324,14 +324,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, { data: load.data, previous: null });
   const { data, previous } = state;
   /**
-   * How many days back marking should be logged. Held as an offset rather than a
-   * date, and never persisted, so it cannot go stale over midnight or survive a
-   * reload as a silently wrong setting.
+   * The day marking is logged against, or null for today.
+   *
+   * Null rather than today's date on purpose: the default has to mean "whenever
+   * today is", so a session left open across midnight still logs to the right
+   * day. A date the reader picked out of a calendar is the opposite, an absolute
+   * answer, so that one is stored as given. Never persisted either way, because
+   * reading yesterday's chapters is a moment, not a setting.
    */
-  const [logOffset, setLogOffset] = useState(0);
+  const [pickedDay, setPickedDay] = useState<DayKey | null>(null);
   /** Optional, and null means the reader did not say. That is a fine answer. */
   const [logSlot, setLogSlot] = useState<Slot | null>(null);
-  const logDay = useCallback(() => addDays(today(), -logOffset), [logOffset]);
+  /** Resolved at the moment of dispatch, which is what keeps null honest. */
+  const effectiveDay = useCallback(() => pickedDay ?? today(), [pickedDay]);
+  const setLogDay = useCallback((day: DayKey | null) => {
+    setPickedDay(day === null ? null : clampReadingDay(day));
+  }, []);
 
   useEffect(() => {
     saveData(data);
@@ -375,15 +383,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       load,
       undoable,
       noteFor,
-      logOffset,
-      setLogOffset,
+      logDay: pickedDay,
+      setLogDay,
       logSlot,
       setLogSlot,
       toggleChapter: (book, chapter) =>
-        dispatch({ type: 'toggleChapter', book, chapter, day: logDay(), slot: logSlot }),
-      markNext: (count) => dispatch({ type: 'markNext', count, day: logDay(), slot: logSlot }),
+        dispatch({ type: 'toggleChapter', book, chapter, day: effectiveDay(), slot: logSlot }),
+      markNext: (count) => dispatch({ type: 'markNext', count, day: effectiveDay(), slot: logSlot }),
       markThrough: (book, chapter) =>
-        dispatch({ type: 'markThrough', book, chapter, day: logDay(), slot: logSlot }),
+        dispatch({ type: 'markThrough', book, chapter, day: effectiveDay(), slot: logSlot }),
       clearBook: (book, chapters) => dispatch({ type: 'clearBook', book, chapters }),
       addHighlight: (highlight) => dispatch({ type: 'addHighlight', highlight }),
       noteHighlight: (id, note) => dispatch({ type: 'noteHighlight', id, note }),
@@ -396,7 +404,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setPrefs: (prefs) => dispatch({ type: 'setPrefs', prefs }),
       undo: () => dispatch({ type: 'undo' }),
     }),
-    [data, derived, load, undoable, noteFor, logOffset, logSlot, logDay],
+    [data, derived, load, undoable, noteFor, pickedDay, setLogDay, logSlot, effectiveDay],
   );
 
   return <StoreContext value={value}>{children}</StoreContext>;
