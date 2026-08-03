@@ -1,4 +1,4 @@
-import type { AppData, Note, ReadMap } from './storage';
+import type { AppData, Note, ReadMap, Slot } from './storage';
 
 /**
  * Adds win by union, deletions are explicit.
@@ -19,6 +19,7 @@ export function mergeJournals(a: AppData, b: AppData): AppData {
   }
 
   const read = applyRemovals(mergeRead(a.read, b.read), removed, markedAt);
+  const slots = mergeSlots(a, b, read);
 
   return {
     version: 1,
@@ -26,12 +27,41 @@ export function mergeJournals(a: AppData, b: AppData): AppData {
     read,
     removed: Object.keys(removed).length > 0 ? removed : undefined,
     markedAt: Object.keys(markedAt).length > 0 ? markedAt : undefined,
+    slots: Object.keys(slots).length > 0 ? slots : undefined,
     notes: mergeNotes(a.notes, b.notes),
     startedAt: a.startedAt < b.startedAt ? a.startedAt : b.startedAt,
     backedUpAt: a.backedUpAt,
     ownerId: a.ownerId ?? b.ownerId,
     prefs: newerPrefs(a.prefs, b.prefs),
   };
+}
+
+/**
+ * Time of day is a tag on a mark, so it follows the mark: the device that
+ * marked later describes it, and a tag whose chapter is gone goes with it. A
+ * disagreement here costs a label, never a chapter, so it stays this simple.
+ */
+function mergeSlots(a: AppData, b: AppData, read: ReadMap): Record<string, Slot> {
+  const out: Record<string, Slot> = { ...(a.slots ?? {}) };
+  for (const [key, slot] of Object.entries(b.slots ?? {})) {
+    const mine = out[key];
+    if (!mine) {
+      out[key] = slot;
+      continue;
+    }
+    if (mine === slot) continue;
+    // Both sides tagged it differently. The later mark is the later opinion.
+    const aStamp = a.markedAt?.[key] ?? '';
+    const bStamp = b.markedAt?.[key] ?? '';
+    if (bStamp > aStamp) out[key] = slot;
+  }
+
+  // A tag on a chapter that is no longer read is litter, and it would come back
+  // to life attached to the wrong reading if the chapter were ever marked again.
+  for (const key of Object.keys(out)) {
+    if (!(key in read)) delete out[key];
+  }
+  return out;
 }
 
 /** Settings are a single small object, so the later edit simply wins. */

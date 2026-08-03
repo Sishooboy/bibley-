@@ -14,6 +14,21 @@ export type ReadValue = DayKey | null;
 /** Key format: `${book}|${chapter}`. Book names are unique across the plan. */
 export type ReadMap = Record<string, ReadValue>;
 
+/** When in the day a chapter was read. Optional throughout. */
+export const SLOTS = ['morning', 'afternoon', 'evening', 'night'] as const;
+export type Slot = (typeof SLOTS)[number];
+
+export const SLOT_LABELS: Record<Slot, string> = {
+  morning: 'in the morning',
+  afternoon: 'in the afternoon',
+  evening: 'in the evening',
+  night: 'before bed',
+};
+
+export function isSlot(value: unknown): value is Slot {
+  return typeof value === 'string' && (SLOTS as readonly string[]).includes(value);
+}
+
 export type Note = {
   id: string;
   book: string;
@@ -49,6 +64,12 @@ export type AppData = {
    * settle a clear and a re-mark that happen on the same day. This can.
    */
   markedAt?: Record<string, string>;
+  /**
+   * Optional time of day a chapter was read. Never required, and a chapter
+   * without one is not lesser: it is a tag for anyone who wants to see their own
+   * rhythm, not a field to fill in.
+   */
+  slots?: Record<string, Slot>;
   /** Reader settings, synced so they follow the account rather than the device. */
   prefs?: Prefs;
 };
@@ -107,8 +128,18 @@ export function normalize(input: unknown): AppData | null {
     ownerId: typeof raw.ownerId === 'string' ? raw.ownerId : undefined,
     removed: normalizeRemoved(raw.removed),
     markedAt: normalizeRemoved(raw.markedAt),
+    slots: normalizeSlots(raw.slots),
     prefs: normalizePrefs(raw.prefs),
   };
+}
+
+function normalizeSlots(input: unknown): Record<string, Slot> | undefined {
+  if (typeof input !== 'object' || input === null) return undefined;
+  const out: Record<string, Slot> = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (typeof key === 'string' && key.includes('|') && isSlot(value)) out[key] = value;
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
 }
 
 /** Shared shape: chapter key to ISO timestamp. Used by `removed` and `markedAt`. */

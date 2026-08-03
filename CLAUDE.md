@@ -15,7 +15,8 @@ Run these from `bible-journey/`.
 npm run dev      # vite --host, so a phone on the same wifi can reach it
 npm run build    # tsc -b && vite build, run before pushing anything substantial
 npm run lint     # oxlint
-npm test         # vitest run, covers merge, streaks and the plan invariants
+npm test         # vitest run, covers merge, streaks, plan invariants and the text
+npm run bible    # re-download public/bible/ from the WEB. Output is committed, so rarely needed
 npm run preview  # serves dist on 4173, the only way to exercise the service worker
 npm run icons    # regenerate public/icon-*.png from brand/logo-source.png
 ```
@@ -45,6 +46,14 @@ redeploy.**
 
 ## Architecture
 
+- **The text lives in `public/bible/`**, one JSON file per book, World English Bible, public domain.
+  It is fetched a book at a time rather than bundled: 3.9 MB has no business in the JS. `src/lib/bible.ts`
+  caches in memory and dedupes concurrent loads, and the service worker keeps every book you open,
+  so a book you have read once reads again on a plane. **A null verse is deliberate**: verse
+  numbering follows the King James tradition, and four numbers (Luke 17:36, Acts 8:37, 15:34, 24:7)
+  have nothing behind them in this translation's source. The slot stays so later numbering is right,
+  and the reader skips it. `bible.test.ts` pins that list, so replacing the text trips a test rather
+  than silently shifting verse numbers.
 - `src/data/plan.ts` holds the twelve-phase book data. `src/data/plans.ts` builds the three plans
   from it: `both` (66 books, 1,189 chapters), `nt` (27, 260), `ot` (39, 929).
 - `src/state/store.tsx` is a reducer over `AppData`, persisted to `localStorage` under
@@ -67,6 +76,11 @@ redeploy.**
   midnight, and `LogDayPicker` sits beside every marking control and turns gold when it is not
   today. `markedAt` still stamps the moment of the tap, because that is what settles a clear
   against a re-mark. Do not collapse the two.
+- **Time of day is optional and stays optional.** `slots` on the journal, `logSlot` beside
+  `logOffset`, four values, and no default. An untagged chapter is not missing anything, so nothing
+  nags for it and the Stats panel counts only what was actually tagged rather than treating
+  untagged as a fifth, largest category. On merge a tag follows its mark, and a tag whose chapter
+  was cleared goes with it.
 - `src/lib/motion.ts` holds `useReveal` (scroll-in stagger) and `useCountUp`. Both no-op under
   `prefers-reduced-motion`, and `useReveal` has a timeout that shows everything if the observer
   never fires, because `.reveal` starts at opacity 0 and a stuck observer is a blank page.
@@ -129,8 +143,9 @@ Progress is never lost, only occasionally resurrected. That direction is deliber
 
 Working: three plans with a chooser and a preparing transition, Google-only sign-in behind a gate,
 per-account sync with the merge rules above, chapter marking by slider, quick amounts and tap,
-undo, backdating so a chapter counts on the day it was read, notes, stats, streaks, an offline app
-shell, and a synced settings screen.
+undo, backdating so a chapter counts on the day it was read, an optional time of day, the text
+itself in a reader that walks the plan, notes, stats, streaks, an offline app shell, and a synced
+settings screen.
 
 **Daily reminders are locked**, behind `REMINDERS_UNLOCKED` in `src/lib/prefs.ts`. A web
 notification only fires while the tab is alive, which is the wrong promise for a reminder, so the

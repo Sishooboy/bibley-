@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { today } from '../lib/dates';
 import { chapterKey } from '../lib/storage';
+import { useReader } from '../state/useReader';
 import { useStore } from '../state/useStore';
 import { LogDayPicker } from './LogDayPicker';
 import { NoteEditor } from './NoteEditor';
@@ -17,6 +18,7 @@ type Props = {
 
 export function BookRow({ name, chapters, read, open, onToggle }: Props) {
   const { data, toggleChapter, markThrough, clearBook } = useStore();
+  const { open: openReader } = useReader();
   const ref = useRef<HTMLDivElement>(null);
   const done = read === chapters;
   const todayKey = today();
@@ -157,6 +159,15 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
           <div className="bookTools">
               <LogDayPicker id={`${panelId}-log-day`} />
               <span className="bookTools__spacer" />
+              <button
+                type="button"
+                className="btn btn--sm btn--primary"
+                // Wherever you left off, not chapter one, since that is where a
+                // reader coming back actually wants to be.
+                onClick={() => openReader(name, Math.min(chapters, contiguous + 1))}
+              >
+                Read
+              </button>
               <button
                 type="button"
                 className="btn btn--sm"

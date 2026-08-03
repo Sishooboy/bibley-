@@ -8,7 +8,7 @@ import type {
 } from '../lib/progress';
 import type { Plan, PlanId } from '../data/plans';
 import type { Prefs } from '../lib/prefs';
-import type { AppData, LoadResult, Note } from '../lib/storage';
+import type { AppData, LoadResult, Note, Slot } from '../lib/storage';
 
 export type Derived = {
   /** The reading plan in force, resolved from the stored choice. */
@@ -35,6 +35,9 @@ export type Store = {
    */
   logOffset: number;
   setLogOffset: (days: number) => void;
+  /** Optional time of day for the next mark. Null means the reader did not say. */
+  logSlot: Slot | null;
+  setLogSlot: (slot: Slot | null) => void;
   toggleChapter: (book: string, chapter: number) => void;
   /** Marks the next `count` unread chapters in plan order. */
   markNext: (count: number) => void;

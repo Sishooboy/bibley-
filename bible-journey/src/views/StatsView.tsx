@@ -21,6 +21,7 @@ import { formatDay, fromDayKey, today } from '../lib/dates';
 import { formatNumber, plural } from '../lib/format';
 import { useCountUp, useReveal } from '../lib/motion';
 import { cumulative, last30Days } from '../lib/progress';
+import { SLOTS, SLOT_LABELS, type Slot } from '../lib/storage';
 import { useStore } from '../state/useStore';
 
 const RED = '#c81d25';
@@ -100,6 +101,16 @@ export function StatsView() {
   const busiest = daily.reduce((max, d) => Math.max(max, d.chapters), 0);
   const lastWeek = last30Days(data.read, 7);
   const spark = daily.slice(-14).map((d) => d.chapters);
+
+  // Time of day is opt-in, so this counts only what was actually tagged rather
+  // than treating untagged chapters as a fifth, largest category.
+  const slotCounts = SLOTS.reduce(
+    (acc, slot) => ({ ...acc, [slot]: 0 }),
+    {} as Record<Slot, number>,
+  );
+  for (const slot of Object.values(data.slots ?? {})) slotCounts[slot] += 1;
+  const taggedTotal = SLOTS.reduce((n, slot) => n + slotCounts[slot], 0);
+  const topSlot = Math.max(...SLOTS.map((slot) => slotCounts[slot]));
 
   const booksSplit = [
     { name: 'Completed', value: overall.booksDone, fill: RED },
@@ -307,6 +318,35 @@ export function StatsView() {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+        </section>
+
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
+            <div>
+              <h3 className="card__title">When you read</h3>
+              <p className="card__note">
+                {taggedTotal === 0
+                  ? 'Optional. Tag a chapter with a time of day when you mark it and this fills in.'
+                  : `From the ${plural(taggedTotal, 'chapter')} you have tagged.`}
+              </p>
+            </div>
+          </div>
+          <div className="slotChart">
+            {SLOTS.map((slot) => {
+              const count = slotCounts[slot];
+              const pct = taggedTotal === 0 ? 0 : (count / taggedTotal) * 100;
+              const best = count > 0 && count === topSlot;
+              return (
+                <div className={`slotBar${best ? ' slotBar--best' : ''}`} key={slot}>
+                  <span className="slotBar__name">{SLOT_LABELS[slot].replace(/^in the /, '')}</span>
+                  <span className="slotBar__track" aria-hidden="true">
+                    <span className="slotBar__fill" style={{ width: `${pct}%` }} />
+                  </span>
+                  <span className="slotBar__count">{count}</span>
+                </div>
+              );
+            })}
+          </div>
         </section>
 
         <section ref={reveal} className="card reveal">

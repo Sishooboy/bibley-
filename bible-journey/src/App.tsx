@@ -9,6 +9,7 @@ import { Menu } from './components/icons';
 import type { PlanId } from './data/plans';
 import { returnedFromOAuth } from './lib/supabase';
 import { CloudProvider } from './state/cloud';
+import { ReaderProvider } from './state/reader';
 import { useCloud } from './state/useCloud';
 import { useStore } from './state/useStore';
 import { StoreProvider } from './state/store';
@@ -48,6 +49,7 @@ function Shell() {
   }, [menuOpen]);
 
   return (
+    <ReaderProvider>
     <div className="app">
       <header className="topbar">
         <div className="container topbar__inner">
@@ -111,6 +113,7 @@ function Shell() {
 
       <UndoBar />
     </div>
+    </ReaderProvider>
   );
 }
 

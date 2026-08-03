@@ -19,13 +19,14 @@ import {
   type AppData,
   type LoadResult,
   type Note,
+  type Slot,
 } from '../lib/storage';
 import { StoreContext, type Derived, type Store, type UndoState } from './context';
 
 type Action =
-  | { type: 'toggleChapter'; book: string; chapter: number; day: DayKey }
-  | { type: 'markNext'; count: number; day: DayKey }
-  | { type: 'markThrough'; book: string; chapter: number; day: DayKey }
+  | { type: 'toggleChapter'; book: string; chapter: number; day: DayKey; slot: Slot | null }
+  | { type: 'markNext'; count: number; day: DayKey; slot: Slot | null }
+  | { type: 'markThrough'; book: string; chapter: number; day: DayKey; slot: Slot | null }
   | { type: 'clearBook'; book: string; chapters: number }
   | { type: 'saveNote'; book: string; chapter: number | null; text: string }
   | { type: 'deleteNote'; id: string }
@@ -73,6 +74,32 @@ function stampMarks(data: AppData, keys: string[]): Record<string, string> {
 }
 
 /**
+ * Time of day is optional, so an unset slot clears any previous tag rather than
+ * leaving a stale one behind. Re-marking a chapter without saying when means you
+ * did not say when, not that last month's answer still stands.
+ */
+function stampSlots(
+  data: AppData,
+  keys: string[],
+  slot: Slot | null,
+): Record<string, Slot> | undefined {
+  const slots = { ...(data.slots ?? {}) };
+  for (const key of keys) {
+    if (slot) slots[key] = slot;
+    else delete slots[key];
+  }
+  return Object.keys(slots).length > 0 ? slots : undefined;
+}
+
+/** Dropping a chapter drops its tag with it. */
+function dropSlots(data: AppData, keys: string[]): Record<string, Slot> | undefined {
+  if (!data.slots) return undefined;
+  const slots = { ...data.slots };
+  for (const key of keys) delete slots[key];
+  return Object.keys(slots).length > 0 ? slots : undefined;
+}
+
+/**
  * Marking records the day you read, which is not always the day you tapped.
  * The undo label has to say so, or backdating is invisible after the fact.
  */
@@ -90,7 +117,15 @@ function reducer(state: State, action: Action): State {
       const read = { ...data.read };
       if (key in read) {
         delete read[key];
-        return { ...state, data: { ...data, read, removed: tombstone(data, [key]) } };
+        return {
+          ...state,
+          data: {
+            ...data,
+            read,
+            removed: tombstone(data, [key]),
+            slots: dropSlots(data, [key]),
+          },
+        };
       }
       // The reading day comes from the action; markedAt still records the moment
       // of the tap, because that is what settles a clear against a re-mark.
@@ -102,6 +137,7 @@ function reducer(state: State, action: Action): State {
           read,
           removed: untomb(data, [key]),
           markedAt: stampMarks(data, [key]),
+          slots: stampSlots(data, [key], action.slot),
         },
       };
     }
@@ -117,7 +153,13 @@ function reducer(state: State, action: Action): State {
           : `Marked ${refs.length} chapters`;
       return withUndo(
         state,
-        { ...data, read, removed: untomb(data, keys), markedAt: stampMarks(data, keys) },
+        {
+          ...data,
+          read,
+          removed: untomb(data, keys),
+          markedAt: stampMarks(data, keys),
+          slots: stampSlots(data, keys, action.slot),
+        },
         label + whenSuffix(action.day),
       );
     }
@@ -133,7 +175,13 @@ function reducer(state: State, action: Action): State {
       if (marked.length === 0) return state;
       return withUndo(
         state,
-        { ...data, read, removed: untomb(data, marked), markedAt: stampMarks(data, marked) },
+        {
+          ...data,
+          read,
+          removed: untomb(data, marked),
+          markedAt: stampMarks(data, marked),
+          slots: stampSlots(data, marked, action.slot),
+        },
         `Marked ${action.book} through ${action.chapter}${whenSuffix(action.day)}`,
       );
     }
@@ -150,7 +198,7 @@ function reducer(state: State, action: Action): State {
       if (cleared.length === 0) return state;
       return withUndo(
         state,
-        { ...data, read, removed: tombstone(data, cleared) },
+        { ...data, read, removed: tombstone(data, cleared), slots: dropSlots(data, cleared) },
         `Cleared ${action.book}`,
       );
     }
@@ -225,6 +273,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
    * reload as a silently wrong setting.
    */
   const [logOffset, setLogOffset] = useState(0);
+  /** Optional, and null means the reader did not say. That is a fine answer. */
+  const [logSlot, setLogSlot] = useState<Slot | null>(null);
   const logDay = useCallback(() => addDays(today(), -logOffset), [logOffset]);
 
   useEffect(() => {
@@ -271,11 +321,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       noteFor,
       logOffset,
       setLogOffset,
+      logSlot,
+      setLogSlot,
       toggleChapter: (book, chapter) =>
-        dispatch({ type: 'toggleChapter', book, chapter, day: logDay() }),
-      markNext: (count) => dispatch({ type: 'markNext', count, day: logDay() }),
+        dispatch({ type: 'toggleChapter', book, chapter, day: logDay(), slot: logSlot }),
+      markNext: (count) => dispatch({ type: 'markNext', count, day: logDay(), slot: logSlot }),
       markThrough: (book, chapter) =>
-        dispatch({ type: 'markThrough', book, chapter, day: logDay() }),
+        dispatch({ type: 'markThrough', book, chapter, day: logDay(), slot: logSlot }),
       clearBook: (book, chapters) => dispatch({ type: 'clearBook', book, chapters }),
       saveNote: (book, chapter, text) => dispatch({ type: 'saveNote', book, chapter, text }),
       deleteNote: (id) => dispatch({ type: 'deleteNote', id }),
@@ -285,7 +337,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setPrefs: (prefs) => dispatch({ type: 'setPrefs', prefs }),
       undo: () => dispatch({ type: 'undo' }),
     }),
-    [data, derived, load, undoable, noteFor, logOffset, logDay],
+    [data, derived, load, undoable, noteFor, logOffset, logSlot, logDay],
   );
 
   return <StoreContext value={value}>{children}</StoreContext>;

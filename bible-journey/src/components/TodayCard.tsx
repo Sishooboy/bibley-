@@ -1,5 +1,6 @@
 import { formatNumber, formatRefs } from '../lib/format';
 import { nextUnread } from '../lib/progress';
+import { useReader } from '../state/useReader';
 import { useReminder } from '../state/useReminder';
 import { useStore } from '../state/useStore';
 import { LogDayPicker } from './LogDayPicker';
@@ -12,6 +13,7 @@ const QUICK_AMOUNTS = [1, 3, 5, 10];
 export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }) {
   const { data, markNext, derived } = useStore();
   const { streakAtRisk } = useReminder();
+  const { open } = useReader();
   const plan = derived.plan;
   const refs = nextUnread(data.read, SUGGESTION_SIZE, plan);
 
@@ -52,6 +54,16 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
       </div>
 
       <h2 className="today__ref">{formatRefs(refs)}</h2>
+
+      <div className="today__read">
+        <button
+          type="button"
+          className="btn btn--primary"
+          onClick={() => open(first.book, first.chapter)}
+        >
+          Read {first.book} {first.chapter}
+        </button>
+      </div>
       <p className="today__rest">
         {first.phase === 0
           ? phase?.why

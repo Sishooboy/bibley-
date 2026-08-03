@@ -14,7 +14,7 @@
  *
  * Bump CACHE to retire every previous cache in one go.
  */
-const CACHE = 'bibley-v1';
+const CACHE = 'bibley-v2';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (event) => {
@@ -75,6 +75,14 @@ self.addEventListener('fetch', (event) => {
 
   if (request.mode === 'navigate') {
     event.respondWith(networkFirst(request));
+    return;
+  }
+
+  // Scripture is immutable and fetched a book at a time, so every book you open
+  // is a book you can still read on a plane. Not precached: 3.9 MB of text
+  // nobody asked for is not a courtesy.
+  if (url.pathname.startsWith('/bible/')) {
+    event.respondWith(cacheFirst(request));
     return;
   }
 

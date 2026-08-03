@@ -148,6 +148,50 @@ describe('mergeJournals', () => {
     expect(merged.prefs?.reminderTime).toBe('07:30');
   });
 
+  it('unions time of day tags from two devices', () => {
+    const a = journal({ read: { 'John|1': '2026-02-01' }, slots: { 'John|1': 'morning' } });
+    const b = journal({ read: { 'John|2': '2026-02-01' }, slots: { 'John|2': 'night' } });
+
+    expect(mergeJournals(a, b).slots).toEqual({ 'John|1': 'morning', 'John|2': 'night' });
+  });
+
+  it('lets the later mark describe when it was read', () => {
+    const early = journal({
+      read: { 'John|1': '2026-02-01' },
+      slots: { 'John|1': 'morning' },
+      markedAt: { 'John|1': '2026-02-01T08:00:00.000Z' },
+    });
+    const late = journal({
+      read: { 'John|1': '2026-02-01' },
+      slots: { 'John|1': 'night' },
+      markedAt: { 'John|1': '2026-02-01T22:00:00.000Z' },
+    });
+
+    expect(mergeJournals(early, late).slots?.['John|1']).toBe('night');
+    expect(mergeJournals(late, early).slots?.['John|1']).toBe('night');
+  });
+
+  it('drops a tag whose chapter was cleared', () => {
+    // Litter otherwise, and it would reattach to a different reading later.
+    const cleared = journal({
+      read: {},
+      removed: { 'John|1': '2026-02-02T10:00:00.000Z' },
+      slots: { 'John|1': 'morning' },
+    });
+    const stale = journal({ read: { 'John|1': '2026-02-01' }, slots: { 'John|1': 'morning' } });
+
+    const merged = mergeJournals(cleared, stale);
+    expect(merged.read).not.toHaveProperty('John|1');
+    expect(merged.slots ?? {}).not.toHaveProperty('John|1');
+  });
+
+  it('leaves untagged chapters untagged rather than inventing a default', () => {
+    const a = journal({ read: { 'John|1': '2026-02-01' } });
+    const b = journal({ read: { 'John|2': '2026-02-01' } });
+
+    expect(mergeJournals(a, b).slots).toBeUndefined();
+  });
+
   it('is stable when merged with itself', () => {
     const one = journal({
       read: { 'John|1': '2026-02-01', 'Mark|3': '2026-02-04' },
