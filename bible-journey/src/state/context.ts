@@ -42,8 +42,9 @@ export type Store = {
   toggleChapter: (book: string, chapter: number) => void;
   /** Marks the next `count` unread chapters in plan order. */
   markNext: (count: number) => void;
-  /** Marks chapters 1 through `chapter` of a book as read. */
-  markThrough: (book: string, chapter: number) => void;
+  /** Marks an explicit set of chapters, re-dating any that were already read. */
+  markChapters: (book: string, chapters: number[]) => void;
+  clearChapters: (book: string, chapters: number[]) => void;
   clearBook: (book: string, chapters: number) => void;
   addHighlight: (highlight: Highlight) => void;
   /** Empty text clears the thought but keeps the highlight. */

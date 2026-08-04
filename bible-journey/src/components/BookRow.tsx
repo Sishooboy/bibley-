@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { today } from '../lib/dates';
+import { relativeDay, today } from '../lib/dates';
+import { plural } from '../lib/format';
 import { chapterKey } from '../lib/storage';
 import { useReader } from '../state/useReader';
 import { useStore } from '../state/useStore';
@@ -16,12 +17,20 @@ type Props = {
   onToggle: () => void;
 };
 
+/**
+ * Chapters are chosen first and committed second.
+ *
+ * Tapping used to mark a chapter there and then, against whatever date a picker
+ * elsewhere happened to be set to. That made the date a mode you had to
+ * remember, and gave no moment where you could see what you were about to
+ * record. Now a tap only selects, the selection is plainly a third state next to
+ * read and unread, and the date sits on the button that commits it.
+ */
 export function BookRow({ name, chapters, read, open, onToggle }: Props) {
-  const { data, toggleChapter, markThrough, clearBook } = useStore();
+  const { data, markChapters, clearChapters, clearBook, logDay } = useStore();
   const { open: openReader } = useReader();
   const ref = useRef<HTMLDivElement>(null);
   const done = read === chapters;
-  const todayKey = today();
   const notes = data.notes.filter((n) => n.book === name);
 
   /** Highest chapter with an unbroken run of reads behind it. */
@@ -31,21 +40,35 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
     return n;
   }, [data.read, name, chapters]);
 
-  const [target, setTarget] = useState(contiguous);
+  const [picked, setPicked] = useState<ReadonlySet<number>>(new Set());
   const [confirmClear, setConfirmClear] = useState(false);
 
   useEffect(() => {
-    setTarget(contiguous);
-  }, [contiguous]);
-
-  useEffect(() => {
     if (open) ref.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    else setConfirmClear(false);
+    else {
+      setConfirmClear(false);
+      // Closing a book abandons the selection: a choice left lying around in a
+      // collapsed row is the same hidden state this replaced.
+      setPicked(new Set());
+    }
   }, [open]);
 
+  const isRead = (c: number) => chapterKey(name, c) in data.read;
   const all = Array.from({ length: chapters }, (_, i) => i + 1);
+  const chosen = [...picked].sort((a, b) => a - b);
+  const chosenRead = chosen.filter(isRead);
+
+  const toggle = (c: number) =>
+    setPicked((prev) => {
+      const next = new Set(prev);
+      if (next.has(c)) next.delete(c);
+      else next.add(c);
+      return next;
+    });
+
+  const select = (list: number[]) => setPicked(new Set(list));
   const panelId = `book-panel-${name.replace(/\s+/g, '-')}`;
-  const pending = Math.max(0, target - contiguous);
+  const unread = all.filter((c) => !isRead(c));
 
   return (
     <div className={`book${done ? ' book--done' : ''}`} ref={ref}>
@@ -78,77 +101,59 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
 
       {open && (
         <div className="book__panel" id={panelId}>
-          <div className="readTo">
-              <div className="readTo__head">
-                <label className="eyebrow" htmlFor={`${panelId}-slider`}>
-                  Read through chapter
-                </label>
-                <output className="readTo__value" htmlFor={`${panelId}-slider`}>
-                  {target}
-                </output>
-              </div>
-
-              <div className="readTo__controls">
+          <div className="pickBar">
+            <span className="pickBar__hint">
+              {chosen.length === 0
+                ? 'Tap chapters to choose them'
+                : plural(chosen.length, 'chapter selected', 'chapters selected')}
+            </span>
+            <div className="pickBar__quick">
+              <button type="button" className="chipBtn" onClick={() => select(unread)}>
+                All unread
+              </button>
+              <button type="button" className="chipBtn" onClick={() => select(all)}>
+                Whole book
+              </button>
+              {/*
+                Replaces the old "read through chapter N" slider in two taps
+                instead of a drag: choose the chapter you finished on, then say
+                you read everything up to it.
+              */}
+              {chosen.length === 1 && chosen[0] > 1 && (
                 <button
                   type="button"
-                  className="readTo__step"
-                  onClick={() => setTarget((t) => Math.max(0, t - 1))}
-                  disabled={target === 0}
-                  aria-label="One chapter back"
+                  className="chipBtn"
+                  onClick={() => select(all.slice(0, chosen[0]))}
                 >
-                  −
+                  Everything up to {chosen[0]}
                 </button>
-                <input
-                  id={`${panelId}-slider`}
-                  className="readTo__slider"
-                  type="range"
-                  min={0}
-                  max={chapters}
-                  value={target}
-                  onChange={(e) => setTarget(Number(e.target.value))}
-                />
-                <button
-                  type="button"
-                  className="readTo__step"
-                  onClick={() => setTarget((t) => Math.min(chapters, t + 1))}
-                  disabled={target === chapters}
-                  aria-label="One chapter forward"
-                >
-                  +
+              )}
+              {chosen.length > 0 && (
+                <button type="button" className="chipBtn" onClick={() => select([])}>
+                  None
                 </button>
-              </div>
-
-              <div className="readTo__actions">
-                <button
-                  type="button"
-                  className="btn btn--sm btn--primary"
-                  disabled={pending === 0}
-                  onClick={() => markThrough(name, target)}
-                >
-                  {pending === 0
-                    ? 'Nothing new to mark'
-                    : `Mark ${pending} chapter${pending === 1 ? '' : 's'} read`}
-                </button>
-                <span className="bookTools__spacer" />
-                <span className="readTo__hint">
-                  {chapters - read} of {chapters} left
-                </span>
-              </div>
+              )}
             </div>
+          </div>
 
           <div className="chapters">
             {all.map((c) => {
-              const key = chapterKey(name, c);
-              const isRead = key in data.read;
-              const readToday = data.read[key] === todayKey;
+              const readNow = isRead(c);
+              const chosenNow = picked.has(c);
               return (
                 <button
                   key={c}
                   type="button"
-                  className={`chapter${readToday ? ' chapter--today' : ''}`}
-                  aria-pressed={isRead}
-                  aria-label={`${name} chapter ${c}${isRead ? ', read' : ''}`}
-                  onClick={() => toggleChapter(name, c)}
+                  className={`chapter${readNow ? ' chapter--read' : ''}${
+                    chosenNow ? ' chapter--picked' : ''
+                  }`}
+                  // The button toggles selection, so that is what pressed means.
+                  // Whether it has been read is said in the label instead.
+                  aria-pressed={chosenNow}
+                  aria-label={`${name} chapter ${c}${readNow ? ', read' : ''}${
+                    chosenNow ? ', selected' : ''
+                  }`}
+                  onClick={() => toggle(c)}
                 >
                   {c}
                 </button>
@@ -156,56 +161,85 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
             })}
           </div>
 
-          <div className="bookTools">
+          {chosen.length > 0 && (
+            // The date lives on the thing that commits, so what you are about to
+            // record is on screen at the moment you record it.
+            <div className="commit">
               <LogDayPicker id={`${panelId}-log-day`} />
-              <span className="bookTools__spacer" />
-              <button
-                type="button"
-                className="btn btn--sm btn--primary"
-                // Wherever you left off, not chapter one, since that is where a
-                // reader coming back actually wants to be.
-                onClick={() => openReader(name, Math.min(chapters, contiguous + 1))}
-              >
-                Read
-              </button>
-              <button
-                type="button"
-                className="btn btn--sm"
-                onClick={() => markThrough(name, chapters)}
-                disabled={done}
-              >
-                Mark whole book
-              </button>
-              {confirmClear ? (
-                <>
-                  <button
-                    type="button"
-                    className="btn btn--sm btn--danger"
-                    onClick={() => {
-                      clearBook(name, chapters);
-                      setConfirmClear(false);
-                    }}
-                  >
-                    Clear {read} chapters?
-                  </button>
+              <div className="commit__actions">
+                <button
+                  type="button"
+                  className="btn btn--sm btn--primary"
+                  onClick={() => {
+                    markChapters(name, chosen);
+                    setPicked(new Set());
+                  }}
+                >
+                  {/*
+                    The date carries over between selections, which is what you
+                    want when filling in a week you read on paper. So the button
+                    names the day it is about to record, and a wrong one is
+                    impossible to press without reading it first.
+                  */}
+                  Mark {chosen.length} read{logDay && logDay !== today() ? ` on ${relativeDay(logDay)}` : ''}
+                </button>
+                {chosenRead.length > 0 && (
                   <button
                     type="button"
                     className="btn btn--sm btn--ghost"
-                    onClick={() => setConfirmClear(false)}
+                    onClick={() => {
+                      clearChapters(name, chosenRead);
+                      setPicked(new Set());
+                    }}
                   >
-                    Keep
+                    Unmark {chosenRead.length}
                   </button>
-                </>
-              ) : (
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="bookTools">
+            <button
+              type="button"
+              className="btn btn--sm btn--primary"
+              // Wherever you left off, not chapter one, since that is where a
+              // reader coming back actually wants to be.
+              onClick={() => openReader(name, Math.min(chapters, contiguous + 1))}
+            >
+              Read
+            </button>
+            <span className="bookTools__spacer" />
+            {confirmClear ? (
+              <>
+                <button
+                  type="button"
+                  className="btn btn--sm btn--danger"
+                  onClick={() => {
+                    clearBook(name, chapters);
+                    setConfirmClear(false);
+                  }}
+                >
+                  Clear all {read}?
+                </button>
                 <button
                   type="button"
                   className="btn btn--sm btn--ghost"
-                  onClick={() => setConfirmClear(true)}
-                  disabled={read === 0}
+                  onClick={() => setConfirmClear(false)}
                 >
-                  Clear
+                  Keep
                 </button>
-              )}
+              </>
+            ) : (
+              <button
+                type="button"
+                className="btn btn--sm btn--ghost"
+                onClick={() => setConfirmClear(true)}
+                disabled={read === 0}
+              >
+                Clear book
+              </button>
+            )}
           </div>
 
           <NoteEditor book={name} chapters={chapters} />

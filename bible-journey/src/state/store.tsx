@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer, useState, type ReactNode } from 'react';
 import { getPlan, type PlanId } from '../data/plans';
+import { plural } from '../lib/format';
 import type { Prefs } from '../lib/prefs';
 import { clampReadingDay, relativeDay, today, type DayKey } from '../lib/dates';
 import {
@@ -27,7 +28,8 @@ import { StoreContext, type Derived, type Store, type UndoState } from './contex
 type Action =
   | { type: 'toggleChapter'; book: string; chapter: number; day: DayKey; slot: Slot | null }
   | { type: 'markNext'; count: number; day: DayKey; slot: Slot | null }
-  | { type: 'markThrough'; book: string; chapter: number; day: DayKey; slot: Slot | null }
+  | { type: 'markChapters'; book: string; chapters: number[]; day: DayKey; slot: Slot | null }
+  | { type: 'clearChapters'; book: string; chapters: number[] }
   | { type: 'clearBook'; book: string; chapters: number }
   | { type: 'addHighlight'; highlight: Highlight }
   | { type: 'noteHighlight'; id: string; note: string }
@@ -178,26 +180,48 @@ function reducer(state: State, action: Action): State {
         label + whenSuffix(action.day),
       );
     }
-    case 'markThrough': {
+    /**
+     * Marks an explicit set of chapters against one day. Chapters already read
+     * are included rather than skipped: re-marking a selection is how a reader
+     * corrects the day they read something.
+     */
+    case 'markChapters': {
+      if (action.chapters.length === 0) return state;
       const read = { ...data.read };
-      const marked: string[] = [];
-      for (let c = 1; c <= action.chapter; c++) {
-        const key = chapterKey(action.book, c);
-        if (key in read) continue;
-        read[key] = action.day;
-        marked.push(key);
-      }
-      if (marked.length === 0) return state;
+      const keys = action.chapters.map((c) => chapterKey(action.book, c));
+      for (const key of keys) read[key] = action.day;
       return withUndo(
         state,
         {
           ...data,
           read,
-          removed: untomb(data, marked),
-          markedAt: stampMarks(data, marked),
-          slots: stampSlots(data, marked, action.slot),
+          removed: untomb(data, keys),
+          markedAt: stampMarks(data, keys),
+          slots: stampSlots(data, keys, action.slot),
         },
-        `Marked ${action.book} through ${action.chapter}${whenSuffix(action.day)}`,
+        `Marked ${plural(keys.length, 'chapter')} in ${action.book}${whenSuffix(action.day)}`,
+      );
+    }
+    case 'clearChapters': {
+      const read = { ...data.read };
+      const cleared: string[] = [];
+      for (const c of action.chapters) {
+        const key = chapterKey(action.book, c);
+        if (key in read) {
+          delete read[key];
+          cleared.push(key);
+        }
+      }
+      if (cleared.length === 0) return state;
+      return withUndo(
+        state,
+        {
+          ...data,
+          read,
+          removed: tombstone(data, cleared),
+          slots: dropSlots(data, cleared),
+        },
+        `Cleared ${plural(cleared.length, 'chapter')} in ${action.book}`,
       );
     }
     case 'clearBook': {
@@ -390,8 +414,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       toggleChapter: (book, chapter) =>
         dispatch({ type: 'toggleChapter', book, chapter, day: effectiveDay(), slot: logSlot }),
       markNext: (count) => dispatch({ type: 'markNext', count, day: effectiveDay(), slot: logSlot }),
-      markThrough: (book, chapter) =>
-        dispatch({ type: 'markThrough', book, chapter, day: effectiveDay(), slot: logSlot }),
+      markChapters: (book, chapters) =>
+        dispatch({ type: 'markChapters', book, chapters, day: effectiveDay(), slot: logSlot }),
+      clearChapters: (book, chapters) => dispatch({ type: 'clearChapters', book, chapters }),
       clearBook: (book, chapters) => dispatch({ type: 'clearBook', book, chapters }),
       addHighlight: (highlight) => dispatch({ type: 'addHighlight', highlight }),
       noteHighlight: (id, note) => dispatch({ type: 'noteHighlight', id, note }),

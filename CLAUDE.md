@@ -106,6 +106,13 @@ redeploy.**
 - `public/sw.js` is hand written. Navigations are network first so a deploy lands as soon as there
   is a connection, hashed assets are cache first, and anything cross-origin is ignored outright so
   a Supabase response can never be served from cache. Bump `CACHE` to retire every old cache.
+- **Chapters are chosen, then committed.** Tapping a chapter in a book row selects it, it does not
+  mark it. The commit bar appears only while something is chosen, carries the date picker, and its
+  button names the day when that is not today ("Mark 3 read on Jul 19"). This replaced a flow where
+  a tap marked immediately against a date set in a picker somewhere else, which made the date a mode
+  with no moment to check it. Three chapter states, and each differs by more than colour: unread is
+  an outline, read is filled, chosen is ringed and lifted. `aria-pressed` tracks selection, since
+  that is what the button toggles; read is said in the label.
 - **Marking records the day you read, not the day you tapped.** `logDay` in `store.tsx` is
   session-only React state and **null means "whenever today is"**, not today's date: the default
   has to keep tracking the clock so a session left open across midnight still logs correctly, while
