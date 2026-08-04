@@ -113,6 +113,14 @@ redeploy.**
   with no moment to check it. Three chapter states, and each differs by more than colour: unread is
   an outline, read is filled, chosen is ringed and lifted. `aria-pressed` tracks selection, since
   that is what the button toggles; read is said in the label.
+- **Drag across the chapter grid to select**, in `src/lib/dragSelect.ts`. The range runs from where
+  the drag began to wherever the pointer is *in chapter order*, so dragging down a row takes
+  everything between rather than only the squares the finger crossed. It is recomputed from a
+  snapshot on every move, not accumulated, so dragging back over your own path undoes it. `.chapters`
+  carries `touch-action: none`, without which the browser claims a downward drag as a page scroll
+  before the first `pointermove` lands: the trade is that a long book is scrolled from outside its
+  grid. A pointer press is followed by a click, and both would toggle, so `claimClick()` swallows
+  the click that a pointer already handled while leaving the keyboard path working.
 - **Marking records the day you read, not the day you tapped.** `logDay` in `store.tsx` is
   session-only React state and **null means "whenever today is"**, not today's date: the default
   has to keep tracking the clock so a session left open across midnight still logs correctly, while

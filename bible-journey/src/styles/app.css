@@ -1680,6 +1680,16 @@ select {
   flex-wrap: wrap;
   gap: 4px;
   margin-block: 0.9rem;
+  /*
+   * The grid owns its gestures. Without this the browser claims a downward drag
+   * as a page scroll before the first pointermove arrives, and dragging down a
+   * row could never select. The cost is that this patch does not scroll the
+   * page, so on a long book you scroll from outside it.
+   */
+  touch-action: none;
+  /* Stops the chapter numbers being text-selected mid-drag. */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .chapter {

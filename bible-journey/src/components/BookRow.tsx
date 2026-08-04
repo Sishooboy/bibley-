@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { relativeDay, today } from '../lib/dates';
+import { useChapterDrag } from '../lib/dragSelect';
 import { plural } from '../lib/format';
 import { chapterKey } from '../lib/storage';
 import { useReader } from '../state/useReader';
@@ -67,6 +68,7 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
     });
 
   const select = (list: number[]) => setPicked(new Set(list));
+  const { gridProps, claimClick } = useChapterDrag(picked, setPicked);
   const panelId = `book-panel-${name.replace(/\s+/g, '-')}`;
   const unread = all.filter((c) => !isRead(c));
 
@@ -136,7 +138,7 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
             </div>
           </div>
 
-          <div className="chapters">
+          <div className="chapters" {...gridProps}>
             {all.map((c) => {
               const readNow = isRead(c);
               const chosenNow = picked.has(c);
@@ -144,6 +146,7 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
                 <button
                   key={c}
                   type="button"
+                  data-chapter={c}
                   className={`chapter${readNow ? ' chapter--read' : ''}${
                     chosenNow ? ' chapter--picked' : ''
                   }`}
@@ -153,7 +156,11 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
                   aria-label={`${name} chapter ${c}${readNow ? ', read' : ''}${
                     chosenNow ? ', selected' : ''
                   }`}
-                  onClick={() => toggle(c)}
+                  // Pointer presses are handled by the drag above. This is the
+                  // keyboard path, which never has a pointer before it.
+                  onClick={() => {
+                    if (!claimClick()) toggle(c);
+                  }}
                 >
                   {c}
                 </button>
