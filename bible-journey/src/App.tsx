@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { PlanChooser } from './components/PlanChooser';
 import { PREPARING_MS, Preparing } from './components/Preparing';
 import { SignInScreen } from './components/SignInScreen';
@@ -16,7 +16,9 @@ import { StoreProvider } from './state/store';
 import { JourneyView } from './views/JourneyView';
 import { NotesView } from './views/NotesView';
 import { SettingsView } from './views/SettingsView';
-import { StatsView } from './views/StatsView';
+const StatsView = lazy(() =>
+  import('./views/StatsView').then((m) => ({ default: m.StatsView })),
+);
 
 const VIEWS = [
   { id: 'journey', label: 'Journey' },
@@ -116,7 +118,16 @@ function Shell() {
       <main className="view">
         {view === 'journey' && <JourneyView />}
         {view === 'notes' && <NotesView />}
-        {view === 'stats' && <StatsView />}
+        {/*
+          Stats brings the whole charting library with it, which is a third of
+          the JavaScript for a screen most opens never reach. It arrives on
+          demand instead, so the journey is on screen sooner.
+        */}
+        {view === 'stats' && (
+          <Suspense fallback={<p className="viewLoading">Working out where you are…</p>}>
+            <StatsView />
+          </Suspense>
+        )}
         {view === 'settings' && <SettingsView />}
       </main>
 

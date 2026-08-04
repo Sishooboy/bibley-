@@ -116,11 +116,18 @@ redeploy.**
 - **Drag across the chapter grid to select**, in `src/lib/dragSelect.ts`. The range runs from where
   the drag began to wherever the pointer is *in chapter order*, so dragging down a row takes
   everything between rather than only the squares the finger crossed. It is recomputed from a
-  snapshot on every move, not accumulated, so dragging back over your own path undoes it. `.chapters`
-  carries `touch-action: none`, without which the browser claims a downward drag as a page scroll
-  before the first `pointermove` lands: the trade is that a long book is scrolled from outside its
-  grid. A pointer press is followed by a click, and both would toggle, so `claimClick()` swallows
-  the click that a pointer already handled while leaving the keyboard path working.
+  snapshot on every move, not accumulated, so dragging back over your own path undoes it. A mouse
+  drags at once; **a finger has to hold still for 180ms first**, the way selecting text on a phone
+  does, so a quick swipe still scrolls the page. That matters because Psalms' grid is taller than a
+  screen and `touch-action: none` would have made it a region you could never scroll through:
+  scrolling is cancelled per gesture from a non-passive `touchmove` listener instead, since CSS
+  decides once and this has to decide each time. `claimClick` skips the click that follows a
+  pointer, judged on `detail` plus recency rather than a flag, because a drag ending off a button
+  never produces a click and a stale flag would swallow the next keyboard press.
+- Stats is behind `React.lazy`, since recharts is a third of the JavaScript for a screen many opens
+  never reach. Initial JS is 146 kB gzipped against 258 kB before.
+- `src/lib/bookSearch.ts` ranks books for the journey's finder: exact, then prefix, then substring,
+  then subsequence, so "jo" puts John above 1 John and "hbk" still finds Habakkuk.
 - **Marking records the day you read, not the day you tapped.** `logDay` in `store.tsx` is
   session-only React state and **null means "whenever today is"**, not today's date: the default
   has to keep tracking the clock so a session left open across midnight still logs correctly, while

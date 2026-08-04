@@ -68,12 +68,12 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
     });
 
   const select = (list: number[]) => setPicked(new Set(list));
-  const { gridProps, claimClick } = useChapterDrag(picked, setPicked);
+  const { gridProps, claimClick, selecting } = useChapterDrag(picked, setPicked);
   const panelId = `book-panel-${name.replace(/\s+/g, '-')}`;
   const unread = all.filter((c) => !isRead(c));
 
   return (
-    <div className={`book${done ? ' book--done' : ''}`} ref={ref}>
+    <div className={`book${done ? " book--done" : ""}`} ref={ref} data-book={name}>
       <button
         type="button"
         className="book__row"
@@ -138,7 +138,7 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
             </div>
           </div>
 
-          <div className="chapters" {...gridProps}>
+          <div className={`chapters${selecting ? ' chapters--selecting' : ''}`} {...gridProps}>
             {all.map((c) => {
               const readNow = isRead(c);
               const chosenNow = picked.has(c);
@@ -158,8 +158,8 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
                   }`}
                   // Pointer presses are handled by the drag above. This is the
                   // keyboard path, which never has a pointer before it.
-                  onClick={() => {
-                    if (!claimClick()) toggle(c);
+                  onClick={(e) => {
+                    if (!claimClick(e)) toggle(c);
                   }}
                 >
                   {c}

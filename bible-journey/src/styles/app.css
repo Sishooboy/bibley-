@@ -1681,15 +1681,19 @@ select {
   gap: 4px;
   margin-block: 0.9rem;
   /*
-   * The grid owns its gestures. Without this the browser claims a downward drag
-   * as a page scroll before the first pointermove arrives, and dragging down a
-   * row could never select. The cost is that this patch does not scroll the
-   * page, so on a long book you scroll from outside it.
+   * Deliberately not `touch-action: none`. That would make a long book's grid a
+   * region the page could never be scrolled through, since Psalms is taller than
+   * a phone screen. Scrolling is suppressed per gesture in useChapterDrag
+   * instead, once a finger has held still long enough to mean it.
    */
-  touch-action: none;
-  /* Stops the chapter numbers being text-selected mid-drag. */
   user-select: none;
   -webkit-user-select: none;
+}
+
+/* While the grid owns the gesture, so a hold that has taken says so. */
+.chapters--selecting {
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px rgba(247, 184, 1, 0.35);
 }
 
 .chapter {
@@ -4211,4 +4215,47 @@ select {
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+/* ── Finding a book ─────────────────────────────────────────────────────── */
+.finder {
+  margin-bottom: 1.5rem;
+}
+
+.finder__box {
+  max-width: 22rem;
+}
+
+.finder__hits {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.7rem;
+}
+
+.finder__count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 0.2rem;
+}
+
+.finder__hit {
+  font-size: 0.82rem;
+  padding: 0.3rem 0.8rem;
+}
+
+.finder__none {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* The lazily loaded stats screen, on the rare occasion the wait is visible. */
+.viewLoading {
+  padding: clamp(3rem, 12vh, 6rem) var(--gutter);
+  text-align: center;
+  color: var(--muted);
 }

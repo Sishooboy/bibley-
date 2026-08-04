@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { BookFinder } from '../components/BookFinder';
 import { PhaseSection } from '../components/PhaseSection';
 import { ProgressBar } from '../components/ProgressBar';
 import { QuoteCard } from '../components/QuoteCard';
@@ -11,6 +12,24 @@ export function JourneyView() {
   const { derived } = useStore();
   const { plan, overall, streak, phases, statuses, currentPhase } = derived;
   const [openBook, setOpenBook] = useState<string | null>(null);
+
+  const bookNames = useMemo(
+    () => plan.phases.flatMap((p) => p.books.map((b) => b.name)),
+    [plan],
+  );
+
+  /**
+   * Opens the book and brings it into view. The row mounts its panel on the same
+   * tick, so the scroll waits a frame or it aims at where the row used to be.
+   */
+  const jumpTo = useCallback((book: string) => {
+    setOpenBook(book);
+    requestAnimationFrame(() => {
+      document
+        .querySelector(`[data-book="${CSS.escape(book)}"]`)
+        ?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    });
+  }, []);
 
   return (
     <>
@@ -82,6 +101,8 @@ export function JourneyView() {
             with a reason behind it.
           </p>
         </div>
+
+        <BookFinder books={bookNames} onJump={jumpTo} />
 
         {plan.phases.map((phase, i) => (
           <PhaseSection
