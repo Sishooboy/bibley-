@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { relativeDay, today } from '../lib/dates';
-import { useChapterDrag } from '../lib/dragSelect';
+import { interpretTap, type LastTap } from '../lib/tapSelect';
 import { plural } from '../lib/format';
 import { chapterKey } from '../lib/storage';
 import { useReader } from '../state/useReader';
@@ -43,6 +43,9 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
 
   const [picked, setPicked] = useState<ReadonlySet<number>>(new Set());
   const [confirmClear, setConfirmClear] = useState(false);
+  /** One end of a range, waiting for the other. Set by a double tap. */
+  const [anchor, setAnchor] = useState<number | null>(null);
+  const lastTap = useRef<LastTap>(null);
 
   useEffect(() => {
     if (open) ref.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -51,6 +54,7 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
       // Closing a book abandons the selection: a choice left lying around in a
       // collapsed row is the same hidden state this replaced.
       setPicked(new Set());
+      setAnchor(null);
     }
   }, [open]);
 
@@ -59,16 +63,45 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
   const chosen = [...picked].sort((a, b) => a - b);
   const chosenRead = chosen.filter(isRead);
 
-  const toggle = (c: number) =>
+  const select = (list: number[]) => {
+    setPicked(new Set(list));
+    setAnchor(null);
+  };
+
+  /**
+   * A first double tap remembers one end of a run, a second takes everything
+   * between. The tap that opens a double tap has already toggled the chapter,
+   * which is why the anchor only has to make sure it stays selected.
+   */
+  const onTap = (c: number) => {
+    const now = Date.now();
+    const action = interpretTap(c, lastTap.current, anchor, now);
+    lastTap.current = action.kind === 'toggle' ? { chapter: c, at: now } : null;
+
+    if (action.kind === 'toggle') {
+      setPicked((prev) => {
+        const next = new Set(prev);
+        if (next.has(c)) next.delete(c);
+        else next.add(c);
+        return next;
+      });
+      return;
+    }
+
+    if (action.kind === 'anchor') {
+      setPicked((prev) => new Set(prev).add(c));
+      setAnchor(c);
+      return;
+    }
+
     setPicked((prev) => {
       const next = new Set(prev);
-      if (next.has(c)) next.delete(c);
-      else next.add(c);
+      for (const n of action.chapters) next.add(n);
       return next;
     });
+    setAnchor(null);
+  };
 
-  const select = (list: number[]) => setPicked(new Set(list));
-  const { gridProps, claimClick, selecting } = useChapterDrag(picked, setPicked);
   const panelId = `book-panel-${name.replace(/\s+/g, '-')}`;
   const unread = all.filter((c) => !isRead(c));
 
@@ -104,10 +137,12 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
       {open && (
         <div className="book__panel" id={panelId}>
           <div className="pickBar">
-            <span className="pickBar__hint">
-              {chosen.length === 0
-                ? 'Tap chapters to choose them'
-                : plural(chosen.length, 'chapter selected', 'chapters selected')}
+            <span className={`pickBar__hint${anchor !== null ? ' pickBar__hint--waiting' : ''}`}>
+              {anchor !== null
+                ? `Double tap where you finished, to take ${anchor} onwards`
+                : chosen.length === 0
+                  ? 'Tap to choose. Double tap two chapters for everything between'
+                  : plural(chosen.length, 'chapter selected', 'chapters selected')}
             </span>
             <div className="pickBar__quick">
               <button type="button" className="chipBtn" onClick={() => select(unread)}>
@@ -138,10 +173,11 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
             </div>
           </div>
 
-          <div className={`chapters${selecting ? ' chapters--selecting' : ''}`} {...gridProps}>
+          <div className="chapters">
             {all.map((c) => {
               const readNow = isRead(c);
               const chosenNow = picked.has(c);
+              const anchored = anchor === c;
               return (
                 <button
                   key={c}
@@ -149,18 +185,14 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
                   data-chapter={c}
                   className={`chapter${readNow ? ' chapter--read' : ''}${
                     chosenNow ? ' chapter--picked' : ''
-                  }`}
+                  }${anchored ? ' chapter--anchor' : ''}`}
                   // The button toggles selection, so that is what pressed means.
                   // Whether it has been read is said in the label instead.
                   aria-pressed={chosenNow}
                   aria-label={`${name} chapter ${c}${readNow ? ', read' : ''}${
                     chosenNow ? ', selected' : ''
-                  }`}
-                  // Pointer presses are handled by the drag above. This is the
-                  // keyboard path, which never has a pointer before it.
-                  onClick={(e) => {
-                    if (!claimClick(e)) toggle(c);
-                  }}
+                  }${anchored ? ', start of range' : ''}`}
+                  onClick={() => onTap(c)}
                 >
                   {c}
                 </button>

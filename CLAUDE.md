@@ -113,17 +113,14 @@ redeploy.**
   with no moment to check it. Three chapter states, and each differs by more than colour: unread is
   an outline, read is filled, chosen is ringed and lifted. `aria-pressed` tracks selection, since
   that is what the button toggles; read is said in the label.
-- **Drag across the chapter grid to select**, in `src/lib/dragSelect.ts`. The range runs from where
-  the drag began to wherever the pointer is *in chapter order*, so dragging down a row takes
-  everything between rather than only the squares the finger crossed. It is recomputed from a
-  snapshot on every move, not accumulated, so dragging back over your own path undoes it. A mouse
-  drags at once; **a finger has to hold still for 180ms first**, the way selecting text on a phone
-  does, so a quick swipe still scrolls the page. That matters because Psalms' grid is taller than a
-  screen and `touch-action: none` would have made it a region you could never scroll through:
-  scrolling is cancelled per gesture from a non-passive `touchmove` listener instead, since CSS
-  decides once and this has to decide each time. `claimClick` skips the click that follows a
-  pointer, judged on `detail` plus recency rather than a flag, because a drag ending off a button
-  never produces a click and a stale flag would swallow the next keyboard press.
+- **Select a run by double tapping each end**, in `src/lib/tapSelect.ts`. Drag-select was tried and
+  removed: on a phone a vertical drag *is* how you scroll, and neither `touch-action: none` (which
+  trapped the page inside Psalms' 150-chapter grid) nor a hold-to-arm delay made it comfortable.
+  Two double taps claim no gestures at all, so the grid scrolls like any other part of the page.
+  A tap that opens a double tap has already toggled the chapter, which is why the anchor branch only
+  has to keep it selected. `.chapter` carries `touch-action: manipulation` so a phone does not treat
+  the second tap as zoom and eat it. The anchor is ringed red against the selection's gold, because
+  it means something different from the rest.
 - Stats is behind `React.lazy`, since recharts is a third of the JavaScript for a screen many opens
   never reach. Initial JS is 146 kB gzipped against 258 kB before.
 - `src/lib/bookSearch.ts` ranks books for the journey's finder: exact, then prefix, then substring,

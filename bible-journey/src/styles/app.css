@@ -1681,22 +1681,21 @@ select {
   gap: 4px;
   margin-block: 0.9rem;
   /*
-   * Deliberately not `touch-action: none`. That would make a long book's grid a
-   * region the page could never be scrolled through, since Psalms is taller than
-   * a phone screen. Scrolling is suppressed per gesture in useChapterDrag
-   * instead, once a finger has held still long enough to mean it.
+   * The grid claims no gestures at all. Selecting a run is two double taps, so
+   * a swipe anywhere over it scrolls the page exactly as it would elsewhere.
+   * Psalms is a hundred and fifty chapters and taller than a phone screen, and
+   * anything that swallowed vertical drags here would trap it.
    */
   user-select: none;
   -webkit-user-select: none;
 }
 
-/* While the grid owns the gesture, so a hold that has taken says so. */
-.chapters--selecting {
-  border-radius: 4px;
-  box-shadow: 0 0 0 3px rgba(247, 184, 1, 0.35);
-}
-
 .chapter {
+  /*
+   * Stops a phone treating the second tap as zoom-in and eating it, which would
+   * make a range impossible to finish. Scrolling is untouched.
+   */
+  touch-action: manipulation;
   width: 34px;
   height: 30px;
   border: 1px solid var(--line-strong);
@@ -1754,6 +1753,32 @@ select {
 /* Already read and chosen: still unmistakably read, wearing the same ring. */
 .chapter--picked.chapter--read {
   background: var(--red-700);
+}
+
+/*
+ * One end of a range, waiting for the other. Red where a plain selection is
+ * gold, so the chapter you are measuring from is never mistaken for the rest,
+ * and pulsing because it is asking for a second tap rather than just sitting
+ * there.
+ */
+.chapter--anchor {
+  box-shadow:
+    0 0 0 3px var(--red-600),
+    0 2px 6px -2px rgba(46, 24, 12, 0.4);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .chapter--anchor {
+    animation: anchorWait 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes anchorWait {
+  50% {
+    box-shadow:
+      0 0 0 3px var(--red-500),
+      0 0 10px 1px rgba(200, 29, 37, 0.45);
+  }
 }
 
 .chapter--today {
@@ -4258,4 +4283,9 @@ select {
   padding: clamp(3rem, 12vh, 6rem) var(--gutter);
   text-align: center;
   color: var(--muted);
+}
+
+/* The hint turns red while a range is half made, matching the waiting chapter. */
+.pickBar__hint--waiting {
+  color: var(--red-700);
 }
