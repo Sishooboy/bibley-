@@ -113,14 +113,14 @@ redeploy.**
   with no moment to check it. Three chapter states, and each differs by more than colour: unread is
   an outline, read is filled, chosen is ringed and lifted. `aria-pressed` tracks selection, since
   that is what the button toggles; read is said in the label.
-- **Select a run by double tapping each end**, in `src/lib/tapSelect.ts`. Drag-select was tried and
-  removed: on a phone a vertical drag *is* how you scroll, and neither `touch-action: none` (which
-  trapped the page inside Psalms' 150-chapter grid) nor a hold-to-arm delay made it comfortable.
-  Two double taps claim no gestures at all, so the grid scrolls like any other part of the page.
-  A tap that opens a double tap has already toggled the chapter, which is why the anchor branch only
-  has to keep it selected. `.chapter` carries `touch-action: manipulation` so a phone does not treat
-  the second tap as zoom and eat it. The anchor is ringed red against the selection's gold, because
-  it means something different from the rest.
+- **Chapters are named by number, not hit.** Two fields, "I read chapters N to M", plus the date.
+  Three earlier designs all asked the reader to hit the chapter squares themselves, by tapping, then
+  by dragging, then by double tapping each end. Every one was a poor target on a phone, and every
+  one moved the layout as controls appeared and disappeared under a thumb. Fields cannot miss and
+  cannot move. The commit bar is always rendered rather than shown on selection, for the same
+  reason. The squares survive as `.strip`, which is `pointer-events: none`: purely a picture of
+  where you have got to, which is why it can be 14px and show all 150 psalms in 206px without
+  anyone needing to hit it.
 - Stats is behind `React.lazy`, since recharts is a third of the JavaScript for a screen many opens
   never reach. Initial JS is 146 kB gzipped against 258 kB before.
 - `src/lib/bookSearch.ts` ranks books for the journey's finder: exact, then prefix, then substring,

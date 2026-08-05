@@ -111,12 +111,6 @@ select {
     font-size: 0.85rem;
   }
 
-  .chapter {
-    width: 42px;
-    height: 40px;
-    font-size: 0.85rem;
-  }
-
   .nav__item {
     padding-block: 0.6rem;
   }
@@ -672,24 +666,12 @@ select {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
 .gate__note {
   color: var(--muted-dark);
   font-size: 0.85rem;
   margin-top: 1.1rem;
   max-width: 42ch;
 }
-
-
 
 .gate__error {
   color: #ff9ba0;
@@ -1201,9 +1183,6 @@ select {
   padding-top: clamp(2.5rem, 5vw, 3.5rem);
 }
 
-
-
-
 .phase {
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr);
@@ -1674,123 +1653,6 @@ select {
   color: #6a5000;
   font-weight: 600;
 }
-
-.chapters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-block: 0.9rem;
-  /*
-   * The grid claims no gestures at all. Selecting a run is two double taps, so
-   * a swipe anywhere over it scrolls the page exactly as it would elsewhere.
-   * Psalms is a hundred and fifty chapters and taller than a phone screen, and
-   * anything that swallowed vertical drags here would trap it.
-   */
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.chapter {
-  /*
-   * Stops a phone treating the second tap as zoom-in and eating it, which would
-   * make a range impossible to finish. Scrolling is untouched.
-   */
-  touch-action: manipulation;
-  width: 34px;
-  height: 30px;
-  border: 1px solid var(--line-strong);
-  background: var(--surface);
-  border-radius: 3px;
-  font-size: 0.76rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--muted);
-  display: grid;
-  place-items: center;
-  padding: 0;
-  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
-}
-
-.chapter:hover {
-  border-color: var(--red-600);
-  color: var(--red-700);
-}
-
-/*
- * Three states that have to be told apart at a glance, so each differs by more
- * than colour: unread is an outline, read is filled, chosen is ringed and
- * lifted. Someone who cannot separate red from gold still sees an empty box, a
- * solid box, and a box with a heavy ring around it.
- */
-.chapter--read {
-  background: var(--red-600);
-  border-color: var(--red-600);
-  color: #fff;
-  font-weight: 600;
-}
-
-.chapter--read:hover {
-  background: var(--red-700);
-  color: #fff;
-}
-
-.chapter--picked {
-  box-shadow:
-    0 0 0 3px var(--yellow),
-    0 2px 6px -2px rgba(46, 24, 12, 0.4);
-  transform: translateY(-1px);
-  position: relative;
-  z-index: 1;
-}
-
-/* Unread and chosen: gold throughout, so it reads as "about to become read". */
-.chapter--picked:not(.chapter--read) {
-  background: #fdf0c9;
-  border-color: var(--yellow-dim);
-  color: #5a4400;
-  font-weight: 600;
-}
-
-/* Already read and chosen: still unmistakably read, wearing the same ring. */
-.chapter--picked.chapter--read {
-  background: var(--red-700);
-}
-
-/*
- * One end of a range, waiting for the other. Red where a plain selection is
- * gold, so the chapter you are measuring from is never mistaken for the rest,
- * and pulsing because it is asking for a second tap rather than just sitting
- * there.
- */
-.chapter--anchor {
-  box-shadow:
-    0 0 0 3px var(--red-600),
-    0 2px 6px -2px rgba(46, 24, 12, 0.4);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .chapter--anchor {
-    animation: anchorWait 1.4s ease-in-out infinite;
-  }
-}
-
-@keyframes anchorWait {
-  50% {
-    box-shadow:
-      0 0 0 3px var(--red-500),
-      0 0 10px 1px rgba(200, 29, 37, 0.45);
-  }
-}
-
-.chapter--today {
-  box-shadow: inset 0 0 0 2px var(--yellow);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .chapter--picked {
-    transform: none;
-  }
-}
-
 
 .bookTools {
   display: flex;
@@ -4157,30 +4019,6 @@ select {
   box-shadow: var(--shadow-lg);
 }
 
-/* ── Choosing chapters, then committing them ────────────────────────────── */
-.pickBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem 1rem;
-  flex-wrap: wrap;
-  padding-bottom: 0.2rem;
-}
-
-.pickBar__hint {
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.pickBar__quick {
-  display: flex;
-  gap: 0.35rem;
-  flex-wrap: wrap;
-}
-
 .chipBtn {
   border: 1px solid var(--line-strong);
   background: var(--surface);
@@ -4236,10 +4074,6 @@ select {
     justify-content: center;
   }
 
-  .pickBar {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 }
 
 /* ── Finding a book ─────────────────────────────────────────────────────── */
@@ -4285,7 +4119,96 @@ select {
   color: var(--muted);
 }
 
-/* The hint turns red while a range is half made, matching the waiting chapter. */
-.pickBar__hint--waiting {
+/* ── Saying which chapters, by number ───────────────────────────────────── */
+.range {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem 0.65rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.7rem;
+}
+
+.range__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.range__field label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/*
+ * Big enough to hit with a thumb and to read at a glance. The old grid of
+ * 34px squares was neither, which is what this replaces.
+ */
+.range__input {
+  width: 4.2rem;
+  padding: 0.5rem 0.55rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--red-800);
+}
+
+.range__input:focus {
+  border-color: var(--red-600);
+  box-shadow: 0 0 0 3px rgba(200, 29, 37, 0.12);
+}
+
+.range__count {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--red-700);
+  font-variant-numeric: tabular-nums;
+}
+
+.range__quick {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.9rem;
+}
+
+/* ── The picture of where you have got to ───────────────────────────────── */
+/*
+ * Deliberately not a control. Nothing here is tappable, so it can be small
+ * enough to show all hundred and fifty psalms without anyone having to hit it.
+ */
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin: 0.9rem 0 1rem;
+  pointer-events: none;
+}
+
+.strip__ch {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+}
+
+.strip__ch--read {
+  background: var(--red-600);
+  border-color: var(--red-600);
+}
+
+/* What the numbers above currently cover, so the range is visible as a shape. */
+.strip__ch--inRange {
+  box-shadow: 0 0 0 2px var(--yellow);
+}
+
+@media (pointer: coarse) {
+  .strip__ch {
+    width: 16px;
+    height: 16px;
+  }
 }
