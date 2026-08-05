@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { CANON, NEW_TESTAMENT, OLD_TESTAMENT } from '../data/canon';
 import { PLANS } from '../data/plans';
 import { highlightRef, isEmptyRange, order, segmentVerse } from './highlight';
-import { chapterCount, neighbours } from './navigate';
+import { chapterCount, neighbours, readChapter } from './navigate';
 import type { Highlight } from './storage';
 
 function mark(over: Partial<Highlight> = {}): Highlight {
@@ -147,6 +147,33 @@ describe('navigating by hand', () => {
     expect(chapterCount('Psalms')).toBe(150);
     expect(chapterCount('Jude')).toBe(1);
     expect(chapterCount('Not a book')).toBe(0);
+  });
+});
+
+/**
+ * Reading a chapter number out of a field being typed into. Clamping an empty
+ * field to 1 on every keystroke is what stopped the digit being deleted, so an
+ * unreadable field has to fall back rather than overwrite.
+ */
+describe('readChapter', () => {
+  it('leaves a half-typed field alone instead of refilling it', () => {
+    expect(readChapter('', 21, 6)).toBe(6);
+    expect(readChapter('', 21, 14)).toBe(14);
+  });
+
+  it('reads a plain number', () => {
+    expect(readChapter('12', 21, 1)).toBe(12);
+    expect(readChapter('007', 21, 1)).toBe(7);
+  });
+
+  it('holds it inside the book', () => {
+    expect(readChapter('99', 21, 1)).toBe(21);
+    expect(readChapter('0', 21, 5)).toBe(1);
+  });
+
+  it('falls back on anything that is not a number at all', () => {
+    expect(readChapter('abc', 21, 4)).toBe(4);
+    expect(readChapter('-', 21, 4)).toBe(4);
   });
 });
 

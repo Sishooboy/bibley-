@@ -11,6 +11,20 @@ export function chapterCount(book: string): number {
 }
 
 /**
+ * Reads a chapter number out of whatever is currently in a text field.
+ *
+ * Half-typed input has to survive: an empty field is what a field looks like
+ * mid-edit, and clamping it to 1 there is why the number could not be deleted.
+ * So anything unreadable falls back rather than overwriting what the reader is
+ * in the middle of typing, and clamping to the book's length waits for blur.
+ */
+export function readChapter(text: string, max: number, fallback: number): number {
+  const n = Number.parseInt(text, 10);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(1, Math.min(max, n));
+}
+
+/**
  * What comes before and after a chapter.
  *
  * Inside a book both orders agree, so this only really decides what happens at a

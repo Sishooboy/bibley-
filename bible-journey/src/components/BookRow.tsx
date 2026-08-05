@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { relativeDay, today } from '../lib/dates';
 import { plural } from '../lib/format';
+import { readChapter } from '../lib/navigate';
 import { chapterKey } from '../lib/storage';
 import { useReader } from '../state/useReader';
 import { useStore } from '../state/useStore';
@@ -43,15 +44,20 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
 
   /** Where a reader coming back would start: the first chapter they have not read. */
   const nextUp = Math.min(chapters, contiguous + 1);
-  const [from, setFrom] = useState(nextUp);
-  const [to, setTo] = useState(nextUp);
+  /*
+   * Held as text, not numbers. A field being empty is what a field looks like
+   * halfway through being retyped, and turning that into a number on every
+   * keystroke is why the digit could not be deleted: it refilled itself.
+   */
+  const [fromText, setFromText] = useState(String(nextUp));
+  const [toText, setToText] = useState(String(nextUp));
   const [confirmClear, setConfirmClear] = useState(false);
 
   useEffect(() => {
     if (open) {
       ref.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      setFrom(nextUp);
-      setTo(nextUp);
+      setFromText(String(nextUp));
+      setToText(String(nextUp));
     } else setConfirmClear(false);
     // Only when the row opens: re-running on every mark would yank the fields
     // out from under someone entering a second range.
@@ -59,7 +65,8 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
   }, [open]);
 
   const isRead = (c: number) => chapterKey(name, c) in data.read;
-  const clamp = (n: number) => Math.max(1, Math.min(chapters, Math.round(n) || 1));
+  const from = readChapter(fromText, chapters, nextUp);
+  const to = readChapter(toText, chapters, from);
 
   // Taken in whichever order they were typed, so neither field has to be first.
   const lo = Math.min(from, to);
@@ -69,9 +76,12 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
   const panelId = `book-panel-${name.replace(/\s+/g, '-')}`;
 
   const setRange = (a: number, b: number) => {
-    setFrom(clamp(a));
-    setTo(clamp(b));
+    setFromText(String(a));
+    setToText(String(b));
   };
+
+  /** Digits only, so a stray letter never lands in a chapter number. */
+  const onlyDigits = (value: string) => value.replace(/\D/g, '').slice(0, 3);
 
   return (
     <div className={`book${done ? ' book--done' : ''}`} ref={ref} data-book={name}>
@@ -110,12 +120,18 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
               <input
                 id={`${panelId}-from`}
                 className="field range__input"
-                type="number"
+                type="text"
                 inputMode="numeric"
-                min={1}
-                max={chapters}
-                value={from}
-                onChange={(e) => setFrom(clamp(Number(e.target.value)))}
+                autoComplete="off"
+                aria-label={`First chapter read, 1 to ${chapters}`}
+                value={fromText}
+                // Tapping a field you mean to retype should not need the old
+                // value deleting first.
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => setFromText(onlyDigits(e.target.value))}
+                // Clamping waits for blur, so an empty or out of range field is
+                // allowed to exist for as long as it is being typed into.
+                onBlur={() => setFromText(String(from))}
               />
             </span>
             <span className="range__field">
@@ -123,12 +139,14 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
               <input
                 id={`${panelId}-to`}
                 className="field range__input"
-                type="number"
+                type="text"
                 inputMode="numeric"
-                min={1}
-                max={chapters}
-                value={to}
-                onChange={(e) => setTo(clamp(Number(e.target.value)))}
+                autoComplete="off"
+                aria-label={`Last chapter read, 1 to ${chapters}`}
+                value={toText}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => setToText(onlyDigits(e.target.value))}
+                onBlur={() => setToText(String(to))}
               />
             </span>
             <span className="range__count">{plural(chosen.length, 'chapter')}</span>
