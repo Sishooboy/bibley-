@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useState, type ReactNode } from 'react';
 import { getPlan, type PlanId } from '../data/plans';
 import { plural } from '../lib/format';
+import { noteKey } from '../lib/merge';
 import type { Prefs } from '../lib/prefs';
 import { clampReadingDay, relativeDay, today, type DayKey } from '../lib/dates';
 import {
@@ -50,6 +51,26 @@ type State = {
 
 function withUndo(state: State, data: AppData, label: string): State {
   return { data, previous: { data: state.data, label } };
+}
+
+/**
+ * Deleting a note has to be recorded for the same reason unmarking a chapter
+ * does. Filed under what the note was about, which is what `mergeNotes` dedupes
+ * on, so it still finds the note when the other device wrote its own.
+ */
+function buryNote(data: AppData, note: Pick<Note, 'book' | 'chapter'>): Record<string, string> {
+  return { ...(data.removedNotes ?? {}), [noteKey(note)]: new Date().toISOString() };
+}
+
+/** Writing on that chapter again is the answer to having deleted it. */
+function unburyNote(
+  data: AppData,
+  note: Pick<Note, 'book' | 'chapter'>,
+): Record<string, string> | undefined {
+  if (!data.removedNotes) return undefined;
+  const next = { ...data.removedNotes };
+  delete next[noteKey(note)];
+  return Object.keys(next).length > 0 ? next : undefined;
 }
 
 /** Unmarking has to be recorded, or the next union merge quietly restores it. */
@@ -299,13 +320,26 @@ function reducer(state: State, action: Action): State {
           createdAt: now,
           updatedAt: now,
         };
-        return { ...state, data: { ...data, notes: [...data.notes, note] } };
+        return {
+          ...state,
+          data: {
+            ...data,
+            notes: [...data.notes, note],
+            removedNotes: unburyNote(data, note),
+          },
+        };
       }
 
+      // Emptying the box is the other way to delete a note, and needs the same
+      // tombstone the Delete button leaves.
       if (!text) {
         return {
           ...state,
-          data: { ...data, notes: data.notes.filter((n) => n.id !== existing.id) },
+          data: {
+            ...data,
+            notes: data.notes.filter((n) => n.id !== existing.id),
+            removedNotes: buryNote(data, existing),
+          },
         };
       }
       if (text === existing.text) return state;
@@ -314,13 +348,20 @@ function reducer(state: State, action: Action): State {
         data: {
           ...data,
           notes: data.notes.map((n) => (n.id === existing.id ? { ...n, text, updatedAt: now } : n)),
+          removedNotes: unburyNote(data, existing),
         },
       };
     }
     case 'deleteNote': {
       const note = data.notes.find((n) => n.id === action.id);
       if (!note) return state;
-      const next = { ...data, notes: data.notes.filter((n) => n.id !== action.id) };
+      const next = {
+        ...data,
+        notes: data.notes.filter((n) => n.id !== action.id),
+        // Without the tombstone the next sync unions the note back off the
+        // server and it reappears, exactly as unmarking a chapter used to.
+        removedNotes: buryNote(data, note),
+      };
       return withUndo(state, next, 'Deleted note');
     }
     case 'choosePlan':

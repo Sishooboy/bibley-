@@ -102,6 +102,13 @@ export type AppData = {
    * device has not seen, and helpfully brings it back.
    */
   removedHighlights?: Record<string, string>;
+  /**
+   * Deleted notes, keyed by what the note was about ("John|3", "John|book") and
+   * when. Keyed by target rather than by id because that is what the merge
+   * dedupes notes on. Without this a deleted note came back off the server on
+   * the very next sync, which it did for as long as notes existed.
+   */
+  removedNotes?: Record<string, string>;
   /** Reader settings, synced so they follow the account rather than the device. */
   prefs?: Prefs;
 };
@@ -163,6 +170,7 @@ export function normalize(input: unknown): AppData | null {
     slots: normalizeSlots(raw.slots),
     highlights: normalizeHighlights(raw.highlights),
     removedHighlights: normalizeRemoved(raw.removedHighlights),
+    removedNotes: normalizeRemoved(raw.removedNotes),
     prefs: normalizePrefs(raw.prefs),
   };
 }

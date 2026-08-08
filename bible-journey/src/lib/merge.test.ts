@@ -200,6 +200,50 @@ describe('mergeJournals', () => {
     expect(mergeJournals(a, b).notes).toHaveLength(2);
   });
 
+  /*
+   * Deleting a note only emptied the local array for as long as notes existed,
+   * so the very next sync unioned it back off the server and it returned. The
+   * same bug as unmarking a chapter, in the one place it had not been fixed.
+   */
+  it('keeps a deleted note deleted', () => {
+    const deleted = journal({ removedNotes: { 'John|1': '2026-02-01T00:00:00.000Z' } });
+    const stale = journal({ notes: [note()] });
+
+    expect(mergeJournals(deleted, stale).notes).toEqual([]);
+    expect(mergeJournals(stale, deleted).notes).toEqual([]);
+  });
+
+  it('files the tombstone by target, so it still finds the other device’s note', () => {
+    // Both wrote the first note on John 1, and there is only one note on John 1.
+    // An id-keyed tombstone would have missed whichever id survived the merge.
+    const deleted = journal({ removedNotes: { 'John|1': '2026-02-01T00:00:00.000Z' } });
+    const theirs = journal({ notes: [note({ id: 'written-elsewhere' })] });
+
+    expect(mergeJournals(deleted, theirs).notes).toEqual([]);
+  });
+
+  it('lets writing on that chapter again retire the tombstone', () => {
+    const deleted = journal({ removedNotes: { 'John|1': '2026-02-01T00:00:00.000Z' } });
+    const rewritten = journal({
+      notes: [note({ text: 'second thoughts', updatedAt: '2026-03-01T00:00:00.000Z' })],
+    });
+
+    const merged = mergeJournals(deleted, rewritten);
+    expect(merged.notes).toHaveLength(1);
+    expect(merged.notes[0].text).toBe('second thoughts');
+    expect(merged.removedNotes).toBeUndefined();
+  });
+
+  it('leaves a book-level note and a chapter note as separate targets', () => {
+    const deleted = journal({ removedNotes: { 'John|book': '2026-02-01T00:00:00.000Z' } });
+    const both = journal({
+      notes: [note({ chapter: null, id: 'nb' }), note({ chapter: 1 })],
+    });
+
+    const merged = mergeJournals(deleted, both);
+    expect(merged.notes.map((n) => n.chapter)).toEqual([1]);
+  });
+
   it('takes the earlier start date and the later prefs', () => {
     const a = journal({
       startedAt: '2026-02-01',
@@ -359,5 +403,17 @@ describe('sameJournal', () => {
     const a = journal({ removed: { 'John|1': '2026-02-02T10:00:00.000Z' } });
 
     expect(sameJournal(a, journal())).toBe(false);
+  });
+
+  /*
+   * This decides whether a change is worth writing to the server. A deleted
+   * note leaves nothing behind but its tombstone, so a tombstone this cannot
+   * see is a deletion that never leaves the device.
+   */
+  it('spots a deleted note, which is only ever a tombstone', () => {
+    const a = journal({ removedNotes: { 'John|1': '2026-02-02T10:00:00.000Z' } });
+
+    expect(sameJournal(a, journal())).toBe(false);
+    expect(sameJournal(journal(), a)).toBe(false);
   });
 });

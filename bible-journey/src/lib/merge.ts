@@ -29,7 +29,7 @@ export function mergeJournals(a: AppData, b: AppData): AppData {
     markedAt: Object.keys(markedAt).length > 0 ? markedAt : undefined,
     slots: Object.keys(slots).length > 0 ? slots : undefined,
     ...mergeHighlights(a, b),
-    notes: mergeNotes(a.notes, b.notes),
+    ...mergeNotes(a, b),
     startedAt: a.startedAt < b.startedAt ? a.startedAt : b.startedAt,
     backedUpAt: a.backedUpAt,
     ownerId: a.ownerId ?? b.ownerId,
@@ -181,18 +181,46 @@ function mergeHighlights(
   };
 }
 
-function noteKey(note: Note): string {
+/**
+ * A note is identified by what it is about, not by its id. Two devices can each
+ * write the first note on John, and there is only one note on John.
+ */
+export function noteKey(note: Pick<Note, 'book' | 'chapter'>): string {
   return `${note.book}|${note.chapter ?? 'book'}`;
 }
 
-function mergeNotes(a: Note[], b: Note[]): Note[] {
+/**
+ * Notes needed tombstones too, and had none. Deleting one only removed it from
+ * the local array, so the next sync unioned it straight back off the server and
+ * it reappeared, for ever. The same bug as unmarking a chapter, and as deleting
+ * a highlight, in the one place it had not been fixed.
+ *
+ * The tombstone is keyed by target rather than by id, because that is what the
+ * merge dedupes on: an id-keyed tombstone would miss the surviving note whenever
+ * two devices had each written their own note on the same chapter.
+ */
+function mergeNotes(a: AppData, b: AppData): Pick<AppData, 'notes' | 'removedNotes'> {
+  const removed = mergeStamps(a.removedNotes, b.removedNotes);
+
   const byTarget = new Map<string, Note>();
-  for (const note of [...a, ...b]) {
+  for (const note of [...a.notes, ...b.notes]) {
     const key = noteKey(note);
     const existing = byTarget.get(key);
     if (!existing || note.updatedAt > existing.updatedAt) byTarget.set(key, note);
   }
-  return [...byTarget.values()].sort((x, y) => x.createdAt.localeCompare(y.createdAt));
+
+  // Writing on that chapter again after deleting it elsewhere retires the
+  // tombstone, the way a re-marked chapter retires its own.
+  for (const [key, at] of Object.entries(removed)) {
+    const live = byTarget.get(key);
+    if (live && live.updatedAt > at) delete removed[key];
+    else byTarget.delete(key);
+  }
+
+  return {
+    notes: [...byTarget.values()].sort((x, y) => x.createdAt.localeCompare(y.createdAt)),
+    removedNotes: Object.keys(removed).length > 0 ? removed : undefined,
+  };
 }
 
 /** Cheap structural comparison, used to skip pointless writes. */
@@ -228,6 +256,12 @@ export function sameJournal(a: AppData, b: AppData): boolean {
   if (aRemovedHl.length !== Object.keys(b.removedHighlights ?? {}).length) return false;
   for (const id of aRemovedHl) {
     if (a.removedHighlights?.[id] !== b.removedHighlights?.[id]) return false;
+  }
+
+  const aRemovedNotes = Object.keys(a.removedNotes ?? {});
+  if (aRemovedNotes.length !== Object.keys(b.removedNotes ?? {}).length) return false;
+  for (const key of aRemovedNotes) {
+    if (a.removedNotes?.[key] !== b.removedNotes?.[key]) return false;
   }
 
   return true;

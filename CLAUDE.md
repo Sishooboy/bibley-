@@ -201,9 +201,15 @@ chapters outside the new plan simply stop being counted.
 ### Merge rules, and why they are what they are
 
 1. **Adds union.** Two devices marking different chapters both win.
-2. **Deletions need tombstones.** An absent key is indistinguishable from one the other device has
-   not seen, so unmarking writes `removed[key] = now`. Without this, sync resurrects cleared
-   chapters.
+2. **Deletions need tombstones. All three kinds.** An absent thing is indistinguishable from one the
+   other device has not seen, so deleting writes the date it happened: `removed` for chapters,
+   `removedHighlights` by id, `removedNotes` by target. Without one, sync resurrects it. Notes were
+   the last to get this and went years without: deleting a note only emptied the local array, so the
+   next pull unioned it straight back off the server. **`removedNotes` is keyed by what the note was
+   about, `"John|3"` or `"John|book"`, not by id**, because that is what `mergeNotes` dedupes on: two
+   devices can each write the first note on John 3, only one survives the merge, and an id-keyed
+   tombstone would name the one that did not. Emptying the note box deletes too, so it buries the
+   note the same way, and writing on that chapter again retires the tombstone.
 3. **The later mark decides the reading day.** `mergeRead` used to keep whichever day was earlier,
    which silently threw away corrections: re-date a chapter forward and the next sync put the old
    day back, so it looked as though marking had not registered at all. `markedAt` says which side
