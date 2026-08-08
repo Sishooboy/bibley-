@@ -78,7 +78,7 @@ describe('buildShareStats', () => {
   it('describes itself for anyone who cannot see the picture', () => {
     const read: ReadMap = { 'John|1': '2026-02-01' };
     expect(describeCard(statsFor(journal(read)))).toMatch(
-      /% of The whole Bible read, 1 of 1,189 chapters/,
+      /% of The whole Bible read, 1 of 1,334 chapters/,
     );
   });
 });

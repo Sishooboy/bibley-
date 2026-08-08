@@ -3,7 +3,7 @@ import { rankBooks } from '../lib/bookSearch';
 import { plural } from '../lib/format';
 import { Search } from './icons';
 
-/** Sixty-six books over seven screens, and no way to reach one but scrolling. */
+/** Seventy-three books over eight screens, and no way to reach one but scrolling. */
 export function BookFinder({
   books,
   onJump,

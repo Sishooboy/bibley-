@@ -73,13 +73,15 @@ export const PHASES: Phase[] = [
   {
     phase: 6,
     title: 'Wisdom Literature',
-    why: 'A change of pace after all that narrative: prayer, poetry, and practical wisdom. Job fits here as a meditation on suffering, right after a long national history full of it.',
+    why: 'A change of pace after all that narrative: prayer, poetry, and practical wisdom. Job fits here as a meditation on suffering, right after a long national history full of it. Wisdom and Sirach close the section, written last and in Greek, and already arguing with the world the New Testament will open in.',
     books: [
       { name: 'Job', chapters: 42 },
       { name: 'Psalms', chapters: 150 },
       { name: 'Proverbs', chapters: 31 },
       { name: 'Ecclesiastes', chapters: 12 },
       { name: 'Song of Songs', chapters: 8 },
+      { name: 'Wisdom', chapters: 19 },
+      { name: 'Sirach', chapters: 51 },
     ],
   },
   {
@@ -105,13 +107,14 @@ export const PHASES: Phase[] = [
   {
     phase: 8,
     title: 'Major Prophets',
-    why: 'The big, dense prophetic books. They explain the exile you just read about in the history books, so the context is still fresh.',
+    why: 'The big, dense prophetic books. They explain the exile you just read about in the history books, so the context is still fresh. Baruch follows Lamentations because it belongs to the same voice: Baruch was the secretary who wrote Jeremiah down.',
     books: [
       { name: 'Isaiah', chapters: 66 },
       { name: 'Jeremiah', chapters: 52 },
       { name: 'Lamentations', chapters: 5 },
+      { name: 'Baruch', chapters: 6 },
       { name: 'Ezekiel', chapters: 48 },
-      { name: 'Daniel', chapters: 12 },
+      { name: 'Daniel', chapters: 14 },
     ],
   },
   {
@@ -135,12 +138,16 @@ export const PHASES: Phase[] = [
   },
   {
     phase: 10,
-    title: 'Return From Exile',
-    why: 'The other side of the exile: rebuilding. Placed after the prophets so the return actually feels like a resolution instead of a random detour.',
+    title: 'After the Exile',
+    why: 'The other side of the exile: rebuilding, then surviving. Placed after the prophets so the return actually feels like a resolution instead of a random detour. Tobit, Judith and Esther are three stories about staying faithful under a foreign throne, and Maccabees carries the history to within a century of the gospels.',
     books: [
       { name: 'Ezra', chapters: 10 },
       { name: 'Nehemiah', chapters: 13 },
-      { name: 'Esther', chapters: 10 },
+      { name: 'Tobit', chapters: 14 },
+      { name: 'Judith', chapters: 16 },
+      { name: 'Esther', chapters: 16 },
+      { name: '1 Maccabees', chapters: 16 },
+      { name: '2 Maccabees', chapters: 15 },
     ],
   },
   {
@@ -166,7 +173,7 @@ export const PHASES: Phase[] = [
   },
 ];
 
-/** The 65 books of the twelve phases, in reading order (excludes John). */
+/** The 72 books of the twelve phases, in reading order (excludes John). */
 export const PLAN_BOOKS: Book[] = PHASES.flatMap((p) => p.books);
 
 /** Everything to read, John first. */
@@ -200,6 +207,6 @@ export const PHASE_OF_BOOK = new Map<string, number>([
 
 export const BOOK_BY_NAME = new Map<string, Book>(ALL_BOOKS.map((b) => [b.name, b]));
 
-export const PHASES_CHAPTER_COUNT = PLAN_BOOKS.reduce((n, b) => n + b.chapters, 0); // 1168
-export const TOTAL_BOOK_COUNT = ALL_BOOKS.length; // 66
-export const TOTAL_CHAPTER_COUNT = PHASES_CHAPTER_COUNT + PROLOGUE.chapters; // 1189
+export const PHASES_CHAPTER_COUNT = PLAN_BOOKS.reduce((n, b) => n + b.chapters, 0); // 1313
+export const TOTAL_BOOK_COUNT = ALL_BOOKS.length; // 73
+export const TOTAL_CHAPTER_COUNT = PHASES_CHAPTER_COUNT + PROLOGUE.chapters; // 1334

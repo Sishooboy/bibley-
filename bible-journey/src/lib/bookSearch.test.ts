@@ -38,6 +38,23 @@ describe('finding a book by typing', () => {
   it('finds the numbered books distinctly', () => {
     expect(rankBooks(CANON, '2 kings')[0]).toBe('2 Kings');
     expect(rankBooks(CANON, '3john')[0]).toBe('3 John');
+    expect(rankBooks(CANON, '1macc')[0]).toBe('1 Maccabees');
+  });
+
+  /*
+   * The deuterocanon lands two new books next to names already in the list.
+   * Judith shares four letters with Judges and Jude, and Sirach is called
+   * Ecclesiasticus in older Bibles, which is one letter away from Ecclesiastes.
+   * The short name is used here for exactly that reason.
+   */
+  it('keeps the deuterocanonical names apart from the ones they resemble', () => {
+    expect(rankBooks(CANON, 'judith')[0]).toBe('Judith');
+    expect(rankBooks(CANON, 'jud')[0]).toBe('Judges');
+    expect(rankBooks(CANON, 'eccl')[0]).toBe('Ecclesiastes');
+    expect(rankBooks(CANON, 'sir')[0]).toBe('Sirach');
+    expect(rankBooks(CANON, 'wis')[0]).toBe('Wisdom');
+    expect(rankBooks(CANON, 'tob')[0]).toBe('Tobit');
+    expect(rankBooks(CANON, 'bar')[0]).toBe('Baruch');
   });
 
   it('returns nothing for an empty query, and nothing for nonsense', () => {

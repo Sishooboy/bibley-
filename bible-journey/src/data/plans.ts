@@ -103,7 +103,7 @@ const NT_PHASES: Phase[] = [
 ];
 
 /**
- * Old Testament only, 39 books.
+ * Old Testament only, 46 books.
  *
  * Narrative spine first, in the order events happen, so the history makes sense
  * as a story before it is interrupted. Chronicles follows Kings rather than
@@ -165,25 +165,28 @@ const OT_PHASES: Phase[] = [
   {
     phase: 6,
     title: 'Poetry and Wisdom',
-    why: "A change of register after centuries of narrative. Job asks whether suffering means guilt, and lands right after a national history full of it. Many psalms belong to David and the temple you have just seen built. Proverbs is practical, Ecclesiastes is disillusioned, and the Song is love poetry with no apology for being here.",
+    why: "A change of register after centuries of narrative. Job asks whether suffering means guilt, and lands right after a national history full of it. Many psalms belong to David and the temple you have just seen built. Proverbs is practical, Ecclesiastes is disillusioned, and the Song is love poetry with no apology for being here. Wisdom and Sirach come last because they were written last, in Greek, by Jews already living in the world the gospels will arrive into.",
     books: [
       { name: 'Job', chapters: 42 },
       { name: 'Psalms', chapters: 150 },
       { name: 'Proverbs', chapters: 31 },
       { name: 'Ecclesiastes', chapters: 12 },
       { name: 'Song of Songs', chapters: 8 },
+      { name: 'Wisdom', chapters: 19 },
+      { name: 'Sirach', chapters: 51 },
     ],
   },
   {
     phase: 7,
     title: 'The Major Prophets',
-    why: "These men were shouting into the collapse you read in Kings, so their urgency only makes sense with that fresh. Isaiah spans it, Jeremiah watches Jerusalem fall, Lamentations is the funeral, Ezekiel writes from the camps, and Daniel serves in the empire that took him.",
+    why: "These men were shouting into the collapse you read in Kings, so their urgency only makes sense with that fresh. Isaiah spans it, Jeremiah watches Jerusalem fall, Lamentations is the funeral, Baruch is a letter home from the man who wrote Jeremiah down, Ezekiel writes from the camps, and Daniel serves in the empire that took him.",
     books: [
       { name: 'Isaiah', chapters: 66 },
       { name: 'Jeremiah', chapters: 52 },
       { name: 'Lamentations', chapters: 5 },
+      { name: 'Baruch', chapters: 6 },
       { name: 'Ezekiel', chapters: 48 },
-      { name: 'Daniel', chapters: 12 },
+      { name: 'Daniel', chapters: 14 },
     ],
   },
   {
@@ -208,11 +211,22 @@ const OT_PHASES: Phase[] = [
   {
     phase: 9,
     title: 'Coming Home',
-    why: "The other side of the exile, and the last word of the Old Testament. Ezra rebuilds the temple, Nehemiah the walls, and Esther is set among the Jews who never went back. It ends unfinished, waiting, which is precisely the note the New Testament opens on.",
+    why: "The other side of the exile. Ezra rebuilds the temple, Nehemiah the walls, and then three stories about Jews living under somebody else's throne: Tobit in Nineveh, Judith with a general's head in a bag, Esther keeping her name quiet in Persia. None of them is told to make the point comfortably.",
     books: [
       { name: 'Ezra', chapters: 10 },
       { name: 'Nehemiah', chapters: 13 },
-      { name: 'Esther', chapters: 10 },
+      { name: 'Tobit', chapters: 14 },
+      { name: 'Judith', chapters: 16 },
+      { name: 'Esther', chapters: 16 },
+    ],
+  },
+  {
+    phase: 10,
+    title: 'Holding the Line',
+    why: "The last of the history and the last word of the Old Testament, three centuries after Ezra and only a century before the gospels. A family revolt against an empire that outlawed the faith, and the first place in scripture where anyone prays for the dead. It ends unfinished, waiting, which is precisely the note the New Testament opens on.",
+    books: [
+      { name: '1 Maccabees', chapters: 16 },
+      { name: '2 Maccabees', chapters: 15 },
     ],
   },
 ];
@@ -253,7 +267,7 @@ export const PLANS: Record<PlanId, Plan> = {
   both: definePlan(
     'both',
     'The whole Bible',
-    'All 66 books, in an order built so each one lands with the context of the one before it.',
+    'All 73 books, in an order built so each one lands with the context of the one before it.',
     'John first, then back to the beginning. History before the prophets who explain it, Acts before the letters it sets up, Revelation last.',
     [MEET_JESUS, ...PHASES],
   ),
@@ -267,8 +281,8 @@ export const PLANS: Record<PlanId, Plan> = {
   ot: definePlan(
     'ot',
     'Old Testament',
-    'The 39 books of the Hebrew scriptures, read as one continuous story.',
-    'The narrative spine in the order events happen, then the poetry it produced, then the prophets who shouted through its collapse.',
+    'The 46 books of the Old Testament, read as one continuous story.',
+    'The narrative spine in the order events happen, then the poetry it produced, then the prophets who shouted through its collapse, and Maccabees to close the gap before the gospels.',
     OT_PHASES,
   ),
 };

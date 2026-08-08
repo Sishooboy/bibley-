@@ -169,9 +169,9 @@ describe('plan progress', () => {
 
 describe('the plans themselves', () => {
   it('has the counts the app states out loud', () => {
-    expect([PLANS.both.bookCount, PLANS.both.chapterCount]).toEqual([66, 1189]);
+    expect([PLANS.both.bookCount, PLANS.both.chapterCount]).toEqual([73, 1334]);
     expect([PLANS.nt.bookCount, PLANS.nt.chapterCount]).toEqual([27, 260]);
-    expect([PLANS.ot.bookCount, PLANS.ot.chapterCount]).toEqual([39, 929]);
+    expect([PLANS.ot.bookCount, PLANS.ot.chapterCount]).toEqual([46, 1074]);
   });
 
   it('splits the whole Bible exactly between the two testaments', () => {

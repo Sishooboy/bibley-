@@ -1,5 +1,5 @@
 /**
- * Matching is loose on purpose. Sixty-six books is a lot to scroll, and what
+ * Matching is loose on purpose. Seventy-three books is a lot to scroll, and what
  * someone types on a phone is rarely what is printed on the page: "1john" and
  * "1 John" should both work, and so should an abbreviation like "jhn".
  */

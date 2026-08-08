@@ -30,7 +30,34 @@ const ALIASES = {
   'Acts of the Apostles': 'Acts',
   Revelation: 'Revelation',
   'Revelation of John': 'Revelation',
+  // Deuterocanon. The source publishes the wider canon under the older English
+  // titles, so these are the names a Catholic Bible prints on the page.
+  'Wisdom of Solomon': 'Wisdom',
 };
+
+/**
+ * Books the source publishes on their own that a Catholic Bible prints as
+ * chapters of another book, which is also how they are cited: Daniel 13 is
+ * Susanna, Baruch 6 is the Letter of Jeremiah.
+ *
+ * Every one of these is an append. No chapter and no verse that already existed
+ * moves, so a highlight recorded before the canon changed still points at the
+ * same words. `chapter` renumbers a one chapter book into its place; leaving it
+ * out keeps the source's own numbering, which is what the Esther additions
+ * need, since they are numbered 10:4 onwards precisely so they can be joined
+ * onto the end of a Hebrew Esther.
+ */
+const INSERTS = [
+  { from: "Jeremy's Letter", into: 'Baruch', chapter: 6 },
+  { from: 'Susanna', into: 'Daniel', chapter: 13 },
+  { from: 'Bel and the Dragon', into: 'Daniel', chapter: 14 },
+  { from: 'Greek Additions to Esther', into: 'Esther' },
+];
+
+/** The source spells one title with a typographic apostrophe. Nothing else has one. */
+function sourceName(name) {
+  return name.replace(/’/g, "'");
+}
 
 export function slugFor(book) {
   return book.toLowerCase().replace(/\s+/g, '-');
@@ -42,11 +69,18 @@ export function slugFor(book) {
  * app, where it would run on every chapter open forever.
  */
 function clean(text) {
-  return text
-    .replace(/<br\s*\/?>/gi, ' ')
-    .replace(/<[^>]+>/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+  return (
+    text
+      .replace(/<br\s*\/?>/gi, ' ')
+      .replace(/<[^>]+>/g, '')
+      // The deuterocanonical books, and only those, mark a plural "you" with an
+      // arrowhead: "you⌃ that be judges". It is an editor's note to a translator,
+      // it appears nowhere in the other 64 books, and left in it would make the
+      // new books read as though something had gone wrong with the font.
+      .replace(/⌃/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+  );
 }
 
 function planBooks(source) {
@@ -70,7 +104,12 @@ async function main() {
   const [books, verses] = await Promise.all([getJson(BOOKS_URL), getJson(TEXT_URL)]);
   console.log(`Source returned ${books.length} books and ${verses.length} verses.`);
 
-  const nameOf = new Map(books.map((b) => [b.bookid, ALIASES[b.name] ?? b.name]));
+  const nameOf = new Map(
+    books.map((b) => {
+      const name = sourceName(b.name);
+      return [b.bookid, ALIASES[name] ?? name];
+    }),
+  );
 
   /** book -> chapter number -> verse array */
   const grouped = new Map();
@@ -84,6 +123,25 @@ async function main() {
   }
 
   const problems = [];
+
+  for (const { from, into, chapter } of INSERTS) {
+    const source = grouped.get(from);
+    const target = grouped.get(into);
+    if (!source || !target) {
+      problems.push(`${from}: cannot be joined onto ${into}, one of the two is missing`);
+      continue;
+    }
+    for (const [c, verseList] of source) {
+      const at = chapter ?? c;
+      const existing = target.get(at);
+      // A chapter the additions continue rather than replace, Esther 10 being
+      // the only one. forEach walks past the holes, so verses 1 to 3 survive.
+      if (existing) verseList.forEach((text, i) => (existing[i] = text));
+      else target.set(at, verseList);
+    }
+    grouped.delete(from);
+  }
+
   const extras = [];
   for (const [book, chapters] of expected) {
     const found = grouped.get(book);

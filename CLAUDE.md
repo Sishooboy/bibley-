@@ -47,13 +47,32 @@ redeploy.**
 ## Architecture
 
 - **The text lives in `public/bible/`**, one JSON file per book, World English Bible, public domain.
-  It is fetched a book at a time rather than bundled: 3.9 MB has no business in the JS. `src/lib/bible.ts`
+  It is fetched a book at a time rather than bundled: 4.4 MB has no business in the JS. `src/lib/bible.ts`
   caches in memory and dedupes concurrent loads, and the service worker keeps every book you open,
   so a book you have read once reads again on a plane. **A null verse is deliberate**: verse
-  numbering follows the King James tradition, and four numbers (Luke 17:36, Acts 8:37, 15:34, 24:7)
-  have nothing behind them in this translation's source. The slot stays so later numbering is right,
-  and the reader skips it. `bible.test.ts` pins that list, so replacing the text trips a test rather
-  than silently shifting verse numbers.
+  numbering follows the King James tradition, and 39 numbers have nothing behind them in this
+  translation's source. Four are the familiar ones (Luke 17:36, Acts 8:37, 15:34, 24:7); the other
+  35 are in Sirach, where the longer Greek text carries verses the shorter one this is translated
+  from does not. The slot stays so later numbering is right, and the reader skips it.
+  `bible.test.ts` pins the whole list, so replacing the text trips a test rather than silently
+  shifting verse numbers.
+- **The canon is Catholic, 73 books.** The seven deuterocanonical books are Tobit, Judith, Wisdom,
+  Sirach, Baruch, 1 and 2 Maccabees, and they sit where a Catholic Bible prints them rather than in
+  an appendix. Three of them are not separate books at all in that arrangement, and `INSERTS` in
+  `scripts/fetch-bible.mjs` joins them on: Baruch 6 is the Letter of Jeremiah, Daniel 13 is Susanna,
+  Daniel 14 is Bel and the Dragon, and the Greek additions to Esther carry their own numbering from
+  10:4 to 16:24 so they land on the end of a Hebrew Esther. **Every join is an append**, which is the
+  whole reason it is safe: Esther 1 to 10:3 and Daniel 1 to 12 do not move, so a highlight recorded
+  before the canon changed still points at the same words. `git status` after re-fetching confirms
+  it, only `daniel.json` and `esther.json` change.
+- **The Prayer of Azariah is deliberately absent.** It is the one addition that is not an append: the
+  Vulgate numbers it Daniel 3:24-90 and pushes the existing 3:24-30 down to 3:91 onwards, which would
+  move verses a highlight might already point at. The source's copy is 64 verses against the 67 that
+  numbering wants, so there is no mapping to be confident about either. Everything else in the
+  Catholic Daniel is there.
+- **The deuterocanonical books mark a plural "you" with an arrowhead**, `you⌃`, and nothing else in
+  the Bible does. `clean()` in the fetch script strips it, and `bible.test.ts` fails if one survives,
+  because seven books full of stray glyphs beside 66 clean ones reads as a broken font.
 - **Highlights are the chapter rules, not the note rules.** They carry an id, they union on merge,
   and deleting one writes a tombstone in `removedHighlights`, because an absent highlight is
   indistinguishable from one the other device has not seen. Exactly the bug unmarking a chapter
@@ -77,7 +96,7 @@ redeploy.**
   that chapter, and printed order takes over if it does not. That is what lets a reader wander off
   to a book their plan omits and still have Next behave like a Bible.
 - `src/data/plan.ts` holds the twelve-phase book data. `src/data/plans.ts` builds the three plans
-  from it: `both` (66 books, 1,189 chapters), `nt` (27, 260), `ot` (39, 929).
+  from it: `both` (73 books, 1,334 chapters), `nt` (27, 260), `ot` (46, 1,074).
 - `src/state/store.tsx` is a reducer over `AppData`, persisted to `localStorage` under
   `bible-journey/v1`. `src/state/cloud.tsx` mirrors it to Supabase.
 - `src/lib/merge.ts` reconciles two copies of a journal. Read it before touching sync.
@@ -110,6 +129,9 @@ redeploy.**
 - `public/sw.js` is hand written. Navigations are network first so a deploy lands as soon as there
   is a connection, hashed assets are cache first, and anything cross-origin is ignored outright so
   a Supabase response can never be served from cache. Bump `CACHE` to retire every old cache.
+  **Changing the text under `public/bible/` requires that bump.** Those filenames are not
+  fingerprinted and they are cached first with no revalidation, so a reader who already had
+  `esther.json` would keep the ten chapter one forever and find Esther 11 missing.
 - **Chapters are named by number, not hit.** Two fields, "I read chapters N to M", plus the date.
   Three earlier designs all asked the reader to hit the chapter squares themselves, by tapping, then
   by dragging, then by double tapping each end. Every one was a poor target on a phone, and every

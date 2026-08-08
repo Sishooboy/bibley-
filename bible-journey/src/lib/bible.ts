@@ -15,7 +15,7 @@ export type BookText = {
 export const TRANSLATION_NAME = 'World English Bible';
 
 /**
- * The text is 3.9 MB across 66 files, so it is fetched per book rather than
+ * The text is 4.4 MB across 73 files, so it is fetched per book rather than
  * bundled. A book is a session's worth of reading, which makes it the right unit:
  * one request covers everything you are likely to open next, and the service
  * worker keeps it for later.

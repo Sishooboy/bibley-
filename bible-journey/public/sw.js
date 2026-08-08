@@ -14,7 +14,13 @@
  *
  * Bump CACHE to retire every previous cache in one go.
  */
-const CACHE = 'bibley-v2';
+/*
+ * v3 retires the 66 book text. The files under /bible/ are not fingerprinted,
+ * and they are cached first with no revalidation, so a reader who already had
+ * esther.json would have kept the ten chapter one and found Esther 11 missing.
+ * Any future change to the text needs this bumping for the same reason.
+ */
+const CACHE = 'bibley-v3';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (event) => {
@@ -78,9 +84,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Scripture is immutable and fetched a book at a time, so every book you open
-  // is a book you can still read on a plane. Not precached: 3.9 MB of text
-  // nobody asked for is not a courtesy.
+  // Scripture is fetched a book at a time, so every book you open is a book you
+  // can still read on a plane. Not precached: 4.4 MB of text nobody asked for is
+  // not a courtesy. Nothing here is fingerprinted, so CACHE is the only way to
+  // retire it.
   if (url.pathname.startsWith('/bible/')) {
     event.respondWith(cacheFirst(request));
     return;

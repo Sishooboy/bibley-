@@ -178,7 +178,7 @@ describe('readChapter', () => {
 });
 
 describe('the canon list', () => {
-  it('holds the same 66 books as the plan data', () => {
+  it('holds the same 73 books as the plan data', () => {
     const planBooks = PLANS.both.phases.flatMap((p) => p.books.map((b) => b.name)).sort();
     expect([...CANON].sort()).toEqual(planBooks);
   });
@@ -194,6 +194,6 @@ describe('the canon list', () => {
   it('starts and ends where a printed Bible does', () => {
     expect(CANON[0]).toBe('Genesis');
     expect(CANON[CANON.length - 1]).toBe('Revelation');
-    expect(CANON).toHaveLength(66);
+    expect(CANON).toHaveLength(73);
   });
 });
