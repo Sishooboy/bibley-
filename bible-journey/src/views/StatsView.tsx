@@ -22,6 +22,7 @@ import { formatDay, fromDayKey, today } from '../lib/dates';
 import { formatNumber, plural } from '../lib/format';
 import { useCountUp, useReveal } from '../lib/motion';
 import { cumulative, last30Days } from '../lib/progress';
+import { recentDays } from '../lib/readingLog';
 import { SLOTS, SLOT_LABELS, type Slot } from '../lib/storage';
 import { useStore } from '../state/useStore';
 
@@ -102,6 +103,7 @@ export function StatsView() {
   const busiest = daily.reduce((max, d) => Math.max(max, d.chapters), 0);
   const lastWeek = last30Days(data.read, 7);
   const spark = daily.slice(-14).map((d) => d.chapters);
+  const days = recentDays(data.read);
 
   // Time of day is opt-in, so this counts only what was actually tagged rather
   // than treating untagged chapters as a fifth, largest category.
@@ -359,6 +361,34 @@ export function StatsView() {
                 </div>
               );
             })}
+          </div>
+        </section>
+
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
+            <div>
+              <h3 className="card__title">What you read, and when</h3>
+              <p className="card__note">
+                {days.length === 0
+                  ? 'Nothing marked yet, so there is nothing to look back on.'
+                  : 'The last fortnight of reading days, newest first.'}
+              </p>
+            </div>
+          </div>
+          <div className="dayLog">
+            {days.map((entry) => (
+              <div className="dayLog__row" key={entry.day}>
+                <span className="dayLog__day">{formatDay(entry.day)}</span>
+                <span className="dayLog__books">
+                  {entry.books.map((b) => (
+                    <span className="dayLog__book" key={b.book}>
+                      {b.book} {b.label}
+                    </span>
+                  ))}
+                </span>
+                <span className="dayLog__count">{entry.total}</span>
+              </div>
+            ))}
           </div>
         </section>
 

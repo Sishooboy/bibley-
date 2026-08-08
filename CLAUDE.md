@@ -106,13 +106,6 @@ redeploy.**
 - `public/sw.js` is hand written. Navigations are network first so a deploy lands as soon as there
   is a connection, hashed assets are cache first, and anything cross-origin is ignored outright so
   a Supabase response can never be served from cache. Bump `CACHE` to retire every old cache.
-- **Chapters are chosen, then committed.** Tapping a chapter in a book row selects it, it does not
-  mark it. The commit bar appears only while something is chosen, carries the date picker, and its
-  button names the day when that is not today ("Mark 3 read on Jul 19"). This replaced a flow where
-  a tap marked immediately against a date set in a picker somewhere else, which made the date a mode
-  with no moment to check it. Three chapter states, and each differs by more than colour: unread is
-  an outline, read is filled, chosen is ringed and lifted. `aria-pressed` tracks selection, since
-  that is what the button toggles; read is said in the label.
 - **Chapters are named by number, not hit.** Two fields, "I read chapters N to M", plus the date.
   Three earlier designs all asked the reader to hit the chapter squares themselves, by tapping, then
   by dragging, then by double tapping each end. Every one was a poor target on a phone, and every
@@ -121,6 +114,14 @@ redeploy.**
   reason. The squares survive as `.strip`, which is `pointer-events: none`: purely a picture of
   where you have got to, which is why it can be 14px and show all 150 psalms in 206px without
   anyone needing to hit it.
+- **The chosen reading day lasts one recording, then goes back to today.** It used to carry over,
+  which was meant to help fill in a week and instead put later readings on a date the reader had
+  stopped thinking about. `src/lib/readingLog.ts` answers the question the strip of squares cannot:
+  `bookLog` groups a book by the day each chapter was read, `recentDays` does the same across the
+  journal for Stats. A row in the book log loads its own chapters and day back into the fields, so
+  a wrong date is two taps from being corrected.
+- Notes are **rows, not cards**: one line each, opened one at a time, optionally grouped by book.
+  Three cards used to fill a screen, which made finding anything a scroll.
 - Stats is behind `React.lazy`, since recharts is a third of the JavaScript for a screen many opens
   never reach. Initial JS is 146 kB gzipped against 258 kB before.
 - `src/lib/bookSearch.ts` ranks books for the journey's finder: exact, then prefix, then substring,
@@ -155,14 +156,19 @@ chapters outside the new plan simply stop being counted.
 
 ### Merge rules, and why they are what they are
 
-1. **Adds union.** Two devices marking different chapters both win. Earliest date per chapter.
+1. **Adds union.** Two devices marking different chapters both win.
 2. **Deletions need tombstones.** An absent key is indistinguishable from one the other device has
    not seen, so unmarking writes `removed[key] = now`. Without this, sync resurrects cleared
    chapters.
-3. **Marks carry timestamps.** `markedAt[key]` exists because comparing a deletion timestamp
+3. **The later mark decides the reading day.** `mergeRead` used to keep whichever day was earlier,
+   which silently threw away corrections: re-date a chapter forward and the next sync put the old
+   day back, so it looked as though marking had not registered at all. `markedAt` says which side
+   spoke last, and a correction is by definition the later statement. Only journals with no
+   timestamps on either side fall back to earliest-wins. One chapter, one day, last word wins.
+4. **Marks carry timestamps.** `markedAt[key]` exists because comparing a deletion timestamp
    against a *reading day* ties when you clear and re-mark on the same day, and the tombstone wins.
    That was a real bug. The later action decides, and a mark that outlives its tombstone retires it.
-4. **Sync flushes before it pulls.** `dirtyRef` in `cloud.tsx`. Pulling while a deletion is still
+5. **Sync flushes before it pulls.** `dirtyRef` in `cloud.tsx`. Pulling while a deletion is still
    only local merges it against a server copy that predates it.
 
 Consequence to keep in mind: unmarking does not travel to a device that is offline with stale data.

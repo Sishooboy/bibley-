@@ -411,11 +411,25 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setLogDay,
       logSlot,
       setLogSlot,
-      toggleChapter: (book, chapter) =>
-        dispatch({ type: 'toggleChapter', book, chapter, day: effectiveDay(), slot: logSlot }),
-      markNext: (count) => dispatch({ type: 'markNext', count, day: effectiveDay(), slot: logSlot }),
-      markChapters: (book, chapters) =>
-        dispatch({ type: 'markChapters', book, chapters, day: effectiveDay(), slot: logSlot }),
+      toggleChapter: (book, chapter) => {
+        dispatch({ type: 'toggleChapter', book, chapter, day: effectiveDay(), slot: logSlot });
+        setPickedDay(null);
+      },
+      markNext: (count) => {
+        dispatch({ type: 'markNext', count, day: effectiveDay(), slot: logSlot });
+        setPickedDay(null);
+      },
+      /*
+       * The chosen day lasts for one recording and then goes back to today.
+       * Carrying it over was meant to help fill in a week at a time, and instead
+       * quietly put later readings on a date the reader had long stopped
+       * thinking about. Re-picking a day costs two taps; finding out that a
+       * month of reading all landed on one day costs an evening.
+       */
+      markChapters: (book, chapters) => {
+        dispatch({ type: 'markChapters', book, chapters, day: effectiveDay(), slot: logSlot });
+        setPickedDay(null);
+      },
       clearChapters: (book, chapters) => dispatch({ type: 'clearChapters', book, chapters }),
       clearBook: (book, chapters) => dispatch({ type: 'clearBook', book, chapters }),
       addHighlight: (highlight) => dispatch({ type: 'addHighlight', highlight }),

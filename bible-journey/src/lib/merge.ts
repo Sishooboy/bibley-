@@ -18,7 +18,7 @@ export function mergeJournals(a: AppData, b: AppData): AppData {
     if (markedAt[key] && markedAt[key] > at) delete removed[key];
   }
 
-  const read = applyRemovals(mergeRead(a.read, b.read), removed, markedAt);
+  const read = applyRemovals(mergeRead(a, b), removed, markedAt);
   const slots = mergeSlots(a, b, read);
 
   return {
@@ -72,16 +72,38 @@ function newerPrefs(a: AppData['prefs'], b: AppData['prefs']): AppData['prefs'] 
   return (b.updatedAt ?? '') > (a.updatedAt ?? '') ? b : a;
 }
 
-function mergeRead(a: ReadMap, b: ReadMap): ReadMap {
-  const out: ReadMap = { ...a };
-  for (const [key, value] of Object.entries(b)) {
+/**
+ * One chapter, one reading day, and the last thing you said about it wins.
+ *
+ * This used to keep whichever day was earlier, which quietly threw away
+ * corrections: re-date a chapter to a later day and the next sync would put the
+ * old day back, so it looked as though the change had never registered. A
+ * correction is by definition the more recent statement, and `markedAt` records
+ * exactly that, so the side that marked it last supplies the day.
+ *
+ * Journals written before marks were timestamped have nothing to compare, and
+ * fall back to the old earliest-wins rule, which is the best that data supports.
+ */
+function mergeRead(a: AppData, b: AppData): ReadMap {
+  const out: ReadMap = { ...a.read };
+  for (const [key, value] of Object.entries(b.read)) {
     if (!(key in out)) {
       out[key] = value;
       continue;
     }
     const existing = out[key];
     // null means "read before the journal started", which outranks any date.
-    if (existing === null || value === null) out[key] = null;
+    if (existing === null || value === null) {
+      out[key] = null;
+      continue;
+    }
+    if (existing === value) continue;
+
+    const aAt = a.markedAt?.[key];
+    const bAt = b.markedAt?.[key];
+    if (aAt && bAt) out[key] = bAt > aAt ? value : existing;
+    else if (bAt) out[key] = value;
+    else if (aAt) out[key] = existing;
     else out[key] = existing < value ? existing : value;
   }
   return out;

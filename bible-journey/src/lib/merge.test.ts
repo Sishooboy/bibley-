@@ -50,6 +50,73 @@ describe('mergeJournals', () => {
     expect(mergeJournals(b, a).read['John|1']).toBe('2026-02-01');
   });
 
+  /**
+   * Correcting a reading day used to be undone by the next sync, because merge
+   * kept whichever day was earlier and ignored when each was recorded. Moving a
+   * chapter *forward* looked as though it had simply not registered.
+   */
+  it('lets a correction to a later day survive the sync', () => {
+    const corrected = journal({
+      read: { 'John|1': '2026-02-10' },
+      markedAt: { 'John|1': '2026-02-10T12:00:00.000Z' },
+    });
+    const server = journal({
+      read: { 'John|1': '2026-02-01' },
+      markedAt: { 'John|1': '2026-02-01T09:00:00.000Z' },
+    });
+
+    expect(mergeJournals(corrected, server).read['John|1']).toBe('2026-02-10');
+    expect(mergeJournals(server, corrected).read['John|1']).toBe('2026-02-10');
+  });
+
+  it('lets a correction to an earlier day survive too', () => {
+    const corrected = journal({
+      read: { 'John|1': '2026-01-05' },
+      markedAt: { 'John|1': '2026-02-10T12:00:00.000Z' },
+    });
+    const server = journal({
+      read: { 'John|1': '2026-02-01' },
+      markedAt: { 'John|1': '2026-02-01T09:00:00.000Z' },
+    });
+
+    expect(mergeJournals(corrected, server).read['John|1']).toBe('2026-01-05');
+    expect(mergeJournals(server, corrected).read['John|1']).toBe('2026-01-05');
+  });
+
+  it('gives a chapter exactly one day, never a pair', () => {
+    const a = journal({
+      read: { 'John|1': '2026-02-10' },
+      markedAt: { 'John|1': '2026-02-10T12:00:00.000Z' },
+    });
+    const b = journal({
+      read: { 'John|1': '2026-02-01' },
+      markedAt: { 'John|1': '2026-02-01T09:00:00.000Z' },
+    });
+
+    const merged = mergeJournals(a, b);
+    expect(Object.keys(merged.read)).toEqual(['John|1']);
+    expect(typeof merged.read['John|1']).toBe('string');
+  });
+
+  it('falls back to the earlier day only when neither side was timestamped', () => {
+    // Journals written before markedAt existed have nothing better to go on.
+    const a = journal({ read: { 'John|1': '2026-02-10' } });
+    const b = journal({ read: { 'John|1': '2026-02-01' } });
+
+    expect(mergeJournals(a, b).read['John|1']).toBe('2026-02-01');
+  });
+
+  it('prefers the side that was timestamped over the side that was not', () => {
+    const stamped = journal({
+      read: { 'John|1': '2026-02-10' },
+      markedAt: { 'John|1': '2026-02-10T12:00:00.000Z' },
+    });
+    const legacy = journal({ read: { 'John|1': '2026-02-01' } });
+
+    expect(mergeJournals(stamped, legacy).read['John|1']).toBe('2026-02-10');
+    expect(mergeJournals(legacy, stamped).read['John|1']).toBe('2026-02-10');
+  });
+
   it('lets null outrank a date, since it means read before the journal began', () => {
     const imported = journal({ read: { 'John|1': null } });
     const local = journal({ read: { 'John|1': '2026-02-01' } });

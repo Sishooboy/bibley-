@@ -1,29 +1,34 @@
 import { useMemo, useState, type CSSProperties } from 'react';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
-import { Search } from '../components/icons';
+import { Chevron, Search } from '../components/icons';
 import { plural } from '../lib/format';
+import { highlightRef } from '../lib/highlight';
 import { useReveal } from '../lib/motion';
 import type { Plan } from '../data/plans';
-import { highlightRef } from '../lib/highlight';
 import type { Highlight, Note } from '../lib/storage';
 import { useReader } from '../state/useReader';
 import { useStore } from '../state/useStore';
 
-/** One feed, two shapes: a chapter note, or a passage you marked while reading. */
+/** One feed, two shapes: a chapter note, or a passage marked while reading. */
 type Entry =
   | { kind: 'note'; note: Note }
   | { kind: 'highlight'; highlight: Highlight };
 
-function entryBook(entry: Entry): string {
-  return entry.kind === 'note' ? entry.note.book : entry.highlight.book;
+const entryId = (e: Entry) => (e.kind === 'note' ? e.note.id : e.highlight.id);
+const entryBook = (e: Entry) => (e.kind === 'note' ? e.note.book : e.highlight.book);
+const entryDate = (e: Entry) => (e.kind === 'note' ? e.note.updatedAt : e.highlight.updatedAt);
+const entryThought = (e: Entry) => (e.kind === 'note' ? e.note.text : (e.highlight.note ?? ''));
+
+function entryRef(e: Entry): string {
+  if (e.kind === 'highlight') return highlightRef(e.highlight);
+  return e.note.chapter === null ? e.note.book : `${e.note.book} ${e.note.chapter}`;
 }
 
-function entryDate(entry: Entry): string {
-  return entry.kind === 'note' ? entry.note.updatedAt : entry.highlight.updatedAt;
-}
-
-function entryText(entry: Entry): string {
-  return entry.kind === 'note' ? entry.note.text : (entry.highlight.note ?? '');
+/** The one line a collapsed row shows: the thought, or the passage if there is none. */
+function entryPreview(e: Entry): string {
+  const thought = entryThought(e).trim();
+  if (thought) return thought;
+  return e.kind === 'highlight' ? e.highlight.text : '';
 }
 
 function phaseLabel(book: string, plan: Plan): string {
@@ -46,260 +51,170 @@ function Highlighted({ text, query }: { text: string; query: string }) {
 }
 
 /**
- * A highlight in the notes feed. It reads as the passage first and the thought
- * second, because the passage is what you will be scanning for, and it opens the
- * reader at the right chapter rather than making you find it again.
+ * One row per entry, collapsed to a single line.
+ *
+ * These used to be full cards, which meant three notes filled a screen and
+ * finding anything was a scroll. A row says what it is and the first line of
+ * what you wrote; the rest, and everything that edits it, waits until you open
+ * it.
  */
-function HighlightCard({
-  highlight,
+function EntryRow({
+  entry,
   query,
   plan,
+  open,
+  onToggle,
   reveal,
   index,
 }: {
-  highlight: Highlight;
+  entry: Entry;
   query: string;
   plan: Plan;
+  open: boolean;
+  onToggle: () => void;
   reveal: (node: Element | null) => void;
   index: number;
 }) {
-  const { noteHighlight, removeHighlight } = useStore();
-  const { open } = useReader();
+  const { saveNote, deleteNote, noteHighlight, removeHighlight } = useStore();
+  const { open: openReader } = useReader();
   const [editing, setEditing] = useState(false);
   const [confirming, setConfirming] = useState(false);
-  const [draft, setDraft] = useState(highlight.note ?? '');
+  const [draft, setDraft] = useState(entryThought(entry));
+
+  const isNote = entry.kind === 'note';
+  const preview = entryPreview(entry);
 
   return (
     <article
       ref={reveal}
-      className={`noteCard noteCard--hl reveal${editing ? ' noteCard--editing' : ''}`}
+      className={`entry reveal${open ? ' entry--open' : ''}${isNote ? '' : ' entry--hl'}`}
       style={{ '--i': index % 8 } as CSSProperties}
     >
-      <div className="noteCard__head">
-        <h3 className="noteCard__ref">{highlightRef(highlight)}</h3>
-        <span className="noteCard__date">
-          {new Date(highlight.updatedAt).toLocaleDateString(undefined, {
+      <button
+        type="button"
+        className="entry__head"
+        aria-expanded={open}
+        onClick={() => {
+          onToggle();
+          setEditing(false);
+          setConfirming(false);
+        }}
+      >
+        <span className="entry__ref">{entryRef(entry)}</span>
+        <span className="entry__preview">
+          {preview ? <Highlighted text={preview} query={query} /> : <em>No thoughts yet</em>}
+        </span>
+        <span className="entry__date">
+          {new Date(entryDate(entry)).toLocaleDateString(undefined, {
             month: 'short',
             day: 'numeric',
-            year: 'numeric',
           })}
         </span>
-      </div>
+        <Chevron size={14} className={`entry__chev${open ? ' entry__chev--open' : ''}`} />
+      </button>
 
-      <span className="noteCard__phase">{phaseLabel(highlight.book, plan)}</span>
+      {open && (
+        <div className="entry__body">
+          <span className="entry__phase">{phaseLabel(entryBook(entry), plan)}</span>
 
-      <blockquote className="noteCard__passage">
-        <Highlighted text={highlight.text} query={query} />
-      </blockquote>
-
-      {editing ? (
-        <>
-          <textarea
-            className="field"
-            rows={4}
-            value={draft}
-            placeholder="What did you make of it?"
-            onChange={(e) => setDraft(e.target.value)}
-            autoFocus
-          />
-          <div className="noteCard__actions">
-            <button
-              type="button"
-              className="btn btn--sm btn--primary"
-              onClick={() => {
-                noteHighlight(highlight.id, draft);
-                setEditing(false);
-              }}
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              className="btn btn--sm btn--ghost"
-              onClick={() => {
-                setDraft(highlight.note ?? '');
-                setEditing(false);
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </>
-      ) : (
-        <>
-          {highlight.note ? (
-            <p className="noteCard__text">
-              <Highlighted text={highlight.note} query={query} />
-            </p>
-          ) : (
-            <p className="noteCard__text noteCard__text--empty">No thoughts written down yet.</p>
+          {entry.kind === 'highlight' && (
+            <blockquote className="entry__passage">
+              <Highlighted text={entry.highlight.text} query={query} />
+            </blockquote>
           )}
-          <div className="noteCard__actions">
-            <button
-              type="button"
-              className="btn btn--sm btn--ghost"
-              onClick={() => open(highlight.book, highlight.chapter)}
-            >
-              Open
-            </button>
-            <button
-              type="button"
-              className="btn btn--sm btn--ghost"
-              onClick={() => setEditing(true)}
-            >
-              {highlight.note ? 'Edit' : 'Add a thought'}
-            </button>
-            {confirming ? (
-              <>
+
+          {editing ? (
+            <>
+              <textarea
+                className="field"
+                rows={4}
+                value={draft}
+                placeholder={isNote ? 'Your note' : 'What did you make of it?'}
+                onChange={(e) => setDraft(e.target.value)}
+                autoFocus
+              />
+              <div className="entry__actions">
                 <button
                   type="button"
-                  className="btn btn--sm btn--danger"
-                  onClick={() => removeHighlight(highlight.id)}
+                  className="btn btn--sm btn--primary"
+                  onClick={() => {
+                    if (entry.kind === 'note') saveNote(entry.note.book, entry.note.chapter, draft);
+                    else noteHighlight(entry.highlight.id, draft);
+                    setEditing(false);
+                  }}
                 >
-                  Remove it
+                  Save
                 </button>
                 <button
                   type="button"
                   className="btn btn--sm btn--ghost"
-                  onClick={() => setConfirming(false)}
+                  onClick={() => {
+                    setDraft(entryThought(entry));
+                    setEditing(false);
+                  }}
                 >
-                  Keep
+                  Cancel
                 </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                className="btn btn--sm btn--ghost"
-                onClick={() => setConfirming(true)}
-              >
-                Remove
-              </button>
-            )}
-          </div>
-        </>
-      )}
-    </article>
-  );
-}
-
-function NoteCard({
-  note,
-  query,
-  plan,
-  reveal,
-  index,
-}: {
-  note: Note;
-  query: string;
-  plan: Plan;
-  reveal: (node: Element | null) => void;
-  index: number;
-}) {
-  const { saveNote, deleteNote } = useStore();
-  const [editing, setEditing] = useState(false);
-  const [confirming, setConfirming] = useState(false);
-  const [draft, setDraft] = useState(note.text);
-
-  return (
-    <article
-      ref={reveal}
-      className={`noteCard reveal${editing ? ' noteCard--editing' : ''}`}
-      style={{ '--i': index % 8 } as CSSProperties}
-    >
-      <span className="noteCard__quote" aria-hidden="true">
-        “
-      </span>
-
-      <div className="noteCard__head">
-        <h3 className="noteCard__ref">
-          {note.book}
-          {note.chapter !== null && <span> {note.chapter}</span>}
-        </h3>
-        <span className="noteCard__date">
-          {new Date(note.updatedAt).toLocaleDateString(undefined, {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-          })}
-        </span>
-      </div>
-
-      <span className="noteCard__phase">{phaseLabel(note.book, plan)}</span>
-
-      {editing ? (
-        <>
-          <textarea
-            className="field"
-            rows={5}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            autoFocus
-          />
-          <div className="noteCard__actions">
-            <button
-              type="button"
-              className="btn btn--sm btn--primary"
-              onClick={() => {
-                saveNote(note.book, note.chapter, draft);
-                setEditing(false);
-              }}
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              className="btn btn--sm btn--ghost"
-              onClick={() => {
-                setDraft(note.text);
-                setEditing(false);
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </>
-      ) : (
-        <>
-          <p className="noteCard__text">
-            <Highlighted text={note.text} query={query} />
-          </p>
-          <div className="noteCard__actions">
-            <button
-              type="button"
-              className="btn btn--sm btn--ghost"
-              onClick={() => setEditing(true)}
-            >
-              Edit
-            </button>
-            {confirming ? (
-              <>
-                <button
-                  type="button"
-                  className="btn btn--sm btn--danger"
-                  onClick={() => deleteNote(note.id)}
-                >
-                  Delete for good
-                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              {entryThought(entry).trim() && (
+                <p className="entry__text">
+                  <Highlighted text={entryThought(entry)} query={query} />
+                </p>
+              )}
+              <div className="entry__actions">
+                {entry.kind === 'highlight' && (
+                  <button
+                    type="button"
+                    className="btn btn--sm btn--ghost"
+                    onClick={() => openReader(entry.highlight.book, entry.highlight.chapter)}
+                  >
+                    Open
+                  </button>
+                )}
                 <button
                   type="button"
                   className="btn btn--sm btn--ghost"
-                  onClick={() => setConfirming(false)}
+                  onClick={() => setEditing(true)}
                 >
-                  Keep
+                  {entryThought(entry).trim() ? 'Edit' : 'Add a thought'}
                 </button>
-              </>
-            ) : (
-              // A note is a paragraph someone wrote by hand. One extra tap is cheap.
-              <button
-                type="button"
-                className="btn btn--sm btn--ghost"
-                onClick={() => setConfirming(true)}
-              >
-                Delete
-              </button>
-            )}
-          </div>
-        </>
+                {confirming ? (
+                  <>
+                    <button
+                      type="button"
+                      className="btn btn--sm btn--danger"
+                      onClick={() => {
+                        if (entry.kind === 'note') deleteNote(entry.note.id);
+                        else removeHighlight(entry.highlight.id);
+                      }}
+                    >
+                      {isNote ? 'Delete for good' : 'Remove it'}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn--sm btn--ghost"
+                      onClick={() => setConfirming(false)}
+                    >
+                      Keep
+                    </button>
+                  </>
+                ) : (
+                  // Someone wrote this by hand. One extra tap is cheap.
+                  <button
+                    type="button"
+                    className="btn btn--sm btn--ghost"
+                    onClick={() => setConfirming(true)}
+                  >
+                    {isNote ? 'Delete' : 'Remove'}
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       )}
     </article>
   );
@@ -313,12 +228,9 @@ export function NotesView() {
   const [phaseFilter, setPhaseFilter] = useState('all');
   const [bookFilter, setBookFilter] = useState('all');
   const [kind, setKind] = useState<'all' | 'notes' | 'highlights'>('all');
+  const [byBook, setByBook] = useState(false);
+  const [openId, setOpenId] = useState<string | null>(null);
 
-  /**
-   * Chapter notes and highlights are different objects with the same purpose, so
-   * they share one feed. Sorting by when they were last touched puts whatever you
-   * were just working on at the top, whichever kind it was.
-   */
   const entries = useMemo<Entry[]>(() => {
     const fromNotes: Entry[] = data.notes.map((n) => ({ kind: 'note' as const, note: n }));
     const fromHighlights: Entry[] = (data.highlights ?? []).map((h) => ({
@@ -330,12 +242,9 @@ export function NotesView() {
     );
   }, [data.notes, data.highlights]);
 
-  const books = useMemo(
-    () => [...new Set(entries.map(entryBook))].sort(),
-    [entries],
-  );
+  const books = useMemo(() => [...new Set(entries.map(entryBook))].sort(), [entries]);
 
-  const notes = useMemo(() => {
+  const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
     return entries.filter((entry) => {
       if (kind === 'notes' && entry.kind !== 'note') return false;
@@ -349,7 +258,7 @@ export function NotesView() {
         if (key !== phaseFilter) return false;
       }
       if (q) {
-        const haystack = `${book} ${entryText(entry)} ${
+        const haystack = `${book} ${entryThought(entry)} ${
           entry.kind === 'highlight' ? entry.highlight.text : ''
         }`.toLowerCase();
         if (!haystack.includes(q)) return false;
@@ -358,26 +267,36 @@ export function NotesView() {
     });
   }, [entries, query, phaseFilter, bookFilter, kind, plan]);
 
+  /** Grouped under book headings, or one flat run in the order they were touched. */
+  const groups = useMemo(() => {
+    if (!byBook) return [{ book: '', items: shown }];
+    const map = new Map<string, Entry[]>();
+    for (const entry of shown) {
+      const book = entryBook(entry);
+      const list = map.get(book);
+      if (list) list.push(entry);
+      else map.set(book, [entry]);
+    }
+    return [...map.entries()]
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([book, items]) => ({ book, items }));
+  }, [shown, byBook]);
+
   const filtered =
     query.trim() !== '' || phaseFilter !== 'all' || bookFilter !== 'all' || kind !== 'all';
   const highlightCount = data.highlights?.length ?? 0;
-  const words = useMemo(
-    () => data.notes.reduce((n, note) => n + note.text.trim().split(/\s+/).filter(Boolean).length, 0),
-    [data.notes],
-  );
 
   return (
     <>
       <ViewHeader
         eyebrow="Everything you wrote down"
         title="My notes"
-        lede="Verses that stuck, questions, summaries. Searchable, and filed by phase."
+        lede="Verses that stuck, questions, summaries. Searchable, and filed by book."
         meta={
           <>
             <HeadChip gold>{plural(data.notes.length, 'note')}</HeadChip>
             <HeadChip>{plural(highlightCount, 'highlight')}</HeadChip>
             <HeadChip>{plural(books.length, 'book')} annotated</HeadChip>
-            <HeadChip>{plural(words, 'word')} written</HeadChip>
           </>
         }
         aside={
@@ -406,20 +325,6 @@ export function NotesView() {
 
           <select
             className="select"
-            value={phaseFilter}
-            onChange={(e) => setPhaseFilter(e.target.value)}
-            aria-label="Filter by phase"
-          >
-            <option value="all">All phases</option>
-            {plan.phases.map((p) => (
-              <option key={p.phase} value={p.phase === 0 ? 'prologue' : String(p.phase)}>
-                {p.phase === 0 ? 'Start here' : `Phase ${p.phase}`} · {p.title}
-              </option>
-            ))}
-          </select>
-
-          <select
-            className="select"
             value={bookFilter}
             onChange={(e) => setBookFilter(e.target.value)}
             aria-label="Filter by book"
@@ -428,6 +333,20 @@ export function NotesView() {
             {books.map((b) => (
               <option key={b} value={b}>
                 {b}
+              </option>
+            ))}
+          </select>
+
+          <select
+            className="select"
+            value={phaseFilter}
+            onChange={(e) => setPhaseFilter(e.target.value)}
+            aria-label="Filter by phase"
+          >
+            <option value="all">All phases</option>
+            {plan.phases.map((p) => (
+              <option key={p.phase} value={p.phase === 0 ? 'prologue' : String(p.phase)}>
+                {p.phase === 0 ? 'Start here' : `Phase ${p.phase}`} · {p.title}
               </option>
             ))}
           </select>
@@ -441,13 +360,22 @@ export function NotesView() {
                 aria-pressed={kind === option}
                 onClick={() => setKind(option)}
               >
-                {option === 'all' ? 'Everything' : option === 'notes' ? 'Notes' : 'Highlights'}
+                {option === 'all' ? 'All' : option === 'notes' ? 'Notes' : 'Highlights'}
               </button>
             ))}
           </div>
 
+          <button
+            type="button"
+            className={`chipBtn${byBook ? ' chipBtn--on' : ''}`}
+            aria-pressed={byBook}
+            onClick={() => setByBook((on) => !on)}
+          >
+            Group by book
+          </button>
+
           <span className="notesCount" aria-live="polite">
-            {plural(notes.length, 'entry', 'entries')}
+            {plural(shown.length, 'entry', 'entries')}
           </span>
 
           {filtered && (
@@ -466,42 +394,49 @@ export function NotesView() {
           )}
         </div>
 
-        {notes.length === 0 ? (
+        {shown.length === 0 ? (
           <div className="empty">
             <span className="empty__mark" aria-hidden="true">
               “
             </span>
-            <h3>{entries.length === 0 ? 'Nothing written down yet' : 'Nothing matches those filters'}</h3>
+            <h3>
+              {entries.length === 0 ? 'Nothing written down yet' : 'Nothing matches those filters'}
+            </h3>
             <p>
               {entries.length === 0
                 ? 'Two ways in: select any passage while reading to highlight it and write what you made of it, or open a book on the journey and use the “Note on” selector for a whole chapter.'
-                : 'Try clearing the search or the phase filter.'}
+                : 'Try clearing the search or the filters.'}
             </p>
           </div>
         ) : (
-          <div className="noteList">
-            {notes.map((entry, i) =>
-              entry.kind === 'note' ? (
-                <NoteCard
-                  key={entry.note.id}
-                  note={entry.note}
-                  query={query}
-                  plan={plan}
-                  reveal={reveal}
-                  index={i}
-                />
-              ) : (
-                <HighlightCard
-                  key={entry.highlight.id}
-                  highlight={entry.highlight}
-                  query={query}
-                  plan={plan}
-                  reveal={reveal}
-                  index={i}
-                />
-              ),
-            )}
-          </div>
+          groups.map((group) => (
+            <div className="entryGroup" key={group.book || 'all'}>
+              {group.book && (
+                <h3 className="entryGroup__title">
+                  {group.book}
+                  <span>{plural(group.items.length, 'entry', 'entries')}</span>
+                </h3>
+              )}
+              <div className="entryList">
+                {group.items.map((entry, i) => (
+                  <EntryRow
+                    key={entryId(entry)}
+                    entry={entry}
+                    query={query}
+                    plan={plan}
+                    open={openId === entryId(entry)}
+                    onToggle={() =>
+                      setOpenId((current) =>
+                        current === entryId(entry) ? null : entryId(entry),
+                      )
+                    }
+                    reveal={reveal}
+                    index={i}
+                  />
+                ))}
+              </div>
+            </div>
+          ))
         )}
       </div>
     </>

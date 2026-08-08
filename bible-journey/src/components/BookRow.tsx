@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { relativeDay, today } from '../lib/dates';
+import { formatDay, relativeDay, today, type DayKey } from '../lib/dates';
 import { plural } from '../lib/format';
 import { readChapter } from '../lib/navigate';
+import { bookLog } from '../lib/readingLog';
 import { chapterKey } from '../lib/storage';
 import { useReader } from '../state/useReader';
 import { useStore } from '../state/useStore';
@@ -19,6 +20,17 @@ type Props = {
 };
 
 /**
+ * How the button names the day it is about to record. "2 days ago" already
+ * reads as a time, so it takes no preposition; a date needs one.
+ */
+function whenPhrase(day: DayKey | null): string {
+  if (!day || day === today()) return '';
+  const said = relativeDay(day);
+  if (said === 'yesterday' || said.endsWith('ago')) return ` ${said}`;
+  return ` on ${said}`;
+}
+
+/**
  * Say which chapters you read, from one number to another, and on what day.
  *
  * Earlier versions asked you to hit the chapters themselves: a grid of small
@@ -29,7 +41,7 @@ type Props = {
  * where you have got to.
  */
 export function BookRow({ name, chapters, read, open, onToggle }: Props) {
-  const { data, markChapters, clearChapters, clearBook, logDay } = useStore();
+  const { data, markChapters, clearChapters, clearBook, logDay, setLogDay } = useStore();
   const { open: openReader } = useReader();
   const ref = useRef<HTMLDivElement>(null);
   const done = read === chapters;
@@ -65,6 +77,7 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
   }, [open]);
 
   const isRead = (c: number) => chapterKey(name, c) in data.read;
+  const log = useMemo(() => bookLog(data.read, name, chapters), [data.read, name, chapters]);
   const from = readChapter(fromText, chapters, nextUp);
   const to = readChapter(toText, chapters, from);
 
@@ -176,13 +189,8 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
                 className="btn btn--sm btn--primary"
                 onClick={() => markChapters(name, chosen)}
               >
-                {/*
-                  The date carries over between books, which is what you want
-                  when filling in a week you read on paper. So the button names
-                  the day it is about to record.
-                */}
-                Mark {chosen.length} read
-                {logDay && logDay !== today() ? ` on ${relativeDay(logDay)}` : ''}
+                {/* The button names the day, so a wrong one cannot be pressed unread. */}
+                Mark {chosen.length} read{whenPhrase(logDay)}
               </button>
               {chosenRead.length > 0 && (
                 <button
@@ -216,6 +224,34 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
               />
             ))}
           </div>
+
+          {log.length > 0 && (
+            <div className="log">
+              <span className="log__title">When you read these</span>
+              {log.map((entry) => (
+                <button
+                  key={entry.day || 'undated'}
+                  type="button"
+                  className="log__row"
+                  // Loading a day back into the fields is how a wrong date gets
+                  // corrected: pick the day, see the run, re-record it.
+                  onClick={() => {
+                    setRange(entry.chapters[0], entry.chapters[entry.chapters.length - 1]);
+                    if (entry.day) setLogDay(entry.day);
+                  }}
+                  title="Load these chapters into the fields above"
+                >
+                  <span className="log__day">
+                    {entry.day ? formatDay(entry.day, { year: undefined }) : 'No date'}
+                  </span>
+                  <span className="log__ch">
+                    {name} {entry.label}
+                  </span>
+                  <span className="log__count">{entry.chapters.length}</span>
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="bookTools">
             <button

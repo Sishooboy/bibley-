@@ -4212,3 +4212,333 @@ select {
     height: 16px;
   }
 }
+
+/* ── When each chapter was read ─────────────────────────────────────────── */
+/*
+ * The strip of squares says whether a chapter is read. This says when, which is
+ * the question it cannot answer. Each row loads its own chapters back into the
+ * fields above, so a day recorded wrongly is two taps from being put right.
+ */
+.log {
+  display: grid;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.log__title {
+  background: var(--cream);
+  padding: 0.45rem 0.7rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.log__row {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.7rem;
+  background: var(--surface);
+  border: none;
+  text-align: left;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.85rem;
+}
+
+.log__row:hover {
+  background: #fdf4e6;
+}
+
+.log__day {
+  font-weight: 600;
+  color: var(--red-700);
+  white-space: nowrap;
+}
+
+.log__ch {
+  color: var(--ink-700);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.log__count {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The same idea across the whole journal, on the stats screen. */
+.dayLog {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.dayLog__row {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.5rem 0.55rem;
+  border-radius: 4px;
+  font-size: 0.88rem;
+}
+
+.dayLog__row:hover {
+  background: #fdf4e6;
+}
+
+.dayLog__day {
+  font-weight: 600;
+  color: var(--red-700);
+  white-space: nowrap;
+}
+
+.dayLog__books {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.5rem;
+  min-width: 0;
+}
+
+.dayLog__book {
+  color: var(--ink-700);
+}
+
+.dayLog__book + .dayLog__book::before {
+  content: '·';
+  color: var(--line-strong);
+  margin-right: 0.5rem;
+}
+
+.dayLog__count {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--ink-700);
+}
+
+@media (max-width: 620px) {
+  .log__row,
+  .dayLog__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .log__day,
+  .dayLog__day {
+    grid-column: 1 / -1;
+    font-size: 0.78rem;
+  }
+}
+
+/* ── Notes, as rows rather than cards ───────────────────────────────────── */
+/*
+ * Three notes used to fill a screen. A row is one line: what it is, the first
+ * line of what you wrote, and when. Everything else waits until it is opened.
+ */
+.entryGroup {
+  margin-bottom: 1.25rem;
+}
+
+.entryGroup__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--red-800);
+  padding: 0 0.2rem 0.45rem;
+  border-bottom: 2px solid var(--yellow);
+  margin-bottom: 0.5rem;
+}
+
+.entryGroup__title span {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.entryList {
+  display: grid;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--panel-radius);
+  overflow: hidden;
+}
+
+.entry {
+  background: var(--surface);
+}
+
+.entry--open {
+  background: var(--paper);
+}
+
+.entry__head {
+  display: grid;
+  grid-template-columns: minmax(6rem, auto) minmax(0, 1fr) auto auto;
+  align-items: baseline;
+  gap: 0.7rem;
+  width: 100%;
+  border: none;
+  background: none;
+  text-align: left;
+  padding: 0.7rem 0.85rem;
+}
+
+.entry__head:hover {
+  background: #fdf4e6;
+}
+
+/* Red spine for a chapter note, gold for a highlight, so kind reads at a glance. */
+.entry {
+  border-left: 3px solid var(--red-600);
+}
+
+.entry--hl {
+  border-left-color: var(--yellow);
+}
+
+.entry__ref {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--red-800);
+  white-space: nowrap;
+}
+
+.entry__preview {
+  color: var(--ink-500);
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.entry__preview em {
+  color: var(--muted);
+}
+
+.entry__date {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.entry__chev {
+  color: var(--muted);
+  transition: transform 200ms var(--ease-out);
+}
+
+.entry__chev--open {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entry__chev {
+    transition: none;
+  }
+}
+
+.entry__body {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0 0.85rem 0.9rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.8rem;
+}
+
+.entry__phase {
+  justify-self: start;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #7a5c00;
+  background: #fdf4dd;
+  border: 1px solid rgba(247, 184, 1, 0.55);
+  border-radius: 99px;
+  padding: 0.1rem 0.6rem;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entry__passage {
+  margin: 0;
+  padding-left: 0.85rem;
+  border-left: 3px solid rgba(247, 184, 1, 0.75);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink-700);
+}
+
+.entry__text {
+  white-space: pre-wrap;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--ink-700);
+}
+
+.entry__text mark,
+.entry__preview mark,
+.entry__passage mark {
+  background: var(--yellow-soft);
+  border-radius: 2px;
+  padding: 0 0.1em;
+  color: inherit;
+}
+
+.entry__actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.chipBtn--on {
+  background: var(--red-600);
+  border-color: var(--red-600);
+  color: #fff;
+  font-weight: 600;
+}
+
+.chipBtn--on:hover {
+  color: #fff;
+  border-color: var(--red-700);
+}
+
+@media (max-width: 620px) {
+  .entry__head {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 0.2rem;
+  }
+
+  .entry__preview {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+
+  .entry__date {
+    order: 2;
+  }
+
+  .entry__chev {
+    display: none;
+  }
+}
