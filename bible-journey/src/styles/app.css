@@ -1946,6 +1946,10 @@ select {
  * Opacity 0 only where motion is welcome, and useReveal() has a timeout that
  * shows everything if the observer never fires. Both matter: a stuck reveal
  * is an invisible page, not a missing animation.
+ *
+ * The marker is `data-in` rather than a class because React owns className on
+ * every element that uses this, and rewrites it whole whenever the component
+ * adds one of its own. See the comment on useReveal.
  */
 @media (prefers-reduced-motion: no-preference) {
   .reveal {
@@ -1957,7 +1961,7 @@ select {
     transition-delay: calc(var(--i, 0) * 55ms);
   }
 
-  .reveal.is-in {
+  .reveal[data-in] {
     opacity: 1;
     transform: none;
   }

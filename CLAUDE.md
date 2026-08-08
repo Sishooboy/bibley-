@@ -168,6 +168,13 @@ redeploy.**
 - `src/lib/motion.ts` holds `useReveal` (scroll-in stagger) and `useCountUp`. Both no-op under
   `prefers-reduced-motion`, and `useReveal` has a timeout that shows everything if the observer
   never fires, because `.reveal` starts at opacity 0 and a stuck observer is a blank page.
+  **`useReveal` marks with `data-in`, never a class.** React owns `className` on every element that
+  uses it and rewrites the whole attribute when the prop changes, so a class added from outside is
+  destroyed the moment the component adds one of its own, and by then the element has been
+  unobserved and the timeout has run, so nothing puts it back. It stays at opacity 0 for good. That
+  is what turned an opened note into a blank sand block: opening it adds `entry--open`, and what you
+  were looking at was `.entryList`'s `--line` background through an invisible row. `motion.test.ts`
+  pins the marker and checks the stylesheet still reads the same one.
 
 ### The data model
 
