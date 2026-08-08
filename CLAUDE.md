@@ -150,6 +150,17 @@ redeploy.**
   Three cards used to fill a screen, which made finding anything a scroll.
 - Stats is behind `React.lazy`, since recharts is a third of the JavaScript for a screen many opens
   never reach. Initial JS is 146 kB gzipped against 258 kB before.
+- **Stats says each number once.** Books done was on screen four times: the masthead chip, the hero
+  facts, a stat square and a donut the size of a bar chart carrying the same two figures. The donut
+  is gone and the square holds the completion ring instead, which is `StatRing` at `size={104}` with
+  `tone="light"`. That tone is not decoration: the default track is white at 10% and the figure is
+  gold, and neither shows on paper. The two long tables, the reading log and the phase table, end the
+  page inside `FoldCard` and start shut, since both repeat row by row what the charts say in a
+  picture. `FoldCard` is a real `<details>`, so it opens from a keyboard and find-in-page reveals it.
+- The share card quotes **a passage the reader highlighted**, most recently touched first, and never
+  the thought they wrote beside it: the card is made to send to other people and the note is theirs.
+  It replaced three most-read book bars that repeated the figures above them. `wrapText` decides the
+  line breaks, since canvas has none, and admits a cut with an ellipsis.
 - `src/lib/bookSearch.ts` ranks books for the journey's finder: exact, then prefix, then substring,
   then subsequence, so "jo" puts John above 1 John and "hbk" still finds Habakkuk.
 - **Marking records the day you read, not the day you tapped.** `logDay` in `store.tsx` is

@@ -1,6 +1,7 @@
 import type { Plan } from '../data/plans';
 import { formatDay } from './dates';
 import { formatNumber } from './format';
+import { highlightRef } from './highlight';
 import type { OverallProgress, Pace, Streak } from './progress';
 import { SLOTS, SLOT_LABELS, type AppData, type Slot } from './storage';
 
@@ -15,8 +16,12 @@ export type ShareStats = {
   longestStreak: number;
   perWeek: number;
   daysActive: number;
-  /** Up to three books with the most chapters read, most first. */
-  topBooks: { name: string; read: number; total: number }[];
+  /**
+   * The passage the card quotes: the reader's most recently touched highlight.
+   * Null until they have marked one. The words only, never the thought they
+   * wrote beside it, which is theirs and not for a card going to other people.
+   */
+  verse: { text: string; ref: string } | null;
   /** Only when the reader actually tagged some readings. */
   favouriteSlot: Slot | null;
   since: string;
@@ -33,21 +38,15 @@ export function buildShareStats(
   streak: Streak,
   pace: Pace,
 ): ShareStats {
-  const totals = new Map(plan.phases.flatMap((p) => p.books).map((b) => [b.name, b.chapters]));
-
-  const perBook = new Map<string, number>();
-  for (const key of Object.keys(data.read)) {
-    const book = key.slice(0, key.lastIndexOf('|'));
-    // Chapters outside the current plan are still stored, but a card about this
-    // plan should not quietly count them.
-    if (!totals.has(book)) continue;
-    perBook.set(book, (perBook.get(book) ?? 0) + 1);
-  }
-
-  const topBooks = [...perBook.entries()]
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .slice(0, 3)
-    .map(([name, read]) => ({ name, read, total: totals.get(name) ?? 0 }));
+  /*
+   * The most recently touched highlight, which is the one they are most likely
+   * to still be thinking about. Sorted rather than assumed: highlights merge
+   * from two devices and arrive in whatever order the server had them.
+   */
+  const latest = [...(data.highlights ?? [])]
+    .filter((h) => h.text.trim() !== '')
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+  const verse = latest ? { text: latest.text.trim(), ref: highlightRef(latest) } : null;
 
   const slotCounts = new Map<Slot, number>();
   for (const slot of Object.values(data.slots ?? {})) {
@@ -74,7 +73,7 @@ export function buildShareStats(
     longestStreak: streak.longest,
     perWeek: pace.perWeek,
     daysActive: pace.daysActive,
-    topBooks,
+    verse,
     favouriteSlot,
     since: data.startedAt,
   };
@@ -84,7 +83,6 @@ export function buildShareStats(
 export const CARD_W = 1080;
 export const CARD_H = 1350;
 
-const RED = '#c81d25';
 const RED_DARK = '#47090e';
 const INK = '#1a1512';
 const GOLD = '#f7b801';
@@ -132,6 +130,50 @@ function label(ctx: CanvasRenderingContext2D, text: string, x: number, y: number
   ctx.letterSpacing = '3px';
   ctx.fillText(text.toUpperCase(), x, y);
   ctx.letterSpacing = '0px';
+}
+
+/**
+ * Breaks a passage into lines that fit, and says so with an ellipsis when it
+ * does not. Canvas has no notion of wrapping, and a highlight can be a sentence
+ * or half a chapter, so the card has to decide where the words break itself.
+ */
+export function wrapText(
+  measure: (text: string) => number,
+  text: string,
+  maxWidth: number,
+  maxLines: number,
+): string[] {
+  const words = text.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return [];
+
+  const lines: string[] = [];
+  let line = '';
+
+  for (const word of words) {
+    const next = line ? `${line} ${word}` : word;
+    if (measure(next) <= maxWidth || !line) {
+      line = next;
+      continue;
+    }
+    lines.push(line);
+    line = word;
+    if (lines.length === maxLines) break;
+  }
+
+  if (lines.length < maxLines && line) lines.push(line);
+
+  // Anything left over is cut, and the cut is admitted rather than hidden.
+  const consumed = lines.join(' ');
+  if (consumed.length < text.replace(/\s+/g, ' ').trim().length) {
+    const last = lines.length - 1;
+    let tail = `${lines[last]}…`;
+    while (tail.length > 1 && measure(tail) > maxWidth) {
+      tail = `${tail.slice(0, -2).trimEnd()}…`;
+    }
+    lines[last] = tail;
+  }
+
+  return lines;
 }
 
 /** One statistic: a small label with a large Fraunces figure under it. */
@@ -233,40 +275,57 @@ export function drawShareCard(ctx: CanvasRenderingContext2D, s: ShareStats): voi
     s.favouriteSlot ? 'by their own account' : 'no times tagged yet',
   );
 
-  // Most-read books.
-  if (s.topBooks.length > 0) {
-    label(ctx, 'Most read', M, 940);
-    let y = 1000;
-    for (const book of s.topBooks) {
-      ctx.font = `600 40px ${DISPLAY}`;
-      ctx.fillStyle = CREAM;
-      ctx.fillText(book.name, M, y);
+  /*
+   * A verse the reader marked themselves. This used to be three bar charts of
+   * their most-read books, which said the same thing as the figures above it in
+   * a slower way. Scripture in Fraunces on a gradient is the part of this card
+   * anyone would actually want to send.
+   */
+  if (s.verse) {
+    label(ctx, 'A verse that stuck', M, 934);
 
-      ctx.font = `400 28px ${BODY}`;
-      ctx.fillStyle = MUTED;
-      const count = `${book.read}/${book.total}`;
-      ctx.fillText(count, CARD_W - M - ctx.measureText(count).width, y);
+    // An opening quote in gold, set behind the text the way a pull quote is.
+    ctx.font = `600 150px ${DISPLAY}`;
+    ctx.fillStyle = 'rgba(247, 184, 1, 0.22)';
+    ctx.fillText('“', M - 8, 1058);
 
-      const trackY = y + 18;
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-      roundRect(ctx, M, trackY, barW, 10, 5);
-      ctx.fill();
-      ctx.fillStyle = book.read >= book.total ? GOLD : RED;
-      const w = book.total === 0 ? 0 : (barW * book.read) / book.total;
-      if (w > 0) {
-        roundRect(ctx, M, trackY, Math.max(10, w), 10, 5);
-        ctx.fill();
-      }
-      y += 94;
+    ctx.font = `600 42px ${DISPLAY}`;
+    const lines = wrapText(
+      (text) => ctx.measureText(text).width,
+      s.verse.text,
+      barW - 40,
+      3,
+    );
+    ctx.fillStyle = CREAM;
+    let y = 1004;
+    for (const line of lines) {
+      ctx.fillText(line, M + 40, y);
+      y += 56;
     }
+
+    ctx.font = `600 26px ${BODY}`;
+    ctx.fillStyle = GOLD;
+    ctx.letterSpacing = '3px';
+    ctx.fillText(s.verse.ref.toUpperCase(), M + 40, y + 8);
+    ctx.letterSpacing = '0px';
   } else {
     // Day one still deserves a card worth sending, rather than a blank half.
     ctx.font = `600 46px ${DISPLAY}`;
     ctx.fillStyle = CREAM;
-    ctx.fillText('Just getting started.', M, 1010);
+    ctx.fillText(
+      s.chaptersRead === 0 ? 'Just getting started.' : 'Highlight a verse as you read.',
+      M,
+      1010,
+    );
     ctx.font = `400 28px ${BODY}`;
     ctx.fillStyle = MUTED;
-    ctx.fillText(`${formatNumber(s.chaptersTotal)} chapters ahead.`, M, 1060);
+    ctx.fillText(
+      s.chaptersRead === 0
+        ? `${formatNumber(s.chaptersTotal)} chapters ahead.`
+        : 'Whichever one you marked last lands here.',
+      M,
+      1060,
+    );
   }
 
   // Footer rule and credit.
@@ -293,6 +352,7 @@ export function describeCard(s: ShareStats): string {
     `${s.percent.toFixed(1)}% of ${s.planLabel} read, ` +
     `${formatNumber(s.chaptersRead)} of ${formatNumber(s.chaptersTotal)} chapters, ` +
     `${s.booksDone} books finished, a ${s.streak} day streak, ` +
-    `${s.perWeek.toFixed(1)} chapters a week.`
+    `${s.perWeek.toFixed(1)} chapters a week.` +
+    (s.verse ? ` Quoting ${s.verse.ref}.` : '')
   );
 }

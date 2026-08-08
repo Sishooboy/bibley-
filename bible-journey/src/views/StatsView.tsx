@@ -5,13 +5,12 @@ import {
   Bar,
   BarChart,
   Cell,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
+import { FoldCard } from '../components/FoldCard';
 import { Heatmap } from '../components/Heatmap';
 import { ShareCard } from '../components/ShareCard';
 import { Sparkline } from '../components/Sparkline';
@@ -115,10 +114,10 @@ export function StatsView() {
   const taggedTotal = SLOTS.reduce((n, slot) => n + slotCounts[slot], 0);
   const topSlot = Math.max(...SLOTS.map((slot) => slotCounts[slot]));
 
-  const booksSplit = [
-    { name: 'Completed', value: overall.booksDone, fill: RED },
-    { name: 'Remaining', value: overall.booksTotal - overall.booksDone, fill: LINE },
-  ];
+  const booksPercent =
+    overall.booksTotal === 0 ? 0 : (overall.booksDone / overall.booksTotal) * 100;
+  const phasesDone = phases.filter((p) => p.done).length;
+  const loggedChapters = days.reduce((n, d) => n + d.total, 0);
 
   const tickStyle = { fill: MUTED, fontSize: 11, fontFamily: 'Inter Variable, sans-serif' };
 
@@ -197,18 +196,32 @@ export function StatsView() {
             note={`of ${formatNumber(overall.planTotal)} · ${overall.percent.toFixed(1)}%`}
             spark={spark}
           />
-          <StatCard
-            reveal={reveal}
-            index={1}
-            label="Books complete"
-            value={
-              <>
-                <Counter value={overall.booksDone} />
-                <small> / {overall.booksTotal}</small>
-              </>
-            }
-            note={`${plural(overall.booksTotal - overall.booksDone, 'book')} to go`}
-          />
+          {/*
+            The completion circle lives here rather than in a chart of its own
+            further down. Books done was being said four times on this screen:
+            in the masthead, in the hero facts, in this square, and in a donut
+            the size of a bar chart that carried the same two numbers.
+          */}
+          <div
+            ref={reveal}
+            className="statCard statCard--ring reveal"
+            style={{ '--i': 1 } as CSSProperties}
+          >
+            <span className="statCard__label">Books complete</span>
+            <div className="statCard__ringRow">
+              <StatRing
+                percent={booksPercent}
+                label={`${overall.booksDone}`}
+                sublabel={`of ${overall.booksTotal}`}
+                size={104}
+                tone="light"
+              />
+              <span className="statCard__note">
+                {plural(overall.booksTotal - overall.booksDone, 'book')} to go
+                <b>{booksPercent.toFixed(0)}% of the books</b>
+              </span>
+            </div>
+          </div>
           <StatCard
             reveal={reveal}
             index={2}
@@ -367,34 +380,6 @@ export function StatsView() {
         <section ref={reveal} className="card reveal">
           <div className="card__head">
             <div>
-              <h3 className="card__title">What you read, and when</h3>
-              <p className="card__note">
-                {days.length === 0
-                  ? 'Nothing marked yet, so there is nothing to look back on.'
-                  : 'The last fortnight of reading days, newest first.'}
-              </p>
-            </div>
-          </div>
-          <div className="dayLog">
-            {days.map((entry) => (
-              <div className="dayLog__row" key={entry.day}>
-                <span className="dayLog__day">{formatDay(entry.day)}</span>
-                <span className="dayLog__books">
-                  {entry.books.map((b) => (
-                    <span className="dayLog__book" key={b.book}>
-                      {b.book} {b.label}
-                    </span>
-                  ))}
-                </span>
-                <span className="dayLog__count">{entry.total}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section ref={reveal} className="card reveal">
-          <div className="card__head">
-            <div>
               <h3 className="card__title">Reading rhythm</h3>
               <p className="card__note">
                 Every day of the last eighteen weeks, darkest where you read most
@@ -404,101 +389,94 @@ export function StatsView() {
           <Heatmap read={data.read} />
         </section>
 
-        <div className="chartRow">
-          <section ref={reveal} className="card reveal">
-            <div className="card__head">
-              <div>
-                <h3 className="card__title">Cumulative progress</h3>
-                <p className="card__note">Total plan chapters read, same 30-day window</p>
-              </div>
-            </div>
-            <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={running} margin={{ top: 4, right: 8, bottom: 4, left: -18 }}>
-                <defs>
-                  <linearGradient id="cumFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={RED} stopOpacity={0.3} />
-                    <stop offset="100%" stopColor={RED} stopOpacity={0.02} />
-                  </linearGradient>
-                </defs>
-                <XAxis
-                  dataKey="day"
-                  tick={tickStyle}
-                  tickLine={false}
-                  axisLine={{ stroke: LINE }}
-                  interval={6}
-                  tickFormatter={(d: string) => formatDay(d, { year: undefined })}
-                />
-                <YAxis
-                  tick={tickStyle}
-                  tickLine={false}
-                  axisLine={false}
-                  allowDecimals={false}
-                  width={44}
-                />
-                <Tooltip content={<ChartTip unit="total" />} />
-                <Area
-                  type="monotone"
-                  dataKey="total"
-                  stroke={RED}
-                  strokeWidth={2.5}
-                  fill="url(#cumFill)"
-                  isAnimationActive={false}
-                  dot={false}
-                  activeDot={{ r: 4, fill: YELLOW, stroke: '#96161f', strokeWidth: 2 }}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </section>
-
-          <section ref={reveal} className="card reveal">
-            <div className="card__head">
-              <div>
-                <h3 className="card__title">Books</h3>
-                <p className="card__note">Completed vs. remaining</p>
-              </div>
-            </div>
-            <div className="donut">
-              <ResponsiveContainer width="100%" height={220}>
-                <PieChart>
-                  <Pie
-                    data={booksSplit}
-                    dataKey="value"
-                    innerRadius={58}
-                    outerRadius={86}
-                    startAngle={90}
-                    endAngle={-270}
-                    stroke="none"
-                    isAnimationActive={false}
-                  >
-                    {booksSplit.map((slice) => (
-                      <Cell key={slice.name} fill={slice.fill} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <span className="donut__label" aria-hidden="true">
-                {overall.booksDone}/{overall.booksTotal}
-              </span>
-            </div>
-            <div className="legend legend--centred">
-              <span className="legend__key">
-                <span className="legend__swatch" style={{ background: RED }} /> completed
-              </span>
-              <span className="legend__key">
-                <span className="legend__swatch" style={{ background: LINE }} /> remaining
-              </span>
-            </div>
-          </section>
-        </div>
-
         <section ref={reveal} className="card reveal">
           <div className="card__head">
             <div>
-              <h3 className="card__title">Phase by phase</h3>
-              <p className="card__note">Where the chapters have gone</p>
+              <h3 className="card__title">Cumulative progress</h3>
+              <p className="card__note">Total plan chapters read, same 30-day window</p>
             </div>
           </div>
-          <div className="phaseTable">
+          <ResponsiveContainer width="100%" height={220}>
+            <AreaChart data={running} margin={{ top: 4, right: 8, bottom: 4, left: -18 }}>
+              <defs>
+                <linearGradient id="cumFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={RED} stopOpacity={0.3} />
+                  <stop offset="100%" stopColor={RED} stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <XAxis
+                dataKey="day"
+                tick={tickStyle}
+                tickLine={false}
+                axisLine={{ stroke: LINE }}
+                interval={6}
+                tickFormatter={(d: string) => formatDay(d, { year: undefined })}
+              />
+              <YAxis
+                tick={tickStyle}
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+                width={44}
+              />
+              <Tooltip content={<ChartTip unit="total" />} />
+              <Area
+                type="monotone"
+                dataKey="total"
+                stroke={RED}
+                strokeWidth={2.5}
+                fill="url(#cumFill)"
+                isAnimationActive={false}
+                dot={false}
+                activeDot={{ r: 4, fill: YELLOW, stroke: '#96161f', strokeWidth: 2 }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </section>
+
+        {/*
+          The two long tables end the page, shut. Both repeat in rows what the
+          charts above say in a picture, so they are worth keeping and not worth
+          a screen each.
+        */}
+        <FoldCard
+          reveal={reveal}
+          title="What you read, and when"
+          summary={
+            days.length === 0
+              ? 'Nothing marked yet'
+              : `${plural(days.length, 'reading day')} · ${plural(loggedChapters, 'chapter')}`
+          }
+        >
+          {days.length === 0 ? (
+            <p className="card__note">Nothing marked yet, so there is nothing to look back on.</p>
+          ) : (
+            <div className="dayLog dayLog--tight">
+              {days.map((entry) => (
+                <div className="dayLog__row" key={entry.day}>
+                  <span className="dayLog__day">
+                    {formatDay(entry.day, { year: undefined })}
+                  </span>
+                  <span className="dayLog__books">
+                    {entry.books.map((b) => (
+                      <span className="dayLog__book" key={b.book}>
+                        {b.book} {b.label}
+                      </span>
+                    ))}
+                  </span>
+                  <span className="dayLog__count">{entry.total}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </FoldCard>
+
+        <FoldCard
+          reveal={reveal}
+          title="Phase by phase"
+          summary={`${plural(phases.length, 'phase')} · ${phasesDone} complete`}
+        >
+          <div className="phaseTable phaseTable--tight">
             {phases.map((p) => {
               const pct = p.chapters === 0 ? 0 : (p.read / p.chapters) * 100;
               return (
@@ -520,7 +498,7 @@ export function StatsView() {
               );
             })}
           </div>
-        </section>
+        </FoldCard>
       </div>
     </>
   );
