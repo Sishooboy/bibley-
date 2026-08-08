@@ -33,6 +33,14 @@
   --radius: 4px;
   --gutter: clamp(1.25rem, 4vw, 3rem);
   --measure: 68ch;
+
+  /*
+   * The pinned header's height, and the offset every other sticky thing has to
+   * clear. One number so the two cannot drift: hardcode it twice and the notes
+   * filter bar sticks a few pixels low, showing a strip of scrolling text
+   * between the two bars.
+   */
+  --topbar-h: 62px;
 }
 
 /* ── Base ───────────────────────────────────────────────────────────────── */
@@ -42,8 +50,16 @@
 
 html {
   -webkit-text-size-adjust: 100%;
-  /* Belt and braces against sideways drift on phones. */
-  overflow-x: hidden;
+  /*
+   * Belt and braces against sideways drift on phones. `clip` and not `hidden`:
+   * `overflow-x: hidden` forces the computed `overflow-y` to `auto`, which makes
+   * this a scrolling box, and a `position: sticky` child then sticks to a box
+   * that is not the one being scrolled. It stops sticking at all. That is why
+   * the header and the notes filter bar both scrolled away for months while
+   * their CSS said sticky. `clip` clips exactly the same and creates no scroll
+   * container, which is the whole reason it exists.
+   */
+  overflow-x: clip;
 }
 
 body {
@@ -55,7 +71,8 @@ body {
   line-height: 1.55;
   font-synthesis-weight: none;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  /* Same reason as on html: hidden here would break sticky just as thoroughly. */
+  overflow-x: clip;
   overflow-wrap: break-word;
 }
 
@@ -162,7 +179,7 @@ select {
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  min-height: 62px;
+  min-height: var(--topbar-h);
 }
 
 .wordmark {
@@ -1797,11 +1814,15 @@ select {
 }
 
 @media (max-width: 620px) {
-  /* One row, always: a sticky header that wraps costs real screen on a phone. */
+  /* A pinned header is screen you never get back, so it gives up 6px here. */
+  :root {
+    --topbar-h: 56px;
+  }
+
+  /* One row, always: a pinned header that wraps costs real screen on a phone. */
   .topbar__inner {
     flex-wrap: nowrap;
     gap: 0.5rem;
-    min-height: 56px;
   }
 
   /* Four tabs will not fit across a phone, so they fold into a menu. */
@@ -2836,8 +2857,8 @@ select {
 /* ── Notes ──────────────────────────────────────────────────────────────── */
 .notesBar {
   position: sticky;
-  /* Clears the sticky topbar, which is 62px plus whatever notch there is. */
-  top: calc(62px + env(safe-area-inset-top));
+  /* Clears the pinned topbar, whatever height it is, plus whatever notch. */
+  top: calc(var(--topbar-h) + env(safe-area-inset-top));
   z-index: 10;
   display: flex;
   gap: 0.55rem;

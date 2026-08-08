@@ -214,6 +214,17 @@ Progress is never lost, only occasionally resurrected. That direction is deliber
 - **A transformed ancestor becomes the containing block for `position: fixed`.** The app entrance
   animation is opacity-only for exactly this reason: a transform there silently broke the nav and
   the undo chip.
+- **`overflow-x: hidden` breaks every `position: sticky` under it.** Setting it forces the computed
+  `overflow-y` to `auto`, so that element becomes a scrolling box and a sticky descendant sticks to
+  a box nobody is scrolling, which means it does not stick at all. It was on `html` and `body` as
+  drift protection, and it silently cost the app both of its sticky elements: the header and the
+  notes filter bar were declared sticky and had never once stuck. **Use `overflow-x: clip`**, which
+  clips identically and creates no scroll container. Nothing in the app overflows sideways at 375px
+  anyway, measured with the guard off entirely, so it really is only belt and braces.
+- `--topbar-h` is the pinned header's height and the offset everything else sticks below. It is one
+  number because it was two: the notes filter bar hardcoded 62px and the header shrinks to 56px on a
+  phone, which would show a strip of scrolling text between them. `.notesBar` goes `position: static`
+  under 620px on purpose, since a 235px filter bar under a 56px header leaves no phone screen left.
 - **The layout viewport does not shrink when the keyboard opens**, so anything pinned to the bottom
   of a `position: fixed` panel ends up behind the keys, and the browser's only recourse is to scroll
   the page around chasing the field. That is what put the highlight note box out of sight while it
