@@ -60,6 +60,15 @@ export function HighlightSheet({
           placeholder="What did you make of it? Optional."
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
+          /*
+           * The sheet lifts itself above the keyboard, but a long passage can
+           * still leave the box below the fold inside it. The wait is for the
+           * keyboard to finish opening: measure before that and it scrolls to
+           * where the box was rather than where it is about to be.
+           */
+          onFocus={() => {
+            window.setTimeout(() => boxRef.current?.scrollIntoView({ block: 'nearest' }), 300);
+          }}
         />
 
         <div className="hlSheet__actions">

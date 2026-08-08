@@ -3808,7 +3808,16 @@ select {
 /* ── The highlight sheet ────────────────────────────────────────────────── */
 .hlSheet {
   position: absolute;
-  inset: auto 0 0 0;
+  /*
+   * Sits on top of the keyboard rather than under it. A fixed element is laid
+   * out against the layout viewport, which does not shrink when the keyboard
+   * opens, so without this the note box is behind the keys and the browser
+   * scrolls the whole reader around trying to reveal it. --keyboard is 0 on a
+   * desktop and on anything without visualViewport, where this is exactly the
+   * bottom-anchored sheet it has always been.
+   */
+  inset: auto 0 var(--keyboard, 0px) 0;
+  max-height: calc(100% - var(--keyboard, 0px) - 3rem);
   z-index: 5;
   background: rgba(26, 21, 18, 0.55);
   backdrop-filter: blur(2px);
@@ -3818,6 +3827,20 @@ select {
   padding: 1rem;
   padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   animation: sheetIn 200ms var(--ease-out);
+}
+
+/*
+ * With a keyboard up there is very little screen left, and what has to survive
+ * is the box you are typing into and the button that saves it. The passage gives
+ * up its room first: you have it in front of you on the page behind. The safe
+ * area goes too, since the home indicator is under the keyboard.
+ */
+.reader[data-keyboard='open'] .hlSheet {
+  padding-bottom: 0.6rem;
+}
+
+.reader[data-keyboard='open'] .hlSheet__quote {
+  max-height: 3.2rem;
 }
 
 @keyframes sheetIn {
@@ -3843,6 +3866,10 @@ select {
   padding: 1rem 1.1rem 1.1rem;
   display: grid;
   gap: 0.7rem;
+  /* Whatever is left over after the quote has shrunk scrolls, rather than the
+     Save button being pushed off the bottom of a capped sheet. */
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .hlSheet__head {

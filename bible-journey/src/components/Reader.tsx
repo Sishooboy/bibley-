@@ -10,6 +10,7 @@ import {
   verseRootOf,
   type Range,
 } from '../lib/highlight';
+import { useKeyboardInset } from '../lib/keyboard';
 import { neighbours } from '../lib/navigate';
 import { DEFAULT_PREFS, TEXT_SIZES, textScale } from '../lib/prefs';
 import { chapterKey, newId, type Highlight } from '../lib/storage';
@@ -50,6 +51,7 @@ export function Reader({
   const textRef = useRef<HTMLElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const keyboard = useKeyboardInset();
 
   const key = chapterKey(book, chapter);
   const isRead = key in data.read;
@@ -119,6 +121,17 @@ export function Reader({
       document.body.style.overflow = overflow;
     };
   }, []);
+
+  /*
+   * iOS scrolls the document to reveal a focused field even when that field is
+   * inside a fixed element, which drags the reader off the top of the screen and
+   * takes the passage with it. The sheet moves itself above the keyboard, so
+   * that scroll has nothing left to achieve and is put straight back.
+   */
+  useEffect(() => {
+    if (keyboard === 0) return;
+    window.scrollTo(0, 0);
+  }, [keyboard]);
 
   /*
    * This claims aria-modal, so focus has to actually live inside it. Without
@@ -258,7 +271,15 @@ export function Reader({
       aria-modal="true"
       aria-label={`${book} ${chapter}`}
       ref={shellRef}
-      style={{ '--verse-scale': textScale(prefs.textSize) } as CSSProperties}
+      // The keyboard is a length the sheet sits above and a state the sheet
+      // gets smaller in. CSS decides what to do with both.
+      data-keyboard={keyboard > 0 ? 'open' : undefined}
+      style={
+        {
+          '--verse-scale': textScale(prefs.textSize),
+          '--keyboard': `${keyboard}px`,
+        } as CSSProperties
+      }
     >
       <header className="reader__bar">
         <button

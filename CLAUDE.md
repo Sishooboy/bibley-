@@ -207,6 +207,15 @@ Progress is never lost, only occasionally resurrected. That direction is deliber
 - **A transformed ancestor becomes the containing block for `position: fixed`.** The app entrance
   animation is opacity-only for exactly this reason: a transform there silently broke the nav and
   the undo chip.
+- **The layout viewport does not shrink when the keyboard opens**, so anything pinned to the bottom
+  of a `position: fixed` panel ends up behind the keys, and the browser's only recourse is to scroll
+  the page around chasing the field. That is what put the highlight note box out of sight while it
+  was being typed into. `useKeyboardInset` in `src/lib/keyboard.ts` reads `visualViewport` and the
+  reader publishes it as `--keyboard` and `data-keyboard="open"`. **`offsetTop` counts as much as
+  `height`**: once the browser has scrolled the visual viewport up, the keyboard is not simply the
+  difference between the two heights. Under 100px is a URL bar collapsing, not a keyboard, and
+  reacting to it makes the sheet twitch up and down while you are only reading. Any new panel that
+  contains an input and sits at the bottom of the screen needs the same treatment.
 - **The dev server can serve a blank page** after heavy file rewriting. Stale module graph, not a
   code fault. Restart it before debugging.
 - **Never `git add -A` blindly.** It has swept in a Google client secret (GitHub push protection
