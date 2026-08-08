@@ -1,22 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { PLANS } from '../data/plans';
 import { overallProgress, pace, phaseProgressAll, streak } from './progress';
-import { buildShareStats, describeCard, wrapText } from './shareCard';
-import type { AppData, Highlight, ReadMap } from './storage';
-
-function mark(over: Partial<Highlight> = {}): Highlight {
-  return {
-    id: 'h1',
-    book: 'John',
-    chapter: 3,
-    from: { verse: 16, offset: 0 },
-    to: { verse: 16, offset: 20 },
-    text: 'For God so loved the world',
-    createdAt: '2026-02-01T09:00:00.000Z',
-    updatedAt: '2026-02-01T09:00:00.000Z',
-    ...over,
-  };
-}
+import { buildShareStats, describeCard, gridLayout } from './shareCard';
+import type { AppData, ReadMap } from './storage';
 
 function journal(read: ReadMap, over: Partial<AppData> = {}): AppData {
   return { version: 1, planId: 'both', read, notes: [], startedAt: '2026-01-01', ...over };
@@ -38,44 +24,52 @@ describe('buildShareStats', () => {
   });
 
   /*
-   * The card quotes a passage the reader marked. It used to chart their three
-   * most-read books, which repeated the figures above it and made a slower job
-   * of it.
+   * The card draws one square per book. It used to chart the three most read,
+   * which repeated the figures above it, and then quoted a highlight, which put
+   * the reader's own annotations on something made to send to other people.
    */
-  it('quotes the most recently touched highlight', () => {
-    const data = journal(
-      {},
-      {
-        highlights: [
-          mark({ id: 'a', updatedAt: '2026-02-01T09:00:00.000Z' }),
-          mark({
-            id: 'b',
-            book: 'Psalms',
-            chapter: 23,
-            from: { verse: 1, offset: 0 },
-            to: { verse: 2, offset: 9 },
-            text: 'Yahweh is my shepherd',
-            updatedAt: '2026-03-04T09:00:00.000Z',
-          }),
-        ],
-      },
+  it('lists every book in the plan, in printed order', () => {
+    const books = statsFor(journal({})).books;
+
+    expect(books).toHaveLength(73);
+    expect(books[0].name).toBe('Genesis');
+    expect(books[books.length - 1].name).toBe('Revelation');
+    // Printed order, not reading order, so the deuterocanon sits where a
+    // Catholic Bible puts it rather than where the plan gets to it.
+    expect(books.map((b) => b.name).indexOf('Tobit')).toBeLessThan(
+      books.map((b) => b.name).indexOf('Job'),
     );
-
-    expect(statsFor(data).verse).toEqual({ text: 'Yahweh is my shepherd', ref: 'Psalms 23:1-2' });
   });
 
-  it('takes the words but never the thought written beside them', () => {
-    // The note is the reader's own, and this card is made to send to people.
-    const data = journal({}, { highlights: [mark({ note: 'this wrecked me' })] });
-    const verse = statsFor(data).verse;
+  it('counts how far into each book the reader has got', () => {
+    const read: ReadMap = {};
+    for (let c = 1; c <= 21; c++) read[`John|${c}`] = '2026-02-01';
+    for (let c = 1; c <= 5; c++) read[`Mark|${c}`] = '2026-02-01';
 
-    expect(verse?.text).toBe('For God so loved the world');
-    expect(JSON.stringify(verse)).not.toContain('wrecked');
+    const books = statsFor(journal(read)).books;
+    expect(books.find((b) => b.name === 'John')).toEqual({ name: 'John', read: 21, total: 21 });
+    expect(books.find((b) => b.name === 'Mark')).toEqual({ name: 'Mark', read: 5, total: 16 });
+    expect(books.find((b) => b.name === 'Luke')).toEqual({ name: 'Luke', read: 0, total: 24 });
   });
 
-  it('has no verse until there is a highlight to quote', () => {
-    expect(statsFor(journal({ 'John|1': '2026-02-01' })).verse).toBeNull();
-    expect(statsFor(journal({}, { highlights: [mark({ text: '  ' })] })).verse).toBeNull();
+  it('separates the books on the go from the ones finished', () => {
+    const read: ReadMap = { 'Jude|1': '2026-02-01' };
+    for (let c = 1; c <= 5; c++) read[`Mark|${c}`] = '2026-02-01';
+
+    const stats = statsFor(journal(read));
+    expect(stats.booksDone).toBe(1);
+    expect(stats.booksStarted).toBe(1);
+  });
+
+  it('narrows to the plan, and keeps the numbered books whole', () => {
+    // Genesis is stored but a New Testament card should not show it at all, and
+    // "1 Samuel" splits on the last pipe so numbered books survive the count.
+    const nt = statsFor(journal({ 'John|1': '2026-02-01', 'Genesis|1': '2026-02-01' }, { planId: 'nt' }));
+    expect(nt.books).toHaveLength(27);
+    expect(nt.books.some((b) => b.name === 'Genesis')).toBe(false);
+
+    const both = statsFor(journal({ '1 Samuel|3': '2026-02-01' }));
+    expect(both.books.find((b) => b.name === '1 Samuel')?.read).toBe(1);
   });
 
   it('names the time of day read most, and stays quiet when none was tagged', () => {
@@ -94,54 +88,61 @@ describe('buildShareStats', () => {
 
     expect(stats.chaptersRead).toBe(0);
     expect(stats.percent).toBe(0);
-    expect(stats.verse).toBeNull();
+    expect(stats.booksStarted).toBe(0);
+    expect(stats.books.every((b) => b.read === 0)).toBe(true);
     expect(stats.favouriteSlot).toBeNull();
     expect(() => describeCard(stats)).not.toThrow();
   });
 
   it('describes itself for anyone who cannot see the picture', () => {
     const read: ReadMap = { 'John|1': '2026-02-01' };
-    expect(describeCard(statsFor(journal(read)))).toMatch(
-      /% of The whole Bible read, 1 of 1,334 chapters/,
-    );
-    expect(describeCard(statsFor(journal(read, { highlights: [mark()] })))).toContain(
-      'Quoting John 3:16.',
-    );
+    const said = describeCard(statsFor(journal(read)));
+
+    expect(said).toMatch(/% of The whole Bible read, 1 of 1,334 chapters/);
+    expect(said).toContain('1 of 73 books part read.');
   });
 });
 
 /**
- * Measured in characters rather than pixels, which is all the wrapping logic
- * cares about: it asks how wide a string is and compares. A canvas is not
- * needed to check where it decides to break.
+ * The grid has to fit the space it is given whatever plan it is drawing, 73
+ * books or 46 or 27. A grid that runs past the bottom of the card would print
+ * over the footer rule, and one square per book is not something a constant can
+ * be written for.
  */
-describe('wrapText', () => {
-  const measure = (text: string) => text.length;
+describe('gridLayout', () => {
+  const W = 912;
 
-  it('breaks on words, never mid-word', () => {
-    expect(wrapText(measure, 'the quick brown fox jumps', 12, 5)).toEqual([
-      'the quick',
-      'brown fox',
-      'jumps',
-    ]);
+  const H = 196;
+
+  it('fits inside the box it is given', () => {
+    for (const count of [27, 46, 73]) {
+      const grid = gridLayout(count, W, H);
+      expect(grid.height).toBeLessThanOrEqual(H);
+      expect(grid.width).toBeLessThanOrEqual(W);
+      expect(grid.cols * grid.rows).toBeGreaterThanOrEqual(count);
+    }
   });
 
-  it('says so with an ellipsis when it runs out of lines', () => {
-    const lines = wrapText(measure, 'one two three four five six seven', 9, 2);
-    expect(lines).toHaveLength(2);
-    expect(lines[1].endsWith('…')).toBe(true);
-    expect(lines.every((l) => l.length <= 9)).toBe(true);
+  it('leaves no empty row, so the last row is always in use', () => {
+    for (const count of [27, 46, 73]) {
+      const grid = gridLayout(count, W, H);
+      expect((grid.rows - 1) * grid.cols).toBeLessThan(count);
+    }
   });
 
-  it('adds no ellipsis when everything fitted', () => {
-    expect(wrapText(measure, 'all of it', 20, 3)).toEqual(['all of it']);
+  it('keeps the squares square and worth seeing', () => {
+    const grid = gridLayout(73, W, H);
+    expect(grid.cell).toBeGreaterThan(30);
+    expect(grid.rows).toBeLessThanOrEqual(5);
   });
 
-  it('keeps a word longer than the line rather than losing it', () => {
-    expect(wrapText(measure, 'Mahershalalhashbaz', 6, 2)).toEqual(['Mahershalalhashbaz']);
+  it('never asks for more columns than there are books', () => {
+    const grid = gridLayout(3, W, H);
+    expect(grid.cols).toBe(3);
+    expect(grid.rows).toBe(1);
   });
 
-  it('has nothing to say about nothing', () => {
-    expect(wrapText(measure, '   ', 20, 3)).toEqual([]);
+  it('has nothing to lay out for nothing', () => {
+    expect(gridLayout(0, W, H)).toEqual({ cols: 0, rows: 0, cell: 0, width: 0, height: 0 });
   });
 });

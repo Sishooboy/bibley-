@@ -1,7 +1,7 @@
+import { CANON } from '../data/canon';
 import type { Plan } from '../data/plans';
 import { formatDay } from './dates';
 import { formatNumber } from './format';
-import { highlightRef } from './highlight';
 import type { OverallProgress, Pace, Streak } from './progress';
 import { SLOTS, SLOT_LABELS, type AppData, type Slot } from './storage';
 
@@ -17,11 +17,13 @@ export type ShareStats = {
   perWeek: number;
   daysActive: number;
   /**
-   * The passage the card quotes: the reader's most recently touched highlight.
-   * Null until they have marked one. The words only, never the thought they
-   * wrote beside it, which is theirs and not for a card going to other people.
+   * Every book in the plan, in printed order, with how far into it the reader
+   * has got. The card draws it as a grid, which is the one thing on there that
+   * says something a percentage cannot: which parts, and how evenly.
    */
-  verse: { text: string; ref: string } | null;
+  books: { name: string; read: number; total: number }[];
+  /** Started but not finished. `booksDone` covers the rest. */
+  booksStarted: number;
   /** Only when the reader actually tagged some readings. */
   favouriteSlot: Slot | null;
   since: string;
@@ -38,15 +40,28 @@ export function buildShareStats(
   streak: Streak,
   pace: Pace,
 ): ShareStats {
+  const totals = new Map(plan.phases.flatMap((p) => p.books).map((b) => [b.name, b.chapters]));
+
+  const perBook = new Map<string, number>();
+  for (const key of Object.keys(data.read)) {
+    const book = key.slice(0, key.lastIndexOf('|'));
+    // Chapters outside the current plan are still stored, but a card about this
+    // plan should not quietly count them.
+    if (!totals.has(book)) continue;
+    perBook.set(book, (perBook.get(book) ?? 0) + 1);
+  }
+
   /*
-   * The most recently touched highlight, which is the one they are most likely
-   * to still be thinking about. Sorted rather than assumed: highlights merge
-   * from two devices and arrive in whatever order the server had them.
+   * Printed order, not the plan's reading order. The grid is meant to be
+   * recognisable as a Bible, Genesis in the corner and Revelation at the end,
+   * rather than as this app's opinion about what to read first.
    */
-  const latest = [...(data.highlights ?? [])]
-    .filter((h) => h.text.trim() !== '')
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
-  const verse = latest ? { text: latest.text.trim(), ref: highlightRef(latest) } : null;
+  const books = CANON.filter((name) => totals.has(name)).map((name) => ({
+    name,
+    read: Math.min(perBook.get(name) ?? 0, totals.get(name) ?? 0),
+    total: totals.get(name) ?? 0,
+  }));
+  const booksStarted = books.filter((b) => b.read > 0 && b.read < b.total).length;
 
   const slotCounts = new Map<Slot, number>();
   for (const slot of Object.values(data.slots ?? {})) {
@@ -73,7 +88,8 @@ export function buildShareStats(
     longestStreak: streak.longest,
     perWeek: pace.perWeek,
     daysActive: pace.daysActive,
-    verse,
+    books,
+    booksStarted,
     favouriteSlot,
     since: data.startedAt,
   };
@@ -132,48 +148,45 @@ function label(ctx: CanvasRenderingContext2D, text: string, x: number, y: number
   ctx.letterSpacing = '0px';
 }
 
+export type Grid = { cols: number; rows: number; cell: number; width: number; height: number };
+
 /**
- * Breaks a passage into lines that fit, and says so with an ellipsis when it
- * does not. Canvas has no notion of wrapping, and a highlight can be a sentence
- * or half a chapter, so the card has to decide where the words break itself.
+ * How to lay `count` squares out in a box. Columns come first from a target
+ * square size, then more columns are added until the whole thing fits the height
+ * it has been given, because a grid that reaches past the footer is worse than
+ * one with slightly small squares.
+ *
+ * The number of books depends on the plan, 73 or 46 or 27, so none of this can
+ * be a constant.
  */
-export function wrapText(
-  measure: (text: string) => number,
-  text: string,
+export function gridLayout(
+  count: number,
   maxWidth: number,
-  maxLines: number,
-): string[] {
-  const words = text.split(/\s+/).filter(Boolean);
-  if (words.length === 0) return [];
+  maxHeight: number,
+  gap = 8,
+  target = 44,
+): Grid {
+  if (count <= 0) return { cols: 0, rows: 0, cell: 0, width: 0, height: 0 };
 
-  const lines: string[] = [];
-  let line = '';
+  const measure = (cols: number): Grid => {
+    const cell = (maxWidth - (cols - 1) * gap) / cols;
+    const rows = Math.ceil(count / cols);
+    return {
+      cols,
+      rows,
+      cell,
+      width: cols * cell + (cols - 1) * gap,
+      height: rows * cell + (rows - 1) * gap,
+    };
+  };
 
-  for (const word of words) {
-    const next = line ? `${line} ${word}` : word;
-    if (measure(next) <= maxWidth || !line) {
-      line = next;
-      continue;
-    }
-    lines.push(line);
-    line = word;
-    if (lines.length === maxLines) break;
+  let cols = Math.min(count, Math.max(1, Math.round(maxWidth / (target + gap))));
+  let grid = measure(cols);
+  while (grid.height > maxHeight && cols < count) {
+    cols += 1;
+    grid = measure(cols);
   }
-
-  if (lines.length < maxLines && line) lines.push(line);
-
-  // Anything left over is cut, and the cut is admitted rather than hidden.
-  const consumed = lines.join(' ');
-  if (consumed.length < text.replace(/\s+/g, ' ').trim().length) {
-    const last = lines.length - 1;
-    let tail = `${lines[last]}…`;
-    while (tail.length > 1 && measure(tail) > maxWidth) {
-      tail = `${tail.slice(0, -2).trimEnd()}…`;
-    }
-    lines[last] = tail;
-  }
-
-  return lines;
+  return grid;
 }
 
 /** One statistic: a small label with a large Fraunces figure under it. */
@@ -276,57 +289,53 @@ export function drawShareCard(ctx: CanvasRenderingContext2D, s: ShareStats): voi
   );
 
   /*
-   * A verse the reader marked themselves. This used to be three bar charts of
-   * their most-read books, which said the same thing as the figures above it in
-   * a slower way. Scripture in Fraunces on a gradient is the part of this card
-   * anyone would actually want to send.
+   * One square per book, in printed order, each filled from the bottom by how
+   * far into it the reader has got. It is the only thing on the card that says
+   * something a percentage cannot: which parts, and how evenly, and it stays
+   * worth looking at from an entirely empty grid to a gold one.
    */
-  if (s.verse) {
-    label(ctx, 'A verse that stuck', M, 934);
+  label(ctx, 'Book by book', M, 916);
 
-    // An opening quote in gold, set behind the text the way a pull quote is.
-    ctx.font = `600 150px ${DISPLAY}`;
-    ctx.fillStyle = 'rgba(247, 184, 1, 0.22)';
-    ctx.fillText('“', M - 8, 1058);
+  // The height is everything between here and the footer rule, less the line of
+  // counts underneath. Squares as big as that allows, which for 73 books is
+  // four rows of nineteen.
+  const grid = gridLayout(s.books.length, barW, 196);
+  const gap = 8;
+  const gridTop = 950;
 
-    ctx.font = `600 42px ${DISPLAY}`;
-    const lines = wrapText(
-      (text) => ctx.measureText(text).width,
-      s.verse.text,
-      barW - 40,
-      3,
-    );
-    ctx.fillStyle = CREAM;
-    let y = 1004;
-    for (const line of lines) {
-      ctx.fillText(line, M + 40, y);
-      y += 56;
-    }
+  s.books.forEach((book, i) => {
+    const x = M + (i % grid.cols) * (grid.cell + gap);
+    const y = gridTop + Math.floor(i / grid.cols) * (grid.cell + gap);
+    const done = book.total > 0 && book.read >= book.total;
+    const part = book.total === 0 ? 0 : Math.min(1, book.read / book.total);
+    const radius = Math.min(5, grid.cell / 5);
 
-    ctx.font = `600 26px ${BODY}`;
-    ctx.fillStyle = GOLD;
-    ctx.letterSpacing = '3px';
-    ctx.fillText(s.verse.ref.toUpperCase(), M + 40, y + 8);
-    ctx.letterSpacing = '0px';
-  } else {
-    // Day one still deserves a card worth sending, rather than a blank half.
-    ctx.font = `600 46px ${DISPLAY}`;
-    ctx.fillStyle = CREAM;
-    ctx.fillText(
-      s.chaptersRead === 0 ? 'Just getting started.' : 'Highlight a verse as you read.',
-      M,
-      1010,
-    );
-    ctx.font = `400 28px ${BODY}`;
-    ctx.fillStyle = MUTED;
-    ctx.fillText(
-      s.chaptersRead === 0
-        ? `${formatNumber(s.chaptersTotal)} chapters ahead.`
-        : 'Whichever one you marked last lands here.',
-      M,
-      1060,
-    );
-  }
+    // The empty square first, so a part-read book reads as a container with
+    // something in it rather than as a short block floating on the gradient.
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.34)';
+    roundRect(ctx, x, y, grid.cell, grid.cell, radius);
+    ctx.fill();
+
+    if (part === 0) return;
+
+    // Filled from the bottom up, the way you would fill a glass.
+    const filled = Math.max(3, grid.cell * part);
+    ctx.save();
+    roundRect(ctx, x, y, grid.cell, grid.cell, radius);
+    ctx.clip();
+    ctx.fillStyle = done ? GOLD : '#e0313a';
+    ctx.fillRect(x, y + grid.cell - filled, grid.cell, filled);
+    ctx.restore();
+  });
+
+  ctx.font = `400 28px ${BODY}`;
+  ctx.fillStyle = MUTED;
+  const remaining = s.books.length - s.booksDone - s.booksStarted;
+  ctx.fillText(
+    `${s.booksDone} finished · ${s.booksStarted} on the go · ${remaining} to open`,
+    M,
+    gridTop + grid.height + 46,
+  );
 
   // Footer rule and credit.
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
@@ -352,7 +361,7 @@ export function describeCard(s: ShareStats): string {
     `${s.percent.toFixed(1)}% of ${s.planLabel} read, ` +
     `${formatNumber(s.chaptersRead)} of ${formatNumber(s.chaptersTotal)} chapters, ` +
     `${s.booksDone} books finished, a ${s.streak} day streak, ` +
-    `${s.perWeek.toFixed(1)} chapters a week.` +
-    (s.verse ? ` Quoting ${s.verse.ref}.` : '')
+    `${s.perWeek.toFixed(1)} chapters a week. ` +
+    `${s.booksStarted} of ${s.books.length} books part read.`
   );
 }

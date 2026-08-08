@@ -157,10 +157,13 @@ redeploy.**
   gold, and neither shows on paper. The two long tables, the reading log and the phase table, end the
   page inside `FoldCard` and start shut, since both repeat row by row what the charts say in a
   picture. `FoldCard` is a real `<details>`, so it opens from a keyboard and find-in-page reveals it.
-- The share card quotes **a passage the reader highlighted**, most recently touched first, and never
-  the thought they wrote beside it: the card is made to send to other people and the note is theirs.
-  It replaced three most-read book bars that repeated the figures above them. `wrapText` decides the
-  line breaks, since canvas has none, and admits a cut with an ellipsis.
+- The share card's lower half is **one square per book, in printed order**, filled from the bottom by
+  how far in the reader has got. It is the only thing on the card that says something a percentage
+  cannot: which parts, and how evenly. It went through two worse ideas first. Three most-read book
+  bars, which repeated the figures above them, and then a passage the reader had highlighted, which
+  put their own annotations on something made to be sent to other people. **Keep the card
+  impersonal.** `gridLayout` sizes it, because the book count is 73 or 46 or 27 depending on the
+  plan, and a grid that ran past the footer rule would print over it.
 - `src/lib/bookSearch.ts` ranks books for the journey's finder: exact, then prefix, then substring,
   then subsequence, so "jo" puts John above 1 John and "hbk" still finds Habakkuk.
 - **Marking records the day you read, not the day you tapped.** `logDay` in `store.tsx` is
