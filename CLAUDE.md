@@ -92,6 +92,10 @@ redeploy.**
   later rule wins, no warning anywhere. A component refining its own earlier rule is fine, so read
   the output for names that belong to *two different components*. This finds them:
   `node -e "const L=require('fs').readFileSync('src/styles/app.css','utf8').split(/\r?\n/);const m=new Map();L.forEach((l,i)=>{const s=l.match(/^(\.[\w-]+(?:__[\w-]+)?(?:--[\w-]+)?)\s*\{/);if(s){(m.get(s[1])??m.set(s[1],[]).get(s[1])).push(i+1)}});[...m].filter(([,v])=>v.length>1).forEach(([k,v])=>console.log(k,v))"`
+- **Every `:hover` rule sits inside `@media (hover: hover)`.** A phone has no hover, so it leaves
+  the state applied after a tap: tapping a note twice left it beige until you touched something
+  else. Guard any new hover rule the same way. This finds a stray one:
+  `node -e "require('fs').readFileSync('src/styles/app.css','utf8').split(/\r?\n/).forEach((l,i)=>{if(/^[.#a-zA-Z\[]/.test(l)&&l.includes(':hover'))console.log(i+1,l)})"`
 - **Contrast is measured, not judged.** Red and gold sit close in luminance, so eyeballing it fails.
   The masthead gradient's light end is `--red-700`, not `--red-600`, and its gold wash is 0.18, both
   chosen so every colour on it clears WCAG AA at the *brightest* point of the sweep rather than

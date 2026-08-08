@@ -223,9 +223,11 @@ select {
   color: #ffb8bc;
 }
 
-.syncBadge:hover {
-  color: var(--cream);
-  border-color: rgba(255, 255, 255, 0.4);
+@media (hover: hover) {
+  .syncBadge:hover {
+    color: var(--cream);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
 }
 
 .syncDot {
@@ -337,9 +339,11 @@ select {
   flex: none;
 }
 
-.gate__google:hover:not(:disabled) {
-  background: #fff;
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .gate__google:hover:not(:disabled) {
+    background: #fff;
+    transform: translateY(-1px);
+  }
 }
 
 .gate__google:active:not(:disabled) {
@@ -405,8 +409,10 @@ select {
   transition: border-color 140ms ease, background 140ms ease;
 }
 
-.planCard:hover {
-  border-color: rgba(255, 255, 255, 0.34);
+@media (hover: hover) {
+  .planCard:hover {
+    border-color: rgba(255, 255, 255, 0.34);
+  }
 }
 
 .planCard--active {
@@ -739,8 +745,10 @@ select {
   transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.nav__item:hover {
-  color: var(--cream);
+@media (hover: hover) {
+  .nav__item:hover {
+    color: var(--cream);
+  }
 }
 
 .nav__item[aria-current='page'] {
@@ -765,9 +773,11 @@ select {
   color: var(--cream);
 }
 
-.menuBtn:hover {
-  border-color: rgba(255, 255, 255, 0.4);
-  background: var(--ink-700);
+@media (hover: hover) {
+  .menuBtn:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: var(--ink-700);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -818,8 +828,10 @@ select {
   transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
 }
 
-.btn:hover {
-  background: #efe7d8;
+@media (hover: hover) {
+  .btn:hover {
+    background: #efe7d8;
+  }
 }
 
 .btn--primary {
@@ -828,9 +840,11 @@ select {
   color: #fff;
 }
 
-.btn--primary:hover {
-  background: var(--red-700);
-  border-color: var(--red-700);
+@media (hover: hover) {
+  .btn--primary:hover {
+    background: var(--red-700);
+    border-color: var(--red-700);
+  }
 }
 
 .btn--onDark {
@@ -838,8 +852,10 @@ select {
   color: var(--cream);
 }
 
-.btn--onDark:hover {
-  background: rgba(255, 255, 255, 0.1);
+@media (hover: hover) {
+  .btn--onDark:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
 }
 
 .btn--ghost {
@@ -848,9 +864,11 @@ select {
   padding-inline: 0.5rem;
 }
 
-.btn--ghost:hover {
-  background: #ece3d3;
-  color: var(--text);
+@media (hover: hover) {
+  .btn--ghost:hover {
+    background: #ece3d3;
+    color: var(--text);
+  }
 }
 
 .btn--sm {
@@ -864,9 +882,11 @@ select {
   color: #fff;
 }
 
-.btn--danger:hover {
-  background: var(--red-800);
-  border-color: var(--red-800);
+@media (hover: hover) {
+  .btn--danger:hover {
+    background: var(--red-800);
+    border-color: var(--red-800);
+  }
 }
 
 .btn:disabled {
@@ -874,8 +894,10 @@ select {
   cursor: not-allowed;
 }
 
-.btn:disabled:hover {
-  background: transparent;
+@media (hover: hover) {
+  .btn:disabled:hover {
+    background: transparent;
+  }
 }
 
 .bar {
@@ -1310,8 +1332,10 @@ select {
   padding: 0.7rem 0.95rem;
 }
 
-.book__row:hover {
-  background: #fbf6ec;
+@media (hover: hover) {
+  .book__row:hover {
+    background: #fbf6ec;
+  }
 }
 
 .book__name {
@@ -1413,9 +1437,11 @@ select {
   place-items: center;
 }
 
-.readTo__step:hover:not(:disabled) {
-  border-color: var(--red-600);
-  color: var(--red-700);
+@media (hover: hover) {
+  .readTo__step:hover:not(:disabled) {
+    border-color: var(--red-600);
+    color: var(--red-700);
+  }
 }
 
 .readTo__step:disabled {
@@ -1633,9 +1659,11 @@ select {
   white-space: nowrap;
 }
 
-.logDay__reset:hover {
-  background: var(--yellow);
-  border-color: var(--yellow);
+@media (hover: hover) {
+  .logDay__reset:hover {
+    background: var(--yellow);
+    border-color: var(--yellow);
+  }
 }
 
 /*
@@ -1745,8 +1773,10 @@ select {
   flex: none;
 }
 
-.undoBar__close:hover {
-  color: var(--cream);
+@media (hover: hover) {
+  .undoBar__close:hover {
+    color: var(--cream);
+  }
 }
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
@@ -2349,10 +2379,12 @@ select {
   background: var(--yellow);
 }
 
-.statCard:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--red-500);
+@media (hover: hover) {
+  .statCard:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--red-500);
+  }
 }
 
 .statCard__label {
@@ -2393,8 +2425,10 @@ select {
     linear-gradient(150deg, var(--ink), var(--red-900));
 }
 
-.statCard--accent:hover {
-  border-color: var(--yellow);
+@media (hover: hover) {
+  .statCard--accent:hover {
+    border-color: var(--yellow);
+  }
 }
 
 .statCard--accent .statCard__label,
@@ -2737,8 +2771,10 @@ select {
   transition: background 160ms ease;
 }
 
-.phaseRow:hover {
-  background: #fdf4e6;
+@media (hover: hover) {
+  .phaseRow:hover {
+    background: #fdf4e6;
+  }
 }
 
 .phaseRow__num {
@@ -2853,8 +2889,10 @@ select {
   transition: border-color 160ms ease;
 }
 
-.notesBar .select:hover {
-  border-color: var(--red-500);
+@media (hover: hover) {
+  .notesBar .select:hover {
+    border-color: var(--red-500);
+  }
 }
 
 .notesCount {
@@ -2901,14 +2939,18 @@ select {
   transition: background 260ms ease;
 }
 
-.noteCard:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--red-500);
+@media (hover: hover) {
+  .noteCard:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--red-500);
+  }
 }
 
-.noteCard:hover::before {
-  background: var(--yellow);
+@media (hover: hover) {
+  .noteCard:hover::before {
+    background: var(--yellow);
+  }
 }
 
 .noteCard__quote {
@@ -3043,10 +3085,12 @@ select {
     box-shadow 220ms ease;
 }
 
-.planPick:hover {
-  border-color: var(--red-500);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+@media (hover: hover) {
+  .planPick:hover {
+    border-color: var(--red-500);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
 }
 
 .planPick__top {
@@ -3111,8 +3155,10 @@ select {
   box-shadow: var(--shadow-md);
 }
 
-.planPick--active:hover {
-  border-color: var(--yellow);
+@media (hover: hover) {
+  .planPick--active:hover {
+    border-color: var(--yellow);
+  }
 }
 
 .planPick--active .planPick__meta,
@@ -3449,9 +3495,11 @@ select {
   line-height: 1;
 }
 
-.reader__close:hover {
-  border-color: var(--yellow);
-  color: var(--yellow);
+@media (hover: hover) {
+  .reader__close:hover {
+    border-color: var(--yellow);
+    color: var(--yellow);
+  }
 }
 
 /* Takes the slack, or the book name collapses to its ellipsis on a phone. */
@@ -3726,8 +3774,10 @@ select {
   transition: background 160ms ease;
 }
 
-.hl:hover {
-  background: rgba(247, 184, 1, 0.55);
+@media (hover: hover) {
+  .hl:hover {
+    background: rgba(247, 184, 1, 0.55);
+  }
 }
 
 /* A highlight carrying a thought earns an underline, so the page shows which
@@ -3823,9 +3873,11 @@ select {
   line-height: 1;
 }
 
-.hlSheet__close:hover {
-  border-color: var(--red-600);
-  color: var(--red-700);
+@media (hover: hover) {
+  .hlSheet__close:hover {
+    border-color: var(--red-600);
+    color: var(--red-700);
+  }
 }
 
 .hlSheet__quote {
@@ -3868,8 +3920,10 @@ select {
   white-space: nowrap;
 }
 
-.kindSwitch__item:hover {
-  color: var(--red-700);
+@media (hover: hover) {
+  .kindSwitch__item:hover {
+    color: var(--red-700);
+  }
 }
 
 .kindSwitch__item--on {
@@ -3878,16 +3932,20 @@ select {
   font-weight: 600;
 }
 
-.kindSwitch__item--on:hover {
-  color: #fff;
+@media (hover: hover) {
+  .kindSwitch__item--on:hover {
+    color: #fff;
+  }
 }
 
 .noteCard--hl::before {
   background: var(--yellow);
 }
 
-.noteCard--hl:hover::before {
-  background: var(--red-600);
+@media (hover: hover) {
+  .noteCard--hl:hover::before {
+    background: var(--red-600);
+  }
 }
 
 .noteCard__passage {
@@ -3947,9 +4005,11 @@ select {
   line-height: 1;
 }
 
-.reader__size:hover {
-  border-color: var(--yellow);
-  color: var(--yellow);
+@media (hover: hover) {
+  .reader__size:hover {
+    border-color: var(--yellow);
+    color: var(--yellow);
+  }
 }
 
 .reader__sizeSmall {
@@ -4029,9 +4089,11 @@ select {
   white-space: nowrap;
 }
 
-.chipBtn:hover {
-  border-color: var(--red-600);
-  color: var(--red-700);
+@media (hover: hover) {
+  .chipBtn:hover {
+    border-color: var(--red-600);
+    color: var(--red-700);
+  }
 }
 
 /*
@@ -4251,8 +4313,10 @@ select {
   font-size: 0.85rem;
 }
 
-.log__row:hover {
-  background: #fdf4e6;
+@media (hover: hover) {
+  .log__row:hover {
+    background: #fdf4e6;
+  }
 }
 
 .log__day {
@@ -4289,8 +4353,10 @@ select {
   font-size: 0.88rem;
 }
 
-.dayLog__row:hover {
-  background: #fdf4e6;
+@media (hover: hover) {
+  .dayLog__row:hover {
+    background: #fdf4e6;
+  }
 }
 
 .dayLog__day {
@@ -4397,8 +4463,10 @@ select {
   padding: 0.7rem 0.85rem;
 }
 
-.entry__head:hover {
-  background: #fdf4e6;
+@media (hover: hover) {
+  .entry__head:hover {
+    background: #fdf4e6;
+  }
 }
 
 /* Red spine for a chapter note, gold for a highlight, so kind reads at a glance. */
@@ -4518,9 +4586,11 @@ select {
   font-weight: 600;
 }
 
-.chipBtn--on:hover {
-  color: #fff;
-  border-color: var(--red-700);
+@media (hover: hover) {
+  .chipBtn--on:hover {
+    color: #fff;
+    border-color: var(--red-700);
+  }
 }
 
 @media (max-width: 620px) {
