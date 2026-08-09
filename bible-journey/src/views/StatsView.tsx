@@ -20,9 +20,10 @@ import { HeadChip, ViewHeader } from '../components/ViewHeader';
 import { formatDay, fromDayKey, today } from '../lib/dates';
 import { formatNumber, plural } from '../lib/format';
 import { useCountUp, useReveal } from '../lib/motion';
-import { cumulative, last30Days } from '../lib/progress';
+import { cumulative, last30Days, nextUnread } from '../lib/progress';
 import { recentDays } from '../lib/readingLog';
 import { SLOTS, SLOT_LABELS, type Slot } from '../lib/storage';
+import { useReader } from '../state/useReader';
 import { useStore } from '../state/useStore';
 
 const RED = '#c81d25';
@@ -91,6 +92,53 @@ function StatCard({
   );
 }
 
+/**
+ * What a reader sees before there is anything to chart.
+ *
+ * Every panel below this works perfectly well on an empty journal, which is the
+ * problem: a ring at nothing, a month of no bars, a heatmap of blanks and a
+ * finish date that cannot be worked out. Nine panels agreeing there is nothing
+ * is the least encouraging thing a new reader can open, so none of them are
+ * drawn until there is a single chapter behind them.
+ */
+function NothingYet({ planTotal }: { planTotal: number }) {
+  const { data, derived } = useStore();
+  const { open } = useReader();
+  const [first] = nextUnread(data.read, 1, derived.plan);
+
+  return (
+    <div className="empty statsEmpty">
+      <span className="empty__mark" aria-hidden="true">
+        %
+      </span>
+      <h3>Nothing to chart yet</h3>
+      <p>
+        Mark one chapter and this fills in. Everything here is worked out from what you have read,
+        so it has nothing to say until you have read something.
+      </p>
+
+      <ul className="statsEmpty__list">
+        <li>A streak, from the first day you mark anything</li>
+        <li>Your pace, and the date the last of {formatNumber(planTotal)} chapters lands</li>
+        <li>Every day of the last eighteen weeks, darkest where you read most</li>
+        <li>A card of the whole Bible, filling in book by book, worth sending someone</li>
+      </ul>
+
+      {first && (
+        <div className="statsEmpty__actions">
+          <button
+            type="button"
+            className="btn btn--sm btn--primary"
+            onClick={() => open(first.book, first.chapter)}
+          >
+            Read {first.book} {first.chapter}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function StatsView() {
   const { data, derived } = useStore();
   const { overall, pace, phases, streak, plan } = derived;
@@ -120,6 +168,32 @@ export function StatsView() {
   const loggedChapters = days.reduce((n, d) => n + d.total, 0);
 
   const tickStyle = { fill: MUTED, fontSize: 11, fontFamily: 'Inter Variable, sans-serif' };
+
+  /*
+   * Before the first chapter there is nothing to draw, and the masthead's own
+   * chips would be three zeros. It says what is ahead instead.
+   */
+  if (overall.planRead === 0) {
+    return (
+      <>
+        <ViewHeader
+          eyebrow="How it’s actually going"
+          title="Stats"
+          lede="Pace, streaks and where the chapters have gone. This is where it all shows up."
+          meta={
+            <>
+              <HeadChip gold>{plan.label}</HeadChip>
+              <HeadChip>{formatNumber(overall.planTotal)} chapters ahead</HeadChip>
+              <HeadChip>{plural(plan.bookCount, 'book')}</HeadChip>
+            </>
+          }
+        />
+        <div className="container statsView">
+          <NothingYet planTotal={overall.planTotal} />
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

@@ -150,6 +150,12 @@ redeploy.**
   Three cards used to fill a screen, which made finding anything a scroll.
 - Stats is behind `React.lazy`, since recharts is a third of the JavaScript for a screen many opens
   never reach. Initial JS is 146 kB gzipped against 258 kB before.
+- **Stats draws nothing until a chapter is read.** Every panel on it works perfectly well on an
+  empty journal, which is the problem: a ring at nothing, a month of no bars, a heatmap of blanks,
+  a finish date that cannot be worked out, and three zeros in the masthead. Nine panels agreeing
+  there is nothing is the least encouraging thing a new reader can open, so `overall.planRead === 0`
+  returns `NothingYet` instead: what will appear here, and one button into the next chapter. One
+  chapter brings the real page back.
 - **Stats says each number once.** Books done was on screen four times: the masthead chip, the hero
   facts, a stat square and a donut the size of a bar chart carrying the same two figures. The donut
   is gone and the square holds the completion ring instead, which is `StatRing` at `size={104}` with
