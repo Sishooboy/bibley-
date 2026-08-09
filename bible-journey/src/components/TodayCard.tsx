@@ -4,6 +4,7 @@ import { useReader } from '../state/useReader';
 import { useReminder } from '../state/useReminder';
 import { useStore } from '../state/useStore';
 import { LogDayPicker } from './LogDayPicker';
+import { Cross } from './Ornament';
 import { Check, Flame } from './icons';
 
 const SUGGESTION_SIZE = 3;
@@ -19,7 +20,10 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
 
   if (refs.length === 0) {
     return (
-      <section className="panel" aria-label="Today's reading">
+      <section className="panel panel--done" aria-label="Today's reading">
+        {/* The one moment in the app worth marking. Everywhere else this would
+            be decoration; here it is the finish line. */}
+        <Cross size={34} className="today__cross" />
         <p className="eyebrow">Today’s reading</p>
         <h2 className="today__ref" style={{ marginTop: '0.6rem' }}>
           All {formatNumber(plan.chapterCount)} chapters read

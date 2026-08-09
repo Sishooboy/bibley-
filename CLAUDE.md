@@ -308,7 +308,13 @@ Progress is never lost, only occasionally resurrected. That direction is deliber
   second sentence.
 - Comments explain *why*, not what. If a line looks odd, the comment says what would break.
 - Red (`#c81d25`) dominates. Gold (`#f7b801`) is rationed: progress fills, streak flame, current
-  phase, headline figures, section rules. Warm near-black and cream carry the rest.
+  phase, headline figures, section rules.
+- **No photography, anywhere.** The app is type and two colours, and a painting or a photograph
+  dropped into it reads as pasted on. `src/components/Ornament.tsx` draws the cross from the app's
+  own mark as SVG instead: it weighs nothing, stays sharp, takes its colour from what it sits in,
+  and carries no licence into an App Store build. It is used in **two places only**, and that is
+  the point of it: a watermark behind the plan chooser, and the finish line on the today card when
+  a plan is complete. Anywhere else it stops being a mark and becomes wallpaper. Warm near-black and cream carry the rest.
 - Fraunces for headings, nav and figures. Inter for body.
 - Verify UI changes in the browser rather than assuming. The gate blocks a signed-out session, so
   temporarily bypassing it in `Gate()` is the usual trick. **Always revert the bypass.**

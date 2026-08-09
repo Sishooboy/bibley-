@@ -392,17 +392,53 @@ select {
 
 /* ── Plan chooser ───────────────────────────────────────────────────────── */
 .chooser {
+  position: relative;
+  overflow: hidden;
   min-height: 100vh;
   min-height: 100dvh;
-  background: var(--ink);
+  /*
+   * A wash of red off the top corner, so the first screen after signing in is
+   * not a flat black rectangle with three boxes on it. 0.26 and not the 0.42
+   * that looked right: at the brightest point of the sweep, with the watermark
+   * composited under it too, the lede measured 4.60 against a 4.5 requirement.
+   * Passing with nothing to spare is how the mastheads went wrong before.
+   */
+  background:
+    radial-gradient(80% 60% at 90% -10%, rgba(200, 29, 37, 0.26), transparent 62%),
+    var(--ink);
   color: var(--cream);
   display: grid;
   place-items: center;
   padding: clamp(1.5rem, 5vw, 3rem) var(--gutter);
 }
 
+/*
+ * Deliberately faint and deliberately cropped. It is a watermark, and the moment
+ * it reads as a picture of a cross rather than as texture it is competing with
+ * the three cards that are the actual decision on this screen.
+ */
+.chooser__watermark {
+  position: absolute;
+  top: -14%;
+  right: -22%;
+  width: min(30rem, 78vw);
+  color: var(--yellow);
+  opacity: 0.07;
+  pointer-events: none;
+}
+
 .chooser__inner {
+  position: relative;
   width: min(46rem, 100%);
+}
+
+.chooser__mark {
+  display: block;
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  margin-bottom: 1.1rem;
+  box-shadow: var(--shadow-md);
 }
 
 .chooser__title {
@@ -5262,4 +5298,28 @@ select {
   white-space: pre-wrap;
   overflow-wrap: break-word;
   font-size: 0.78rem;
+}
+
+/* ── The finish ─────────────────────────────────────────────────────────── */
+/*
+ * Reading the whole thing is the one moment worth marking, so the today card
+ * changes character rather than simply running out of chapters to suggest.
+ */
+.panel--done {
+  text-align: center;
+  border-color: var(--yellow);
+  background:
+    radial-gradient(80% 100% at 50% 0%, rgba(247, 184, 1, 0.14), transparent 70%),
+    var(--paper);
+}
+
+.today__cross {
+  display: block;
+  margin: 0 auto 0.9rem;
+  color: var(--yellow-dim);
+}
+
+.panel--done .today__rest {
+  margin-inline: auto;
+  max-width: 42ch;
 }

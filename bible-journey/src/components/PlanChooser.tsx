@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PLANS, PLAN_ORDER, type PlanId } from '../data/plans';
 import { formatNumber, plural } from '../lib/format';
+import { CrossWatermark } from './Ornament';
 
 /** Rough sizing so the choice is made with the commitment in view. */
 function weeksAt(chapters: number, perDay: number): number {
@@ -12,7 +13,19 @@ export function PlanChooser({ onChoose }: { onChoose: (id: PlanId) => void }) {
 
   return (
     <div className="chooser">
+      {/* Behind everything, and off the edge, the way the mastheads carry their
+          rings. It is the only thing on this screen that is not a word. */}
+      <CrossWatermark className="chooser__watermark" />
+
       <div className="chooser__inner">
+        <img
+          className="chooser__mark"
+          src="/icon-192.png"
+          width={64}
+          height={64}
+          alt=""
+          decoding="async"
+        />
         <p className="eyebrow eyebrow--onDark">Before you start</p>
         <h1 className="chooser__title">Where are you reading?</h1>
         <p className="chooser__lede">
