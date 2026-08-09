@@ -178,6 +178,21 @@ redeploy.**
   and the component resets to step one when it opens because it stays mounted while hidden.
 - `src/lib/bookSearch.ts` ranks books for the journey's finder: exact, then prefix, then substring,
   then subsequence, so "jo" puts John above 1 John and "hbk" still finds Habakkuk.
+- **`src/lib/bibleSearch.ts` searches the text**, which is a different job: `bookSearch` finds a
+  book by its name, this finds a phrase in 35,415 verses. `fold()` lowercases and maps the
+  typographic marks onto the ones a keyboard has, and **every replacement in it has to be one
+  character for one character**, because the index a hit reports is used to slice the *original*
+  verse. Change the length and the highlight lands on the wrong words. A test pins that.
+  `BibleSearch` runs it a book at a time through `loadBook`, so a search warms the cache the reader
+  uses and the first one pulls the rest of the Bible, which is why it reports progress and can be
+  stopped. It runs on submit, not on keypress: 73 books a keystroke is not a search.
+- **The reader's grid needs `grid-template-columns: minmax(0, 1fr)`.** Without it the implicit
+  column is `auto`, meaning max-content, so the header's widest possible layout decides how wide the
+  whole reader is. Adding one control to that bar pushed it 53px off a 375px phone.
+- `ErrorBoundary` wraps the app in `main.tsx` and each view in `App.tsx`, the inner one **keyed by
+  view** so switching tabs remounts it and clears the error. A throw in one screen costs a panel
+  rather than the white page React otherwise leaves, which looks exactly like lost data. It is the
+  one class component in the app, because `getDerivedStateFromError` has no hook.
 - **Marking records the day you read, not the day you tapped.** `logDay` in `store.tsx` is
   session-only React state and **null means "whenever today is"**, not today's date: the default
   has to keep tracking the clock so a session left open across midnight still logs correctly, while
@@ -293,8 +308,8 @@ Working: three plans with a chooser and a preparing transition, Google-only sign
 per-account sync with the merge rules above, chapter marking by slider, quick amounts and tap,
 undo, backdating so a chapter counts on the day it was read, an optional time of day, the text
 itself in a reader that opens at any book and any chapter, highlighting with a thought attached,
-notes, stats, streaks, an offline app shell, a six panel welcome guide, and a synced settings
-screen.
+notes, stats, streaks, an offline app shell, a six panel welcome guide, full text search over all
+73 books, and a synced settings screen.
 
 Notes and highlights share one feed in the Notes view, sorted by when each was last touched. They
 are different objects with the same purpose, so the filter switches between them rather than

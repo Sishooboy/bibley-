@@ -15,9 +15,10 @@ import { neighbours } from '../lib/navigate';
 import { DEFAULT_PREFS, TEXT_SIZES, textScale } from '../lib/prefs';
 import { chapterKey, newId, type Highlight } from '../lib/storage';
 import { useStore } from '../state/useStore';
+import { BibleSearch } from './BibleSearch';
 import { HighlightSheet } from './HighlightSheet';
 import { LogDayPicker } from './LogDayPicker';
-import { Check, Chevron } from './icons';
+import { Check, Chevron, Search } from './icons';
 
 /**
  * The reader. Until this existed you tracked your reading in Bibley and did the
@@ -47,6 +48,9 @@ export function Reader({
   /** The highlight whose note is open, or a pending range not yet saved. */
   const [editing, setEditing] = useState<string | null>(null);
   const [pending, setPending] = useState<Range | null>(null);
+  const [searching, setSearching] = useState(false);
+  /** A verse arrived at from a search result, marked until it has been seen. */
+  const [landedOn, setLandedOn] = useState<number | null>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
@@ -101,17 +105,19 @@ export function Reader({
         if (editing || pending) {
           setEditing(null);
           setPending(null);
-        } else onClose();
+        } else if (searching) setSearching(false);
+        else onClose();
         return;
       }
-      // Arrow keys would fight a text selection, so they stay out of the way.
-      if (editing || pending) return;
+      // Arrow keys would fight a text selection, and a search field, so they
+      // stay out of the way of both.
+      if (editing || pending || searching) return;
       if (e.key === 'ArrowLeft' && previous) onNavigate(previous.book, previous.chapter);
       if (e.key === 'ArrowRight' && next) onNavigate(next.book, next.chapter);
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [onClose, onNavigate, previous, next, editing, pending]);
+  }, [onClose, onNavigate, previous, next, editing, pending, searching]);
 
   // The page behind must not scroll while a full-screen sheet is open.
   useEffect(() => {
@@ -132,6 +138,21 @@ export function Reader({
     if (keyboard === 0) return;
     window.scrollTo(0, 0);
   }, [keyboard]);
+
+  /*
+   * Arriving from a search result. Declared after the effect that sends a new
+   * chapter back to the top, so this one wins and lands on the verse instead.
+   * The mark clears itself: it is there to answer "which one was it", and once
+   * you are looking at it that is answered.
+   */
+  useEffect(() => {
+    if (landedOn === null || !text) return;
+    bodyRef.current
+      ?.querySelector(`[data-verse="${landedOn}"]`)
+      ?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    const timer = window.setTimeout(() => setLandedOn(null), 2800);
+    return () => window.clearTimeout(timer);
+  }, [landedOn, text, chapter]);
 
   /*
    * This claims aria-modal, so focus has to actually live inside it. Without
@@ -337,6 +358,17 @@ export function Reader({
 
         <button
           type="button"
+          className={`reader__tool${searching ? ' reader__tool--on' : ''}`}
+          onClick={() => setSearching((on) => !on)}
+          aria-pressed={searching}
+          aria-label="Search the Bible text"
+          title="Search the text"
+        >
+          <Search size={16} />
+        </button>
+
+        <button
+          type="button"
           className="reader__size"
           // Cycles rather than opening a menu: four steps is short enough that
           // tapping through them is faster than choosing from a list.
@@ -361,7 +393,16 @@ export function Reader({
       </header>
 
       <div className="reader__body" ref={bodyRef}>
-        {error ? (
+        {searching ? (
+          <BibleSearch
+            onClose={() => setSearching(false)}
+            onPick={(toBook, toChapter, verse) => {
+              setSearching(false);
+              setLandedOn(verse);
+              if (toBook !== book || toChapter !== chapter) onNavigate(toBook, toChapter);
+            }}
+          />
+        ) : error ? (
           <p className="reader__message">{error}</p>
         ) : !verses ? (
           <p className="reader__message reader__message--quiet">Opening {book}…</p>
@@ -388,7 +429,13 @@ export function Reader({
                     paragraph and the verse number counts as characters, so every
                     highlight lands one place off, or two past verse nine.
                   */}
-                  <span className="verse__t" data-verse={i + 1}>
+                  <span
+                    className="verse__t"
+                    data-verse={i + 1}
+                    // Set from React rather than added to className imperatively,
+                    // which is the mistake that once left an opened note invisible.
+                    data-landed={landedOn === i + 1 ? '' : undefined}
+                  >
                     {segmentVerse(verse, i + 1, marks).map((segment, s) =>
                       segment.id ? (
                         <mark
@@ -428,6 +475,12 @@ export function Reader({
         />
       )}
 
+      {/*
+        Gone while searching. Marking a chapter as read, or paging to the next
+        one, is about the chapter behind the results, and neither means anything
+        while you are looking at a list of verses from elsewhere.
+      */}
+      {!searching && (
       <footer className="reader__foot">
         <div className="reader__log">
           <LogDayPicker id={`reader-log-${chapterKey(book, chapter)}`} />
@@ -463,6 +516,7 @@ export function Reader({
           </button>
         </div>
       </footer>
+      )}
     </div>
   );
 }

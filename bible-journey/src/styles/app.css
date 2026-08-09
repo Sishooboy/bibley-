@@ -3630,6 +3630,13 @@ select {
   z-index: 60;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
+  /*
+   * Without this the implicit column is `auto`, which means max-content: the
+   * header's widest possible layout decides how wide the reader is, and the
+   * whole thing grows past the screen rather than the book name shrinking. One
+   * more control in that bar was enough to push it 53px off a 375px phone.
+   */
+  grid-template-columns: minmax(0, 1fr);
   background: var(--cream);
   animation: readerIn 260ms var(--ease-out);
 }
@@ -3695,6 +3702,8 @@ select {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  /* A select will not shrink below its longest option without being told. */
+  min-width: 0;
 }
 
 .reader__chapter {
@@ -5016,4 +5025,233 @@ select {
   .guide__body {
     font-size: 0.92rem;
   }
+}
+
+/* ── Searching the text ─────────────────────────────────────────────────── */
+/* Matches .reader__size, since the two sit side by side in the reader's bar. */
+.reader__tool {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 99px;
+  background: none;
+  color: var(--cream);
+  line-height: 1;
+}
+
+.reader__tool--on {
+  border-color: var(--yellow);
+  color: var(--yellow);
+  background: rgba(247, 184, 1, 0.14);
+}
+
+@media (hover: hover) {
+  .reader__tool:hover {
+    border-color: var(--yellow);
+    color: var(--yellow);
+  }
+}
+
+@media (pointer: coarse) {
+  .reader__tool {
+    min-height: 38px;
+    min-width: 38px;
+  }
+}
+
+.bibleSearch {
+  display: grid;
+  gap: 0.8rem;
+  align-content: start;
+  padding: 1rem max(1rem, env(safe-area-inset-right)) 2rem max(1rem, env(safe-area-inset-left));
+  width: min(46rem, 100%);
+  margin-inline: auto;
+}
+
+.bibleSearch__bar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.bibleSearch__box {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+/* Too narrow for a field and two buttons: the field takes the row and the
+   buttons share the next one, rather than Done wrapping on its own. */
+@media (max-width: 520px) {
+  .bibleSearch__box {
+    flex: 1 1 100%;
+  }
+}
+
+.bibleSearch__status {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* A button that has to read as prose, because it sits inside a sentence. */
+.linkBtn {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--red-700);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .linkBtn:hover {
+    color: var(--red-800);
+  }
+}
+
+.bibleSearch__hits {
+  display: grid;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--panel-radius);
+  overflow: hidden;
+}
+
+.bibleSearch__hits:empty {
+  display: none;
+}
+
+.hit {
+  display: grid;
+  gap: 0.2rem;
+  width: 100%;
+  border: none;
+  border-left: 3px solid transparent;
+  background: var(--surface);
+  text-align: left;
+  padding: 0.6rem 0.85rem;
+}
+
+@media (hover: hover) {
+  .hit:hover {
+    background: #fdf4e6;
+    border-left-color: var(--red-600);
+  }
+}
+
+.hit__ref {
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--red-800);
+}
+
+.hit__text {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ink-700);
+}
+
+.hit__text mark {
+  background: var(--yellow-soft);
+  border-radius: 2px;
+  padding: 0 0.1em;
+  color: inherit;
+  font-weight: 600;
+}
+
+/*
+ * The verse a search result landed on. It fades itself out, so the answer to
+ * "which one was it" is on screen for a moment and then out of the way of
+ * reading. An attribute and not a class: React owns className on this span.
+ */
+.verse__t[data-landed] {
+  background: var(--yellow-soft);
+  border-radius: 3px;
+  box-shadow: 0 0 0 4px var(--yellow-soft);
+  animation: landed 2.8s ease-out forwards;
+}
+
+@keyframes landed {
+  0%,
+  55% {
+    background: var(--yellow-soft);
+    box-shadow: 0 0 0 4px var(--yellow-soft);
+  }
+  100% {
+    background: transparent;
+    box-shadow: 0 0 0 4px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .verse__t[data-landed] {
+    animation: none;
+  }
+}
+
+/* ── When a screen throws ───────────────────────────────────────────────── */
+.crash {
+  display: grid;
+  place-items: center;
+  padding: clamp(2rem, 8vw, 5rem) var(--gutter);
+  min-height: 60vh;
+}
+
+.crash__inner {
+  width: min(34rem, 100%);
+  text-align: center;
+}
+
+.crash__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin: 0.4rem 0 0.7rem;
+}
+
+.crash__body {
+  color: var(--muted);
+  line-height: 1.6;
+  margin-inline: auto;
+  max-width: 42ch;
+}
+
+.crash__actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1.2rem;
+}
+
+.crash__detail {
+  margin-top: 1.4rem;
+  text-align: left;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.crash__detail summary {
+  cursor: pointer;
+}
+
+.crash__detail pre {
+  margin-top: 0.6rem;
+  padding: 0.7rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  font-size: 0.78rem;
 }

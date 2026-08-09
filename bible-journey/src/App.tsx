@@ -1,4 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Guide } from './components/Guide';
 import { PlanChooser } from './components/PlanChooser';
 import { PREPARING_MS, Preparing } from './components/Preparing';
@@ -117,19 +118,26 @@ function Shell() {
       </header>
 
       <main className="view">
-        {view === 'journey' && <JourneyView />}
-        {view === 'notes' && <NotesView />}
         {/*
-          Stats brings the whole charting library with it, which is a third of
-          the JavaScript for a screen most opens never reach. It arrives on
-          demand instead, so the journey is on screen sooner.
+          Keyed by view, so switching tabs remounts the boundary and clears the
+          error. One broken screen leaves the other three, and the nav above,
+          working.
         */}
-        {view === 'stats' && (
-          <Suspense fallback={<p className="viewLoading">Working out where you are…</p>}>
-            <StatsView />
-          </Suspense>
-        )}
-        {view === 'settings' && <SettingsView />}
+        <ErrorBoundary key={view} what={`The ${VIEWS.find((v) => v.id === view)?.label} screen`}>
+          {view === 'journey' && <JourneyView />}
+          {view === 'notes' && <NotesView />}
+          {/*
+            Stats brings the whole charting library with it, which is a third of
+            the JavaScript for a screen most opens never reach. It arrives on
+            demand instead, so the journey is on screen sooner.
+          */}
+          {view === 'stats' && (
+            <Suspense fallback={<p className="viewLoading">Working out where you are…</p>}>
+              <StatsView />
+            </Suspense>
+          )}
+          {view === 'settings' && <SettingsView />}
+        </ErrorBoundary>
       </main>
 
       <UndoBar />
