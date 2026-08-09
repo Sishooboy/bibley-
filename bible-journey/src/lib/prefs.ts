@@ -12,6 +12,12 @@ export type Prefs = {
   reminderTime: string;
   /** Index into TEXT_SIZES. Synced, because comfortable reading is personal. */
   textSize?: number;
+  /**
+   * When the reader finished, or skipped, the welcome guide. Synced on purpose:
+   * being walked round the app again on the second device you sign into is not
+   * a welcome, it is an obstacle.
+   */
+  guideSeenAt?: string;
   /** Set on every change so two devices can be compared. */
   updatedAt?: string;
 };
@@ -44,6 +50,7 @@ export function normalizePrefs(input: unknown): Prefs | undefined {
       typeof raw.textSize === 'number' && raw.textSize >= 0 && raw.textSize < TEXT_SIZES.length
         ? Math.floor(raw.textSize)
         : DEFAULT_PREFS.textSize,
+    guideSeenAt: typeof raw.guideSeenAt === 'string' ? raw.guideSeenAt : undefined,
     updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : undefined,
   };
 }

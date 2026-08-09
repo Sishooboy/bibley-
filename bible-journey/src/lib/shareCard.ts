@@ -123,6 +123,30 @@ export async function readyFonts(): Promise<void> {
   await document.fonts.ready;
 }
 
+let logo: Promise<HTMLImageElement | null> | null = null;
+
+/**
+ * The app mark, for the head of the card. Loaded once and kept, since the card
+ * redraws on every change to the numbers and the file never changes.
+ *
+ * Same origin, so drawing it leaves the canvas clean and `toBlob` still works.
+ * A failure resolves to null rather than rejecting: a card with no mark on it is
+ * a great deal better than no card, and this is the one thing on it that can be
+ * missing on a first run with no connection.
+ */
+export function readyLogo(src = '/icon-192.png'): Promise<HTMLImageElement | null> {
+  if (typeof document === 'undefined') return Promise.resolve(null);
+  if (!logo) {
+    logo = new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = src;
+    });
+  }
+  return logo;
+}
+
 function roundRect(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -209,7 +233,11 @@ function stat(
   }
 }
 
-export function drawShareCard(ctx: CanvasRenderingContext2D, s: ShareStats): void {
+export function drawShareCard(
+  ctx: CanvasRenderingContext2D,
+  s: ShareStats,
+  mark?: HTMLImageElement | null,
+): void {
   ctx.clearRect(0, 0, CARD_W, CARD_H);
 
   const bg = ctx.createLinearGradient(0, 0, CARD_W, CARD_H);
@@ -238,10 +266,29 @@ export function drawShareCard(ctx: CanvasRenderingContext2D, s: ShareStats): voi
   const M = 84;
   ctx.textBaseline = 'alphabetic';
 
+  /*
+   * The mark, then the wordmark, then the plan. Each one measured off the last
+   * rather than placed at a number, so a missing logo closes the gap instead of
+   * leaving a hole, and a longer plan name cannot land on top of anything.
+   */
+  let x = M;
+  if (mark) {
+    const size = 64;
+    const top = 66;
+    ctx.save();
+    // The same rounded square the app icon is, so it reads as the app's mark
+    // rather than as a photograph someone dropped on the card.
+    roundRect(ctx, x, top, size, size, 14);
+    ctx.clip();
+    ctx.drawImage(mark, x, top, size, size);
+    ctx.restore();
+    x += size + 22;
+  }
+
   ctx.font = `600 34px ${DISPLAY}`;
   ctx.fillStyle = CREAM;
-  ctx.fillText('Bibley', M, 110);
-  label(ctx, s.planLabel, M + 130, 108);
+  ctx.fillText('Bibley', x, 110);
+  label(ctx, s.planLabel, x + ctx.measureText('Bibley').width + 26, 108);
 
   // Headline: the number the whole card is about.
   ctx.font = `600 210px ${DISPLAY}`;
@@ -351,8 +398,8 @@ export function drawShareCard(ctx: CanvasRenderingContext2D, s: ShareStats): voi
 
   ctx.font = `600 26px ${BODY}`;
   ctx.fillStyle = GOLD;
-  const mark = 'Bibley';
-  ctx.fillText(mark, CARD_W - M - ctx.measureText(mark).width, CARD_H - 82);
+  const wordmark = 'Bibley';
+  ctx.fillText(wordmark, CARD_W - M - ctx.measureText(wordmark).width, CARD_H - 82);
 }
 
 /** A one-line summary for anyone who cannot see the image. */

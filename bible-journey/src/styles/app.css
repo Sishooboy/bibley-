@@ -4836,3 +4836,184 @@ select {
     display: none;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   The welcome guide
+   Dark, full screen and stepped, so it reads as something before the app
+   rather than as another card inside it.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.guide {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: max(1rem, env(safe-area-inset-top)) 1rem calc(1rem + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(90% 70% at 20% 0%, rgba(200, 29, 37, 0.55), transparent 62%),
+    linear-gradient(150deg, #1a1512 0%, #47090e 60%, #6c1017 100%);
+  color: var(--cream);
+  animation: guideIn 320ms var(--ease-out);
+}
+
+@keyframes guideIn {
+  from {
+    opacity: 0;
+  }
+}
+
+.guide__panel {
+  position: relative;
+  width: min(30rem, 100%);
+  max-height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  gap: 0.9rem;
+}
+
+.guide__skip {
+  justify-self: end;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 99px;
+  background: none;
+  color: var(--muted-dark);
+  padding: 0.35rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+@media (hover: hover) {
+  .guide__skip:hover {
+    color: var(--cream);
+    border-color: rgba(255, 255, 255, 0.45);
+  }
+}
+
+.guide__stage {
+  min-height: 0;
+  overflow-y: auto;
+  text-align: center;
+  animation: guideStep 340ms var(--ease-out) both;
+}
+
+@keyframes guideStep {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.guide__art {
+  display: block;
+  width: min(20rem, 100%);
+  margin: 0 auto 1.4rem;
+  height: auto;
+}
+
+.guide__artNum {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  fill: #f7f2e9;
+}
+
+.guide__eyebrow {
+  margin-bottom: 0.5rem;
+}
+
+.guide__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 6vw, 2.1rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  margin-bottom: 0.7rem;
+}
+
+.guide__body {
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: rgba(247, 242, 233, 0.82);
+  max-width: 34ch;
+  margin-inline: auto;
+}
+
+.guide__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-top: 0.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.guide__dots {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.guide__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.24);
+  transition: background 240ms var(--ease-out), width 240ms var(--ease-out);
+}
+
+.guide__dot--on {
+  width: 20px;
+  border-radius: 99px;
+  background: var(--yellow);
+}
+
+.guide__nav {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+/* On this ground the ghost button needs its own border and its own text. */
+.guide__back {
+  border-color: rgba(255, 255, 255, 0.28);
+  color: var(--cream);
+}
+
+.guide__back:disabled {
+  opacity: 0.35;
+}
+
+.guide__backChev {
+  transform: rotate(180deg);
+}
+
+.guide__count {
+  text-align: center;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-dark);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide,
+  .guide__stage {
+    animation: none;
+  }
+
+  .guide__dot {
+    transition: none;
+  }
+}
+
+/* Short screens: the drawing is the first thing that can afford to shrink. */
+@media (max-height: 700px) {
+  .guide__art {
+    width: min(14rem, 100%);
+    margin-bottom: 0.9rem;
+  }
+
+  .guide__body {
+    font-size: 0.92rem;
+  }
+}

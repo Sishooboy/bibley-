@@ -1,4 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
+import { Guide } from './components/Guide';
 import { PlanChooser } from './components/PlanChooser';
 import { PREPARING_MS, Preparing } from './components/Preparing';
 import { SignInScreen } from './components/SignInScreen';
@@ -132,6 +133,8 @@ function Shell() {
       </main>
 
       <UndoBar />
+      {/* Renders nothing once it has been seen, which is a synced pref. */}
+      <Guide />
     </div>
     </ReaderProvider>
   );

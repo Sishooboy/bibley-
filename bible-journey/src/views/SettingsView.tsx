@@ -3,6 +3,7 @@ import { AccountPanel } from '../components/AccountPanel';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
 import { Check, Lock } from '../components/icons';
 import { PLANS, PLAN_ORDER } from '../data/plans';
+import { formatDay } from '../lib/dates';
 import { formatNumber, plural } from '../lib/format';
 import { useReveal } from '../lib/motion';
 import { REMINDERS_UNLOCKED, formatTime } from '../lib/prefs';
@@ -100,6 +101,37 @@ export function SettingsView() {
         </section>
 
         <AccountPanel reveal={reveal} />
+
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
+            <div>
+              <h3 className="card__title">The guide</h3>
+              <p className="card__note">
+                The six panels you saw the first time, on where everything is and what it does.
+              </p>
+            </div>
+          </div>
+          <div className="settingRow">
+            <span className="settingRow__main">
+              <span className="settingRow__label">Show it again</span>
+              <span className="settingRow__hint">
+                {prefs.guideSeenAt
+                  ? `Last seen ${formatDay(prefs.guideSeenAt.slice(0, 10))}`
+                  : 'Waiting for you on the journey'}
+              </span>
+            </span>
+            {/* Clearing when it was seen is the whole mechanism: the guide shows
+                itself whenever that is unset. */}
+            <button
+              type="button"
+              className="btn btn--sm"
+              disabled={!prefs.guideSeenAt}
+              onClick={() => setPrefs({ ...prefs, guideSeenAt: undefined })}
+            >
+              Show the guide
+            </button>
+          </div>
+        </section>
 
         <section ref={reveal} className="card card--locked reveal">
           <div className="card__head">

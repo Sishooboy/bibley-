@@ -163,7 +163,19 @@ redeploy.**
   bars, which repeated the figures above them, and then a passage the reader had highlighted, which
   put their own annotations on something made to be sent to other people. **Keep the card
   impersonal.** `gridLayout` sizes it, because the book count is 73 or 46 or 27 depending on the
-  plan, and a grid that ran past the footer rule would print over it.
+  plan, and a grid that ran past the footer rule would print over it. The app mark is drawn at the
+  head of the card from `/icon-192.png`, same origin so the canvas stays clean and `toBlob` still
+  works, and `readyLogo()` resolves to null rather than rejecting if it cannot be fetched: a card
+  with no mark beats no card. Everything in that header is measured off the thing before it, so a
+  missing mark closes the gap instead of leaving a hole.
+- **The welcome guide** is `src/components/Guide.tsx`, six stepped panels shown once. It is a panel
+  rather than coach marks pointing at real controls, because a coach mark has to know where its
+  target is, which breaks the first time a card moves, and it can say nothing at all about a screen
+  you are not on. Each drawing is an inline SVG diagram of the screen it describes, so the shape you
+  are shown is the shape you meet a minute later. Whether it has been seen is `prefs.guideSeenAt`,
+  **synced on purpose**: being walked round the app again on the second device you sign into is an
+  obstacle, not a welcome. Settings clears that field to show it again, which is the whole mechanism,
+  and the component resets to step one when it opens because it stays mounted while hidden.
 - `src/lib/bookSearch.ts` ranks books for the journey's finder: exact, then prefix, then substring,
   then subsequence, so "jo" puts John above 1 John and "hbk" still finds Habakkuk.
 - **Marking records the day you read, not the day you tapped.** `logDay` in `store.tsx` is
@@ -281,7 +293,8 @@ Working: three plans with a chooser and a preparing transition, Google-only sign
 per-account sync with the merge rules above, chapter marking by slider, quick amounts and tap,
 undo, backdating so a chapter counts on the day it was read, an optional time of day, the text
 itself in a reader that opens at any book and any chapter, highlighting with a thought attached,
-notes, stats, streaks, an offline app shell, and a synced settings screen.
+notes, stats, streaks, an offline app shell, a six panel welcome guide, and a synced settings
+screen.
 
 Notes and highlights share one feed in the Notes view, sorted by when each was last touched. They
 are different objects with the same purpose, so the filter switches between them rather than
@@ -299,11 +312,10 @@ Not built yet, roughly in order:
 
 1. **In-app account deletion.** Required by App Store guideline 5.1.1(v). Must clear the Supabase
    row and the local cache.
-2. **Onboarding** for a first-time reader who lands on the journey with no context.
-3. **Capacitor shell**, which is what makes notifications fire with the app closed, and what
+2. **Capacitor shell**, which is what makes notifications fire with the app closed, and what
    unlocks reminders. Needs macOS or GitHub Actions to build, and $99/year for Apple.
-4. **Sign in with Apple**, required by guideline 4.8 because Google sign-in is offered.
-5. A custom domain, which fixes the consent screen and gives somewhere to host a privacy policy.
+3. **Sign in with Apple**, required by guideline 4.8 because Google sign-in is offered.
+4. A custom domain, which fixes the consent screen and gives somewhere to host a privacy policy.
 
 Backup and restore was removed on purpose once everything synced. The server row is now the only
 copy that matters.

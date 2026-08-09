@@ -6,6 +6,7 @@ import {
   describeCard,
   drawShareCard,
   readyFonts,
+  readyLogo,
 } from '../lib/shareCard';
 import { useStore } from '../state/useStore';
 
@@ -42,10 +43,12 @@ export function ShareCard() {
 
   useEffect(() => {
     let live = true;
-    void readyFonts().then(() => {
+    // Both before the first stroke. Canvas waits for neither: it falls back to a
+    // default face and draws nothing where an unloaded image is.
+    void Promise.all([readyFonts(), readyLogo()]).then(([, mark]) => {
       const ctx = canvasRef.current?.getContext('2d');
       if (!live || !ctx) return;
-      drawShareCard(ctx, stats);
+      drawShareCard(ctx, stats, mark);
     });
     return () => {
       live = false;
