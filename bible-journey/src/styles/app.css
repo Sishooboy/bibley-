@@ -60,6 +60,14 @@ html {
    * container, which is the whole reason it exists.
    */
   overflow-x: clip;
+
+  /*
+   * Takes away double tap to zoom, which is the zoom nobody meant to do and the
+   * one that leaves the page stuck at 2x and panned sideways. `manipulation`,
+   * not `none`: panning stays, and `none` here would trap scrolling the way it
+   * once did inside the Psalms chapter grid.
+   */
+  touch-action: manipulation;
 }
 
 body {

@@ -257,7 +257,18 @@ Progress is never lost, only occasionally resurrected. That direction is deliber
 ## Gotchas that cost real time
 
 - **iOS zooms any focused input under 16px**, and the zoomed page then pans sideways. All controls
-  are 16px under `@media (pointer: coarse)`. Do not lower it.
+  are 16px under `@media (pointer: coarse)`. Do not lower it. **The zoom lock is not a licence to**,
+  because the half of it that iOS honours is not the half that would help here.
+- **The page is held at 1:1**, in three places that each cover a different browser. The viewport
+  meta carries `user-scalable=no, maximum-scale=1`, which Android and every webview honour and
+  **iOS Safari has ignored since iOS 10**; `lockZoom()` in `src/lib/zoom.ts` refuses WebKit's
+  `gesturestart`, which is the only thing that stops a pinch there; and `touch-action: manipulation`
+  on `html` takes away double tap to zoom, which is the one that gets triggered by accident.
+  `manipulation` and never `none`: `none` kills scrolling, which is how the old drag-to-select
+  trapped the page inside the Psalms grid. `touch-action` does not inherit, so a child computing
+  `auto` is expected and fine, the browser intersects the whole ancestor chain at hit-test time.
+  None of this touches desktop browser zoom, or the system text size, and the reader's own four step
+  text size is the accessible way to make the words bigger.
 - **A transformed ancestor becomes the containing block for `position: fixed`.** The app entrance
   animation is opacity-only for exactly this reason: a transform there silently broke the nav and
   the undo chip.

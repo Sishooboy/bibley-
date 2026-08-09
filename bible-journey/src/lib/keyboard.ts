@@ -22,6 +22,16 @@ export function useKeyboardInset(): number {
     if (!vv) return;
 
     const measure = () => {
+      /*
+       * A zoomed page has a smaller visual viewport for reasons that have
+       * nothing to do with a keyboard, and reading the difference as one would
+       * throw the sheet up the screen. Zoom is held at 1 elsewhere, so this
+       * should never fire, which is exactly why it is cheap to be sure.
+       */
+      if (vv.scale > 1.01) {
+        setInset(0);
+        return;
+      }
       const covered = window.innerHeight - (vv.height + vv.offsetTop);
       /*
        * Under a hundred pixels is not a keyboard, it is a URL bar collapsing as

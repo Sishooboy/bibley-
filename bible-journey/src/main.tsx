@@ -2,7 +2,11 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import { ErrorBoundary } from './components/ErrorBoundary.tsx';
+import { lockZoom } from './lib/zoom.ts';
 import './styles/app.css';
+
+// Before the first paint, so a pinch during startup is refused too.
+lockZoom();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

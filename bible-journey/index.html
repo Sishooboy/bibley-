@@ -3,7 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!--
+      user-scalable=no and maximum-scale=1 stop the page zooming. Android and
+      any webview honour this; iOS Safari has ignored it since iOS 10, which is
+      what the gesture handling in main.tsx is for. The 16px rule on every
+      control under `pointer: coarse` still stands and must not be relaxed on
+      the strength of this line: it is the only thing stopping a focused input
+      zooming the page on an iOS that is ignoring all of it.
+    -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
     <meta name="theme-color" content="#1a1512" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icon-180.png" />
@@ -12,7 +23,7 @@
     <meta name="apple-mobile-web-app-title" content="Bibley" />
     <meta
       name="description"
-      content="A personal Bible reading plan: 12 phases, 65 books, 1,168 chapters."
+      content="A personal Bible reading plan: 13 phases, 73 books, 1,334 chapters."
     />
     <title>Bibley · reading journey</title>
   </head>
