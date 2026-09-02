@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { BookFinder } from '../components/BookFinder';
 import { PhaseSection } from '../components/PhaseSection';
 import { ProgressBar } from '../components/ProgressBar';
@@ -12,24 +12,60 @@ export function JourneyView() {
   const { derived } = useStore();
   const { plan, overall, streak, phases, statuses, currentPhase } = derived;
   const [openBook, setOpenBook] = useState<string | null>(null);
+  /*
+   * Which phase is expanded. Seeded from wherever the reader is, and only once:
+   * finishing a phase mid-session should not fold the screen up underneath them.
+   * Null closes them all.
+   */
+  const [openPhase, setOpenPhase] = useState<number | null>(() => currentPhase);
 
   const bookNames = useMemo(
     () => plan.phases.flatMap((p) => p.books.map((b) => b.name)),
     [plan],
   );
 
+  /** Set by revealBook, cleared once the row has been scrolled to. */
+  const [pendingReveal, setPendingReveal] = useState<string | null>(null);
+
   /**
-   * Opens the book and brings it into view. The row mounts its panel on the same
-   * tick, so the scroll waits a frame or it aims at where the row used to be.
+   * Opens a book and brings it into view, wherever it is.
+   *
+   * The phase holding it has to be opened too, or the row is not in the document
+   * to scroll to: this is the one thing collapsing the phases could quietly
+   * break, and the finder and the today card both come through here.
    */
-  const jumpTo = useCallback((book: string) => {
-    setOpenBook(book);
-    requestAnimationFrame(() => {
-      document
-        .querySelector(`[data-book="${CSS.escape(book)}"]`)
-        ?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    });
-  }, []);
+  const revealBook = useCallback(
+    (book: string) => {
+      const phase = plan.phaseOfBook.get(book);
+      if (phase !== undefined) setOpenPhase(phase);
+      setOpenBook(book);
+      setPendingReveal(book);
+    },
+    [plan],
+  );
+
+  /*
+   * The scroll waits for the row to exist and for the phase panel above it to
+   * have been laid out. A frame callback is not enough on its own: opening the
+   * phase pushes everything below it down, so a scroll timed against the click
+   * aims at where the row was beforehand and lands a screen short. A layout
+   * effect runs after the DOM is updated and measured, which is exactly when the
+   * answer is right.
+   *
+   * Not smooth, either. Asking for a book by name is asking to be taken there,
+   * and animating two thousand pixels of somebody else's plan on the way is a
+   * journey nobody requested.
+   */
+  useLayoutEffect(() => {
+    if (!pendingReveal) return;
+    document
+      .querySelector(`[data-book="${CSS.escape(pendingReveal)}"]`)
+      // 'start' and not 'center': a book with a long panel is taller than the
+      // screen, and centring a tall thing pushes its heading off the top. The
+      // row carries a scroll-margin that clears the pinned header.
+      ?.scrollIntoView({ block: 'start' });
+    setPendingReveal(null);
+  }, [pendingReveal]);
 
   return (
     <>
@@ -85,7 +121,7 @@ export function JourneyView() {
 
       <div className="container">
         <div className="panels">
-          <TodayCard onOpenBook={setOpenBook} />
+          <TodayCard onOpenBook={revealBook} />
           <QuoteCard />
         </div>
       </div>
@@ -102,7 +138,7 @@ export function JourneyView() {
           </p>
         </div>
 
-        <BookFinder books={bookNames} onJump={jumpTo} />
+        <BookFinder books={bookNames} onJump={revealBook} />
 
         {plan.phases.map((phase, i) => (
           <PhaseSection
@@ -110,6 +146,10 @@ export function JourneyView() {
             phase={phase}
             progress={phases[i]}
             status={statuses.get(phase.phase) ?? 'upcoming'}
+            open={openPhase === phase.phase}
+            onToggle={() =>
+              setOpenPhase((current) => (current === phase.phase ? null : phase.phase))
+            }
             openBook={openBook}
             onOpenBook={setOpenBook}
           />

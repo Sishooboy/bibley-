@@ -1266,28 +1266,72 @@ select {
   padding-top: clamp(2.5rem, 5vw, 3.5rem);
 }
 
+/*
+ * A phase is a row until it is opened. Thirteen of them used to be thirteen
+ * open sections, seventy-three book rows and four hundred words of reasoning,
+ * all before the reader had marked anything.
+ */
 .phase {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr);
-  gap: 0 1.5rem;
-  padding-block: 2rem;
   border-top: 1px solid var(--line);
 }
 
 .phase:first-of-type {
   border-top: 0;
-  padding-top: 0;
+}
+
+.phase__row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0 0.9rem;
+  width: 100%;
+  padding: 0.85rem 0.4rem;
+  border: none;
+  background: none;
+  text-align: left;
+}
+
+@media (hover: hover) {
+  .phase__row:hover .phase__head h3 {
+    color: var(--red-700);
+  }
+}
+
+.phase__main {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
 }
 
 .phase--current {
-  background: linear-gradient(90deg, rgba(247, 184, 1, 0.09), transparent 55%);
+  background: linear-gradient(90deg, rgba(247, 184, 1, 0.11), transparent 62%);
   margin-inline: calc(var(--gutter) * -0.5);
   padding-inline: calc(var(--gutter) * 0.5);
+  border-radius: 6px;
+}
+
+.phase__chev {
+  color: var(--muted);
+  transition: transform 200ms var(--ease-out);
+}
+
+.phase__chev--open {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phase__chev {
+    transition: none;
+  }
+}
+
+.phase__panel {
+  padding: 0 0.4rem 1.5rem;
 }
 
 .phase__num {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -1324,7 +1368,8 @@ select {
 }
 
 .phase__head h3 {
-  font-size: clamp(1.35rem, 2.6vw, 1.7rem);
+  font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+  transition: color 140ms ease;
 }
 
 .phase__tag {
@@ -1352,22 +1397,28 @@ select {
 }
 
 .phase__count {
-  margin-left: auto;
-  font-size: 0.85rem;
-  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink-700);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.phase__count small {
+  font-size: 0.76rem;
+  font-weight: 400;
+  color: var(--muted);
 }
 
 .phase__why {
   color: var(--muted);
   max-width: var(--measure);
-  margin-block: 0.6rem 1rem;
-  font-size: 0.94rem;
+  margin-block: 0 1rem;
+  font-size: 0.92rem;
 }
 
 .phase__bar {
   max-width: 100%;
-  margin-bottom: 1.25rem;
 }
 
 .books {
@@ -1379,6 +1430,11 @@ select {
 
 .book + .book {
   border-top: 1px solid var(--line);
+}
+
+/* Scrolled to by the finder and the today card, under a pinned header. */
+.book {
+  scroll-margin-top: calc(var(--topbar-h) + 0.75rem);
 }
 
 .book__row {
@@ -1960,15 +2016,26 @@ select {
     padding-inline: 0.6rem;
   }
 
-  .phase {
-    grid-template-columns: 34px minmax(0, 1fr);
-    gap: 0 1rem;
+  /* The grid moved onto .phase__row when the phase became a row. */
+  .phase__row {
+    grid-template-columns: 34px minmax(0, 1fr) auto auto;
+    gap: 0 0.7rem;
+    padding-inline: 0.2rem;
   }
 
   .phase__num {
     width: 34px;
     height: 34px;
     font-size: 0.9rem;
+  }
+
+  /* The book count goes first: the chapter count is the one being tracked. */
+  .phase__count small {
+    display: none;
+  }
+
+  .phase__panel {
+    padding-inline: 0.2rem;
   }
 
   .book__row {
