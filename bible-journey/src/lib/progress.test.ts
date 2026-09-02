@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { PLANS, PLAN_ORDER } from '../data/plans';
+import { getTrack, type PhasedTrack } from '../data/tracks';
+
+/** The three story-first tracks, which is what the old plan ids became. */
+const STORY = ['full_story_first', 'nt_story_first', 'ot_story_first'] as const;
+const track = (id: string) => getTrack(id) as PhasedTrack;
 import { addDays, clampReadingDay, daysBetween, isDayKey, toDayKey, today } from './dates';
 import { last30Days, overallProgress, phaseProgressAll, streak } from './progress';
 import type { ReadMap } from './storage';
@@ -138,17 +142,19 @@ describe('plan progress', () => {
   it('counts a chapter under whichever plans contain its book', () => {
     // John is in the whole Bible and the New Testament, not the Old.
     const read: ReadMap = { 'John|1': '2026-02-01' };
-    for (const id of PLAN_ORDER) {
-      const plan = PLANS[id];
+    for (const id of STORY) {
+      const plan = track(id);
       const overall = overallProgress(phaseProgressAll(read, plan), plan);
-      expect(overall.planRead).toBe(id === 'ot' ? 0 : 1);
+      expect(overall.planRead).toBe(id === 'ot_story_first' ? 0 : 1);
     }
   });
 
   it('leaves chapters outside the plan stored but uncounted', () => {
-    // This is what makes switching plans safe: a plan is a view, not a container.
+    // This is what makes switching tracks safe: a track is a view, not a
+    // container. Reading Genesis on one track still counts on every other track
+    // that contains Genesis.
     const read: ReadMap = { 'John|1': '2026-02-01', 'Genesis|1': '2026-02-01' };
-    const ot = PLANS.ot;
+    const ot = track('ot_story_first');
     const overall = overallProgress(phaseProgressAll(read, ot), ot);
 
     expect(overall.planRead).toBe(1);
@@ -156,7 +162,7 @@ describe('plan progress', () => {
   });
 
   it('marks a book done only when every chapter is read', () => {
-    const plan = PLANS.nt;
+    const plan = track('nt_story_first');
     const jude = plan.phases.flatMap((p) => p.books).find((b) => b.name === 'Jude');
     expect(jude).toBeDefined();
 
@@ -167,23 +173,33 @@ describe('plan progress', () => {
   });
 });
 
-describe('the plans themselves', () => {
+describe('the tracks themselves', () => {
   it('has the counts the app states out loud', () => {
-    expect([PLANS.both.bookCount, PLANS.both.chapterCount]).toEqual([73, 1334]);
-    expect([PLANS.nt.bookCount, PLANS.nt.chapterCount]).toEqual([27, 260]);
-    expect([PLANS.ot.bookCount, PLANS.ot.chapterCount]).toEqual([46, 1074]);
+    expect([track('full_story_first').bookCount, track('full_story_first').chapterCount]).toEqual([
+      73, 1334,
+    ]);
+    expect([track('nt_story_first').bookCount, track('nt_story_first').chapterCount]).toEqual([
+      27, 260,
+    ]);
+    expect([track('ot_story_first').bookCount, track('ot_story_first').chapterCount]).toEqual([
+      46, 1074,
+    ]);
   });
 
   it('splits the whole Bible exactly between the two testaments', () => {
-    const names = (id: (typeof PLAN_ORDER)[number]) =>
-      PLANS[id].phases.flatMap((p) => p.books.map((b) => b.name)).sort();
+    const names = (id: string) =>
+      track(id)
+        .books.map((b) => b.name)
+        .sort();
 
-    expect([...names('nt'), ...names('ot')].sort()).toEqual(names('both'));
+    expect([...names('nt_story_first'), ...names('ot_story_first')].sort()).toEqual(
+      names('full_story_first'),
+    );
   });
 
   it('lists every chapter of every book exactly once in the sequence', () => {
-    for (const id of PLAN_ORDER) {
-      const plan = PLANS[id];
+    for (const id of STORY) {
+      const plan = track(id);
       const keys = plan.sequence.map((r) => `${r.book}|${r.chapter}`);
       expect(keys).toHaveLength(plan.chapterCount);
       expect(new Set(keys).size).toBe(plan.chapterCount);
@@ -191,7 +207,7 @@ describe('the plans themselves', () => {
   });
 
   it('never repeats a book name, which is what makes chapter keys work', () => {
-    const names = PLANS.both.phases.flatMap((p) => p.books.map((b) => b.name));
+    const names = track('full_story_first').books.map((b) => b.name);
     expect(new Set(names).size).toBe(names.length);
   });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { CANON, NEW_TESTAMENT, OLD_TESTAMENT } from '../data/canon';
-import { PLANS } from '../data/plans';
+import { getTrack, type PhasedTrack } from '../data/tracks';
 import { highlightRef, isEmptyRange, order, segmentVerse } from './highlight';
 import { chapterCount, neighbours, readChapter } from './navigate';
 import type { Highlight } from './storage';
@@ -119,28 +119,31 @@ describe('highlightRef', () => {
 });
 
 describe('navigating by hand', () => {
-  const both = PLANS.both;
+  const both = getTrack('full_story_first') as PhasedTrack;
 
   it('moves within a book the obvious way', () => {
     expect(neighbours('John', 3, both).next).toEqual({ book: 'John', chapter: 4 });
     expect(neighbours('John', 3, both).previous).toEqual({ book: 'John', chapter: 2 });
   });
 
-  it('follows the plan at the end of a book the plan contains', () => {
-    // The combined plan opens with all of John, then starts again at Genesis.
-    expect(neighbours('John', 21, both).next).toEqual({ book: 'Genesis', chapter: 1 });
+  it('follows the track at the end of a book the track contains', () => {
+    // The Full Arc opens on Mark and goes back to the beginning after it.
+    expect(neighbours('Mark', 16, both).next).toEqual({ book: 'Genesis', chapter: 1 });
+    // John closes the gospels phase, and Paul's letters follow.
+    expect(neighbours('John', 21, both).next).toEqual({ book: '1 Thessalonians', chapter: 1 });
   });
 
-  it('falls back to printed order for a book outside the plan', () => {
-    // Reading the Old Testament while on the New Testament plan.
-    const nt = PLANS.nt;
+  it('falls back to printed order for a book outside the track', () => {
+    // Reading the Old Testament while on a New Testament track.
+    const nt = getTrack('nt_story_first') as PhasedTrack;
     expect(neighbours('Genesis', 50, nt).next).toEqual({ book: 'Exodus', chapter: 1 });
     expect(neighbours('Exodus', 1, nt).previous).toEqual({ book: 'Genesis', chapter: 50 });
   });
 
   it('stops at the ends of the Bible rather than wrapping', () => {
-    expect(neighbours('Genesis', 1, PLANS.nt).previous).toBeUndefined();
-    expect(neighbours('Revelation', 22, PLANS.nt).next).toBeUndefined();
+    const nt = getTrack('nt_story_first') as PhasedTrack;
+    expect(neighbours('Genesis', 1, nt).previous).toBeUndefined();
+    expect(neighbours('Revelation', 22, nt).next).toBeUndefined();
   });
 
   it('knows how many chapters each book has', () => {
@@ -178,17 +181,19 @@ describe('readChapter', () => {
 });
 
 describe('the canon list', () => {
-  it('holds the same 73 books as the plan data', () => {
-    const planBooks = PLANS.both.phases.flatMap((p) => p.books.map((b) => b.name)).sort();
-    expect([...CANON].sort()).toEqual(planBooks);
+  it('holds the same 73 books as the track data', () => {
+    const trackBooks = (getTrack('full_story_first') as PhasedTrack).books
+      .map((b) => b.name)
+      .sort();
+    expect([...CANON].sort()).toEqual(trackBooks);
   });
 
-  it('splits into the same testaments the plans use', () => {
-    const names = (id: 'nt' | 'ot') =>
-      PLANS[id].phases.flatMap((p) => p.books.map((b) => b.name)).sort();
+  it('splits into the same testaments the tracks use', () => {
+    const names = (id: 'nt_story_first' | 'ot_story_first') =>
+      (getTrack(id) as PhasedTrack).books.map((b) => b.name).sort();
 
-    expect([...NEW_TESTAMENT].sort()).toEqual(names('nt'));
-    expect([...OLD_TESTAMENT].sort()).toEqual(names('ot'));
+    expect([...NEW_TESTAMENT].sort()).toEqual(names('nt_story_first'));
+    expect([...OLD_TESTAMENT].sort()).toEqual(names('ot_story_first'));
   });
 
   it('starts and ends where a printed Bible does', () => {

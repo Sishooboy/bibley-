@@ -1,10 +1,12 @@
 import { CANON } from '../data/canon';
-import { PLANS, type Plan } from '../data/plans';
+import { TRACKS, type PhasedTrack } from '../data/tracks';
 
 export type Where = { book: string; chapter: number };
 
-/** Chapter counts for every book, from the plan that contains them all. */
-const CHAPTERS = new Map(PLANS.both.phases.flatMap((p) => p.books).map((b) => [b.name, b.chapters]));
+/** Chapter counts for every book, from the track that contains them all. */
+const CHAPTERS = new Map(
+  (TRACKS.get('full_story_first') as PhasedTrack).books.map((b) => [b.name, b.chapters]),
+);
 
 export function chapterCount(book: string): number {
   return CHAPTERS.get(book) ?? 0;
@@ -36,7 +38,7 @@ export function readChapter(text: string, max: number, fallback: number): number
 export function neighbours(
   book: string,
   chapter: number,
-  plan: Plan,
+  plan: PhasedTrack,
 ): { previous?: Where; next?: Where } {
   const at = plan.sequence.findIndex((r) => r.book === book && r.chapter === chapter);
   if (at !== -1) {

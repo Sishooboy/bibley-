@@ -6,14 +6,14 @@ import type {
   PhaseStatus,
   Streak,
 } from '../lib/progress';
-import type { Plan, PlanId } from '../data/plans';
+import type { PhasedTrack } from '../data/tracks';
 import type { Prefs } from '../lib/prefs';
 import type { DayKey } from '../lib/dates';
 import type { AppData, Highlight, LoadResult, Note, Slot } from '../lib/storage';
 
 export type Derived = {
-  /** The reading plan in force, resolved from the stored choice. */
-  plan: Plan;
+  /** The reading track in force, resolved from the stored choice. */
+  plan: PhasedTrack;
   phases: PhaseProgress[];
   statuses: Map<number, PhaseStatus>;
   overall: OverallProgress;
@@ -61,7 +61,7 @@ export type Store = {
   importData: (data: AppData) => void;
   /** Applies an already-merged journal pulled from the cloud. Not undoable. */
   mergeRemote: (data: AppData) => void;
-  choosePlan: (id: PlanId) => void;
+  choosePlan: (id: string) => void;
   setPrefs: (prefs: Prefs) => void;
   undo: () => void;
 };

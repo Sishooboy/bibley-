@@ -1,5 +1,5 @@
 import { CANON } from '../data/canon';
-import type { Plan } from '../data/plans';
+import type { PhasedTrack } from '../data/tracks';
 import { formatDay } from './dates';
 import { formatNumber } from './format';
 import type { OverallProgress, Pace, Streak } from './progress';
@@ -35,7 +35,7 @@ export type ShareStats = {
  */
 export function buildShareStats(
   data: AppData,
-  plan: Plan,
+  plan: PhasedTrack,
   overall: OverallProgress,
   streak: Streak,
   pace: Pace,

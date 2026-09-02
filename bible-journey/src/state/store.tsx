@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer, useState, type ReactNode } from 'react';
 import { BOOK_BY_NAME } from '../data/plan';
-import { getPlan, type PlanId } from '../data/plans';
+import { getTrack, type PhasedTrack } from '../data/tracks';
 import { plural } from '../lib/format';
 import { noteKey } from '../lib/merge';
 import type { Prefs } from '../lib/prefs';
@@ -41,7 +41,7 @@ type Action =
   | { type: 'deleteNote'; id: string }
   | { type: 'importData'; data: AppData }
   | { type: 'mergeRemote'; data: AppData }
-  | { type: 'choosePlan'; id: PlanId }
+  | { type: 'choosePlan'; id: string }
   | { type: 'setPrefs'; prefs: Prefs }
   | { type: 'undo' };
 
@@ -87,6 +87,19 @@ function markLabel(finished: string[], fallback: string): { label: string; tone?
   // saying less.
   if (finished.length === 1) return { label: `${finished[0]} complete`, tone: 'done' };
   return { label: `${plural(finished.length, 'book')} complete`, tone: 'done' };
+}
+
+/**
+ * The track in force, guaranteed to be one with phases.
+ *
+ * Everything downstream of `Derived` reads `plan.phases`, and the streams track
+ * has none. Until Daily Mix has its own path, resolving to it here would hand
+ * every view an object missing the field it is about to read, so a streams track
+ * falls back to the default. Nothing can select one yet.
+ */
+function activeTrack(id: string | undefined): PhasedTrack {
+  const track = getTrack(id);
+  return track.kind === 'phased' ? track : (getTrack(undefined) as PhasedTrack);
 }
 
 /**
@@ -216,7 +229,7 @@ function reducer(state: State, action: Action): State {
       };
     }
     case 'markNext': {
-      const refs = nextUnread(data.read, action.count, getPlan(data.planId));
+      const refs = nextUnread(data.read, action.count, activeTrack(data.planId));
       if (refs.length === 0) return state;
       const read = { ...data.read };
       const keys = refs.map((ref) => chapterKey(ref.book, ref.chapter));
@@ -462,7 +475,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const derived = useMemo<Derived>(() => {
-    const plan = getPlan(data.planId);
+    const plan = activeTrack(data.planId);
     const phases = phaseProgressAll(data.read, plan);
     const overall = overallProgress(phases, plan);
     return {

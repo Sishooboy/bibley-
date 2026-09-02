@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PLANS } from '../data/plans';
+import { getTrack, type PhasedTrack } from '../data/tracks';
 import { overallProgress, pace, phaseProgressAll, streak } from './progress';
 import { buildShareStats, describeCard, gridLayout } from './shareCard';
 import type { AppData, ReadMap } from './storage';
@@ -9,7 +9,7 @@ function journal(read: ReadMap, over: Partial<AppData> = {}): AppData {
 }
 
 function statsFor(data: AppData) {
-  const plan = PLANS[data.planId ?? 'both'];
+  const plan = getTrack(data.planId) as PhasedTrack;
   const phases = phaseProgressAll(data.read, plan);
   const overall = overallProgress(phases, plan);
   return buildShareStats(data, plan, overall, streak(data.read), pace(data.read, overall.planRead, plan));
@@ -20,7 +20,7 @@ describe('buildShareStats', () => {
     // Genesis is stored but the New Testament plan does not contain it, and a
     // card about this plan should not quietly include it.
     const read: ReadMap = { 'John|1': '2026-02-01', 'Genesis|1': '2026-02-01' };
-    expect(statsFor(journal(read, { planId: 'nt' })).chaptersRead).toBe(1);
+    expect(statsFor(journal(read, { planId: 'nt_story_first' })).chaptersRead).toBe(1);
   });
 
   /*
@@ -64,7 +64,7 @@ describe('buildShareStats', () => {
   it('narrows to the plan, and keeps the numbered books whole', () => {
     // Genesis is stored but a New Testament card should not show it at all, and
     // "1 Samuel" splits on the last pipe so numbered books survive the count.
-    const nt = statsFor(journal({ 'John|1': '2026-02-01', 'Genesis|1': '2026-02-01' }, { planId: 'nt' }));
+    const nt = statsFor(journal({ 'John|1': '2026-02-01', 'Genesis|1': '2026-02-01' }, { planId: 'nt_story_first' }));
     expect(nt.books).toHaveLength(27);
     expect(nt.books.some((b) => b.name === 'Genesis')).toBe(false);
 
@@ -98,7 +98,9 @@ describe('buildShareStats', () => {
     const read: ReadMap = { 'John|1': '2026-02-01' };
     const said = describeCard(statsFor(journal(read)));
 
-    expect(said).toMatch(/% of The whole Bible read, 1 of 1,334 chapters/);
+    // The card names the track, not the testament: "The Full Arc", not "the
+    // whole Bible". The track's own name is what the reader chose.
+    expect(said).toMatch(/% of The Full Arc read, 1 of 1,334 chapters/);
     expect(said).toContain('1 of 73 books part read.');
   });
 });

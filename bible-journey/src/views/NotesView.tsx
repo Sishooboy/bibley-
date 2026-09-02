@@ -4,7 +4,7 @@ import { Chevron, Search } from '../components/icons';
 import { plural } from '../lib/format';
 import { highlightRef } from '../lib/highlight';
 import { useReveal } from '../lib/motion';
-import type { Plan } from '../data/plans';
+import type { PhasedTrack } from '../data/tracks';
 import type { Highlight, Note } from '../lib/storage';
 import { useReader } from '../state/useReader';
 import { useStore } from '../state/useStore';
@@ -31,7 +31,7 @@ function entryPreview(e: Entry): string {
   return e.kind === 'highlight' ? e.highlight.text : '';
 }
 
-function phaseLabel(book: string, plan: Plan): string {
+function phaseLabel(book: string, plan: PhasedTrack): string {
   const phase = plan.phaseOfBook.get(book);
   if (phase === undefined) return 'Not in this plan';
   const title = plan.phases.find((p) => p.phase === phase)?.title ?? '';
@@ -69,7 +69,7 @@ function EntryRow({
 }: {
   entry: Entry;
   query: string;
-  plan: Plan;
+  plan: PhasedTrack;
   open: boolean;
   onToggle: () => void;
   reveal: (node: Element | null) => void;

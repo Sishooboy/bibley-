@@ -1,4 +1,4 @@
-import { isPlanId, type PlanId } from '../data/plans';
+import { trackIdFrom } from '../data/tracks';
 import { normalizePrefs, type Prefs } from './prefs';
 import type { DayKey } from './dates';
 import { today } from './dates';
@@ -65,8 +65,13 @@ export type Highlight = {
 
 export type AppData = {
   version: 1;
-  /** Undefined until the reader picks one, which is what triggers the chooser. */
-  planId?: PlanId;
+  /**
+   * The active reading track. Undefined until the reader picks one, which is
+   * what triggers the chooser. Named `planId` still because that is the key
+   * already in every stored journal and on the server, and renaming it would
+   * make an older client drop the field and re-prompt for a track.
+   */
+  planId?: string;
   read: ReadMap;
   notes: Note[];
   startedAt: DayKey;
@@ -159,7 +164,10 @@ export function normalize(input: unknown): AppData | null {
 
   return {
     version: 1,
-    planId: isPlanId(raw.planId) ? raw.planId : undefined,
+    // Resolves an old 'both' | 'nt' | 'ot' to its track, and passes a track
+    // id straight through. Anything unrecognised becomes undefined, which is
+    // what puts the chooser back on screen.
+    planId: trackIdFrom(raw.planId),
     read,
     notes,
     startedAt: typeof raw.startedAt === 'string' ? raw.startedAt : today(),

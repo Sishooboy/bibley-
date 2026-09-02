@@ -3,7 +3,7 @@ import { AccountPanel } from '../components/AccountPanel';
 import { ExportPanel } from '../components/ExportPanel';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
 import { Check, Lock } from '../components/icons';
-import { PLANS, PLAN_ORDER } from '../data/plans';
+import { TESTAMENTS, tracksFor } from '../data/tracks';
 import { formatDay } from '../lib/dates';
 import { formatNumber, plural } from '../lib/format';
 import { useReveal } from '../lib/motion';
@@ -22,15 +22,18 @@ export function SettingsView() {
 
   // Each card shows what you have already read *of that plan*, which is the
   // honest answer to "what happens to my progress if I switch".
+  // Every track worth offering, with what the reader has already read *of that
+  // track*, which is the honest answer to "what happens if I switch".
+  const options = useMemo(
+    () => TESTAMENTS.flatMap((t) => tracksFor(t)).filter((t) => t.kind === 'phased'),
+    [],
+  );
   const planStats = useMemo(
     () =>
       Object.fromEntries(
-        PLAN_ORDER.map((id) => {
-          const p = PLANS[id];
-          return [id, overallProgress(phaseProgressAll(data.read, p), p)];
-        }),
+        options.map((t) => [t.id, overallProgress(phaseProgressAll(data.read, t), t)]),
       ),
-    [data.read],
+    [data.read, options],
   );
 
   return (
@@ -66,8 +69,8 @@ export function SettingsView() {
           </div>
 
           <div className="planSwitch" role="radiogroup" aria-label="Reading plan">
-            {PLAN_ORDER.map((id) => {
-              const option = PLANS[id];
+            {options.map((option) => {
+              const id = option.id;
               const stats = planStats[id];
               const active = option.id === plan.id;
               const pct = stats.percent;
