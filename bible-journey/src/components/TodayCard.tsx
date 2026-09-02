@@ -59,22 +59,31 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
 
       <h2 className="today__ref">{formatRefs(refs)}</h2>
 
-      <div className="today__read">
-        <button
-          type="button"
-          className="btn btn--primary"
-          onClick={() => open(first.book, first.chapter)}
-        >
-          Read {first.book} {first.chapter}
-        </button>
-      </div>
-      <p className="today__rest">
-        {first.phase === 0
-          ? phase?.why
-          : 'Next up in sequence. Pick up here, or jump anywhere in the plan. Nothing is locked.'}
-      </p>
+      {/*
+        One button, the width of the card. This is the whole reason the app is
+        open, and it used to be one of four things competing at the same size.
+      */}
+      <button
+        type="button"
+        className="btn btn--primary today__go"
+        onClick={() => open(first.book, first.chapter)}
+      >
+        Read {first.book} {first.chapter}
+      </button>
 
-      <div className="quickMark">
+      {/*
+        The first-timer needs the reasoning, and only the first-timer. Everyone
+        else has read it and is here to get on with it.
+      */}
+      {first.phase === 0 && <p className="today__rest">{phase?.why}</p>}
+
+      {/*
+        Marking without opening the reader is the second job, not the first, so
+        it folds away. Anyone who reads elsewhere opens it once and it stays
+        open for the session.
+      */}
+      <details className="quickMark">
+        <summary className="quickMark__summary">I read it somewhere else</summary>
         <div className="quickMark__head">
           <span className="quickMark__label">I read</span>
           <LogDayPicker id="today-log-day" />
@@ -99,10 +108,10 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
             Open {first.book}
           </button>
         </div>
-      </div>
+      </details>
 
       {!started && (
-        <p className="today__rest" style={{ marginTop: '0.9rem' }}>
+        <p className="today__rest today__first">
           Marking your first chapter starts the streak.
         </p>
       )}

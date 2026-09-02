@@ -1700,6 +1700,41 @@ select {
 
 .quickMark {
   margin-top: 1.1rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.85rem;
+}
+
+.quickMark__summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  cursor: pointer;
+  list-style: none;
+}
+
+.quickMark__summary::-webkit-details-marker {
+  display: none;
+}
+
+.quickMark__summary::after {
+  content: '＋';
+  font-size: 0.8em;
+}
+
+.quickMark[open] .quickMark__summary::after {
+  content: '−';
+}
+
+.quickMark[open] .quickMark__summary {
+  margin-bottom: 0.75rem;
+}
+
+@media (hover: hover) {
+  .quickMark__summary:hover {
+    color: var(--red-700);
+  }
 }
 
 .quickMark__label {
@@ -5496,4 +5531,77 @@ select {
   font-size: 0.8rem;
   color: var(--muted);
   margin-bottom: 0.6rem;
+}
+
+/* ── The hero's reasoning, folded away ──────────────────────────────────── */
+.hero__why {
+  margin-top: 0.65rem;
+  max-width: 46ch;
+}
+
+.hero__why summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.82);
+  cursor: pointer;
+  list-style: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.32);
+  padding-bottom: 1px;
+}
+
+.hero__why summary::-webkit-details-marker {
+  display: none;
+}
+
+.hero__why summary::after {
+  content: '＋';
+  font-size: 0.8em;
+  opacity: 0.8;
+}
+
+.hero__why[open] summary::after {
+  content: '−';
+}
+
+@media (hover: hover) {
+  .hero__why summary:hover {
+    color: #fff;
+    border-bottom-color: var(--yellow);
+  }
+}
+
+.hero__why p {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.95rem;
+  margin-top: 0.6rem;
+}
+
+/* The one thing the journey exists to get you to do. */
+.today__go {
+  width: 100%;
+  justify-content: center;
+  margin-top: 1rem;
+  padding-block: 0.75rem;
+  font-size: 0.98rem;
+}
+
+.today__first {
+  margin-top: 0.9rem;
+}
+
+/*
+ * The eyebrow and the phase will not sit side by side in a 293px card: each
+ * wrapped to two lines, so four lines of small text stood above the reading.
+ * They stack instead.
+ */
+@media (max-width: 620px) {
+  .today__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+    margin-bottom: 0.7rem;
+  }
 }

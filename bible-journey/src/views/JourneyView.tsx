@@ -75,7 +75,14 @@ export function JourneyView() {
           <div>
             <p className="eyebrow eyebrow--onDark">The reading plan</p>
             <h1>{plan.label}</h1>
-            <p className="hero__lede">{plan.rationale}</p>
+            {/*
+              The reasoning is the best writing in the app and it is reference,
+              not daily reading. Shut, it is one line; open, it is unchanged.
+            */}
+            <details className="hero__why">
+              <summary>Why this order</summary>
+              <p>{plan.rationale}</p>
+            </details>
           </div>
 
           <div className="hero__progress">
