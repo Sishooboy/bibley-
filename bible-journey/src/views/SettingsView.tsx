@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { AccountPanel } from '../components/AccountPanel';
+import { ExportPanel } from '../components/ExportPanel';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
 import { Check, Lock } from '../components/icons';
 import { PLANS, PLAN_ORDER } from '../data/plans';
@@ -101,6 +102,8 @@ export function SettingsView() {
         </section>
 
         <AccountPanel reveal={reveal} />
+
+        <ExportPanel reveal={reveal} />
 
         <section ref={reveal} className="card reveal">
           <div className="card__head">

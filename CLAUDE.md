@@ -371,5 +371,20 @@ Not built yet, roughly in order:
 3. **Sign in with Apple**, required by guideline 4.8 because Google sign-in is offered.
 4. A custom domain, which fixes the consent screen and gives somewhere to host a privacy policy.
 
-Backup and restore was removed on purpose once everything synced. The server row is now the only
-copy that matters.
+**Export is the only undo there is.** `ExportPanel` in Settings writes the whole blob to a file,
+because the server row is the only copy and a sync that writes the wrong thing cannot be walked
+back. `buildExport` is a **deep copy**, not a spread: spreading leaves `read` and `notes` pointing at
+the live objects, so the file would hold whatever the journal was when it serialised rather than when
+the button was pressed. It is a bare journal plus `exportedAt` and `app`, not an envelope, because
+`normalize()` takes any object with a top-level `read` map and drops the rest, so the file reads
+straight back in. The filename matches `bibley-backup-*.json`, which the root `.gitignore` already
+covers: an exported journal has been committed by accident before.
+
+**`normalize()` is a whitelist and `cloud.tsx` upserts the whole row.** Between them, any client
+running older code strips fields it does not know and writes the stripped journal back to the server.
+So a new field must be **added to `normalize()` and shipped before anything writes it**, and `read`
+must never leave the blob: `normalize()` returns null without it, and a null remote makes the sync
+seed the row from local, which is how an account gets overwritten.
+
+Backup and restore was removed on purpose once everything synced, and export brought back the half
+that matters.
