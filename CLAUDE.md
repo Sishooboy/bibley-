@@ -362,6 +362,13 @@ stops being nudged too. Saved prefs are untouched, so flipping the flag restores
 time. Unlock it when the Capacitor shell lands. The in-app streak nudge on the journey is separate
 and still runs.
 
+**Next session: sound and motion.** Sounds for marking a chapter, finishing a book and the streak,
+and a streak animation in the spirit of Duolingo's. Neither exists yet and both are about how the
+app *feels* rather than what it does, which is the gap the redesign did not close. Points to settle
+first: sound needs a mute switch and must respect the silent switch on iOS, and every animation
+needs its `prefers-reduced-motion` path from the start rather than bolted on. Higgsfield is on the
+table for generating the motion if hand-built SVG is not enough.
+
 Not built yet, roughly in order:
 
 1. **In-app account deletion.** Required by App Store guideline 5.1.1(v). Must clear the Supabase
