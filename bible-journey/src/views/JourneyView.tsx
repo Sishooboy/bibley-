@@ -1,5 +1,6 @@
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { BookFinder } from '../components/BookFinder';
+import { BookGrid } from '../components/BookGrid';
 import { PhaseSection } from '../components/PhaseSection';
 import { ProgressBar } from '../components/ProgressBar';
 import { QuoteCard } from '../components/QuoteCard';
@@ -137,6 +138,8 @@ export function JourneyView() {
             with a reason behind it.
           </p>
         </div>
+
+        <BookGrid phases={phases} onPick={revealBook} />
 
         <BookFinder books={bookNames} onJump={revealBook} />
 
