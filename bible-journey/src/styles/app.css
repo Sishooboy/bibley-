@@ -5494,6 +5494,9 @@ select {
      and 73 of them will never reach the 44px a lone control would want. */
   grid-template-columns: repeat(auto-fill, minmax(26px, 1fr));
   gap: 4px;
+  /* Uncapped on a desktop it stretches into a two row ribbon and stops reading
+     as a shape. Held to a block you can take in at once. */
+  max-width: 44rem;
 }
 
 .bookGrid__cell {
@@ -5604,4 +5607,67 @@ select {
     gap: 0.1rem;
     margin-bottom: 0.7rem;
   }
+}
+
+/* ── Finishing a book ───────────────────────────────────────────────────── */
+.undoBar--done {
+  border-color: var(--yellow);
+  box-shadow: 0 0 0 1px rgba(247, 184, 1, 0.35), var(--shadow-lg);
+}
+
+.undoBar__cross {
+  flex: none;
+  color: var(--yellow);
+}
+
+.undoBar--done .undoBar__label {
+  color: var(--yellow);
+  font-weight: 600;
+  /* A milestone is allowed to take two lines rather than be cut short, which is
+     what the nowrap on the ordinary label would do to a long book name. */
+  white-space: normal;
+  overflow: visible;
+}
+
+/* ── The streak, and the week behind it ─────────────────────────────────── */
+.streakWeek {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  margin-top: 0.6rem;
+}
+
+.streakWeek__best {
+  opacity: 0.65;
+}
+
+.streakWeek__days {
+  display: flex;
+  gap: 3px;
+}
+
+.streakWeek__day {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  /* On the red hero, so the empty day is a hole punched in it rather than a
+     lighter colour that would compete with the gold. */
+  background: rgba(0, 0, 0, 0.26);
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.streakWeek__day.is-read {
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+/* Today is outlined whether or not it has been read, so the gap is obvious. */
+.streakWeek__day.is-today {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
 }

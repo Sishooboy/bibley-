@@ -22,7 +22,12 @@ export type Derived = {
   currentPhase: number;
 };
 
-export type UndoState = { label: string } | null;
+/**
+ * `tone` is 'done' when the change that earned this undo finished a book. The
+ * bar is the only surface already on screen at that moment, so it carries the
+ * celebration rather than a second toast fighting it for the same corner.
+ */
+export type UndoState = { label: string; tone?: 'done' } | null;
 
 export type Store = {
   data: AppData;

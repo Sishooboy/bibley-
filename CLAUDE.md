@@ -91,6 +91,22 @@ redeploy.**
 - Anything that changes a journal must be visible to `sameJournal` in `merge.ts`. It decides whether
   a change is worth writing to the server, so a field missing from it is a field that silently
   never syncs.
+- **The journey is a spine, not a wall.** All thirteen phases used to render open: 73 book rows and
+  418 words of reasoning before the reader had marked anything, 9,082px on a phone. A phase is a row
+  now and only the current one is open, which is 2,694px. **`revealBook` in `JourneyView` opens the
+  containing phase before it scrolls**, or the row the finder, the book grid and the today card are
+  all aiming at is not in the document. That scroll lives in a `useLayoutEffect`, not a frame
+  callback: opening a phase pushes everything below it down, so a scroll timed against the click
+  lands a screen short, and rAF raced React's commit. It targets `block: 'start'` against a
+  `scroll-margin-top` on `.book` that clears the pinned header, because centring a book whose panel
+  is taller than the screen pushes its heading off the top.
+- `BookGrid` is the whole plan as one square per book, printed order, built from the same per-book
+  progress the phase rows use so the picture and the list cannot disagree. Tapping one goes through
+  `revealBook`, so it reaches into a folded phase.
+- **Finishing a book is the only milestone between one chapter and the whole Bible**, and it used to
+  produce nothing. `booksFinishedBy` in `store.tsx` compares the read map before and after a mark,
+  and the undo bar carries the result: it is already on screen at that moment, so a second toast
+  would only fight it for the same corner. Keep the label short, it is a pill on a 375px screen.
 - `src/data/canon.ts` is the books in printed order, `src/lib/navigate.ts` the movement between
   them. Inside a book both orders agree; at a book's last chapter the plan decides if it contains
   that chapter, and printed order takes over if it does not. That is what lets a reader wander off

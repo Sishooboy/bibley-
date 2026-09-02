@@ -4,13 +4,13 @@ import { BookGrid } from '../components/BookGrid';
 import { PhaseSection } from '../components/PhaseSection';
 import { ProgressBar } from '../components/ProgressBar';
 import { QuoteCard } from '../components/QuoteCard';
+import { StreakWeek } from '../components/StreakWeek';
 import { TodayCard } from '../components/TodayCard';
-import { Flame } from '../components/icons';
 import { formatNumber } from '../lib/format';
 import { useStore } from '../state/useStore';
 
 export function JourneyView() {
-  const { derived } = useStore();
+  const { data, derived } = useStore();
   const { plan, overall, streak, phases, statuses, currentPhase } = derived;
   const [openBook, setOpenBook] = useState<string | null>(null);
   /*
@@ -110,19 +110,7 @@ export function JourneyView() {
               </span>
             </div>
 
-            <div style={{ marginTop: '0.5rem' }}>
-              <span className={`streak${streak.current === 0 ? ' streak--cold' : ''}`}>
-                <Flame size={16} className="streak__flame" />
-                {streak.current > 0 ? (
-                  <span>
-                    <b>{streak.current}</b> day streak
-                  </span>
-                ) : (
-                  <span>No active streak</span>
-                )}
-                <span style={{ opacity: 0.6 }}>&nbsp;· best {streak.longest}</span>
-              </span>
-            </div>
+            <StreakWeek read={data.read} current={streak.current} longest={streak.longest} />
           </div>
         </div>
       </div>

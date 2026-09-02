@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useReducer, useState, type ReactNode } from 'react';
+import { BOOK_BY_NAME } from '../data/plan';
 import { getPlan, type PlanId } from '../data/plans';
 import { plural } from '../lib/format';
 import { noteKey } from '../lib/merge';
@@ -22,6 +23,7 @@ import {
   type LoadResult,
   type Highlight,
   type Note,
+  type ReadMap,
   type Slot,
 } from '../lib/storage';
 import { StoreContext, type Derived, type Store, type UndoState } from './context';
@@ -46,11 +48,45 @@ type Action =
 type State = {
   data: AppData;
   /** Snapshot taken before the last bulk change, for one level of undo. */
-  previous: { data: AppData; label: string } | null;
+  previous: { data: AppData; label: string; tone?: 'done' } | null;
 };
 
-function withUndo(state: State, data: AppData, label: string): State {
-  return { data, previous: { data: state.data, label } };
+function withUndo(state: State, data: AppData, label: string, tone?: 'done'): State {
+  return { data, previous: { data: state.data, label, tone } };
+}
+
+/**
+ * Books that were unfinished before this change and are finished after it.
+ *
+ * Finishing a book used to produce nothing at all: the same "marked 3 chapters"
+ * as any other tap. It is the only milestone the plan has between one chapter
+ * and the whole Bible, and it deserves to be said out loud.
+ */
+function booksFinishedBy(before: ReadMap, after: ReadMap, books: string[]): string[] {
+  const finished: string[] = [];
+  for (const name of new Set(books)) {
+    const total = BOOK_BY_NAME.get(name)?.chapters;
+    if (!total) continue;
+    let had = 0;
+    let has = 0;
+    for (let c = 1; c <= total; c++) {
+      const key = chapterKey(name, c);
+      if (key in before) had++;
+      if (key in after) has++;
+    }
+    if (has === total && had < total) finished.push(name);
+  }
+  return finished;
+}
+
+/** The undo bar's line for a mark, celebrating a finished book when there is one. */
+function markLabel(finished: string[], fallback: string): { label: string; tone?: 'done' } {
+  if (finished.length === 0) return { label: fallback };
+  // Short on purpose: the bar is a pill on a 375px screen, and the row behind
+  // it is already showing 40/40. Truncating a milestone would be worse than
+  // saying less.
+  if (finished.length === 1) return { label: `${finished[0]} complete`, tone: 'done' };
+  return { label: `${plural(finished.length, 'book')} complete`, tone: 'done' };
 }
 
 /**
@@ -189,6 +225,10 @@ function reducer(state: State, action: Action): State {
         refs.length === 1
           ? `Marked ${refs[0].book} ${refs[0].chapter}`
           : `Marked ${refs.length} chapters`;
+      const done = markLabel(
+        booksFinishedBy(data.read, read, refs.map((ref) => ref.book)),
+        label + whenSuffix(action.day),
+      );
       return withUndo(
         state,
         {
@@ -198,7 +238,8 @@ function reducer(state: State, action: Action): State {
           markedAt: stampMarks(data, keys),
           slots: stampSlots(data, keys, action.slot),
         },
-        label + whenSuffix(action.day),
+        done.label,
+        done.tone,
       );
     }
     /**
@@ -211,6 +252,10 @@ function reducer(state: State, action: Action): State {
       const read = { ...data.read };
       const keys = action.chapters.map((c) => chapterKey(action.book, c));
       for (const key of keys) read[key] = action.day;
+      const finished = markLabel(
+        booksFinishedBy(data.read, read, [action.book]),
+        `Marked ${plural(keys.length, 'chapter')} in ${action.book}${whenSuffix(action.day)}`,
+      );
       return withUndo(
         state,
         {
@@ -220,7 +265,8 @@ function reducer(state: State, action: Action): State {
           markedAt: stampMarks(data, keys),
           slots: stampSlots(data, keys, action.slot),
         },
-        `Marked ${plural(keys.length, 'chapter')} in ${action.book}${whenSuffix(action.day)}`,
+        finished.label,
+        finished.tone,
       );
     }
     case 'clearChapters': {
@@ -437,7 +483,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
 
   const undoable = useMemo<UndoState>(
-    () => (previous ? { label: previous.label } : null),
+    () => (previous ? { label: previous.label, tone: previous.tone } : null),
     [previous],
   );
 

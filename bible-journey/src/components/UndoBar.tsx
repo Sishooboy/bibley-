@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../state/useStore';
+import { Cross } from './Ornament';
 
 const VISIBLE_MS = 9000;
 
@@ -18,7 +19,10 @@ export function UndoBar() {
   if (!undoable || dismissed) return null;
 
   return (
-    <div className="undoBar" role="status">
+    <div className={`undoBar${undoable.tone === 'done' ? ' undoBar--done' : ''}`} role="status">
+      {/* Finishing a book is the only milestone between one chapter and the
+          whole Bible, and this bar is already on screen when it happens. */}
+      {undoable.tone === 'done' && <Cross size={15} className="undoBar__cross" />}
       <span className="undoBar__label">{undoable.label}</span>
       <button
         type="button"
