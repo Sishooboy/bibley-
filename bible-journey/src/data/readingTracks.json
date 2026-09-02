@@ -1,0 +1,1717 @@
+{
+  "version": "2.0",
+  "canon": "catholic",
+  "books": 73,
+  "total_chapters": 1334,
+  "notes": "Reading track definitions. Catholic canon: 46 OT books (1074 ch) including 7 deuterocanonical books, Esther with additions (16 ch) and Daniel with additions (14 ch), plus 27 NT books (260 ch).",
+  "flags": {
+    "skimmable": "Long stretches most first-time readers skip. Powers a core-chapters-only toggle.",
+    "deferred": "Placed late on purpose despite canonical position.",
+    "deuterocanonical": "Not present in Protestant Bibles. Useful if you ever add a canon setting."
+  },
+  "testaments": {
+    "old": {
+      "total_chapters": 1074,
+      "total_books": 46,
+      "tracks": [
+        {
+          "id": "ot_story_first",
+          "name": "Story First",
+          "tagline": "Follow the plot, fill in the rest after",
+          "kind": "phased",
+          "recommended": true,
+          "primary": true,
+          "best_for": "Almost everyone, especially first-time readers",
+          "tradeoff": "Four books sit out of canonical position on purpose",
+          "why": "Reads the narrative backbone as one continuous story, then drops the prophets, poetry and deuterocanon into the historical moment they belong to. Highest completion rate of any approach because you are never stuck in one genre for long.",
+          "phases": [
+            {
+              "name": "Foundations",
+              "note": "Where the whole story starts",
+              "books": [
+                {
+                  "book": "Genesis",
+                  "chapters": 50
+                },
+                {
+                  "book": "Exodus",
+                  "chapters": 40,
+                  "skimmable": "25-40"
+                }
+              ]
+            },
+            {
+              "name": "The Covenant",
+              "books": [
+                {
+                  "book": "Deuteronomy",
+                  "chapters": 34,
+                  "skimmable": "12-26"
+                }
+              ]
+            },
+            {
+              "name": "Into the Land",
+              "books": [
+                {
+                  "book": "Joshua",
+                  "chapters": 24,
+                  "skimmable": "13-21"
+                },
+                {
+                  "book": "Judges",
+                  "chapters": 21
+                },
+                {
+                  "book": "Ruth",
+                  "chapters": 4
+                }
+              ]
+            },
+            {
+              "name": "The Kingdom",
+              "books": [
+                {
+                  "book": "1 Samuel",
+                  "chapters": 31
+                },
+                {
+                  "book": "2 Samuel",
+                  "chapters": 24
+                },
+                {
+                  "book": "1 Kings",
+                  "chapters": 22
+                },
+                {
+                  "book": "2 Kings",
+                  "chapters": 25
+                }
+              ]
+            },
+            {
+              "name": "Prophets of the Divided Kingdom",
+              "note": "These men were shouting during 2 Kings. Read them here and they finally make sense.",
+              "books": [
+                {
+                  "book": "Amos",
+                  "chapters": 9
+                },
+                {
+                  "book": "Hosea",
+                  "chapters": 14
+                },
+                {
+                  "book": "Jonah",
+                  "chapters": 4
+                },
+                {
+                  "book": "Micah",
+                  "chapters": 7
+                },
+                {
+                  "book": "Isaiah",
+                  "chapters": 66
+                }
+              ]
+            },
+            {
+              "name": "The Fall of Jerusalem",
+              "books": [
+                {
+                  "book": "Nahum",
+                  "chapters": 3
+                },
+                {
+                  "book": "Zephaniah",
+                  "chapters": 3
+                },
+                {
+                  "book": "Habakkuk",
+                  "chapters": 3
+                },
+                {
+                  "book": "Jeremiah",
+                  "chapters": 52
+                },
+                {
+                  "book": "Lamentations",
+                  "chapters": 5
+                },
+                {
+                  "book": "Baruch",
+                  "chapters": 6,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "Obadiah",
+                  "chapters": 1
+                }
+              ]
+            },
+            {
+              "name": "Exile",
+              "note": "Tobit is a family story set among the deported. It is the human scale of the exile.",
+              "books": [
+                {
+                  "book": "Ezekiel",
+                  "chapters": 48,
+                  "skimmable": "40-48"
+                },
+                {
+                  "book": "Daniel",
+                  "chapters": 14
+                },
+                {
+                  "book": "Tobit",
+                  "chapters": 14,
+                  "deuterocanonical": true
+                }
+              ]
+            },
+            {
+              "name": "The Return",
+              "books": [
+                {
+                  "book": "Ezra",
+                  "chapters": 10
+                },
+                {
+                  "book": "Nehemiah",
+                  "chapters": 13
+                },
+                {
+                  "book": "Esther",
+                  "chapters": 16
+                },
+                {
+                  "book": "Judith",
+                  "chapters": 16,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "Haggai",
+                  "chapters": 2
+                },
+                {
+                  "book": "Zechariah",
+                  "chapters": 14
+                },
+                {
+                  "book": "Joel",
+                  "chapters": 3
+                },
+                {
+                  "book": "Malachi",
+                  "chapters": 4
+                }
+              ]
+            },
+            {
+              "name": "Wisdom and Worship",
+              "note": "The inner life of the people whose history you just read",
+              "books": [
+                {
+                  "book": "Psalms",
+                  "chapters": 150
+                },
+                {
+                  "book": "Proverbs",
+                  "chapters": 31
+                },
+                {
+                  "book": "Job",
+                  "chapters": 42
+                },
+                {
+                  "book": "Ecclesiastes",
+                  "chapters": 12
+                },
+                {
+                  "book": "Song of Songs",
+                  "chapters": 8
+                },
+                {
+                  "book": "Wisdom",
+                  "chapters": 19,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "Sirach",
+                  "chapters": 51,
+                  "skimmable": "44-50",
+                  "deuterocanonical": true
+                }
+              ]
+            },
+            {
+              "name": "The Silent Years",
+              "note": "The 400-year gap. Where the Pharisees, Hanukkah and the Roman occupation come from.",
+              "books": [
+                {
+                  "book": "1 Maccabees",
+                  "chapters": 16,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "2 Maccabees",
+                  "chapters": 15,
+                  "deuterocanonical": true
+                }
+              ]
+            },
+            {
+              "name": "The Deep Cuts",
+              "note": "Now you have the framework. Hebrews only makes sense against Leviticus.",
+              "books": [
+                {
+                  "book": "Leviticus",
+                  "chapters": 27,
+                  "deferred": true
+                },
+                {
+                  "book": "Numbers",
+                  "chapters": 36,
+                  "skimmable": "1-10,26-36",
+                  "deferred": true
+                },
+                {
+                  "book": "1 Chronicles",
+                  "chapters": 29,
+                  "skimmable": "1-9",
+                  "deferred": true
+                },
+                {
+                  "book": "2 Chronicles",
+                  "chapters": 36,
+                  "deferred": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "ot_chronological",
+          "name": "Chronological",
+          "tagline": "Events in the order they happened",
+          "kind": "phased",
+          "recommended": false,
+          "primary": true,
+          "best_for": "History lovers who want a strict timeline",
+          "tradeoff": "Still hits Leviticus and Numbers early, and some placements are debated",
+          "why": "Arranges every book by when its events occur rather than by genre. Job is placed first on the traditional reading that it is set in the patriarchal age, though many scholars date its composition to the Persian period.",
+          "phases": [
+            {
+              "name": "Before Israel",
+              "books": [
+                {
+                  "book": "Job",
+                  "chapters": 42
+                },
+                {
+                  "book": "Genesis",
+                  "chapters": 50
+                }
+              ]
+            },
+            {
+              "name": "Exodus and Law",
+              "books": [
+                {
+                  "book": "Exodus",
+                  "chapters": 40,
+                  "skimmable": "25-40"
+                },
+                {
+                  "book": "Leviticus",
+                  "chapters": 27,
+                  "deferred": true
+                },
+                {
+                  "book": "Numbers",
+                  "chapters": 36,
+                  "skimmable": "1-10,26-36",
+                  "deferred": true
+                },
+                {
+                  "book": "Deuteronomy",
+                  "chapters": 34,
+                  "skimmable": "12-26"
+                }
+              ]
+            },
+            {
+              "name": "Conquest and Judges",
+              "books": [
+                {
+                  "book": "Joshua",
+                  "chapters": 24,
+                  "skimmable": "13-21"
+                },
+                {
+                  "book": "Judges",
+                  "chapters": 21
+                },
+                {
+                  "book": "Ruth",
+                  "chapters": 4
+                }
+              ]
+            },
+            {
+              "name": "United Kingdom",
+              "books": [
+                {
+                  "book": "1 Samuel",
+                  "chapters": 31
+                },
+                {
+                  "book": "2 Samuel",
+                  "chapters": 24
+                },
+                {
+                  "book": "1 Chronicles",
+                  "chapters": 29,
+                  "skimmable": "1-9",
+                  "deferred": true
+                },
+                {
+                  "book": "Psalms",
+                  "chapters": 150
+                },
+                {
+                  "book": "Proverbs",
+                  "chapters": 31
+                },
+                {
+                  "book": "Ecclesiastes",
+                  "chapters": 12
+                },
+                {
+                  "book": "Song of Songs",
+                  "chapters": 8
+                },
+                {
+                  "book": "1 Kings",
+                  "chapters": 22
+                },
+                {
+                  "book": "2 Chronicles",
+                  "chapters": 36,
+                  "deferred": true
+                }
+              ]
+            },
+            {
+              "name": "Divided Kingdom",
+              "books": [
+                {
+                  "book": "Obadiah",
+                  "chapters": 1
+                },
+                {
+                  "book": "Joel",
+                  "chapters": 3
+                },
+                {
+                  "book": "Jonah",
+                  "chapters": 4
+                },
+                {
+                  "book": "Amos",
+                  "chapters": 9
+                },
+                {
+                  "book": "Hosea",
+                  "chapters": 14
+                },
+                {
+                  "book": "Isaiah",
+                  "chapters": 66
+                },
+                {
+                  "book": "Micah",
+                  "chapters": 7
+                },
+                {
+                  "book": "2 Kings",
+                  "chapters": 25
+                },
+                {
+                  "book": "Tobit",
+                  "chapters": 14,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "Nahum",
+                  "chapters": 3
+                },
+                {
+                  "book": "Zephaniah",
+                  "chapters": 3
+                },
+                {
+                  "book": "Habakkuk",
+                  "chapters": 3
+                },
+                {
+                  "book": "Jeremiah",
+                  "chapters": 52
+                },
+                {
+                  "book": "Lamentations",
+                  "chapters": 5
+                }
+              ]
+            },
+            {
+              "name": "Exile and Return",
+              "books": [
+                {
+                  "book": "Ezekiel",
+                  "chapters": 48,
+                  "skimmable": "40-48"
+                },
+                {
+                  "book": "Baruch",
+                  "chapters": 6,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "Daniel",
+                  "chapters": 14
+                },
+                {
+                  "book": "Ezra",
+                  "chapters": 10
+                },
+                {
+                  "book": "Esther",
+                  "chapters": 16
+                },
+                {
+                  "book": "Nehemiah",
+                  "chapters": 13
+                },
+                {
+                  "book": "Haggai",
+                  "chapters": 2
+                },
+                {
+                  "book": "Zechariah",
+                  "chapters": 14
+                },
+                {
+                  "book": "Malachi",
+                  "chapters": 4
+                },
+                {
+                  "book": "Judith",
+                  "chapters": 16,
+                  "deuterocanonical": true
+                }
+              ]
+            },
+            {
+              "name": "The Greek Period",
+              "books": [
+                {
+                  "book": "Sirach",
+                  "chapters": 51,
+                  "skimmable": "44-50",
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "Wisdom",
+                  "chapters": 19,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "1 Maccabees",
+                  "chapters": 16,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "2 Maccabees",
+                  "chapters": 15,
+                  "deuterocanonical": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "ot_canonical",
+          "name": "Classic",
+          "tagline": "Genesis to Malachi, exactly as printed",
+          "kind": "phased",
+          "recommended": false,
+          "primary": true,
+          "best_for": "Disciplined readers who want the traditional arrangement",
+          "tradeoff": "Lowest completion rate. Most people stall in Leviticus or Numbers.",
+          "why": "The order printed in Catholic Bibles: Pentateuch, Historical, Wisdom, Prophets.",
+          "phases": [
+            {
+              "name": "Pentateuch",
+              "books": [
+                {
+                  "book": "Genesis",
+                  "chapters": 50
+                },
+                {
+                  "book": "Exodus",
+                  "chapters": 40,
+                  "skimmable": "25-40"
+                },
+                {
+                  "book": "Leviticus",
+                  "chapters": 27,
+                  "deferred": true
+                },
+                {
+                  "book": "Numbers",
+                  "chapters": 36,
+                  "skimmable": "1-10,26-36",
+                  "deferred": true
+                },
+                {
+                  "book": "Deuteronomy",
+                  "chapters": 34,
+                  "skimmable": "12-26"
+                }
+              ]
+            },
+            {
+              "name": "Historical Books",
+              "books": [
+                {
+                  "book": "Joshua",
+                  "chapters": 24,
+                  "skimmable": "13-21"
+                },
+                {
+                  "book": "Judges",
+                  "chapters": 21
+                },
+                {
+                  "book": "Ruth",
+                  "chapters": 4
+                },
+                {
+                  "book": "1 Samuel",
+                  "chapters": 31
+                },
+                {
+                  "book": "2 Samuel",
+                  "chapters": 24
+                },
+                {
+                  "book": "1 Kings",
+                  "chapters": 22
+                },
+                {
+                  "book": "2 Kings",
+                  "chapters": 25
+                },
+                {
+                  "book": "1 Chronicles",
+                  "chapters": 29,
+                  "skimmable": "1-9",
+                  "deferred": true
+                },
+                {
+                  "book": "2 Chronicles",
+                  "chapters": 36,
+                  "deferred": true
+                },
+                {
+                  "book": "Ezra",
+                  "chapters": 10
+                },
+                {
+                  "book": "Nehemiah",
+                  "chapters": 13
+                },
+                {
+                  "book": "Tobit",
+                  "chapters": 14,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "Judith",
+                  "chapters": 16,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "Esther",
+                  "chapters": 16
+                },
+                {
+                  "book": "1 Maccabees",
+                  "chapters": 16,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "2 Maccabees",
+                  "chapters": 15,
+                  "deuterocanonical": true
+                }
+              ]
+            },
+            {
+              "name": "Wisdom Books",
+              "books": [
+                {
+                  "book": "Job",
+                  "chapters": 42
+                },
+                {
+                  "book": "Psalms",
+                  "chapters": 150
+                },
+                {
+                  "book": "Proverbs",
+                  "chapters": 31
+                },
+                {
+                  "book": "Ecclesiastes",
+                  "chapters": 12
+                },
+                {
+                  "book": "Song of Songs",
+                  "chapters": 8
+                },
+                {
+                  "book": "Wisdom",
+                  "chapters": 19,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "Sirach",
+                  "chapters": 51,
+                  "skimmable": "44-50",
+                  "deuterocanonical": true
+                }
+              ]
+            },
+            {
+              "name": "Prophets",
+              "books": [
+                {
+                  "book": "Isaiah",
+                  "chapters": 66
+                },
+                {
+                  "book": "Jeremiah",
+                  "chapters": 52
+                },
+                {
+                  "book": "Lamentations",
+                  "chapters": 5
+                },
+                {
+                  "book": "Baruch",
+                  "chapters": 6,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "Ezekiel",
+                  "chapters": 48,
+                  "skimmable": "40-48"
+                },
+                {
+                  "book": "Daniel",
+                  "chapters": 14
+                },
+                {
+                  "book": "Hosea",
+                  "chapters": 14
+                },
+                {
+                  "book": "Joel",
+                  "chapters": 3
+                },
+                {
+                  "book": "Amos",
+                  "chapters": 9
+                },
+                {
+                  "book": "Obadiah",
+                  "chapters": 1
+                },
+                {
+                  "book": "Jonah",
+                  "chapters": 4
+                },
+                {
+                  "book": "Micah",
+                  "chapters": 7
+                },
+                {
+                  "book": "Nahum",
+                  "chapters": 3
+                },
+                {
+                  "book": "Habakkuk",
+                  "chapters": 3
+                },
+                {
+                  "book": "Zephaniah",
+                  "chapters": 3
+                },
+                {
+                  "book": "Haggai",
+                  "chapters": 2
+                },
+                {
+                  "book": "Zechariah",
+                  "chapters": 14
+                },
+                {
+                  "book": "Malachi",
+                  "chapters": 4
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "new": {
+      "total_chapters": 260,
+      "total_books": 27,
+      "tracks": [
+        {
+          "id": "nt_story_first",
+          "name": "Story First",
+          "tagline": "Meet Jesus fast, then watch the church spread",
+          "kind": "phased",
+          "recommended": true,
+          "primary": true,
+          "best_for": "Almost everyone, especially first-time readers",
+          "tradeoff": "Gospels are not in canonical order",
+          "why": "Opens with the shortest gospel so you get a win in week one, keeps Luke and Acts together as the single two-volume work their author wrote, and saves Revelation for last because it is built almost entirely out of quotations from books you will have already read.",
+          "phases": [
+            {
+              "name": "The Life of Jesus",
+              "books": [
+                {
+                  "book": "Mark",
+                  "chapters": 16
+                },
+                {
+                  "book": "Luke",
+                  "chapters": 24
+                },
+                {
+                  "book": "Acts",
+                  "chapters": 28
+                },
+                {
+                  "book": "Matthew",
+                  "chapters": 28
+                },
+                {
+                  "book": "John",
+                  "chapters": 21
+                }
+              ]
+            },
+            {
+              "name": "Paul's Letters",
+              "note": "Roughly in the order he wrote them, so you watch his thinking develop",
+              "books": [
+                {
+                  "book": "1 Thessalonians",
+                  "chapters": 5
+                },
+                {
+                  "book": "2 Thessalonians",
+                  "chapters": 3
+                },
+                {
+                  "book": "Galatians",
+                  "chapters": 6
+                },
+                {
+                  "book": "1 Corinthians",
+                  "chapters": 16
+                },
+                {
+                  "book": "2 Corinthians",
+                  "chapters": 13
+                },
+                {
+                  "book": "Romans",
+                  "chapters": 16
+                },
+                {
+                  "book": "Philippians",
+                  "chapters": 4
+                },
+                {
+                  "book": "Philemon",
+                  "chapters": 1
+                },
+                {
+                  "book": "Colossians",
+                  "chapters": 4
+                },
+                {
+                  "book": "Ephesians",
+                  "chapters": 6
+                },
+                {
+                  "book": "1 Timothy",
+                  "chapters": 6
+                },
+                {
+                  "book": "Titus",
+                  "chapters": 3
+                },
+                {
+                  "book": "2 Timothy",
+                  "chapters": 4
+                }
+              ]
+            },
+            {
+              "name": "The Other Letters",
+              "books": [
+                {
+                  "book": "Hebrews",
+                  "chapters": 13
+                },
+                {
+                  "book": "James",
+                  "chapters": 5
+                },
+                {
+                  "book": "1 Peter",
+                  "chapters": 5
+                },
+                {
+                  "book": "2 Peter",
+                  "chapters": 3
+                },
+                {
+                  "book": "1 John",
+                  "chapters": 5
+                },
+                {
+                  "book": "2 John",
+                  "chapters": 1
+                },
+                {
+                  "book": "3 John",
+                  "chapters": 1
+                },
+                {
+                  "book": "Jude",
+                  "chapters": 1
+                }
+              ]
+            },
+            {
+              "name": "The End",
+              "note": "Read it first and it is noise. Read it last and it is a summation.",
+              "books": [
+                {
+                  "book": "Revelation",
+                  "chapters": 22
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "nt_written_order",
+          "name": "As It Was Written",
+          "tagline": "In the order the documents were actually composed",
+          "kind": "phased",
+          "recommended": false,
+          "primary": true,
+          "best_for": "Readers curious about how Christianity actually developed",
+          "tradeoff": "You read letters about Jesus before you read the story of Jesus. Some dates are contested.",
+          "why": "The New Testament was not written in the order it is printed. Paul wrote decades before the gospels were finished. This order shows you what the earliest churches knew and when.",
+          "phases": [
+            {
+              "name": "The Earliest Letters (c. 45-60 AD)",
+              "books": [
+                {
+                  "book": "James",
+                  "chapters": 5
+                },
+                {
+                  "book": "1 Thessalonians",
+                  "chapters": 5
+                },
+                {
+                  "book": "2 Thessalonians",
+                  "chapters": 3
+                },
+                {
+                  "book": "Galatians",
+                  "chapters": 6
+                },
+                {
+                  "book": "1 Corinthians",
+                  "chapters": 16
+                },
+                {
+                  "book": "2 Corinthians",
+                  "chapters": 13
+                },
+                {
+                  "book": "Romans",
+                  "chapters": 16
+                },
+                {
+                  "book": "Philippians",
+                  "chapters": 4
+                },
+                {
+                  "book": "Philemon",
+                  "chapters": 1
+                },
+                {
+                  "book": "Colossians",
+                  "chapters": 4
+                },
+                {
+                  "book": "Ephesians",
+                  "chapters": 6
+                }
+              ]
+            },
+            {
+              "name": "The Gospels Appear (c. 65-85 AD)",
+              "books": [
+                {
+                  "book": "Mark",
+                  "chapters": 16
+                },
+                {
+                  "book": "Matthew",
+                  "chapters": 28
+                },
+                {
+                  "book": "Luke",
+                  "chapters": 24
+                },
+                {
+                  "book": "Acts",
+                  "chapters": 28
+                }
+              ]
+            },
+            {
+              "name": "The Second Generation (c. 65-95 AD)",
+              "books": [
+                {
+                  "book": "Hebrews",
+                  "chapters": 13
+                },
+                {
+                  "book": "1 Timothy",
+                  "chapters": 6
+                },
+                {
+                  "book": "Titus",
+                  "chapters": 3
+                },
+                {
+                  "book": "1 Peter",
+                  "chapters": 5
+                },
+                {
+                  "book": "2 Timothy",
+                  "chapters": 4
+                },
+                {
+                  "book": "Jude",
+                  "chapters": 1
+                },
+                {
+                  "book": "2 Peter",
+                  "chapters": 3
+                }
+              ]
+            },
+            {
+              "name": "The Johannine Writings (c. 90-100 AD)",
+              "books": [
+                {
+                  "book": "John",
+                  "chapters": 21
+                },
+                {
+                  "book": "1 John",
+                  "chapters": 5
+                },
+                {
+                  "book": "2 John",
+                  "chapters": 1
+                },
+                {
+                  "book": "3 John",
+                  "chapters": 1
+                },
+                {
+                  "book": "Revelation",
+                  "chapters": 22
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "nt_canonical",
+          "name": "Classic",
+          "tagline": "Matthew to Revelation, exactly as printed",
+          "kind": "phased",
+          "recommended": false,
+          "primary": true,
+          "best_for": "Readers who want the traditional arrangement",
+          "tradeoff": "Four gospels back to back means reading the same story four times before anything moves forward",
+          "why": "The order every printed Bible uses: gospels, Acts, Paul by descending length, general letters, Revelation.",
+          "phases": [
+            {
+              "name": "Gospels and Acts",
+              "books": [
+                {
+                  "book": "Matthew",
+                  "chapters": 28
+                },
+                {
+                  "book": "Mark",
+                  "chapters": 16
+                },
+                {
+                  "book": "Luke",
+                  "chapters": 24
+                },
+                {
+                  "book": "John",
+                  "chapters": 21
+                },
+                {
+                  "book": "Acts",
+                  "chapters": 28
+                }
+              ]
+            },
+            {
+              "name": "Paul's Letters",
+              "books": [
+                {
+                  "book": "Romans",
+                  "chapters": 16
+                },
+                {
+                  "book": "1 Corinthians",
+                  "chapters": 16
+                },
+                {
+                  "book": "2 Corinthians",
+                  "chapters": 13
+                },
+                {
+                  "book": "Galatians",
+                  "chapters": 6
+                },
+                {
+                  "book": "Ephesians",
+                  "chapters": 6
+                },
+                {
+                  "book": "Philippians",
+                  "chapters": 4
+                },
+                {
+                  "book": "Colossians",
+                  "chapters": 4
+                },
+                {
+                  "book": "1 Thessalonians",
+                  "chapters": 5
+                },
+                {
+                  "book": "2 Thessalonians",
+                  "chapters": 3
+                },
+                {
+                  "book": "1 Timothy",
+                  "chapters": 6
+                },
+                {
+                  "book": "2 Timothy",
+                  "chapters": 4
+                },
+                {
+                  "book": "Titus",
+                  "chapters": 3
+                },
+                {
+                  "book": "Philemon",
+                  "chapters": 1
+                }
+              ]
+            },
+            {
+              "name": "General Letters",
+              "books": [
+                {
+                  "book": "Hebrews",
+                  "chapters": 13
+                },
+                {
+                  "book": "James",
+                  "chapters": 5
+                },
+                {
+                  "book": "1 Peter",
+                  "chapters": 5
+                },
+                {
+                  "book": "2 Peter",
+                  "chapters": 3
+                },
+                {
+                  "book": "1 John",
+                  "chapters": 5
+                },
+                {
+                  "book": "2 John",
+                  "chapters": 1
+                },
+                {
+                  "book": "3 John",
+                  "chapters": 1
+                },
+                {
+                  "book": "Jude",
+                  "chapters": 1
+                }
+              ]
+            },
+            {
+              "name": "Apocalypse",
+              "books": [
+                {
+                  "book": "Revelation",
+                  "chapters": 22
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "both": {
+      "total_chapters": 1334,
+      "total_books": 73,
+      "tracks": [
+        {
+          "id": "full_story_first",
+          "name": "The Full Arc",
+          "tagline": "One continuous story, opening with a hook",
+          "kind": "phased",
+          "recommended": true,
+          "primary": true,
+          "best_for": "Almost everyone reading the whole Bible for the first time",
+          "tradeoff": "Mark is split from the other three gospels, and four books are held to the end",
+          "why": "Opens with the shortest gospel so you meet the main character in week one, then goes back to the beginning and runs the whole story forward. Maccabees sits right before the gospels so the 400-year gap is filled in rather than skipped.",
+          "phases": [
+            {
+              "name": "The Hook",
+              "note": "One week. Meet the person the whole library is pointing at.",
+              "books": [
+                {
+                  "book": "Mark",
+                  "chapters": 16
+                }
+              ]
+            },
+            {
+              "name": "Foundations",
+              "note": "Where the whole story starts",
+              "books": [
+                {
+                  "book": "Genesis",
+                  "chapters": 50
+                },
+                {
+                  "book": "Exodus",
+                  "chapters": 40,
+                  "skimmable": "25-40"
+                }
+              ]
+            },
+            {
+              "name": "The Covenant and the Land",
+              "books": [
+                {
+                  "book": "Deuteronomy",
+                  "chapters": 34,
+                  "skimmable": "12-26"
+                },
+                {
+                  "book": "Joshua",
+                  "chapters": 24,
+                  "skimmable": "13-21"
+                },
+                {
+                  "book": "Judges",
+                  "chapters": 21
+                },
+                {
+                  "book": "Ruth",
+                  "chapters": 4
+                }
+              ]
+            },
+            {
+              "name": "The Kingdom",
+              "books": [
+                {
+                  "book": "1 Samuel",
+                  "chapters": 31
+                },
+                {
+                  "book": "2 Samuel",
+                  "chapters": 24
+                },
+                {
+                  "book": "1 Kings",
+                  "chapters": 22
+                },
+                {
+                  "book": "2 Kings",
+                  "chapters": 25
+                }
+              ]
+            },
+            {
+              "name": "Prophets of the Divided Kingdom",
+              "note": "These men were shouting during 2 Kings. Read them here and they finally make sense.",
+              "books": [
+                {
+                  "book": "Amos",
+                  "chapters": 9
+                },
+                {
+                  "book": "Hosea",
+                  "chapters": 14
+                },
+                {
+                  "book": "Jonah",
+                  "chapters": 4
+                },
+                {
+                  "book": "Micah",
+                  "chapters": 7
+                },
+                {
+                  "book": "Isaiah",
+                  "chapters": 66
+                }
+              ]
+            },
+            {
+              "name": "The Fall of Jerusalem",
+              "books": [
+                {
+                  "book": "Nahum",
+                  "chapters": 3
+                },
+                {
+                  "book": "Zephaniah",
+                  "chapters": 3
+                },
+                {
+                  "book": "Habakkuk",
+                  "chapters": 3
+                },
+                {
+                  "book": "Jeremiah",
+                  "chapters": 52
+                },
+                {
+                  "book": "Lamentations",
+                  "chapters": 5
+                },
+                {
+                  "book": "Baruch",
+                  "chapters": 6,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "Obadiah",
+                  "chapters": 1
+                }
+              ]
+            },
+            {
+              "name": "Exile",
+              "note": "Tobit is a family story set among the deported. It is the human scale of the exile.",
+              "books": [
+                {
+                  "book": "Ezekiel",
+                  "chapters": 48,
+                  "skimmable": "40-48"
+                },
+                {
+                  "book": "Daniel",
+                  "chapters": 14
+                },
+                {
+                  "book": "Tobit",
+                  "chapters": 14,
+                  "deuterocanonical": true
+                }
+              ]
+            },
+            {
+              "name": "The Return",
+              "books": [
+                {
+                  "book": "Ezra",
+                  "chapters": 10
+                },
+                {
+                  "book": "Nehemiah",
+                  "chapters": 13
+                },
+                {
+                  "book": "Esther",
+                  "chapters": 16
+                },
+                {
+                  "book": "Judith",
+                  "chapters": 16,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "Haggai",
+                  "chapters": 2
+                },
+                {
+                  "book": "Zechariah",
+                  "chapters": 14
+                },
+                {
+                  "book": "Joel",
+                  "chapters": 3
+                },
+                {
+                  "book": "Malachi",
+                  "chapters": 4
+                }
+              ]
+            },
+            {
+              "name": "Wisdom and Worship",
+              "note": "The inner life of the people whose history you just read",
+              "books": [
+                {
+                  "book": "Psalms",
+                  "chapters": 150
+                },
+                {
+                  "book": "Proverbs",
+                  "chapters": 31
+                },
+                {
+                  "book": "Job",
+                  "chapters": 42
+                },
+                {
+                  "book": "Ecclesiastes",
+                  "chapters": 12
+                },
+                {
+                  "book": "Song of Songs",
+                  "chapters": 8
+                },
+                {
+                  "book": "Wisdom",
+                  "chapters": 19,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "Sirach",
+                  "chapters": 51,
+                  "skimmable": "44-50",
+                  "deuterocanonical": true
+                }
+              ]
+            },
+            {
+              "name": "The Silent Years",
+              "note": "The 400-year gap. Where the Pharisees, Hanukkah and the Roman occupation come from.",
+              "books": [
+                {
+                  "book": "1 Maccabees",
+                  "chapters": 16,
+                  "deuterocanonical": true
+                },
+                {
+                  "book": "2 Maccabees",
+                  "chapters": 15,
+                  "deuterocanonical": true
+                }
+              ]
+            },
+            {
+              "name": "Jesus and the Church",
+              "books": [
+                {
+                  "book": "Luke",
+                  "chapters": 24
+                },
+                {
+                  "book": "Acts",
+                  "chapters": 28
+                },
+                {
+                  "book": "Matthew",
+                  "chapters": 28
+                },
+                {
+                  "book": "John",
+                  "chapters": 21
+                }
+              ]
+            },
+            {
+              "name": "Paul's Letters",
+              "note": "Roughly in the order he wrote them, so you watch his thinking develop",
+              "books": [
+                {
+                  "book": "1 Thessalonians",
+                  "chapters": 5
+                },
+                {
+                  "book": "2 Thessalonians",
+                  "chapters": 3
+                },
+                {
+                  "book": "Galatians",
+                  "chapters": 6
+                },
+                {
+                  "book": "1 Corinthians",
+                  "chapters": 16
+                },
+                {
+                  "book": "2 Corinthians",
+                  "chapters": 13
+                },
+                {
+                  "book": "Romans",
+                  "chapters": 16
+                },
+                {
+                  "book": "Philippians",
+                  "chapters": 4
+                },
+                {
+                  "book": "Philemon",
+                  "chapters": 1
+                },
+                {
+                  "book": "Colossians",
+                  "chapters": 4
+                },
+                {
+                  "book": "Ephesians",
+                  "chapters": 6
+                },
+                {
+                  "book": "1 Timothy",
+                  "chapters": 6
+                },
+                {
+                  "book": "Titus",
+                  "chapters": 3
+                },
+                {
+                  "book": "2 Timothy",
+                  "chapters": 4
+                }
+              ]
+            },
+            {
+              "name": "The Other Letters",
+              "books": [
+                {
+                  "book": "Hebrews",
+                  "chapters": 13
+                },
+                {
+                  "book": "James",
+                  "chapters": 5
+                },
+                {
+                  "book": "1 Peter",
+                  "chapters": 5
+                },
+                {
+                  "book": "2 Peter",
+                  "chapters": 3
+                },
+                {
+                  "book": "1 John",
+                  "chapters": 5
+                },
+                {
+                  "book": "2 John",
+                  "chapters": 1
+                },
+                {
+                  "book": "3 John",
+                  "chapters": 1
+                },
+                {
+                  "book": "Jude",
+                  "chapters": 1
+                }
+              ]
+            },
+            {
+              "name": "The End",
+              "note": "Read it first and it is noise. Read it last and it is a summation.",
+              "books": [
+                {
+                  "book": "Revelation",
+                  "chapters": 22
+                }
+              ]
+            },
+            {
+              "name": "The Deep Cuts",
+              "note": "Now you have the framework. Hebrews only makes sense against Leviticus.",
+              "books": [
+                {
+                  "book": "Leviticus",
+                  "chapters": 27,
+                  "deferred": true
+                },
+                {
+                  "book": "Numbers",
+                  "chapters": 36,
+                  "skimmable": "1-10,26-36",
+                  "deferred": true
+                },
+                {
+                  "book": "1 Chronicles",
+                  "chapters": 29,
+                  "skimmable": "1-9",
+                  "deferred": true
+                },
+                {
+                  "book": "2 Chronicles",
+                  "chapters": 36,
+                  "deferred": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "blended_daily",
+          "name": "Daily Mix",
+          "tagline": "A bit of everything, every day",
+          "kind": "streams",
+          "recommended": false,
+          "primary": true,
+          "best_for": "People who want the whole Bible in a year and burn out on one genre",
+          "tradeoff": "You jump between eras every day, so you lose the sense of continuous story",
+          "why": "Runs four parallel streams at once. Variety prevents burnout because you are never stuck in a difficult section for more than a few minutes. Widely considered the most sustainable long-term approach.",
+          "structure": "parallel_streams",
+          "streams": [
+            {
+              "id": "ot",
+              "name": "Old Testament",
+              "daily_chapters": 3,
+              "order_ref": "ot_story_first",
+              "counts_toward_completion": true
+            },
+            {
+              "id": "nt",
+              "name": "New Testament",
+              "daily_chapters": 1,
+              "order_ref": "nt_story_first",
+              "counts_toward_completion": true
+            },
+            {
+              "id": "psalm",
+              "name": "Psalm of the day",
+              "daily_chapters": 1,
+              "book": "Psalms",
+              "order": "sequential",
+              "counts_toward_completion": false,
+              "note": "Psalms also appears inside the OT stream. Because progress is journaled globally by book and chapter, reading it here credits it there too."
+            },
+            {
+              "id": "proverb",
+              "name": "Proverb of the day",
+              "daily_chapters": 1,
+              "book": "Proverbs",
+              "order": "sequential",
+              "loops_at": 31,
+              "counts_toward_completion": false,
+              "note": "31 chapters, one per day of the month, loops forever."
+            }
+          ],
+          "completion_denominator": "ot + nt streams only",
+          "estimated_daily_minutes": 18,
+          "estimated_days": 365
+        },
+        {
+          "id": "full_canonical",
+          "name": "Classic",
+          "tagline": "Genesis to Revelation, cover to cover",
+          "kind": "phased",
+          "recommended": false,
+          "primary": true,
+          "best_for": "Disciplined readers, or a second time through",
+          "tradeoff": "Highest dropout rate of any approach. It takes months to reach the gospels.",
+          "why": "The traditional arrangement. Simple to follow and requires no planning, but it puts you in ceremonial law and genealogies before you have built any momentum.",
+          "phases": [
+            {
+              "name": "Old Testament",
+              "reference": "ot_canonical"
+            },
+            {
+              "name": "New Testament",
+              "reference": "nt_canonical"
+            }
+          ]
+        },
+        {
+          "id": "full_chronological",
+          "name": "Timeline",
+          "tagline": "Every event in the order it happened",
+          "kind": "phased",
+          "recommended": false,
+          "primary": false,
+          "best_for": "History lovers, or a second pass through the Bible",
+          "tradeoff": "Jesus does not appear until roughly 80 percent through, and some placements are debated",
+          "why": "All 73 books arranged by when their events occur. Best for cause and effect across generations, weakest as a first read because the payoff comes so late.",
+          "phases": [
+            {
+              "name": "Old Testament",
+              "reference": "ot_chronological"
+            },
+            {
+              "name": "New Testament",
+              "reference": "nt_story_first"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
