@@ -8,6 +8,7 @@ import type {
 } from '../lib/progress';
 import type { PhasedTrack } from '../data/tracks';
 import type { Prefs } from '../lib/prefs';
+import type { Cue } from '../lib/sound';
 import type { DayKey } from '../lib/dates';
 import type { AppData, Highlight, LoadResult, Note, Slot } from '../lib/storage';
 
@@ -35,6 +36,15 @@ export type Store = {
   /** How this session's data was loaded, surfaced in the backup panel. */
   load: LoadResult;
   undoable: UndoState;
+  /**
+   * The last thing worth celebrating, or null. The sounds read it and so does
+   * the streak animation, which is the point: one moment drives both rather
+   * than two systems separately guessing at the same event.
+   *
+   * Never persisted, and never part of `AppData`. See the note on the reducer's
+   * `State`, which explains what syncing one would do.
+   */
+  cue: { id: number; name: Cue } | null;
   /**
    * The day marking is logged against, or null for whenever today is. Session
    * only: reading yesterday's chapters is a moment, not a setting.

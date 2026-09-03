@@ -11,14 +11,16 @@ import {
   type Range,
 } from '../lib/highlight';
 import { useKeyboardInset } from '../lib/keyboard';
+import { reducedMotion } from '../lib/motion';
 import { neighbours } from '../lib/navigate';
 import { DEFAULT_PREFS, TEXT_SIZES, textScale } from '../lib/prefs';
+import { RATE_DEFAULT, useChapterSpeech } from '../lib/speech';
 import { chapterKey, newId, type Highlight } from '../lib/storage';
 import { useStore } from '../state/useStore';
 import { BibleSearch } from './BibleSearch';
 import { HighlightSheet } from './HighlightSheet';
 import { LogDayPicker } from './LogDayPicker';
-import { Check, Chevron, Search } from './icons';
+import { Check, Chevron, Pause, Play, Search, Speaker, Stop } from './icons';
 
 /**
  * The reader. Until this existed you tracked your reading in Bibley and did the
@@ -56,6 +58,21 @@ export function Reader({
   const shellRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const keyboard = useKeyboardInset();
+  const speech = useChapterSpeech(prefs.speechRate ?? RATE_DEFAULT);
+  const stopSpeech = speech.stop;
+
+  /*
+   * Follow the voice down the page. Centred rather than at the top, so the verse
+   * being read has the ones around it for context, and instant under reduced
+   * motion because a page that slides on its own every few seconds is exactly
+   * what that setting is asking not to happen.
+   */
+  useEffect(() => {
+    if (speech.verse === null) return;
+    textRef.current
+      ?.querySelector(`[data-verse="${speech.verse}"]`)
+      ?.scrollIntoView({ block: 'center', behavior: reducedMotion() ? 'auto' : 'smooth' });
+  }, [speech.verse]);
 
   const key = chapterKey(book, chapter);
   const isRead = key in data.read;
@@ -97,7 +114,10 @@ export function Reader({
     bodyRef.current?.scrollTo({ top: 0 });
     setPending(null);
     setEditing(null);
-  }, [book, chapter]);
+    // The voice was reading the chapter you just left. Carrying on would be
+    // reading one page aloud while another is on screen.
+    stopSpeech();
+  }, [book, chapter, stopSpeech]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -283,6 +303,12 @@ export function Reader({
 
   const chapterCount = text?.chapters.length ?? 0;
   const verses = text?.chapters[chapter - 1];
+  /*
+   * Named so the reader can tell whether the voice they are hearing is the one
+   * they picked. Blank rather than "Default" when nothing is chosen, since the
+   * browser's own pick has no name worth printing.
+   */
+  const voiceName = speech.voices.find((v) => v.voiceURI === speech.voiceURI)?.name ?? '';
   const open = marks.find((h) => h.id === editing);
 
   return (
@@ -356,6 +382,21 @@ export function Reader({
           )}
         </div>
 
+        {speech.supported && verses && (
+          <button
+            type="button"
+            className={`reader__tool${speech.status !== 'idle' ? ' reader__tool--on' : ''}`}
+            /* Started from the tap itself, never from an effect: iOS refuses a
+               first `speak` that is not inside a real gesture. */
+            onClick={() => (speech.status === 'idle' ? speech.start(verses) : speech.stop())}
+            aria-pressed={speech.status !== 'idle'}
+            aria-label={speech.status === 'idle' ? 'Read this chapter aloud' : 'Stop reading aloud'}
+            title="Read aloud"
+          >
+            <Speaker size={16} />
+          </button>
+        )}
+
         <button
           type="button"
           className={`reader__tool${searching ? ' reader__tool--on' : ''}`}
@@ -391,6 +432,35 @@ export function Reader({
           </span>
         )}
       </header>
+
+      {speech.status !== 'idle' && (
+        <div className="listenBar" role="group" aria-label="Reading aloud">
+          <button
+            type="button"
+            className="listenBar__btn"
+            onClick={() => (speech.status === 'speaking' ? speech.pause() : speech.resume())}
+            aria-label={speech.status === 'speaking' ? 'Pause' : 'Continue'}
+          >
+            {speech.status === 'speaking' ? <Pause size={14} /> : <Play size={14} />}
+          </button>
+          <button
+            type="button"
+            className="listenBar__btn"
+            onClick={() => speech.stop()}
+            aria-label="Stop reading aloud"
+          >
+            <Stop size={12} />
+          </button>
+          <span className="listenBar__where" aria-live="polite">
+            {speech.status === 'paused'
+              ? 'Paused'
+              : speech.verse
+                ? `Verse ${speech.verse}`
+                : 'Starting'}
+          </span>
+          <span className="listenBar__voice">{voiceName}</span>
+        </div>
+      )}
 
       <div className="reader__body" ref={bodyRef}>
         {searching ? (
@@ -435,6 +505,9 @@ export function Reader({
                     // Set from React rather than added to className imperatively,
                     // which is the mistake that once left an opened note invisible.
                     data-landed={landedOn === i + 1 ? '' : undefined}
+                    // Same rule as data-landed: React owns className on this
+                    // element, so a class added from outside would be wiped.
+                    data-speaking={speech.verse === i + 1 ? '' : undefined}
                   >
                     {segmentVerse(verse, i + 1, marks).map((segment, s) =>
                       segment.id ? (

@@ -1,13 +1,13 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { PLANS } from '../data/plans';
+import { getTrack, type PhasedTrack } from '../data/tracks';
 import { QUOTES } from '../data/quotes';
 import { bookSlug, type BookText } from './bible';
 
 const DIR = join(process.cwd(), 'public', 'bible');
 
-const books = PLANS.both.phases.flatMap((p) => p.books);
+const books = (getTrack('full_story_first') as PhasedTrack).phases.flatMap((p) => p.books);
 
 async function read(book: string): Promise<BookText> {
   return JSON.parse(await readFile(join(DIR, `${bookSlug(book)}.json`), 'utf8')) as BookText;

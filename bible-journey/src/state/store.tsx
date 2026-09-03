@@ -96,6 +96,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       derived,
       load,
       undoable,
+      cue,
       noteFor,
       logDay: pickedDay,
       setLogDay,
@@ -133,7 +134,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setPrefs: (prefs) => dispatch({ type: 'setPrefs', prefs }),
       undo: () => dispatch({ type: 'undo' }),
     }),
-    [data, derived, load, undoable, noteFor, pickedDay, setLogDay, logSlot, effectiveDay],
+    [data, derived, load, undoable, cue, noteFor, pickedDay, setLogDay, logSlot, effectiveDay],
   );
 
   return <StoreContext value={value}>{children}</StoreContext>;

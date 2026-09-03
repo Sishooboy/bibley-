@@ -532,6 +532,60 @@ select {
   color: var(--yellow);
 }
 
+/* Three labelled lines now, not one sentence, so they need separating. */
+.chooser__why p {
+  margin: 0;
+}
+
+.chooser__why p + p {
+  margin-top: 0.5rem;
+}
+
+/*
+ * The way back to the testament step. A link rather than a button, because it
+ * undoes a choice rather than making one, and the only real button on this
+ * screen should be the one that starts the reading.
+ */
+.chooser__back {
+  align-self: start;
+  background: none;
+  border: 0;
+  padding: 0.3rem 0;
+  margin-bottom: 0.4rem;
+  font: inherit;
+  font-size: 0.85rem;
+  /* Full --yellow measures 3.8:1 on this ground and this is small text. */
+  color: var(--yellow-soft);
+  cursor: pointer;
+  text-underline-offset: 3px;
+  text-decoration: underline;
+}
+
+.chooser__back::before {
+  content: '←';
+  margin-right: 0.4rem;
+}
+
+/*
+ * One order per testament is marked. It sits inside the name rather than in the
+ * corner, because a badge floated away from what it describes has to be read
+ * twice to work out which card it belongs to.
+ */
+.planCard__rec {
+  display: inline-block;
+  margin-left: 0.55rem;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: 0.22em;
+}
+
 .chooser__start {
   width: 100%;
   justify-content: center;
@@ -1645,6 +1699,47 @@ select {
 .settingRow__hint {
   font-size: 0.82rem;
   color: var(--muted);
+}
+
+/* The voice list holds long names like "Microsoft Aria Online (Natural)", so it
+   is allowed to take the width it needs and truncate rather than push the label
+   off a 375px screen. */
+.settingRow__voice {
+  flex: 1 1 11rem;
+  min-width: 0;
+  max-width: 15rem;
+}
+
+/*
+ * A voice is named "Microsoft Aria Online (Natural) - English (United States)".
+ * Beside a label on a 375px phone that leaves the select about 85px, which
+ * renders as "Whateve" and a chevron: a control you cannot read is not a
+ * control. Under 560px the row stacks and the select takes the full width.
+ */
+@media (max-width: 560px) {
+  .settingRow--stack {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+  }
+
+  /*
+   * `width: 100%` and not only `max-width`, because a select is sized by its
+   * widest option unless it is told otherwise, and the widest voice name is
+   * wider than the card. Without it the control breaks out through the card's
+   * padding and takes the border with it.
+   */
+  .settingRow--stack .settingRow__voice {
+    width: 100%;
+    max-width: none;
+    flex: none;
+  }
+}
+
+.settingRow__rate {
+  flex: 0 1 9rem;
+  min-width: 6rem;
+  accent-color: var(--red-600);
 }
 
 .settingRow__time {
@@ -3387,6 +3482,36 @@ select {
 }
 
 /* ── Settings ───────────────────────────────────────────────────────────── */
+/*
+ * A testament and its orders. The heading carries the book and chapter count,
+ * because that belongs to the testament and not to any one order within it:
+ * printing it on all three cards repeated the same two numbers nine times.
+ */
+.planGroup + .planGroup {
+  margin-top: 1.35rem;
+}
+
+.planGroup__label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 0 0 0.55rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.planGroup__count {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
 .planSwitch {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -5343,6 +5468,75 @@ select {
   }
 }
 
+/* ── Reading aloud ──────────────────────────────────────── */
+/*
+ * The transport, which exists only while something is being read. It is a
+ * second row under the header rather than three more buttons in it: that bar is
+ * already close to the edge of a 375px phone, and adding one control to it once
+ * pushed the whole reader 53px off the screen.
+ */
+.listenBar {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem max(0.75rem, env(safe-area-inset-left));
+  background: var(--ink);
+  color: var(--cream);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.listenBar__btn {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  background: none;
+  color: var(--cream);
+  cursor: pointer;
+}
+
+.listenBar__where {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--yellow);
+}
+
+/* The chosen voice, when there is one. It is the first thing you want to
+   change if what you are hearing is wrong, so it should be visible while it is
+   wrong rather than only in Settings. */
+.listenBar__voice {
+  margin-left: auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+/*
+ * The verse being read. Deliberately quieter than a highlight and quieter than
+ * the landing flash: it moves every few seconds, so anything with a border or a
+ * shadow would make the page twitch all the way down a chapter. An attribute
+ * and not a class, for the same reason as data-landed.
+ */
+.verse__t[data-speaking] {
+  background: rgba(247, 184, 1, 0.22);
+  border-radius: 3px;
+  box-shadow: 0 0 0 3px rgba(247, 184, 1, 0.22);
+}
+
+@media (hover: hover) {
+  .listenBar__btn:hover {
+    border-color: var(--yellow);
+    color: var(--yellow);
+  }
+}
+
 /* ── When a screen throws ───────────────────────────────────────────────── */
 .crash {
   display: grid;
@@ -5670,6 +5864,144 @@ select {
 /* Today is outlined whether or not it has been read, so the gap is obvious. */
 .streakWeek__day.is-today {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+}
+
+/* ── The streak growing ─────────────────────────────────── */
+/*
+ * Four parts, each of them small: the flame swells and warms, the number counts
+ * up (that one is `useCountUp`, not CSS), today's cell fills, and a few sparks
+ * leave the flame. Every piece has a `prefers-reduced-motion` answer at the
+ * bottom of this block, designed in rather than bolted on, because a figure
+ * that jumps around on a page somebody is trying to read is the exact thing
+ * that setting exists to stop.
+ */
+.streak__fire {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  /* Its own layer, so the swell never reflows the words beside it. */
+  will-change: transform;
+}
+
+.streakWeek[data-burst] .streak__fire {
+  animation: streakSwell 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes streakSwell {
+  0% {
+    transform: scale(1);
+  }
+  28% {
+    transform: scale(1.55) rotate(-4deg);
+  }
+  55% {
+    transform: scale(0.94) rotate(2deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* The flame warms rather than only growing: gold is the app's reward colour and
+   the flame spends the rest of its life the same shade as the text around it. */
+.streakWeek[data-burst] .streak__flame {
+  animation: streakWarm 900ms ease-out;
+}
+
+@keyframes streakWarm {
+  0%,
+  100% {
+    color: inherit;
+    filter: none;
+  }
+  30% {
+    color: var(--yellow);
+    filter: drop-shadow(0 0 6px rgba(247, 184, 1, 0.9));
+  }
+}
+
+.streak__sparks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/*
+ * Each spark leaves on its own bearing. `--s` is the index, turned into an
+ * angle, so four sparks need one rule rather than four.
+ */
+.streak__spark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3px;
+  height: 3px;
+  margin: -1.5px 0 0 -1.5px;
+  border-radius: 50%;
+  background: var(--yellow);
+  transform: rotate(calc(var(--s) * 90deg + 42deg)) translateY(0);
+  animation: streakSpark 780ms ease-out forwards;
+  animation-delay: calc(var(--s) * 45ms + 120ms);
+  opacity: 0;
+}
+
+@keyframes streakSpark {
+  0% {
+    opacity: 1;
+    transform: rotate(calc(var(--s) * 90deg + 42deg)) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(calc(var(--s) * 90deg + 42deg)) translateY(-18px) scale(0.4);
+  }
+}
+
+/* Today's cell filling is the literal thing that just happened, so it is the
+   one part that still plays under reduced motion, as a fade rather than a pop. */
+.streakWeek__day[data-filled] {
+  animation: streakFill 720ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both;
+}
+
+@keyframes streakFill {
+  0% {
+    transform: scale(0.7);
+    background: rgba(0, 0, 0, 0.26);
+    color: transparent;
+  }
+  60% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+    background: var(--yellow);
+    color: var(--ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /*
+   * No swell, no bounce, no sparks. The cell still changes colour, because that
+   * is information and not decoration: it is the record of having read today.
+   */
+  .streakWeek[data-burst] .streak__fire,
+  .streakWeek[data-burst] .streak__flame {
+    animation: none;
+  }
+
+  .streakWeek__day[data-filled] {
+    animation: streakFillCalm 400ms ease-out both;
+  }
+
+  @keyframes streakFillCalm {
+    from {
+      background: rgba(0, 0, 0, 0.26);
+      color: transparent;
+    }
+    to {
+      background: var(--yellow);
+      color: var(--ink);
+    }
+  }
 }
 
 /* ── A copy of the journal, on your device ──────────────────────────────── */

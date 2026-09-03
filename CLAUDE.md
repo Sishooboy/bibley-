@@ -1,6 +1,7 @@
 # Bibley
 
-A Bible reading tracker. The reader picks one of three ordered plans, marks chapters as they go,
+A Bible reading tracker. The reader picks a testament and then a reading order, marks chapters as
+they go,
 keeps notes, and builds a streak. Progress lives in a Supabase account so a phone and a laptop stay
 in step. Long-term goal is an App Store release via Capacitor.
 
@@ -111,8 +112,19 @@ redeploy.**
   them. Inside a book both orders agree; at a book's last chapter the plan decides if it contains
   that chapter, and printed order takes over if it does not. That is what lets a reader wander off
   to a book their plan omits and still have Next behave like a Bible.
-- `src/data/plan.ts` holds the twelve-phase book data. `src/data/plans.ts` builds the three plans
-  from it: `both` (73 books, 1,334 chapters), `nt` (27, 260), `ot` (46, 1,074).
+- `src/data/plan.ts` holds the printed book data and `BOOK_BY_NAME`, which is still what says how
+  many chapters a book has. `src/data/plans.ts` is **gone**: the three hardcoded plans it built are
+  now nine tracks resolved from `readingTracks.json` by `src/data/tracks.ts`.
+- **The chooser is two steps, testament then order.** Nine orders on one screen is a wall, and on a
+  phone it is a wall you scroll; it also matches how the question is actually asked, since nobody
+  wants "Chronological" before they have decided on the Old Testament. `tracksFor` gives the primary
+  tracks for a testament with the recommended one first, and that one is pre-selected so Begin is
+  reachable in one tap. Settings groups the same nine the same way, under `.planGroup`, with the
+  book and chapter count on the group heading rather than repeated on all three cards.
+- **Daily Mix (`blended_daily`) is deliberately not offered yet.** It is the one `streams` track,
+  it has no code path, and `activeTrack` silently falls back to the default for one, so listing it
+  would start the reader on something other than what they picked. Both the chooser and Settings
+  filter to `kind === 'phased'`. Offer it the moment its own path exists, and not before.
 - `src/state/reducer.ts` holds every rule about how the journal changes; `src/state/store.tsx` is
   only the provider around it, persisting to `localStorage` under `bible-journey/v1`.
   **They are two files because exporting a plain function beside a component turns off Vite's fast
@@ -273,6 +285,33 @@ redeploy.**
   the toggle on calls `setSoundEnabled` directly before playing its preview, for the same reason:
   the effect that watches the pref has not run yet while the gesture is still live.
 
+- **Reading a chapter aloud is `speechSynthesis`, the device's own voices.** Nothing is downloaded,
+  nothing is paid for per chapter, no API key has to live in a public bundle, and it works offline
+  once the book is cached. A cloud voice would sound better and would need a backend, a key and a
+  bill, none of which this app has. `toPieces` splits a chapter **verse by verse**, which is what
+  lets `onstart` say which verse is being read, and that is what lights up `data-speaking`. It also
+  sidesteps Chrome cutting off any single utterance after about fifteen seconds. A verse longer than
+  240 characters is split again at a sentence end, and both halves keep the same verse number, or
+  following along would jump to a verse that does not exist. **Every branch of that split has to
+  give a positive index**: a bare `lastIndexOf` returns -1 when it finds nothing, and slicing on
+  that drops a character off one piece and repeats it on the next, which is inaudible in testing and
+  wrong in every verse. A test pins that nothing is lost.
+- The read-aloud keep-alive (`resume()` every 8s) is Chrome's long-standing stall, and it **only
+  runs while the status is `speaking`**. Poking a queue the reader deliberately paused would start
+  it again on its own, which is the one way this feature could feel possessed.
+- **The voice is device-local and the speed is synced.** A voice on an iPhone does not exist on a
+  Windows laptop, so carrying that choice across would only ever resolve to a fallback; pace is
+  about the person, so `prefs.speechRate` travels. Same reasoning as `loadNotifiedDay`.
+- **The streak animation reads the cue channel the sounds use**, exposed as `cue` on the store, so
+  one moment drives both rather than two systems separately noticing the same event and disagreeing
+  about when. It is four small things: the flame swells and warms, the number counts up through
+  `useCountUp`, today's cell fills, and four sparks leave the flame. **Restarting a CSS animation
+  needs the element replaced**, so the flame is keyed on a burst counter; re-setting an attribute it
+  already has does nothing, and a second streak would be silent while the bell still rang.
+  `prefers-reduced-motion` was designed in rather than bolted on: no swell, no bounce and no sparks
+  at all, but today's cell still changes colour, because that is the record of having read today and
+  not decoration.
+
 ### The data model
 
 One row per account in `public.journals`: `user_id`, `data` jsonb, `updated_at`. Row-level security
@@ -377,12 +416,15 @@ Progress is never lost, only occasionally resurrected. That direction is deliber
 
 ## State and what is next
 
-Working: three plans with a chooser and a preparing transition, Google-only sign-in behind a gate,
+Working: nine reading tracks behind a two-step chooser and a preparing transition, Google-only
+sign-in behind a gate,
 per-account sync with the merge rules above, chapter marking by slider, quick amounts and tap,
 undo, backdating so a chapter counts on the day it was read, an optional time of day, the text
 itself in a reader that opens at any book and any chapter, highlighting with a thought attached,
 notes, stats, streaks, an offline app shell, a six panel welcome guide, full text search over all
-73 books, five synthesised sounds with a synced mute switch, and a synced settings screen.
+73 books, five synthesised sounds with a synced mute switch, chapters read aloud with the verse
+lighting up as it goes, a streak that celebrates itself when it grows, and a synced settings
+screen.
 
 Notes and highlights share one feed in the Notes view, sorted by when each was last touched. They
 are different objects with the same purpose, so the filter switches between them rather than
@@ -396,22 +438,25 @@ stops being nudged too. Saved prefs are untouched, so flipping the flag restores
 time. Unlock it when the Capacitor shell lands. The in-app streak nudge on the journey is separate
 and still runs.
 
-**Next session: the streak animation**, in the spirit of Duolingo's. Sound landed; motion is the
-other half of how the app *feels* rather than what it does, which is the gap the redesign did not
-close. It should read the cue channel the sounds already use, so one moment drives both rather than
-two systems guessing at the same event separately. Break it into what it actually is: the flame
-swells and warms, the number counts up, today's cell fills, and a few sparks leave the flame. Every
-piece of that already exists here, `useCountUp`, `reducedMotion`, the `Flame` path and
-`StreakWeek`'s cells, and the `prefers-reduced-motion` path has to be designed in from the start
-rather than bolted on.
+**Next session: Daily Mix (`blended_daily`), the last track with no code path.** Four parallel
+streams, Old Testament 3 a day, New Testament 1, a psalm and a proverb, with **position cursors
+rather than next-unread**: the psalm advances one a day whatever the journal says, and a psalm
+already read shows as read rather than skipping ahead. Completion counts the OT and NT streams
+only. Until it exists, both the chooser and Settings filter it out rather than offering a track
+that would quietly start you on The Full Arc.
 
-**Higgsfield is not the tool for it, and that is settled.** It generates video, which cannot know
-the number, weighs megabytes against a bundle that keeps 4.4 MB of Bible text out on principle, has
-one speed so reduced motion has no answer but to not play it, and would read as pasted on for the
-same reason photography does. Duolingo's own is vector and code driven, which is most of why it
-feels responsive. If hand-built CSS and SVG genuinely cannot carry it, the escalation is **Rive**
-(around 100 kB of wasm, real state machines) or Lottie, both still vector. A generative video tool
-earns its keep on an App Store preview clip, which is a required asset anyway, not inside the app.
+Also worth doing: **phase progress weighted by chapters**, and never "phase 4 of 11" as the primary
+number. A phase is not a unit of work, and eleven of wildly different sizes read as a progress bar
+that lurches.
+
+**Higgsfield was considered for the streak animation and rejected, and that is settled.** It
+generates video, which cannot know the number, weighs megabytes against a bundle that keeps 4.4 MB
+of Bible text out on principle, has one speed so reduced motion has no answer but to not play it,
+and would read as pasted on for the same reason photography does. The hand-built version is four
+CSS keyframes and `useCountUp`, and it cost nothing. If a future moment genuinely cannot be carried
+that way, the escalation is **Rive** (around 100 kB of wasm, real state machines) or Lottie, both
+still vector. A generative video tool earns its keep on an App Store preview clip, which is a
+required asset anyway, not inside the app.
 
 Not built yet, roughly in order:
 

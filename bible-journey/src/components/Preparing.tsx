@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { PLANS, type PlanId } from '../data/plans';
+import { getTrack, type PhasedTrack } from '../data/tracks';
 import { formatNumber } from '../lib/format';
 
 export const PREPARING_MS = 3200;
@@ -9,8 +9,8 @@ export const PREPARING_MS = 3200;
  * laying out the plan, writing the choice, syncing it to the account. Showing
  * them makes a decision feel like it landed somewhere.
  */
-export function Preparing({ planId }: { planId: PlanId }) {
-  const plan = PLANS[planId];
+export function Preparing({ trackId }: { trackId: string }) {
+  const plan = getTrack(trackId) as PhasedTrack;
   const [step, setStep] = useState(0);
 
   const steps = [

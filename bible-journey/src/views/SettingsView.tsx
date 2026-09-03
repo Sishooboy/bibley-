@@ -3,13 +3,24 @@ import { AccountPanel } from '../components/AccountPanel';
 import { ExportPanel } from '../components/ExportPanel';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
 import { Check, Lock } from '../components/icons';
-import { TESTAMENTS, tracksFor } from '../data/tracks';
+import {
+  TESTAMENTS,
+  TESTAMENT_LABELS,
+  tracksFor,
+  type PhasedTrack,
+} from '../data/tracks';
 import { formatDay } from '../lib/dates';
 import { formatNumber, plural } from '../lib/format';
 import { useReveal } from '../lib/motion';
 import { REMINDERS_UNLOCKED, formatTime } from '../lib/prefs';
 import { overallProgress, phaseProgressAll } from '../lib/progress';
 import { play, setSoundEnabled } from '../lib/sound';
+import {
+  RATE_DEFAULT,
+  RATE_MAX,
+  RATE_MIN,
+  useChapterSpeech,
+} from '../lib/speech';
 import { useReminder } from '../state/useReminder';
 import { useStore } from '../state/useStore';
 
@@ -22,15 +33,26 @@ export function SettingsView() {
   const unsupported = permission === 'unsupported';
   // Absent means on, the same reading `normalizePrefs` gives an older journal.
   const soundOn = prefs.soundEnabled !== false;
+  const rate = prefs.speechRate ?? RATE_DEFAULT;
+  const speech = useChapterSpeech(rate);
 
-  // Each card shows what you have already read *of that plan*, which is the
-  // honest answer to "what happens to my progress if I switch".
-  // Every track worth offering, with what the reader has already read *of that
-  // track*, which is the honest answer to "what happens if I switch".
-  const options = useMemo(
-    () => TESTAMENTS.flatMap((t) => tracksFor(t)).filter((t) => t.kind === 'phased'),
+  /*
+   * Grouped by testament rather than listed flat. Nine orders in one column is
+   * a wall, and the first question is always which testament: the order within
+   * it is only worth comparing once that is settled.
+   */
+  const groups = useMemo(
+    () =>
+      TESTAMENTS.map((id) => ({
+        id,
+        label: TESTAMENT_LABELS[id],
+        tracks: tracksFor(id).filter((t) => t.kind === 'phased') as PhasedTrack[],
+      })),
     [],
   );
+  const options = useMemo(() => groups.flatMap((g) => g.tracks), [groups]);
+  // Each card shows what you have already read *of that track*, which is the
+  // honest answer to "what happens to my progress if I switch".
   const planStats = useMemo(
     () =>
       Object.fromEntries(
@@ -71,39 +93,53 @@ export function SettingsView() {
             </div>
           </div>
 
-          <div className="planSwitch" role="radiogroup" aria-label="Reading plan">
-            {options.map((option) => {
-              const id = option.id;
-              const stats = planStats[id];
-              const active = option.id === plan.id;
-              const pct = stats.percent;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  role="radio"
-                  aria-checked={active}
-                  className={`planPick${active ? ' planPick--active' : ''}`}
-                  onClick={() => choosePlan(id)}
-                >
-                  <span className="planPick__top">
-                    <span className="planPick__name">{option.label}</span>
-                    <span className="planPick__tick" aria-hidden="true">
-                      {active && <Check size={13} />}
-                    </span>
+          {/* One radiogroup around all three, since only one order can be
+              active: three separate ones would say these are three choices. */}
+          <div role="radiogroup" aria-label="Reading plan">
+            {groups.map((group) => (
+              <div key={group.id} className="planGroup" role="group" aria-label={group.label}>
+                <p className="planGroup__label">
+                  {group.label}
+                  <span className="planGroup__count">
+                    {plural(group.tracks[0].bookCount, 'book')} ·{' '}
+                    {formatNumber(group.tracks[0].chapterCount)} chapters
                   </span>
-                  <span className="planPick__meta">
-                    {plural(option.bookCount, 'book')} · {formatNumber(option.chapterCount)} chapters
-                  </span>
-                  <span className="planPick__track" aria-hidden="true">
-                    <span className="planPick__fill" style={{ width: `${pct}%` }} />
-                  </span>
-                  <span className="planPick__pct">
-                    {formatNumber(stats.planRead)} read · {pct.toFixed(1)}%
-                  </span>
-                </button>
-              );
-            })}
+                </p>
+                <div className="planSwitch">
+                  {group.tracks.map((option) => {
+                    const id = option.id;
+                    const stats = planStats[id];
+                    const active = option.id === plan.id;
+                    const pct = stats.percent;
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        role="radio"
+                        aria-checked={active}
+                        aria-label={`${option.label}, ${group.label}`}
+                        className={`planPick${active ? ' planPick--active' : ''}`}
+                        onClick={() => choosePlan(id)}
+                      >
+                        <span className="planPick__top">
+                          <span className="planPick__name">{option.label}</span>
+                          <span className="planPick__tick" aria-hidden="true">
+                            {active && <Check size={13} />}
+                          </span>
+                        </span>
+                        <span className="planPick__meta">{option.tagline}</span>
+                        <span className="planPick__track" aria-hidden="true">
+                          <span className="planPick__fill" style={{ width: `${pct}%` }} />
+                        </span>
+                        <span className="planPick__pct">
+                          {formatNumber(stats.planRead)} read · {pct.toFixed(1)}%
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -212,6 +248,94 @@ export function SettingsView() {
               A finished book
             </button>
           </div>
+        </section>
+
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
+            <div>
+              <h3 className="card__title">Read aloud</h3>
+              <p className="card__note">
+                The speaker in the reader reads the chapter you are on, and the verse being read
+                lights up as it goes. It uses the voices already on this device, so it costs
+                nothing and works with no connection once the book is open.
+              </p>
+            </div>
+          </div>
+
+          {!speech.supported ? (
+            <p className="notice notice--warn">
+              This browser has no speech built in, so the speaker does not appear in the reader.
+              Every recent phone and desktop browser has one.
+            </p>
+          ) : (
+            <>
+              <div className="settingRow settingRow--stack">
+                <label className="settingRow__main" htmlFor="voice">
+                  <span className="settingRow__label">Voice</span>
+                  <span className="settingRow__hint">
+                    {/* Not synced, and the hint says so, because the list is
+                        different on every device and a choice made here cannot
+                        mean anything on another one. */}
+                    Kept on this device, since the voices differ on each one
+                  </span>
+                </label>
+                <select
+                  id="voice"
+                  className="select settingRow__voice"
+                  value={speech.voiceURI ?? ''}
+                  onChange={(e) => speech.chooseVoice(e.target.value || null)}
+                >
+                  <option value="">Whatever this device prefers</option>
+                  {speech.voices.map((v) => (
+                    <option key={v.voiceURI} value={v.voiceURI}>
+                      {v.name} ({v.lang})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="settingRow">
+                <label className="settingRow__main" htmlFor="rate">
+                  <span className="settingRow__label">Speed</span>
+                  <span className="settingRow__hint">
+                    {rate === 1 ? 'Normal' : `${rate.toFixed(2)}x`}
+                  </span>
+                </label>
+                <input
+                  id="rate"
+                  className="settingRow__rate"
+                  type="range"
+                  min={RATE_MIN}
+                  max={RATE_MAX}
+                  step={0.05}
+                  value={rate}
+                  onChange={(e) => setPrefs({ ...prefs, speechRate: Number(e.target.value) })}
+                />
+              </div>
+
+              <div className="card__actions">
+                <button
+                  type="button"
+                  className="btn btn--sm"
+                  onClick={() =>
+                    speech.status === 'idle'
+                      ? speech.start([
+                          'For God so loved the world, that he gave his one and only Son, that whoever believes in him should not perish, but have eternal life.',
+                        ])
+                      : speech.stop()
+                  }
+                >
+                  {speech.status === 'idle' ? 'Hear a verse' : 'Stop'}
+                </button>
+              </div>
+
+              <p className="notice notice--gold">
+                A phone stops speech when the screen locks or you switch app, so this is for
+                reading along rather than for listening with the phone in a pocket. That changes
+                with the App Store build.
+              </p>
+            </>
+          )}
         </section>
 
         <section ref={reveal} className="card card--locked reveal">

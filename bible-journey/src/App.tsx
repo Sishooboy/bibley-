@@ -8,7 +8,6 @@ import { SPLASH_MS, Splash } from './components/Splash';
 import { SyncBadge } from './components/SyncBadge';
 import { UndoBar } from './components/UndoBar';
 import { Menu } from './components/icons';
-import type { PlanId } from './data/plans';
 import { returnedFromOAuth } from './lib/supabase';
 import { CloudProvider } from './state/cloud';
 import { ReaderProvider } from './state/reader';
@@ -156,8 +155,8 @@ function Shell() {
 function Gate() {
   const { status, email } = useCloud();
   const { data, choosePlan } = useStore();
-  /** Set while the chosen plan is being laid out, purely for the transition. */
-  const [preparing, setPreparing] = useState<PlanId | null>(null);
+  /** Set while the chosen track is being laid out, purely for the transition. */
+  const [preparing, setPreparing] = useState<string | null>(null);
   // Only a fresh Google round trip earns the full splash. An ordinary launch
   // shows it just long enough to cover restoring the session.
   const [held, setHeld] = useState(returnedFromOAuth);
@@ -182,7 +181,7 @@ function Gate() {
   if (status === 'loading') return <Splash held={held} />;
   if (!email) return <SignInScreen />;
   if (held) return <Splash held />;
-  if (preparing) return <Preparing planId={preparing} />;
+  if (preparing) return <Preparing trackId={preparing} />;
 
   // No plan on the journal means this account has never started one.
   if (!data.planId) {
