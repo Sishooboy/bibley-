@@ -113,8 +113,11 @@ redeploy.**
   to a book their plan omits and still have Next behave like a Bible.
 - `src/data/plan.ts` holds the twelve-phase book data. `src/data/plans.ts` builds the three plans
   from it: `both` (73 books, 1,334 chapters), `nt` (27, 260), `ot` (46, 1,074).
-- `src/state/store.tsx` is a reducer over `AppData`, persisted to `localStorage` under
-  `bible-journey/v1`. `src/state/cloud.tsx` mirrors it to Supabase.
+- `src/state/reducer.ts` holds every rule about how the journal changes; `src/state/store.tsx` is
+  only the provider around it, persisting to `localStorage` under `bible-journey/v1`.
+  **They are two files because exporting a plain function beside a component turns off Vite's fast
+  refresh** for the whole module, and the reducer has to be exported so the tests can reach it.
+  `src/state/cloud.tsx` mirrors the journal to Supabase.
 - `src/lib/merge.ts` reconciles two copies of a journal. Read it before touching sync.
 - Views are `Journey`, `Notes`, `Stats`, `Settings`. Journey has its own hero and book rows. The
   other three share one system: `ViewHeader` for the masthead, `.card` for every panel, and the
@@ -238,6 +241,37 @@ redeploy.**
   is what turned an opened note into a blank sand block: opening it adds `entry--open`, and what you
   were looking at was `.entryList`'s `--line` background through an invisible row. `motion.test.ts`
   pins the marker and checks the stylesheet still reads the same one.
+- **The five sounds in `src/lib/sound.ts` are synthesised, never loaded.** Oscillators and one noise
+  buffer, which is +1.6 kB gzipped against shipping five files, carries no licence into an App Store
+  build, and lets a chime be tuned by editing a number rather than re-exporting a wav. A bell is
+  `PARTIALS`, inharmonic ratios above the strike tone that decay faster than it does, and a tick is
+  filtered noise over a pitched thud: the noise alone is a click and the sine alone is a beep.
+  **Web Audio and nothing else, because that is what respects the iOS silent switch.** An `<audio>`
+  element is the known way to play through a silenced phone, so do not introduce one; the Capacitor
+  shell decides this natively instead, through the audio session category, and needs checking when
+  it lands. `MASTER` was **measured, not judged**, the same way contrast is: rendered through an
+  `OfflineAudioContext`, 0.5 put the chapter tick at -20 dBFS, which vanishes under a phone speaker.
+  0.9 puts the book bell at -9.6 and the tick at -14.9, which is where interface sound sits, and
+  still leaves 8.7 dB of headroom. `schedule()` is exported so the voices can be rendered offline
+  and measured rather than only listened to.
+- **One tap, one sound**, decided by `chooseCue`: plan, then book, then streak, then chapter.
+  Finishing a book on a day that also extends a streak is otherwise three cues at once, which
+  arrives as noise rather than as three pieces of good news, and marking five chapters is one tick
+  rather than five. The streak rung needs a *strict increase*, so a second chapter the same day and
+  a backdated one that fills no gap both stay quiet. Clearing and undo share the chapter tick pitched
+  down: marking that made a sound while unmarking made none read as a tap that had failed.
+- **The cue lives on the reducer's `State`, never on `AppData`, and it must stay that way.**
+  `normalize()` is a whitelist and `cloud.tsx` upserts the whole row, so a cue that reached the
+  journal would sync and ring a bell on the other device for something nobody there had done. For
+  the same reason `mergeRemote` and `importData` are silent: a pull can finish a book and extend a
+  streak, but it happened somewhere else. The cue carries a counting `id` because the name alone
+  cannot tell two identical marks apart, and an effect watching a string would fire once and leave
+  the second chapter in silence.
+- Sound is opened on the **first gesture anywhere**, by `primeSound`, not on the first cue. Every
+  cue is downstream of a tap, but React flushes effects after the handler returns, which is late
+  enough for Safari to refuse the resume and leave the app permanently silent. Settings switching
+  the toggle on calls `setSoundEnabled` directly before playing its preview, for the same reason:
+  the effect that watches the pref has not run yet while the gesture is still live.
 
 ### The data model
 
@@ -348,7 +382,7 @@ per-account sync with the merge rules above, chapter marking by slider, quick am
 undo, backdating so a chapter counts on the day it was read, an optional time of day, the text
 itself in a reader that opens at any book and any chapter, highlighting with a thought attached,
 notes, stats, streaks, an offline app shell, a six panel welcome guide, full text search over all
-73 books, and a synced settings screen.
+73 books, five synthesised sounds with a synced mute switch, and a synced settings screen.
 
 Notes and highlights share one feed in the Notes view, sorted by when each was last touched. They
 are different objects with the same purpose, so the filter switches between them rather than
@@ -362,12 +396,22 @@ stops being nudged too. Saved prefs are untouched, so flipping the flag restores
 time. Unlock it when the Capacitor shell lands. The in-app streak nudge on the journey is separate
 and still runs.
 
-**Next session: sound and motion.** Sounds for marking a chapter, finishing a book and the streak,
-and a streak animation in the spirit of Duolingo's. Neither exists yet and both are about how the
-app *feels* rather than what it does, which is the gap the redesign did not close. Points to settle
-first: sound needs a mute switch and must respect the silent switch on iOS, and every animation
-needs its `prefers-reduced-motion` path from the start rather than bolted on. Higgsfield is on the
-table for generating the motion if hand-built SVG is not enough.
+**Next session: the streak animation**, in the spirit of Duolingo's. Sound landed; motion is the
+other half of how the app *feels* rather than what it does, which is the gap the redesign did not
+close. It should read the cue channel the sounds already use, so one moment drives both rather than
+two systems guessing at the same event separately. Break it into what it actually is: the flame
+swells and warms, the number counts up, today's cell fills, and a few sparks leave the flame. Every
+piece of that already exists here, `useCountUp`, `reducedMotion`, the `Flame` path and
+`StreakWeek`'s cells, and the `prefers-reduced-motion` path has to be designed in from the start
+rather than bolted on.
+
+**Higgsfield is not the tool for it, and that is settled.** It generates video, which cannot know
+the number, weighs megabytes against a bundle that keeps 4.4 MB of Bible text out on principle, has
+one speed so reduced motion has no answer but to not play it, and would read as pasted on for the
+same reason photography does. Duolingo's own is vector and code driven, which is most of why it
+feels responsive. If hand-built CSS and SVG genuinely cannot carry it, the escalation is **Rive**
+(around 100 kB of wasm, real state machines) or Lottie, both still vector. A generative video tool
+earns its keep on an App Store preview clip, which is a required asset anyway, not inside the app.
 
 Not built yet, roughly in order:
 

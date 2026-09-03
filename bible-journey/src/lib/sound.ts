@@ -1,0 +1,313 @@
+/**
+ * The app's five sounds, synthesised rather than shipped.
+ *
+ * Nothing here loads a file. Every cue is built from oscillators and one noise
+ * buffer, for three reasons that all matter to this project: no audio asset
+ * carries a licence into an App Store build, the bundle stays where it is when
+ * 4.4 MB of Bible text is already kept out of it, and a chime that needs twenty
+ * passes to feel right is a number to edit rather than a wav to re-export.
+ *
+ * **Web Audio and nothing else, which is what respects the iOS silent switch.**
+ * An `<audio>` element is the known way to play through a silenced phone, and a
+ * reading app that does that in a quiet church has broken something no setting
+ * can apologise for. Synthesis honours the switch for free. Do not introduce an
+ * element here. The Capacitor shell decides this natively instead, through the
+ * audio session category, and will need checking when it lands.
+ */
+
+/**
+ * The five moments worth a sound.
+ *
+ * `undo` covers clearing as well as the undo bar: taking a chapter back is the
+ * same gesture from the app's point of view, and marking that made a sound while
+ * unmarking made none felt like the tap had failed.
+ */
+export type Cue = 'chapter' | 'streak' | 'book' | 'plan' | 'undo';
+
+/** What one marking change did, which is all the cue choice depends on. */
+export type CueSignal = {
+  /** Books that went from unfinished to finished on this change. */
+  booksFinished: number;
+  /** True when this change completed the whole track. */
+  planFinished: boolean;
+  streakBefore: number;
+  streakAfter: number;
+  /** Chapters written by this change, re-dated ones included. */
+  chaptersMarked: number;
+};
+
+/**
+ * One tap, one sound.
+ *
+ * Finishing a book on a day that also extends a streak is three cues at once
+ * otherwise, and they arrive as noise rather than as three pieces of good news.
+ * The ladder keeps the largest and drops the rest.
+ *
+ * The streak rung is a strict increase on purpose. A second chapter on a day
+ * already read leaves the streak where it was, and backdating a chapter that
+ * fills no gap does too. Neither is the moment the sound is for.
+ */
+export function chooseCue(signal: CueSignal): Cue | null {
+  if (signal.planFinished) return 'plan';
+  if (signal.booksFinished > 0) return 'book';
+  if (signal.streakAfter > signal.streakBefore) return 'streak';
+  if (signal.chaptersMarked > 0) return 'chapter';
+  return null;
+}
+
+/* -------------------------------------------------------------------------- */
+/* The synth                                                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Everything is mixed under this, so one number moves the whole app's volume.
+ *
+ * Set by measuring rather than by ear: rendered offline, this puts the finished
+ * book around -9 dBFS and the chapter tick around -15, which is where ordinary
+ * interface sound sits. At 0.5 the tick peaked at -20 and disappeared under a
+ * phone speaker in a room. The loudest cue still leaves better than 9 dB of
+ * headroom, so two overlapping cues cannot clip.
+ */
+const MASTER = 0.9;
+
+type Maker = typeof AudioContext;
+
+let ctx: AudioContext | null = null;
+let master: GainNode | null = null;
+let enabled = true;
+
+/*
+ * Cached against the sample rate it was generated at, not globally. An offline
+ * context used for measuring can run at a different rate, and reusing a buffer
+ * across the two would resample it into a different sound from the one shipped.
+ */
+let noise: { rate: number; buffer: AudioBuffer } | null = null;
+
+function maker(): Maker | null {
+  if (typeof window === 'undefined') return null;
+  const w = window as unknown as { AudioContext?: Maker; webkitAudioContext?: Maker };
+  return w.AudioContext ?? w.webkitAudioContext ?? null;
+}
+
+/**
+ * The one context for the app's lifetime, created on demand.
+ *
+ * Returns null rather than throwing wherever Web Audio is missing, which covers
+ * jsdom under the tests and any browser old enough not to have it. A silent app
+ * is a fine outcome; a crashed mark is not.
+ */
+function context(): AudioContext | null {
+  if (ctx) return ctx;
+  const AC = maker();
+  if (!AC) return null;
+  try {
+    ctx = new AC();
+    master = ctx.createGain();
+    master.gain.value = MASTER;
+    master.connect(ctx.destination);
+  } catch {
+    ctx = null;
+    master = null;
+  }
+  return ctx;
+}
+
+/** White noise, generated once and reused: it is the body of every tick. */
+function noiseBuffer(c: BaseAudioContext): AudioBuffer {
+  if (noise?.rate === c.sampleRate) return noise.buffer;
+  const length = Math.floor(c.sampleRate * 0.12);
+  const buffer = c.createBuffer(1, length, c.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
+  noise = { rate: c.sampleRate, buffer };
+  return buffer;
+}
+
+/**
+ * Partials of the bell, as [ratio of the strike tone, share of the level, share
+ * of the decay].
+ *
+ * A single sine is a beep. What makes a bell is the inharmonic partials above
+ * the strike tone and the fact that they die away faster than it does, so the
+ * sound gets warmer as it fades rather than only getting quieter. The ratios are
+ * loosely a small struck bell rather than a harmonic series, which is why 2.98
+ * and 4.12 are not 3 and 4.
+ */
+const PARTIALS: readonly (readonly [number, number, number])[] = [
+  [1, 1, 1],
+  [2.01, 0.4, 0.62],
+  [2.98, 0.19, 0.42],
+  [4.12, 0.08, 0.26],
+];
+
+function bell(
+  c: BaseAudioContext,
+  out: AudioNode,
+  at: number,
+  freq: number,
+  dur: number,
+  level: number,
+): void {
+  for (const [ratio, share, decay] of PARTIALS) {
+    const osc = c.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = freq * ratio;
+
+    const gain = c.createGain();
+    const life = dur * decay;
+    // Ramps are exponential because loudness is, and they never reach zero:
+    // exponentialRampToValueAtTime refuses a target of 0.
+    gain.gain.setValueAtTime(0.0001, at);
+    gain.gain.exponentialRampToValueAtTime(level * share, at + 0.006);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + life);
+
+    osc.connect(gain).connect(out);
+    osc.start(at);
+    osc.stop(at + life + 0.02);
+  }
+}
+
+/**
+ * A small wooden tap: a filtered noise burst with a pitched thud under it.
+ *
+ * The noise alone is a click and the sine alone is a beep. Together they read as
+ * something being touched, which is what marking a chapter is.
+ */
+function tick(
+  c: BaseAudioContext,
+  out: AudioNode,
+  at: number,
+  freq: number,
+  colour: number,
+  level: number,
+): void {
+  const body = c.createBufferSource();
+  body.buffer = noiseBuffer(c);
+  const band = c.createBiquadFilter();
+  band.type = 'bandpass';
+  band.frequency.value = colour;
+  band.Q.value = 1.1;
+  const bodyGain = c.createGain();
+  bodyGain.gain.setValueAtTime(level * 0.7, at);
+  bodyGain.gain.exponentialRampToValueAtTime(0.0001, at + 0.05);
+  body.connect(band).connect(bodyGain).connect(out);
+  body.start(at);
+  body.stop(at + 0.08);
+
+  const osc = c.createOscillator();
+  osc.type = 'sine';
+  // The drop is what turns a tone into a tap. A flat sine sounds electronic.
+  osc.frequency.setValueAtTime(freq, at);
+  osc.frequency.exponentialRampToValueAtTime(freq * 0.62, at + 0.05);
+  const oscGain = c.createGain();
+  oscGain.gain.setValueAtTime(0.0001, at);
+  oscGain.gain.exponentialRampToValueAtTime(level, at + 0.004);
+  oscGain.gain.exponentialRampToValueAtTime(0.0001, at + 0.07);
+  osc.connect(oscGain).connect(out);
+  osc.start(at);
+  osc.stop(at + 0.09);
+}
+
+/*
+ * A minor pentatonic set, so any two of these sit together and no cue can clash
+ * with another if two ever overlap at the edges. Kept between 220 and 880
+ * because a phone speaker has almost nothing below that and gets shrill above.
+ */
+const A3 = 220;
+const A4 = 440;
+const C5 = 523.25;
+const E5 = 659.25;
+const A5 = 880;
+
+type Voice = (c: BaseAudioContext, out: AudioNode, at: number) => void;
+
+const VOICES: Record<Cue, Voice> = {
+  /*
+   * The workhorse. It fires more than everything else put together, so it is
+   * the least musical thing here on purpose: at three chapters a day for a year,
+   * anything with a tune in it becomes something to switch off.
+   */
+  chapter: (c, out, at) => tick(c, out, at, 660, 1900, 0.2),
+
+  /** The chapter tap, lower and softer. Taking something back, not doing it. */
+  undo: (c, out, at) => tick(c, out, at, 380, 1150, 0.15),
+
+  /** Three notes rising, quick enough to be one gesture. Once a day at most. */
+  streak: (c, out, at) => {
+    bell(c, out, at, A4, 0.42, 0.15);
+    bell(c, out, at + 0.08, C5, 0.46, 0.16);
+    bell(c, out, at + 0.16, E5, 0.8, 0.2);
+  },
+
+  /** Bigger, slower and allowed to ring. The reward the app never had. */
+  book: (c, out, at) => {
+    bell(c, out, at, A4, 1.5, 0.24);
+    bell(c, out, at + 0.14, E5, 1.8, 0.2);
+  },
+
+  /**
+   * Once in a lifetime, and the only cue with a low root under it. The octave
+   * at the end is the point of it: it arrives somewhere rather than stopping.
+   */
+  plan: (c, out, at) => {
+    bell(c, out, at, A3, 3.2, 0.15);
+    bell(c, out, at, A4, 2.2, 0.2);
+    bell(c, out, at + 0.2, E5, 2.4, 0.18);
+    bell(c, out, at + 0.42, A5, 3, 0.16);
+  },
+};
+
+/**
+ * Schedules one cue into any context, which is what lets these be measured
+ * rather than only listened to. Rendering the real voices through an
+ * `OfflineAudioContext` is the only way to check a sound is not silent, not
+ * clipping and not three seconds of drone without being able to hear it.
+ */
+export function schedule(cue: Cue, c: BaseAudioContext, out: AudioNode, at: number): void {
+  VOICES[cue](c, out, at);
+}
+
+/** Mirrors the reader's preference, so a muted app never even builds a voice. */
+export function setSoundEnabled(on: boolean): void {
+  enabled = on;
+}
+
+/**
+ * Creates and resumes the context inside a real gesture.
+ *
+ * Browsers hand back a suspended context until a user has interacted, and
+ * Safari is strictest about the resume happening in the gesture itself. Every
+ * cue is downstream of a tap, but React flushes effects after the handler has
+ * returned, which is late enough to be refused. Taking the first pointerdown on
+ * the document sidesteps the question entirely.
+ */
+export function primeSound(): void {
+  if (ctx || !maker()) return;
+
+  const open = () => {
+    window.removeEventListener('pointerdown', open, true);
+    window.removeEventListener('keydown', open, true);
+    const c = context();
+    if (c?.state === 'suspended') void c.resume().catch(() => {});
+  };
+
+  window.addEventListener('pointerdown', open, { capture: true });
+  window.addEventListener('keydown', open, { capture: true });
+}
+
+/** Plays a cue, or does nothing at all. It must never be able to break a mark. */
+export function play(cue: Cue): void {
+  if (!enabled) return;
+  const c = context();
+  if (!c || !master) return;
+  if (c.state === 'suspended') void c.resume().catch(() => {});
+
+  try {
+    // A small lead, so every voice is scheduled ahead of the clock rather than
+    // exactly on it. Scheduling at currentTime lands a fraction late and the
+    // envelope's attack is clipped into a click.
+    VOICES[cue](c, master, c.currentTime + 0.02);
+  } catch {
+    /* A sound is never worth an exception on the path that records reading. */
+  }
+}

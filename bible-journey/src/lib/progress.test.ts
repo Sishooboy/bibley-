@@ -5,7 +5,7 @@ import { getTrack, type PhasedTrack } from '../data/tracks';
 const STORY = ['full_story_first', 'nt_story_first', 'ot_story_first'] as const;
 const track = (id: string) => getTrack(id) as PhasedTrack;
 import { addDays, clampReadingDay, daysBetween, isDayKey, toDayKey, today } from './dates';
-import { last30Days, overallProgress, phaseProgressAll, streak } from './progress';
+import { last30Days, nextUnread, overallProgress, phaseProgressAll, streak } from './progress';
 import type { ReadMap } from './storage';
 
 /** Streaks are relative to "now", so the clock has to be pinned to test them. */
@@ -159,6 +159,18 @@ describe('plan progress', () => {
 
     expect(overall.planRead).toBe(1);
     expect(Object.keys(read)).toHaveLength(2);
+  });
+
+  /*
+   * The loop breaks on `out.length === count`, which a zero never satisfies, so
+   * without the guard at the top this returns the whole track and marking "no
+   * chapters" reads the entire Bible.
+   */
+  it('returns nothing when no chapters are asked for', () => {
+    const plan = track('full_story_first');
+    expect(nextUnread({}, 0, plan)).toEqual([]);
+    expect(nextUnread({}, -1, plan)).toEqual([]);
+    expect(nextUnread({}, 1, plan)).toHaveLength(1);
   });
 
   it('marks a book done only when every chapter is read', () => {

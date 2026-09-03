@@ -9,6 +9,7 @@ import { formatNumber, plural } from '../lib/format';
 import { useReveal } from '../lib/motion';
 import { REMINDERS_UNLOCKED, formatTime } from '../lib/prefs';
 import { overallProgress, phaseProgressAll } from '../lib/progress';
+import { play, setSoundEnabled } from '../lib/sound';
 import { useReminder } from '../state/useReminder';
 import { useStore } from '../state/useStore';
 
@@ -19,6 +20,8 @@ export function SettingsView() {
   const reveal = useReveal();
   const blocked = permission === 'denied';
   const unsupported = permission === 'unsupported';
+  // Absent means on, the same reading `normalizePrefs` gives an older journal.
+  const soundOn = prefs.soundEnabled !== false;
 
   // Each card shows what you have already read *of that plan*, which is the
   // honest answer to "what happens to my progress if I switch".
@@ -135,6 +138,78 @@ export function SettingsView() {
               onClick={() => setPrefs({ ...prefs, guideSeenAt: undefined })}
             >
               Show the guide
+            </button>
+          </div>
+        </section>
+
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
+            <div>
+              <h3 className="card__title">Sound</h3>
+              <p className="card__note">
+                A small tap when you mark a chapter, and something worth hearing when you finish a
+                book or your streak grows. Nothing else in the app makes a noise.
+              </p>
+            </div>
+          </div>
+
+          <div className="settingRow">
+            <label className="settingRow__main" htmlFor="sound-on">
+              <span className="settingRow__label">Play sounds</span>
+              <span className="settingRow__hint">
+                {soundOn
+                  ? "On. The silent switch on your phone still overrules it."
+                  : 'Currently off, everywhere you are signed in'}
+              </span>
+            </label>
+            <input
+              id="sound-on"
+              className="switch"
+              type="checkbox"
+              role="switch"
+              checked={soundOn}
+              onChange={(e) => {
+                const on = e.target.checked;
+                setPrefs({ ...prefs, soundEnabled: on });
+                /*
+                 * Told directly rather than left to the effect that watches the
+                 * pref, because that runs after this handler returns: by then
+                 * the gesture is over, and a browser will refuse to open an
+                 * audio context outside one. Flipping the switch is also the
+                 * natural moment to hear what you just switched on.
+                 */
+                if (on) {
+                  setSoundEnabled(true);
+                  play('streak');
+                }
+              }}
+            />
+          </div>
+
+          <div className="card__actions">
+            <button
+              type="button"
+              className="btn btn--sm"
+              disabled={!soundOn}
+              onClick={() => play('chapter')}
+            >
+              A chapter
+            </button>
+            <button
+              type="button"
+              className="btn btn--sm"
+              disabled={!soundOn}
+              onClick={() => play('streak')}
+            >
+              A streak
+            </button>
+            <button
+              type="button"
+              className="btn btn--sm"
+              disabled={!soundOn}
+              onClick={() => play('book')}
+            >
+              A finished book
             </button>
           </div>
         </section>

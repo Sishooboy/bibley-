@@ -18,6 +18,13 @@ export type Prefs = {
    * a welcome, it is an obstacle.
    */
   guideSeenAt?: string;
+  /**
+   * The five cues in `sound.ts`. Synced like everything else here, and on by
+   * default, because a sound nobody discovers is not a feature. Muting is one
+   * tap in Settings, and on a phone the silent switch already covers the room
+   * you cannot make a noise in.
+   */
+  soundEnabled?: boolean;
   /** Set on every change so two devices can be compared. */
   updatedAt?: string;
 };
@@ -26,6 +33,7 @@ export const DEFAULT_PREFS: Prefs = {
   remindersEnabled: false,
   reminderTime: '20:00',
   textSize: 1,
+  soundEnabled: true,
 };
 
 /**
@@ -51,6 +59,9 @@ export function normalizePrefs(input: unknown): Prefs | undefined {
         ? Math.floor(raw.textSize)
         : DEFAULT_PREFS.textSize,
     guideSeenAt: typeof raw.guideSeenAt === 'string' ? raw.guideSeenAt : undefined,
+    // Absent means on, so every journal written before sound existed arrives
+    // with it enabled rather than silently muted.
+    soundEnabled: raw.soundEnabled !== false,
     updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : undefined,
   };
 }

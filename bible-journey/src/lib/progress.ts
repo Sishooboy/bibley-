@@ -88,6 +88,14 @@ export function overallProgress(phases: PhaseProgress[], plan: PhasedTrack): Ove
 
 /** Next unread chapters in plan order, starting from wherever you left off. */
 export function nextUnread(read: ReadMap, count: number, plan: PhasedTrack): ChapterRef[] {
+  /*
+   * Nothing asked for is nothing returned. Without this the loop below never
+   * satisfies `out.length === count`, so it runs to the end of the track and a
+   * request for no chapters marks the entire Bible, which is the worst available
+   * reading of it. Only ever called with 1, 3, 5 or 10 today, but a computed
+   * amount that lands on zero would be silent and catastrophic.
+   */
+  if (count <= 0) return [];
   const out: ChapterRef[] = [];
   for (const ref of plan.sequence) {
     if (isRead(read, ref.book, ref.chapter)) continue;
