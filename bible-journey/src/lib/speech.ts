@@ -18,6 +18,23 @@ export type SpeechStatus = 'idle' | 'speaking' | 'paused';
 
 /** Device-local, not synced: a voice on an iPhone does not exist on Windows. */
 const VOICE_KEY = 'bible-journey/voice';
+const EPOCH_KEY = 'bible-journey/voice-epoch';
+
+/**
+ * Bumped whenever the way a voice is chosen changes enough that an old stored
+ * pick should be thrown away.
+ *
+ * This exists because a stored choice **bypasses the ranking entirely**:
+ * `resolveVoice` returns it before `sortVoices` is ever consulted. So a reader
+ * who once tapped a bad voice was pinned to it, and every later improvement to
+ * the ranking was dead code on their device. Nothing in the picker told them,
+ * and nothing could, because the app was doing exactly what it was told.
+ *
+ * A bump is a remove and re-add of the setting: the stale pick goes, the reader
+ * lands back on "best available", and the current ranking finally gets to run.
+ * Cheap, one line, and the only honest way to un-pin an old decision.
+ */
+const VOICE_EPOCH = '2';
 
 export function speechSupported(): boolean {
   return typeof window !== 'undefined' && 'speechSynthesis' in window;
@@ -25,6 +42,12 @@ export function speechSupported(): boolean {
 
 export function loadVoiceURI(): string | null {
   try {
+    // A pick from before the current ranking is discarded rather than honoured.
+    if (localStorage.getItem(EPOCH_KEY) !== VOICE_EPOCH) {
+      localStorage.removeItem(VOICE_KEY);
+      localStorage.setItem(EPOCH_KEY, VOICE_EPOCH);
+      return null;
+    }
     return localStorage.getItem(VOICE_KEY);
   } catch {
     return null;
@@ -33,6 +56,7 @@ export function loadVoiceURI(): string | null {
 
 export function saveVoiceURI(uri: string | null): void {
   try {
+    localStorage.setItem(EPOCH_KEY, VOICE_EPOCH);
     if (uri) localStorage.setItem(VOICE_KEY, uri);
     else localStorage.removeItem(VOICE_KEY);
   } catch (err) {
@@ -324,6 +348,12 @@ export function useChapterSpeech(rate: number, pitch: number = PITCH_DEFAULT) {
     saveVoiceURI(uri);
   }, []);
 
+  /** Throws the stored pick away, so the ranking chooses again from scratch. */
+  const forgetVoice = useCallback(() => {
+    setVoiceURI(null);
+    saveVoiceURI(null);
+  }, []);
+
   return {
     supported: speechSupported(),
     status,
@@ -331,6 +361,7 @@ export function useChapterSpeech(rate: number, pitch: number = PITCH_DEFAULT) {
     voices,
     voiceURI,
     chooseVoice,
+    forgetVoice,
     start,
     pause,
     resume,

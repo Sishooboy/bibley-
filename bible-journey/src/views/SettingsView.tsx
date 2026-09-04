@@ -371,6 +371,23 @@ export function SettingsView() {
               </div>
 
               <div className="card__actions">
+                {/*
+                  A remove and re-add of the setting, by hand. A stored pick
+                  bypasses the ranking, so a voice chosen once and regretted
+                  later cannot be improved by anything the app learns
+                  afterwards; this throws it away and lets the ranking choose.
+                */}
+                <button
+                  type="button"
+                  className="btn btn--sm"
+                  onClick={() => {
+                    speech.forgetVoice();
+                    setPrefs({ ...prefs, speechRate: RATE_DEFAULT, speechPitch: PITCH_DEFAULT });
+                  }}
+                  disabled={speech.voiceURI === null && rate === RATE_DEFAULT && pitch === PITCH_DEFAULT}
+                >
+                  Start fresh
+                </button>
                 <button
                   type="button"
                   className="btn btn--sm"

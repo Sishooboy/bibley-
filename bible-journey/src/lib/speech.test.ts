@@ -1,6 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   isGoodVoice,
+  loadVoiceURI,
+  saveVoiceURI,
   resolveVoice,
   sortVoices,
   speechSupported,
@@ -239,5 +241,53 @@ describe('without speech synthesis', () => {
     // gives, and both have to end in a hidden button rather than a crash.
     expect(() => speechSupported()).not.toThrow();
     expect(speechSupported()).toBe(false);
+  });
+});
+
+/**
+ * The bug behind three failed attempts at this feature. A stored choice is
+ * returned by `resolveVoice` before the ranking is consulted, so a reader
+ * pinned to a bad voice stayed pinned no matter what the ranking learned. The
+ * epoch is how an old decision gets un-pinned.
+ */
+describe('the stored voice, across a change in how voices are chosen', () => {
+  /*
+   * The test environment has no Storage, so one is stood up here. It is four
+   * methods and it keeps the test honest about what the code actually touches.
+   */
+  const store = new Map<string, string>();
+  const fresh = () => {
+    store.clear();
+    vi.stubGlobal('localStorage', {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => void store.set(k, String(v)),
+      removeItem: (k: string) => void store.delete(k),
+      clear: () => store.clear(),
+      key: (i: number) => [...store.keys()][i] ?? null,
+      get length() {
+        return store.size;
+      },
+    });
+  };
+
+  it('discards a pick made before the current ranking', () => {
+    fresh();
+    // A pick from an older build: the value is there, the epoch stamp is not.
+    localStorage.setItem('bible-journey/voice', 'Microsoft David - English (United States)');
+    expect(loadVoiceURI()).toBeNull();
+  });
+
+  it('keeps a pick made since, so a real choice is not thrown away every load', () => {
+    fresh();
+    saveVoiceURI('Samantha (Enhanced)');
+    expect(loadVoiceURI()).toBe('Samantha (Enhanced)');
+    expect(loadVoiceURI()).toBe('Samantha (Enhanced)');
+  });
+
+  it('forgets on request, and stays forgotten', () => {
+    fresh();
+    saveVoiceURI('Samantha (Enhanced)');
+    saveVoiceURI(null);
+    expect(loadVoiceURI()).toBeNull();
   });
 });

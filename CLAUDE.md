@@ -362,6 +362,15 @@ redeploy.**
   Microsoft voice carries Online or Natural and the absence of both is the tell. On a machine that
   has nothing better installed this changes nothing, because there is nothing to change to, which is
   why the Settings card tells the reader where to download one.
+- **A stored voice bypasses the ranking entirely, and that is what made three fixes look like they
+  did nothing.** `resolveVoice` returns a stored pick before `sortVoices` is ever consulted, so a
+  reader who once tapped a bad voice stayed pinned to it and every later improvement was dead code
+  on their device. Nothing in the picker said so, and nothing could: the app was doing exactly what
+  it had been told. `VOICE_EPOCH` in `speech.ts` is the remedy. Bumping it discards every pick made
+  before the current ranking, which is a remove and re-add of the setting, and Settings carries a
+  **Start fresh** button that does the same by hand and puts speed and tone back to normal.
+  **Bump the epoch whenever the selection logic changes enough that an old choice should not
+  survive it**, or the readers who most need the improvement are the ones who will not get it.
 - **`isGoodVoice` answers a different question from `voiceScore`, and the picker needs both.**
   Ranking answers "which of these is least bad", which is all a sorted list can ever say; a reader
   whose device has nothing good still saw twenty entries and no way to tell. The yes-or-no answers
