@@ -11,15 +11,30 @@ import {
   type Range,
 } from '../lib/highlight';
 import { relativeDay, today } from '../lib/dates';
+import {
+  bookInsight,
+  cachedInsights,
+  chapterNote,
+  loadInsights,
+  markSeen,
+  noteSeenKey,
+  presentation,
+  seenSet,
+  sheetKey,
+  type Insights,
+  type NoteMode,
+} from '../lib/insights';
 import { useKeyboardInset } from '../lib/keyboard';
 import { reducedMotion } from '../lib/motion';
 import { neighbours } from '../lib/navigate';
 import { DEFAULT_PREFS, TEXT_SIZES, textScale } from '../lib/prefs';
+import { chime } from '../lib/sound';
 import { PITCH_DEFAULT, RATE_DEFAULT, useChapterSpeech } from '../lib/speech';
 import { chapterKey, newId, type Highlight } from '../lib/storage';
 import { useStore } from '../state/useStore';
 import { BibleSearch } from './BibleSearch';
 import { HighlightSheet } from './HighlightSheet';
+import { AboutPill, BookSheet, ChapterNoteCard } from './Insight';
 import { LogDayPicker } from './LogDayPicker';
 import { Check, Chevron, Pause, Play, Search, Speaker, Stop } from './icons';
 
@@ -61,6 +76,12 @@ export function Reader({
    * plays on a chapter it was not for.
    */
   const [justMarked, setJustMarked] = useState(false);
+  /** The book cards and chapter notes, fetched once like the text. */
+  const [insights, setInsights] = useState<Insights | undefined>(cachedInsights);
+  /** Whether the book's card is up, and whether it was asked for rather than arriving. */
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetReplay, setSheetReplay] = useState(false);
+  const [noteMode, setNoteMode] = useState<NoteMode>('none');
   const bodyRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
@@ -102,6 +123,57 @@ export function Reader({
   useEffect(() => {
     setJustMarked(false);
   }, [book, chapter]);
+
+  useEffect(() => {
+    let live = true;
+    void loadInsights().then((loaded) => live && setInsights(loaded));
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  /*
+   * Decided once per chapter opened, and deliberately not again when the
+   * journal changes under it: marking this chapter must not re-present a card
+   * that was just dismissed. `readInBook` is read at that moment for the same
+   * reason. The sheet's chime plays here; a note's waits until the sheet has
+   * gone, or plays at once when there is none, so two sounds never arrive
+   * together.
+   */
+  useEffect(() => {
+    if (!insights) return;
+    const seen = seenSet();
+    let readInBook = 0;
+    for (const k of Object.keys(data.read)) if (k.startsWith(`${book}|`)) readInBook++;
+    const shown = presentation({
+      hasBook: !!bookInsight(insights, book),
+      seenBook: seen.has(sheetKey(book)),
+      readInBook,
+      hasNote: !!chapterNote(insights, book, chapter),
+      seenNote: seen.has(noteSeenKey(book, chapter)),
+    });
+    setSheetReplay(false);
+    setSheetOpen(shown.sheet);
+    setNoteMode(shown.note);
+    if (shown.sheet) chime('open');
+    else if (shown.note === 'reveal') {
+      chime('note');
+      markSeen(noteSeenKey(book, chapter));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [book, chapter, insights]);
+
+  const dismissSheet = () => {
+    if (!sheetReplay) {
+      markSeen(sheetKey(book));
+      if (noteMode === 'reveal') {
+        chime('note');
+        markSeen(noteSeenKey(book, chapter));
+      }
+    }
+    setSheetOpen(false);
+    setSheetReplay(false);
+  };
   useEffect(() => {
     if (!justMarked) return;
     const timer = setTimeout(() => setJustMarked(false), 900);
@@ -519,7 +591,16 @@ export function Reader({
       )}
       </div>
 
-      <div className="reader__body" ref={bodyRef}>
+      <div className="reader__body" ref={bodyRef} data-sheet={sheetOpen ? '' : undefined}>
+        {sheetOpen && bookInsight(insights, book) && (
+          <BookSheet
+            key={`${book}-${sheetReplay ? 'again' : 'first'}`}
+            book={book}
+            insight={bookInsight(insights, book)!}
+            replay={sheetReplay}
+            onBegin={dismissSheet}
+          />
+        )}
         {searching ? (
           <BibleSearch
             onClose={() => setSearching(false)}
@@ -543,6 +624,24 @@ export function Reader({
             <h2 className="reader__heading">
               {book} {chapter}
             </h2>
+            {bookInsight(insights, book) && !sheetOpen && (
+              <AboutPill
+                book={book}
+                onOpen={() => {
+                  setSheetReplay(true);
+                  setSheetOpen(true);
+                }}
+              />
+            )}
+            {/* Held back while the sheet is up, so its lines rise after the
+                card has gone rather than underneath it. */}
+            {!sheetOpen && chapterNote(insights, book, chapter) && (
+              <ChapterNoteCard
+                key={`${book}-${chapter}`}
+                note={chapterNote(insights, book, chapter)!}
+                mode={noteMode}
+              />
+            )}
             {verses.map((verse, i) =>
               // A null verse is a number this translation's source text has
               // nothing behind. Printed Bibles pass over it in silence too.

@@ -4065,6 +4065,11 @@ select {
   flex: none;
 }
 
+.reader__body[data-sheet] {
+  position: relative;
+  overflow: hidden;
+}
+
 .reader__body {
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -6775,4 +6780,217 @@ select {
 .celebrate--book[data-calm] .celebrate__eyebrow,
 .celebrate--book[data-calm] .celebrate__name {
   animation: none;
+}
+
+/* ── A book introducing itself ─────────────────────────────── */
+/*
+ * Over the text and under the bar. The same ground as the chooser and the
+ * celebrations, so it reads as the app pausing rather than a dialog arriving,
+ * and it is typographic on purpose: an eyebrow, a name rising through a clip
+ * like a title card, three lines, one button. No cross, since opening a book is
+ * an invitation and the cross marks milestones.
+ */
+.insightSheet {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  align-items: center;
+  overflow-y: auto;
+  padding: 1.5rem var(--gutter) calc(1.5rem + var(--keyboard, 0px));
+  background:
+    radial-gradient(80% 60% at 90% -10%, rgba(200, 29, 37, 0.3), transparent 62%),
+    var(--ink);
+  color: var(--cream);
+  animation: insightIn 260ms ease-out both;
+}
+
+@keyframes insightIn {
+  from {
+    opacity: 0;
+  }
+}
+
+.insightSheet__inner {
+  display: grid;
+  gap: 0.6rem;
+  max-width: 34rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.insightSheet__eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--yellow-soft);
+  animation: celebrateFade 380ms ease-out 120ms both;
+}
+
+.insightSheet__clip {
+  display: block;
+  overflow: hidden;
+  padding: 0.06em 0;
+}
+
+.insightSheet__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 12vw, 4.4rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  animation: nameRise 620ms cubic-bezier(0.22, 1, 0.36, 1) 220ms both;
+}
+
+.insightSheet__facts {
+  list-style: none;
+  margin: 0.6rem 0 0.4rem;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+/*
+ * Each line rises in a beat after the last, and the gold rule above each one
+ * is the same section rule the app uses everywhere gold is allowed. Three
+ * lines, staggered, is the whole animation: enough to feel arrived, not enough
+ * to hold anyone up.
+ */
+.insightSheet__fact {
+  position: relative;
+  padding-top: 0.7rem;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.92);
+  animation: factIn 520ms cubic-bezier(0.22, 1, 0.36, 1) calc(640ms + var(--i) * 140ms) both;
+}
+
+.insightSheet__fact::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2rem;
+  height: 2px;
+  background: var(--yellow);
+}
+
+@keyframes factIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.insightSheet__go {
+  margin-top: 0.8rem;
+  width: 100%;
+  justify-content: center;
+  padding-block: 0.85rem;
+  border-radius: 6px;
+  animation: celebrateFade 420ms ease-out 1150ms both;
+}
+
+/* The words are simply there. A sheet that snaps into place is still a jolt,
+   so the fade stays; nothing inside it moves. */
+.insightSheet[data-calm] .insightSheet__eyebrow,
+.insightSheet[data-calm] .insightSheet__title,
+.insightSheet[data-calm] .insightSheet__fact,
+.insightSheet[data-calm] .insightSheet__go {
+  animation: none;
+}
+
+/* ── Why this chapter matters ─────────────────────────────── */
+/*
+ * In the margin, the way a study Bible does it. A gold rule and a gold tint,
+ * because this is one of the places gold is for, and ink text on it because a
+ * note is read, not glanced at. It lives above the first verse and scrolls with
+ * the page: never a popup, never in the way.
+ */
+.chapterNote {
+  margin: 0 0 1.4rem;
+  padding: 0.85rem 1rem 0.95rem;
+  border-left: 3px solid var(--yellow);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: rgba(247, 184, 1, 0.1);
+  /* Not scaled with the verses: it is apparatus, not scripture. */
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.chapterNote__eyebrow {
+  margin: 0 0 0.25rem;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.chapterNote__title {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.chapterNote__text {
+  margin: 0;
+}
+
+/* The first time only: the three lines rise a beat apart. After that the card
+   is simply there when the page opens. */
+.chapterNote[data-reveal] > * {
+  animation: noteIn 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.chapterNote[data-reveal] > :nth-child(2) {
+  animation-delay: 110ms;
+}
+
+.chapterNote[data-reveal] > :nth-child(3) {
+  animation-delay: 220ms;
+}
+
+@keyframes noteIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The way back to the card, beside the heading, quiet enough to ignore. */
+.aboutPill {
+  display: inline-flex;
+  align-items: center;
+  margin: -0.4rem 0 1.1rem;
+  padding: 0.28rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: none;
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .aboutPill:hover {
+    border-color: var(--yellow);
+    color: var(--text);
+  }
 }

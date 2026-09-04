@@ -443,6 +443,31 @@ redeploy.**
   as `streak`: root and fifth under everything, a quick shimmer up through the octave as the rings
   leave, a chord as the name lands and a higher one as the count does.
 
+- **A book introduces itself the first time it is opened, and key chapters say why they matter.**
+  The words are in `public/bible/insights.json`: an eyebrow and three facts for all 73 books, and
+  a titled note for around a hundred chapters, weighted toward the big books and the deuterocanon,
+  which is what a reader is least likely to know. They live beside the text and are fetched the
+  same way, on demand through `src/lib/insights.ts`, never bundled, because sixty kilobytes of
+  prose has no business in the JavaScript. **The `/bible/` path is deliberate**: it is cache first
+  with no revalidation, so the file is there offline, and **changing it requires bumping `CACHE`
+  in `sw.js`** like any other file under it. `insights.test.ts` pins the content against the canon
+  the app ships: every book present and none invented, no note on a chapter a book does not have,
+  every line short enough to be read in a glance, and the house rule on dashes.
+- **The card presents itself once, on the first open of a book with none of it read.** Not
+  "chapter 1", because someone who opens Psalms at 23 is still starting Psalms, and not "never
+  seen" alone, because a reader halfway through Genesis before this existed has not just started it
+  and would be introduced to a book they are inside. After that it stays a tap away behind the
+  About pill and never presents itself again. A chapter's note reveals itself once and is simply
+  there after, so nobody watches the same lines rise twice. What has been seen is **device-local**,
+  like the voice: seeing a card again on a second device is a small redundancy, not a harm, and it
+  keeps the journal's whitelist untouched.
+- **The sheet lives inside `reader__body`, not over the whole reader.** The book and chapter
+  pickers in the bar stay usable, so someone who opened the wrong book does not have to dismiss an
+  introduction to fix it; the body stops scrolling while it is up. The note is held back until the
+  sheet has gone, so its lines rise after the card rather than underneath it, and so the two
+  chimes never arrive together. Those chimes, `open` and `note` in `sound.ts`, are **not on the
+  cue ladder**: nothing in the journal changed, so they are not the reducer's business. They play
+  on the first arrival only; a re-open from the pill rises but makes no sound.
 ### The data model
 
 One row per account in `public.journals`: `user_id`, `data` jsonb, `updated_at`. Row-level security

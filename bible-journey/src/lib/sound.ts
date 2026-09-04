@@ -412,6 +412,52 @@ export function schedule(cue: Cue, c: BaseAudioContext, out: AudioNode, at: numb
   VOICES[cue](c, out, at);
 }
 
+/**
+ * Two soft sounds for something arriving to be read, apart from the cues.
+ *
+ * They are not on the ladder because they are not the reducer's business:
+ * nothing in the journal changed. A book introducing itself is quieter than a
+ * book being finished, an invitation rather than a reward, and a chapter's note
+ * is a single touch. Both play once, the first time, and never for a re-open.
+ */
+const ARRIVALS = {
+  // Measured offline like the cues: at 0.11 and 0.07 these peaked at -17.3
+  // and -21.5 dBFS, under the chapter tick, and the tick at -20 was the one
+  // that vanished on a phone. Lifted by a fixed factor, which moves a bell's
+  // peak exactly: about -15.2 and -18.4 now, still well under every cue.
+  open: (c: BaseAudioContext, out: AudioNode, at: number) => {
+    bell(c, out, at, A4, 0.9, 0.14);
+    bell(c, out, at + 0.14, E5, 1.0, 0.115);
+  },
+  note: (c: BaseAudioContext, out: AudioNode, at: number) => {
+    bell(c, out, at, A5, 0.5, 0.1);
+  },
+} as const;
+
+export type Arrival = keyof typeof ARRIVALS;
+
+export function chime(kind: Arrival): void {
+  if (!enabled) return;
+  const c = context();
+  if (!c || !master) return;
+  if (c.state === 'suspended') void c.resume().catch(() => {});
+  try {
+    ARRIVALS[kind](c, master, c.currentTime + 0.02);
+  } catch {
+    /* Never worth an exception on the path that opens a chapter. */
+  }
+}
+
+/** For the offline measurement, the same way `schedule` serves the cues. */
+export function scheduleArrival(
+  kind: Arrival,
+  c: BaseAudioContext,
+  out: AudioNode,
+  at: number,
+): void {
+  ARRIVALS[kind](c, out, at);
+}
+
 /** Mirrors the reader's preference, so a muted app never even builds a voice. */
 export function setSoundEnabled(on: boolean): void {
   enabled = on;
