@@ -69,9 +69,23 @@ export function Reader({
    */
   useEffect(() => {
     if (speech.verse === null) return;
-    textRef.current
-      ?.querySelector(`[data-verse="${speech.verse}"]`)
-      ?.scrollIntoView({ block: 'center', behavior: reducedMotion() ? 'auto' : 'smooth' });
+    const body = bodyRef.current;
+    const verse = textRef.current?.querySelector(`[data-verse="${speech.verse}"]`);
+    if (!body || !verse) return;
+
+    /*
+     * Scrolls the reader's own box rather than calling `scrollIntoView`, which
+     * walks every scrollable ancestor and, inside a fixed modal, also drags the
+     * page behind it around.
+     *
+     * A third of the way down and not centred: what you want in view while
+     * something is read to you is the verse and the ones *after* it, and dead
+     * centre wastes half the screen on text already spoken.
+     */
+    const bodyBox = body.getBoundingClientRect();
+    const verseBox = verse.getBoundingClientRect();
+    const top = body.scrollTop + (verseBox.top - bodyBox.top) - bodyBox.height * 0.32;
+    body.scrollTo({ top: Math.max(0, top), behavior: reducedMotion() ? 'auto' : 'smooth' });
   }, [speech.verse]);
 
   const key = chapterKey(book, chapter);
@@ -328,6 +342,7 @@ export function Reader({
         } as CSSProperties
       }
     >
+      <div className="reader__top">
       <header className="reader__bar">
         <button
           type="button"
@@ -422,8 +437,10 @@ export function Reader({
           aria-label={`Text size, currently ${(prefs.textSize ?? 1) + 1} of ${TEXT_SIZES.length}`}
           title="Text size"
         >
-          <span className="reader__sizeSmall">A</span>
-          <span className="reader__sizeBig">A</span>
+          <span className="reader__sizeLetters">
+            <span className="reader__sizeSmall">A</span>
+            <span className="reader__sizeBig">A</span>
+          </span>
         </button>
 
         {isRead && (
@@ -433,6 +450,12 @@ export function Reader({
         )}
       </header>
 
+      {/*
+        Inside `reader__top` and not a child of `.reader` directly. The reader is
+        a three row grid, and a fourth child landed in the `minmax(0, 1fr)` row
+        meant for the text: `minmax(0, ...)` allows zero, so the bar collapsed to
+        17px and its buttons spilled over the chapter heading.
+      */}
       {speech.status !== 'idle' && (
         <div className="listenBar" role="group" aria-label="Reading aloud">
           <button
@@ -441,7 +464,7 @@ export function Reader({
             onClick={() => (speech.status === 'speaking' ? speech.pause() : speech.resume())}
             aria-label={speech.status === 'speaking' ? 'Pause' : 'Continue'}
           >
-            {speech.status === 'speaking' ? <Pause size={14} /> : <Play size={14} />}
+            {speech.status === 'speaking' ? <Pause size={17} /> : <Play size={17} />}
           </button>
           <button
             type="button"
@@ -449,7 +472,7 @@ export function Reader({
             onClick={() => speech.stop()}
             aria-label="Stop reading aloud"
           >
-            <Stop size={12} />
+            <Stop size={15} />
           </button>
           <span className="listenBar__where" aria-live="polite">
             {speech.status === 'paused'
@@ -461,6 +484,7 @@ export function Reader({
           <span className="listenBar__voice">{voiceName}</span>
         </div>
       )}
+      </div>
 
       <div className="reader__body" ref={bodyRef}>
         {searching ? (

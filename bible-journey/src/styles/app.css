@@ -3924,6 +3924,17 @@ select {
   }
 }
 
+/*
+ * The header and, while something is being read, the transport under it. They
+ * are wrapped because `.reader` is a three row grid and a fourth child takes
+ * the row the text needs: `minmax(0, 1fr)` allows zero, so the bar flattened to
+ * 17px and its 44px buttons hung over the chapter heading. Anything else pinned
+ * to the top of the reader belongs in here too.
+ */
+.reader__top {
+  min-width: 0;
+}
+
 .reader__bar {
   display: flex;
   align-items: center;
@@ -3975,6 +3986,9 @@ select {
   white-space: nowrap;
   /* A select will not shrink below its longest option without being told. */
   min-width: 0;
+  /* And it takes what is left before the chapter number does: "P.." tells the
+     reader nothing, while a truncated chapter list is still a number. */
+  flex: 1 1 auto;
 }
 
 .reader__chapter {
@@ -3984,6 +3998,21 @@ select {
   color: var(--cream);
   padding-block: 0.25rem;
   font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Five controls and two selects on a 375px screen. At the desktop gap the book
+ * name collapsed to "P.." for Psalms, which is the one thing on this bar that
+ * has to stay readable. Tighter gaps buy back about 30px, which is a book name.
+ */
+@media (max-width: 430px) {
+  .reader__bar {
+    gap: 0.45rem;
+  }
+
+  .reader__ref {
+    gap: 0.35rem;
+  }
 }
 
 .reader__done {
@@ -4474,18 +4503,32 @@ select {
   font-size: calc(clamp(1.9rem, 5vw, 2.6rem) * var(--verse-scale));
 }
 
+/*
+ * The same circle as the close, listen and search buttons. It used to be a
+ * wider, shorter lozenge with two baseline-aligned letters sitting low in it,
+ * which read as a squashed mistake beside three clean circles. The two letters
+ * still share a baseline, they are just wrapped so the pair can be centred as
+ * one thing rather than the taller letter deciding where both sit.
+ */
 .reader__size {
   flex: none;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.1rem;
-  padding: 0.3rem 0.55rem;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 99px;
+  border-radius: 50%;
   background: none;
   color: var(--cream);
   font-family: var(--font-display);
   line-height: 1;
+}
+
+.reader__sizeLetters {
+  display: flex;
+  align-items: baseline;
+  gap: 0.08rem;
 }
 
 @media (hover: hover) {
@@ -5302,12 +5345,13 @@ select {
 /* Matches .reader__size, since the two sit side by side in the reader's bar. */
 .reader__tool {
   flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.4rem 0.5rem;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 99px;
+  border-radius: 50%;
   background: none;
   color: var(--cream);
   line-height: 1;
@@ -5478,37 +5522,58 @@ select {
 .listenBar {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.45rem max(0.75rem, env(safe-area-inset-left));
+  gap: 0.6rem;
+  padding: 0.5rem max(0.75rem, env(safe-area-inset-left));
   background: var(--ink);
   color: var(--cream);
   border-bottom: 1px solid rgba(255, 255, 255, 0.14);
 }
 
+/*
+ * 44px, which is the smallest thing a thumb reliably hits. These were 30px and
+ * they were sized to look neat in a thin bar, which is the wrong thing to
+ * optimise for a control you reach for while something is already playing: at
+ * 30px pausing took two or three attempts. The bar is taller for it, and that
+ * is the right trade.
+ */
 .listenBar__btn {
   flex: none;
-  width: 30px;
-  height: 30px;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 50%;
-  background: none;
+  background: rgba(255, 255, 255, 0.06);
   color: var(--cream);
   cursor: pointer;
 }
 
+.listenBar__btn:active {
+  background: rgba(247, 184, 1, 0.2);
+  border-color: var(--yellow);
+}
+
+/* Never wraps. It is two words that change every few seconds, and a label that
+   reflows to two lines makes the whole bar jump while you are reading. */
 .listenBar__where {
+  flex: none;
+  white-space: nowrap;
   font-family: var(--font-display);
-  font-size: 0.82rem;
+  font-size: 0.86rem;
   font-variant-numeric: tabular-nums;
   color: var(--yellow);
 }
 
-/* The chosen voice, when there is one. It is the first thing you want to
-   change if what you are hearing is wrong, so it should be visible while it is
-   wrong rather than only in Settings. */
+/*
+ * The chosen voice, on screens with room to spare. It is useful context when
+ * what you are hearing is wrong, and on a phone it is not worth the space: a
+ * name like "Microsoft Zira - English (United States)" pushed the verse label
+ * into a second line and made the bar jump on every verse. Hidden below the
+ * width where it fits, rather than truncated to something unreadable.
+ */
 .listenBar__voice {
+  display: none;
   margin-left: auto;
   min-width: 0;
   overflow: hidden;
@@ -5516,6 +5581,12 @@ select {
   white-space: nowrap;
   font-size: 0.72rem;
   color: rgba(255, 255, 255, 0.62);
+}
+
+@media (min-width: 560px) {
+  .listenBar__voice {
+    display: block;
+  }
 }
 
 /*

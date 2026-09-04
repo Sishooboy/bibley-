@@ -276,7 +276,7 @@ export function SettingsView() {
                     {/* Not synced, and the hint says so, because the list is
                         different on every device and a choice made here cannot
                         mean anything on another one. */}
-                    Kept on this device, since the voices differ on each one
+                    Best first, and kept on this device since the voices differ on each one
                   </span>
                 </label>
                 <select
@@ -285,7 +285,10 @@ export function SettingsView() {
                   value={speech.voiceURI ?? ''}
                   onChange={(e) => speech.chooseVoice(e.target.value || null)}
                 >
-                  <option value="">Whatever this device prefers</option>
+                  {/* Not "whatever the device prefers": left alone a browser
+                      hands back its first voice, which is always one of the old
+                      compact ones. This picks the best it can find instead. */}
+                  <option value="">Best on this device</option>
                   {speech.voices.map((v) => (
                     <option key={v.voiceURI} value={v.voiceURI}>
                       {v.name} ({v.lang})
@@ -328,6 +331,19 @@ export function SettingsView() {
                   {speech.status === 'idle' ? 'Hear a verse' : 'Stop'}
                 </button>
               </div>
+
+              {/*
+                The single biggest quality difference available, and it is free.
+                Every platform ships a much better voice than the one it defaults
+                to, and simply does not install it until asked.
+              */}
+              <p className="notice">
+                <b>If the voice sounds flat, your device has better ones it has not downloaded.</b>{' '}
+                On an iPhone they are in Settings, Accessibility, Spoken Content, Voices, English:
+                pick one marked Enhanced or Premium. On Android look under Accessibility,
+                Text-to-speech output. They appear in the list above once installed, and cost
+                nothing.
+              </p>
 
               <p className="notice notice--gold">
                 A phone stops speech when the screen locks or you switch app, so this is for

@@ -296,6 +296,35 @@ redeploy.**
   give a positive index**: a bare `lastIndexOf` returns -1 when it finds nothing, and slicing on
   that drops a character off one piece and repeats it on the next, which is inaudible in testing and
   wrong in every verse. A test pins that nothing is lost.
+- **Verses are spoken one at a time and chained on `onend`, never queued up front.** Queueing the
+  whole chapter works on desktop Chrome and is unreliable on iOS Safari, which fires `onstart` for
+  some utterances and not others: the audio kept going while the highlight froze on verse one. The
+  chain sets the verse when a piece is *scheduled* rather than in `onstart`, for the same reason, and
+  a highlight a beat early is nothing beside one that never moves. `onend` chains through a
+  `setTimeout(0)`, because iOS refuses a `speak` issued from inside `onend` often enough to strand a
+  chapter half read.
+- **`voiceScore` picks the voice, not the browser.** Left alone every platform hands back its first
+  voice, which is always one of the old compact ones, while the good voices sit unused further down
+  the same list. They are recognisable by name, because every platform labels them Enhanced, Premium,
+  Natural or Neural. This is the single biggest difference between read-aloud being worth using and
+  sounding like 1998, and it costs nothing. Quality deliberately outweighs `localService`: a network
+  voice needs a connection, which this app otherwise avoids relying on, but a voice nobody wants to
+  hear is worth less than one that occasionally cannot load. The Settings card also says where to
+  download the better ones, which is the other half of the same answer.
+- **Following along scrolls `reader__body` itself, not `scrollIntoView`.** That walks every
+  scrollable ancestor and, inside a fixed modal, drags the page behind it around too. It targets a
+  third of the way down rather than centred, because what you want in view while something is read
+  to you is the verse and the ones after it.
+- **The transport lives inside `reader__top`, with the header.** `.reader` is a three row grid and
+  its middle row is `minmax(0, 1fr)`, which permits zero: a fourth child took that row, flattened to
+  17px, and its 44px buttons hung over the chapter heading while the text kept the `auto` row.
+  Anything else pinned to the top of the reader belongs in that wrapper, not beside it.
+- Every control in the reader bar is the **same 38px circle**, and the transport buttons are 44px,
+  which is the smallest thing a thumb reliably hits. The transport was 30px and sized to look neat
+  in a thin bar, which is the wrong thing to optimise for a control you reach for while something is
+  already playing. On a phone the bar tightens its gaps rather than letting the book name collapse:
+  at the desktop gap, Psalms rendered as "P..", and the book name is the one thing there that has to
+  stay readable.
 - The read-aloud keep-alive (`resume()` every 8s) is Chrome's long-standing stall, and it **only
   runs while the status is `speaking`**. Poking a queue the reader deliberately paused would start
   it again on its own, which is the one way this feature could feel possessed.

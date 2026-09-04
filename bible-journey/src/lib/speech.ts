@@ -90,15 +90,57 @@ export function toPieces(verses: (string | null)[]): Piece[] {
   return out;
 }
 
-/** English voices first, since the text is English, but never hide the rest. */
+/**
+ * How good a voice is likely to be, higher being better.
+ *
+ * Left to itself a browser hands back its *first* voice, which on every
+ * platform is one of the old compact ones: the robot. The good voices are
+ * there, they are just not the default, and they are recognisable by name
+ * because every platform labels them. This is the single biggest difference
+ * between read-aloud sounding worth using and sounding like 1998, and it costs
+ * nothing.
+ *
+ * Quality markers deliberately outweigh `localService`. A network voice needs a
+ * connection, which this app otherwise avoids relying on, but Google's remote
+ * voices are far better than the local ones sitting beside them, and a voice
+ * nobody wants to listen to is worth less than one that occasionally cannot
+ * load.
+ */
+export function voiceScore(v: SpeechSynthesisVoice): number {
+  const name = v.name.toLowerCase();
+  let score = 0;
+  if (v.lang.toLowerCase().startsWith('en')) score += 100;
+  // What the platforms call the voices they want you to use.
+  if (/enhanced|premium|neural|natural/.test(name)) score += 40;
+  if (/google|siri/.test(name)) score += 25;
+  // And what they call the ones they shipped in 2005.
+  if (/compact|eloquence|espeak|novelty/.test(name)) score -= 40;
+  if (v.default) score += 5;
+  if (v.localService) score += 2;
+  return score;
+}
+
+/** Best first, so the picker opens on something worth hearing. */
 export function sortVoices(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice[] {
   return [...voices].sort((a, b) => {
-    const ae = a.lang.toLowerCase().startsWith('en');
-    const be = b.lang.toLowerCase().startsWith('en');
-    if (ae !== be) return ae ? -1 : 1;
-    if (a.localService !== b.localService) return a.localService ? -1 : 1;
-    return a.name.localeCompare(b.name);
+    const d = voiceScore(b) - voiceScore(a);
+    return d !== 0 ? d : a.name.localeCompare(b.name);
   });
+}
+
+/**
+ * The voice to actually use: the reader's, if they chose one and it is still
+ * installed, otherwise the best available rather than the browser's own pick.
+ */
+export function resolveVoice(
+  voices: SpeechSynthesisVoice[],
+  uri: string | null,
+): SpeechSynthesisVoice | undefined {
+  if (uri) {
+    const chosen = voices.find((v) => v.voiceURI === uri);
+    if (chosen) return chosen;
+  }
+  return sortVoices(voices)[0];
 }
 
 export const RATE_MIN = 0.6;
@@ -118,6 +160,12 @@ export function useChapterSpeech(rate: number) {
   const [voiceURI, setVoiceURI] = useState<string | null>(loadVoiceURI);
   /** Guards the `onend` of an utterance we cancelled from ending the session. */
   const runId = useRef(0);
+  const queue = useRef<Piece[]>([]);
+  const voiceRef = useRef<SpeechSynthesisVoice | undefined>(undefined);
+  /* Read by the chain rather than closed over, so changing the speed mid-chapter
+     applies to the next verse instead of rebuilding the whole run. */
+  const rateRef = useRef(rate);
+  rateRef.current = rate;
 
   // The list is empty on first call in most browsers and arrives later.
   useEffect(() => {
@@ -150,6 +198,54 @@ export function useChapterSpeech(rate: number) {
   // voice reading a page nobody is looking at.
   useEffect(() => stop, [stop]);
 
+  /**
+   * Speaks one piece and chains to the next when it ends.
+   *
+   * **One at a time, not the whole chapter queued up front.** Queueing thirty
+   * utterances works on desktop Chrome and is unreliable on iOS Safari, which
+   * fires `onstart` for some of them and not others: the audio kept going and
+   * the highlight stopped moving after the first verse. Chaining also puts a
+   * natural breath between verses, which reads better than a wall of speech.
+   *
+   * The verse is set when the piece is *scheduled* rather than in `onstart`, for
+   * the same reason. A highlight a beat early is barely noticeable; one that
+   * never moves makes the whole feature look broken.
+   */
+  const sayFrom = useCallback((index: number, run: number) => {
+    if (run !== runId.current) return;
+    const piece = queue.current[index];
+    if (!piece) {
+      setStatus('idle');
+      setVerse(null);
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(piece.text);
+    const voice = voiceRef.current;
+    if (voice) {
+      utterance.voice = voice;
+      utterance.lang = voice.lang;
+    }
+    utterance.rate = rateRef.current;
+    setVerse(piece.verse);
+
+    utterance.onend = () => {
+      if (run !== runId.current) return;
+      // Out of the handler before speaking again: iOS refuses a `speak` issued
+      // from inside `onend` often enough to strand a chapter half read.
+      setTimeout(() => sayFrom(index + 1, run), 0);
+    };
+    utterance.onerror = () => {
+      // Cancelling raises this too, and the run guard is what tells the two
+      // apart: a cancel has already moved the id on.
+      if (run !== runId.current) return;
+      setStatus('idle');
+      setVerse(null);
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }, []);
+
   const start = useCallback(
     (verses: (string | null)[]) => {
       if (!speechSupported()) return;
@@ -157,40 +253,15 @@ export function useChapterSpeech(rate: number) {
       if (pieces.length === 0) return;
 
       window.speechSynthesis.cancel();
+      queue.current = pieces;
+      // Resolved once per chapter, not per verse, and from the live list rather
+      // than the state copy, which may not have arrived on the first open.
+      voiceRef.current = resolveVoice(window.speechSynthesis.getVoices(), voiceURI);
       const run = ++runId.current;
-      const chosen = voiceURI
-        ? window.speechSynthesis.getVoices().find((v) => v.voiceURI === voiceURI)
-        : undefined;
-
-      pieces.forEach((piece, i) => {
-        const u = new SpeechSynthesisUtterance(piece.text);
-        if (chosen) {
-          u.voice = chosen;
-          u.lang = chosen.lang;
-        }
-        u.rate = rate;
-        u.onstart = () => {
-          if (run !== runId.current) return;
-          setVerse(piece.verse);
-        };
-        if (i === pieces.length - 1) {
-          u.onend = () => {
-            if (run !== runId.current) return;
-            setStatus('idle');
-            setVerse(null);
-          };
-        }
-        u.onerror = () => {
-          if (run !== runId.current) return;
-          setStatus('idle');
-          setVerse(null);
-        };
-        window.speechSynthesis.speak(u);
-      });
-
       setStatus('speaking');
+      sayFrom(0, run);
     },
-    [rate, voiceURI],
+    [voiceURI, sayFrom],
   );
 
   const pause = useCallback(() => {

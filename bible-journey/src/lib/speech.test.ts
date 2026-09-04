@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sortVoices, speechSupported, toPieces } from './speech';
+import { resolveVoice, sortVoices, speechSupported, toPieces, voiceScore } from './speech';
 
 const words = (n: number) => Array.from({ length: n }, (_, i) => `word${i}`).join(' ');
 
@@ -84,23 +84,80 @@ describe('toPieces', () => {
   });
 });
 
-describe('sortVoices', () => {
-  const voice = (name: string, lang: string, localService = true) =>
-    ({ name, lang, localService, voiceURI: name, default: false }) as SpeechSynthesisVoice;
+const voice = (name: string, lang: string, localService = true, dflt = false) =>
+  ({ name, lang, localService, voiceURI: name, default: dflt }) as SpeechSynthesisVoice;
 
-  it('puts English first, then the ones that need no connection', () => {
+/**
+ * The ranking is the whole difference between read-aloud being worth using and
+ * sounding like 1998. Left alone a browser hands back its first voice, which on
+ * every platform is one of the old compact ones.
+ */
+describe('choosing a voice', () => {
+  it('puts English first', () => {
+    const sorted = sortVoices([voice('Thomas', 'fr-FR'), voice('Alex', 'en-US')]);
+    expect(sorted[0].name).toBe('Alex');
+  });
+
+  it('ranks the voices a platform calls Enhanced above the ones it ships by default', () => {
     const sorted = sortVoices([
-      voice('Zoe', 'fr-FR'),
-      voice('Remote', 'en-GB', false),
-      voice('Local', 'en-GB'),
+      voice('Daniel (Compact)', 'en-GB', true, true),
+      voice('Samantha', 'en-US'),
+      voice('Google UK English Female', 'en-GB', false),
+      voice('Samantha (Enhanced)', 'en-US'),
     ]);
-    expect(sorted.map((v) => v.name)).toEqual(['Local', 'Remote', 'Zoe']);
+    expect(sorted.map((v) => v.name)).toEqual([
+      'Samantha (Enhanced)',
+      'Google UK English Female',
+      'Samantha',
+      'Daniel (Compact)',
+    ]);
+  });
+
+  /*
+   * A network voice needs a connection, which this app otherwise avoids relying
+   * on, but Google's remote voices beat the local ones sitting beside them and a
+   * voice nobody wants to hear is worth less than one that occasionally stalls.
+   */
+  it('lets quality outweigh working offline', () => {
+    expect(voiceScore(voice('Microsoft Aria Online (Natural)', 'en-US', false))).toBeGreaterThan(
+      voiceScore(voice('Microsoft David', 'en-US', true)),
+    );
+  });
+
+  it('pushes the compact voices to the bottom, default or not', () => {
+    const sorted = sortVoices([voice('Fred (Compact)', 'en-US', true, true), voice('Ava', 'en-US')]);
+    expect(sorted[0].name).toBe('Ava');
   });
 
   it('leaves the list it was given alone', () => {
     const list = [voice('B', 'en-US'), voice('A', 'en-US')];
     sortVoices(list);
     expect(list.map((v) => v.name)).toEqual(['B', 'A']);
+  });
+});
+
+describe('resolveVoice', () => {
+  const list = [voice('Daniel (Compact)', 'en-GB', true, true), voice('Ava (Premium)', 'en-US')];
+
+  it('takes the best available when the reader has not chosen', () => {
+    expect(resolveVoice(list, null)?.name).toBe('Ava (Premium)');
+  });
+
+  it('honours a choice that is still installed', () => {
+    expect(resolveVoice(list, 'Daniel (Compact)')?.name).toBe('Daniel (Compact)');
+  });
+
+  /*
+   * The choice is device-local but a device can lose a voice: an iOS update
+   * removes one, or the reader deletes the download. Falling back to the best
+   * beats falling back to silence.
+   */
+  it('falls back to the best when the chosen voice is gone', () => {
+    expect(resolveVoice(list, 'A voice that was uninstalled')?.name).toBe('Ava (Premium)');
+  });
+
+  it('has nothing to give when the device has no voices at all', () => {
+    expect(resolveVoice([], null)).toBeUndefined();
   });
 });
 
