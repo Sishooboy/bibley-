@@ -115,25 +115,124 @@ export function readsByDay(read: ReadMap): Map<DayKey, number> {
   return byDay;
 }
 
-export type Streak = { current: number; longest: number; lastReadDay: DayKey | null };
+/**
+ * Days of unbroken reading earned before a rest day is, and the most that can
+ * be held at once.
+ *
+ * A streak that cannot be lost is a counter, and a streak that dies to one bad
+ * day is a punishment. Rest days are what put something at stake without making
+ * the stake cruel: they have to be earned by reading, they run out, and holding
+ * more than two would mean a fortnight away costs nothing.
+ */
+export const REST_EVERY = 7;
+export const REST_CAP = 2;
 
+export type Streak = {
+  current: number;
+  longest: number;
+  lastReadDay: DayKey | null;
+  /** Rest days in hand right now, earned by the current run. */
+  rest: number;
+  /** True when a missed day is being covered by a rest day at this moment. */
+  resting: boolean;
+  /**
+   * The run that ended on `lastReadDay`, whether or not it is still alive.
+   * `current` is this or zero; this is what a broken streak *was*, which is the
+   * only way to say what was lost.
+   */
+  lastRun: number;
+};
+
+/**
+ * The streak, and what is holding it up.
+ *
+ * **Rest days are derived, never stored.** A balance on the journal would need
+ * a `normalize()` whitelist entry, would have to survive a merge, and two
+ * devices could disagree about how many were left. Walking the days each time
+ * costs nothing on a journal this size and cannot desync, because the days are
+ * the only source of truth there is.
+ *
+ * A run counts days actually read. A rest day preserves a run across a missed
+ * day without adding to it, so "12 day streak" always means twelve days of
+ * reading and never eleven days and an excuse.
+ */
 export function streak(read: ReadMap): Streak {
   const days = [...readsByDay(read).keys()].sort();
-  if (days.length === 0) return { current: 0, longest: 0, lastReadDay: null };
+  if (days.length === 0) {
+    return { current: 0, longest: 0, lastReadDay: null, rest: 0, resting: false, lastRun: 0 };
+  }
 
   let longest = 1;
   let run = 1;
+  let spent = 0;
+  /** Earned by the run so far, minus what covering missed days has cost. */
+  const inHand = () => Math.min(REST_CAP, Math.floor(run / REST_EVERY) - spent);
+
   for (let i = 1; i < days.length; i++) {
-    run = daysBetween(days[i - 1], days[i]) === 1 ? run + 1 : 1;
+    const missed = daysBetween(days[i - 1], days[i]) - 1;
+    if (missed === 0) {
+      run += 1;
+    } else if (missed <= inHand()) {
+      // Each missed day costs one, so a two day absence needs two in hand.
+      spent += missed;
+      run += 1;
+    } else {
+      // Out of cover. The run ends and its unspent rest days end with it.
+      run = 1;
+      spent = 0;
+    }
     if (run > longest) longest = run;
   }
 
   const last = days[days.length - 1];
-  const gap = daysBetween(last, today());
-  // A streak survives "nothing read yet today" but dies after a full missed day.
-  const current = gap <= 1 ? run : 0;
+  /*
+   * Today is not over, so it is never counted as missed: `gap` of 1 means read
+   * yesterday and nothing yet today, which has always stood on its own. Beyond
+   * that, every whole day since costs a rest day like any other.
+   */
+  const missedSince = Math.max(0, daysBetween(last, today()) - 1);
+  const covered = missedSince <= inHand();
+  const current = covered ? run : 0;
 
-  return { current, longest, lastReadDay: last };
+  return {
+    current,
+    longest,
+    lastReadDay: last,
+    rest: current === 0 ? 0 : Math.max(0, inHand() - missedSince),
+    resting: current > 0 && missedSince > 0,
+    lastRun: run,
+  };
+}
+
+export type RiskLevel = 'calm' | 'due' | 'urgent';
+export type Risk = { level: RiskLevel; text: string };
+
+/** After this hour, a day that has not been read is a day nearly gone. */
+const LATE_HOUR = 20;
+
+/**
+ * What to say about a streak that has not been fed today, or null when there is
+ * nothing to say.
+ *
+ * The old line said the same thing at eight in the morning as at midnight, and
+ * a warning that never changes is a warning nobody reads. This escalates with
+ * the clock and, more importantly, **tells the truth about the consequence**:
+ * with a rest day in hand the streak does not end tonight, it costs something,
+ * and saying "ends tonight" then would be a lie the app gets caught in.
+ */
+export function streakRisk(s: Streak, readToday: boolean, now: Date): Risk | null {
+  if (readToday || s.current === 0) return null;
+  const late = now.getHours() >= LATE_HOUR;
+  const days = `${s.current} day streak`;
+
+  if (s.rest > 0) {
+    return late
+      ? { level: 'due', text: `Miss today and a rest day covers your ${days}.` }
+      : { level: 'calm', text: `Your ${days} is waiting on today.` };
+  }
+  return late
+    ? { level: 'urgent', text: `Your ${days} ends tonight.` }
+    : { level: 'calm', text: `Your ${days} is waiting on today.` };
 }
 
 export type Pace = {

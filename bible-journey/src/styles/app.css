@@ -1715,6 +1715,47 @@ select {
   margin-bottom: 1rem;
 }
 
+/*
+ * Late, with nothing in hand. Red rather than gold, because this is the one
+ * state where something is actually about to be lost, and the gold note has
+ * been on screen every unread evening for months without meaning it. Measured:
+ * 9.08 on its own tint, against the 4.5 small text needs.
+ */
+.riskNote[data-level='urgent'] {
+  background: #fdeaea;
+  border-left-color: var(--red-600);
+  color: #7a1a20;
+  font-weight: 600;
+}
+
+/*
+ * What a streak was, once it is gone. Deliberately the quietest thing on the
+ * card: no colour, no icon, no rule down the side. A loss announced loudly is a
+ * telling-off, and the reader already knows.
+ */
+.lossNote {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: #6b5f57;
+}
+
+/*
+ * Rest days, on the hero beside the flame. Soft gold on the red, the same pair
+ * the eyebrow uses there, because full gold does not carry at this size.
+ */
+.restDays {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--yellow-soft);
+  opacity: 0.9;
+}
+
+/* Being spent right now, which is worth a shade more attention than being held. */
+.restDays--spending {
+  opacity: 1;
+  font-weight: 600;
+}
+
 .settingRow {
   display: flex;
   align-items: center;

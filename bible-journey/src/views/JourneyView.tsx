@@ -110,7 +110,13 @@ export function JourneyView() {
               </span>
             </div>
 
-            <StreakWeek read={data.read} current={streak.current} longest={streak.longest} />
+            <StreakWeek
+              read={data.read}
+              current={streak.current}
+              longest={streak.longest}
+              rest={streak.rest}
+              resting={streak.resting}
+            />
           </div>
         </div>
       </div>

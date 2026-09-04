@@ -27,10 +27,15 @@ export function StreakWeek({
   read,
   current,
   longest,
+  rest,
+  resting,
 }: {
   read: ReadMap;
   current: number;
   longest: number;
+  /** Rest days in hand. A streak you can protect is one worth keeping. */
+  rest: number;
+  resting: boolean;
 }) {
   const { cue } = useStore();
   const week = last30Days(read, 7);
@@ -81,6 +86,19 @@ export function StreakWeek({
         )}
         <span className="streakWeek__best">· best {longest}</span>
       </span>
+
+      {/*
+        Only ever shown when there is something to say. A counter that reads
+        "0 rest days" every day for a week teaches the reader to ignore the one
+        day it matters.
+      */}
+      {current > 0 && (resting || rest > 0) && (
+        <span className={`restDays${resting ? ' restDays--spending' : ''}`}>
+          {resting
+            ? 'A rest day is holding this'
+            : `${plural(rest, 'rest day')} in hand`}
+        </span>
+      )}
 
       <div className="streakWeek__days" role="img" aria-label={weekLabel(week, todayKey)}>
         {week.map((day, i) => (

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { today } from '../lib/dates';
 import {
   DEFAULT_PREFS,
@@ -8,7 +8,7 @@ import {
   saveNotifiedDay,
   type Prefs,
 } from '../lib/prefs';
-import { nextUnread, readsByDay } from '../lib/progress';
+import { nextUnread, readsByDay, streakRisk, type Risk } from '../lib/progress';
 import { useStore } from './useStore';
 
 const CHECK_INTERVAL_MS = 60_000;
@@ -18,8 +18,12 @@ export type ReminderState = {
   setPrefs: (next: Prefs) => void;
   permission: NotificationPermission | 'unsupported';
   requestPermission: () => Promise<void>;
-  /** True when the streak is alive but nothing has been read today. */
-  streakAtRisk: boolean;
+  /**
+   * What to say about a streak that has not been fed today, or null. A level
+   * rather than a boolean, because the same sentence at nine in the morning and
+   * at midnight is a warning nobody reads.
+   */
+  risk: Risk | null;
   notifyNow: () => void;
 };
 
@@ -32,7 +36,13 @@ export function useReminder(): ReminderState {
   const [tick, setTick] = useState(0);
 
   const readToday = (readsByDay(data.read).get(today()) ?? 0) > 0;
-  const streakAtRisk = derived.streak.current > 0 && !readToday;
+  // `tick` is the minute timer below, and it is what makes the wording escalate
+  // while the app is left open rather than only on the next load.
+  const risk = useMemo(
+    () => streakRisk(derived.streak, readToday, new Date()),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [derived.streak, readToday, tick],
+  );
 
   function notify(body: string) {
     if (!REMINDERS_UNLOCKED) return;
@@ -77,5 +87,5 @@ export function useReminder(): ReminderState {
     setPermission(result);
   };
 
-  return { prefs, setPrefs, permission, requestPermission, streakAtRisk, notifyNow };
+  return { prefs, setPrefs, permission, requestPermission, risk, notifyNow };
 }

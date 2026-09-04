@@ -334,6 +334,27 @@ redeploy.**
   book name is the one thing there that has to stay readable. That was measured with four controls
   in the bar and there are three now, so there is room, but the rule stands for whatever goes in
   next.
+- **Rest days are what put something at stake, and they are derived, never stored.** Seven
+  consecutive days earns one, two is the most that can be held, and a missed day spends one instead
+  of ending the run. Out of cover and the run ends, taking its unspent rest days with it. A balance
+  on the journal would need a `normalize()` whitelist entry, would have to survive a merge, and two
+  devices could disagree about how many were left; walking the days costs nothing on a journal this
+  size and cannot desync, because the days are the only source of truth there is. **A run counts
+  days actually read**, so a covered day preserves the number without adding to it and "12 day
+  streak" never means eleven days and an excuse. `REST_EVERY` and `REST_CAP` are the two knobs, and
+  the arithmetic is pinned by tests because every rule in it is something a reader feels and none of
+  it is visible in the UI until it bites.
+- **`streakRisk` escalates with the clock, and is not allowed to bluff.** The old line said the same
+  thing at eight in the morning as at midnight, and a warning that never changes is one nobody
+  reads. After 20:00 with nothing in hand it says the streak ends tonight and turns red; **with a
+  rest day in hand it must not**, because the streak genuinely does not end, and a threat the app
+  gets caught inventing makes every later warning worth nothing. That honesty rule has its own test.
+- **A broken streak is said once.** It used to become "No active streak" in the hero and nothing
+  else, so twelve days vanished without a word. `lastRun` on the `Streak` carries what the run was
+  after `current` has gone to zero, which is the only way to name what was lost. Runs under three
+  days are not mourned, since that would be the app grieving on your behalf over nothing. What has
+  been said is device-local, keyed by the run and the day it ended, the same pattern as the insight
+  cards: a second break is mourned again, the same one never is.
 - **The streak animation reads the cue channel the sounds use**, exposed as `cue` on the store, so
   one moment drives both rather than two systems separately noticing the same event and disagreeing
   about when. It is four small things: the flame swells and warms, the number counts up through
@@ -527,8 +548,8 @@ undo, backdating so a chapter counts on the day it was read, an optional time of
 itself in a reader that opens at any book and any chapter, highlighting with a thought attached,
 notes, stats, streaks, an offline app shell, a six panel welcome guide, full text search over all
 73 books, five synthesised sounds with a synced mute switch, a card introducing every book and a
-note on the chapters that matter, a streak that celebrates itself when it grows, and a synced
-settings screen.
+note on the chapters that matter, a streak that celebrates itself when it grows and can be
+protected by rest days it earns, and a synced settings screen.
 
 Notes and highlights share one feed in the Notes view, sorted by when each was last touched. They
 are different objects with the same purpose, so the filter switches between them rather than

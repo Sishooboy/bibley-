@@ -5,7 +5,15 @@ import { getTrack, type PhasedTrack } from '../data/tracks';
 const STORY = ['full_story_first', 'nt_story_first', 'ot_story_first'] as const;
 const track = (id: string) => getTrack(id) as PhasedTrack;
 import { addDays, clampReadingDay, daysBetween, isDayKey, toDayKey, today } from './dates';
-import { last30Days, nextUnread, overallProgress, phaseProgressAll, streak } from './progress';
+import {
+  last30Days,
+  nextUnread,
+  overallProgress,
+  phaseProgressAll,
+  REST_CAP,
+  streak,
+  streakRisk,
+} from './progress';
 import type { ReadMap } from './storage';
 
 /** Streaks are relative to "now", so the clock has to be pinned to test them. */
@@ -82,7 +90,8 @@ describe('streak', () => {
   afterEach(() => vi.useRealTimers());
 
   it('is zero with nothing read', () => {
-    expect(streak({})).toEqual({ current: 0, longest: 0, lastReadDay: null });
+    expect(streak({}).current).toBe(0);
+    expect(streak({}).lastReadDay).toBeNull();
   });
 
   it('counts consecutive days up to today', () => {
@@ -122,6 +131,164 @@ describe('streak', () => {
   it('ignores chapters with no day, which came from an import', () => {
     const read: ReadMap = { a: null, b: '2026-02-10' };
     expect(streak(read).current).toBe(1);
+  });
+});
+
+/**
+ * Rest days are the stake. They are earned by reading, they run out, and they
+ * are derived from the days rather than stored, so there is no balance to drift
+ * between two devices. These pin the arithmetic, because every one of them is a
+ * rule a reader will feel and none of them is visible in the UI until it bites.
+ */
+describe('rest days', () => {
+  beforeEach(() => freezeAt('2026-02-10T09:00:00'));
+  afterEach(() => vi.useRealTimers());
+
+  /** Read on each of the given days, one chapter apiece. */
+  const on = (...days: string[]): ReadMap =>
+    Object.fromEntries(days.map((d, i) => [`Book|${i + 1}`, d]));
+
+  const range = (from: number, to: number) =>
+    Array.from({ length: to - from + 1 }, (_, i) => `2026-02-${String(from + i).padStart(2, '0')}`);
+
+  it('earns nothing in the first six days', () => {
+    expect(streak(on(...range(5, 10))).rest).toBe(0);
+  });
+
+  it('earns one on the seventh day read', () => {
+    expect(streak(on(...range(4, 10))).rest).toBe(1);
+  });
+
+  it('holds no more than two, however long the run', () => {
+    // Twenty-eight days running up to today, which would earn four uncapped.
+    const jan = Array.from({ length: 18 }, (_, i) => `2026-01-${14 + i}`);
+    const s = streak(on(...jan, ...range(1, 10)));
+    expect(s.current).toBe(28);
+    expect(s.rest).toBe(REST_CAP);
+  });
+
+  /*
+   * The heart of it. Seven days earns a rest day, and a single missed day then
+   * costs it rather than ending the run. Before this, one bad Tuesday threw
+   * away a month.
+   */
+  it('covers a missed day, and the run carries on', () => {
+    // 3rd to 9th is seven days, then the 10th is missed... but today IS the 10th,
+    // and today is never counted as missed, so use a gap inside the history.
+    const read = on(...range(1, 7), '2026-02-09', '2026-02-10');
+    const s = streak(read);
+    expect(s.current).toBe(9);
+    expect(s.rest).toBe(0);
+  });
+
+  it('counts days read, so a covered day never inflates the number', () => {
+    // Nine days appear in the journal; the 8th was missed and covered.
+    const s = streak(on(...range(1, 7), '2026-02-09', '2026-02-10'));
+    expect(s.current).toBe(9);
+  });
+
+  it('breaks when the cover runs out', () => {
+    // Six days earns nothing, so the missed 8th ends it and the 9th starts over.
+    const s = streak(on(...range(2, 7), '2026-02-09', '2026-02-10'));
+    expect(s.current).toBe(2);
+  });
+
+  it('needs two in hand for a two day absence', () => {
+    // Seven days earns one, which cannot cover both the 8th and the 9th.
+    expect(streak(on(...range(1, 7), '2026-02-10')).current).toBe(1);
+    // Fourteen earns two, which can. Both absences end on today, so the gap to
+    // now costs nothing and the only thing under test is the cover itself.
+    const jan = Array.from({ length: 7 }, (_, i) => `2026-01-${25 + i}`);
+    expect(streak(on(...jan, ...range(1, 7), '2026-02-10')).current).toBe(15);
+  });
+
+  it('loses unspent rest days when the run ends', () => {
+    // A fortnight, then a three day absence no cover can bridge, then one day.
+    const before = range(20, 31).map((d) => d.replace('02-', '01-')).concat(range(1, 2));
+    expect(streak(on(...before, '2026-02-10')).current).toBe(1);
+  });
+
+  /*
+   * Today is never a missed day: it is not over. A reader who read yesterday and
+   * has not opened the app yet still has their streak, and it has cost nothing.
+   */
+  it('does not spend anything on a today that is merely unread', () => {
+    const s = streak(on(...range(3, 9)));
+    expect(s.current).toBe(7);
+    expect(s.rest).toBe(1);
+    expect(s.resting).toBe(false);
+  });
+
+  it('says when a rest day is what is holding it up', () => {
+    // Read through the 8th, nothing on the 9th, and today is the 10th.
+    const s = streak(on(...range(2, 8)));
+    expect(s.current).toBe(7);
+    expect(s.resting).toBe(true);
+    expect(s.rest).toBe(0);
+  });
+
+  /*
+   * `lastRun` is what a broken streak was, which is the only way the app can
+   * say what was lost. `current` goes to zero; this does not.
+   */
+  it('remembers the size of a run that has ended', () => {
+    const s = streak(on(...range(1, 5)));
+    expect(s.current).toBe(0);
+    expect(s.lastRun).toBe(5);
+    expect(s.rest).toBe(0);
+  });
+
+  it('has nothing to report for an empty journal', () => {
+    expect(streak({})).toEqual({
+      current: 0,
+      longest: 0,
+      lastReadDay: null,
+      rest: 0,
+      resting: false,
+      lastRun: 0,
+    });
+  });
+});
+
+describe('streakRisk', () => {
+  const s = (over: Partial<ReturnType<typeof streak>> = {}) => ({
+    current: 12,
+    longest: 12,
+    lastReadDay: '2026-02-09',
+    rest: 0,
+    resting: false,
+    lastRun: 12,
+    ...over,
+  });
+  const at = (hour: number) => new Date(2026, 1, 10, hour, 0);
+
+  it('says nothing once today has been read', () => {
+    expect(streakRisk(s(), true, at(22))).toBeNull();
+  });
+
+  it('says nothing when there is no streak to lose', () => {
+    expect(streakRisk(s({ current: 0 }), false, at(22))).toBeNull();
+  });
+
+  it('is calm in the morning and urgent at night', () => {
+    expect(streakRisk(s(), false, at(9))?.level).toBe('calm');
+    expect(streakRisk(s(), false, at(21))?.level).toBe('urgent');
+  });
+
+  /*
+   * The honesty rule. With a rest day in hand the streak does *not* end tonight,
+   * so saying it does would be a threat the app gets caught inventing, and the
+   * next warning would be worth nothing.
+   */
+  it('never threatens an ending a rest day would prevent', () => {
+    const late = streakRisk(s({ rest: 1 }), false, at(23));
+    expect(late?.level).toBe('due');
+    expect(late?.text).not.toContain('ends tonight');
+    expect(late?.text).toContain('rest day');
+  });
+
+  it('names the number, so the thing at stake is on screen', () => {
+    expect(streakRisk(s(), false, at(21))?.text).toContain('12 day streak');
   });
 });
 

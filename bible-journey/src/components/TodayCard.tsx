@@ -13,13 +13,57 @@ const SUGGESTION_SIZE = 3;
 /** One tap for however much you actually got through. */
 const QUICK_AMOUNTS = [1, 3, 5, 10];
 
+/**
+ * Runs shorter than this are not mourned. Losing a two day streak is not a loss,
+ * and saying so would make the app sound like it is grieving on your behalf over
+ * nothing.
+ */
+const MOURN_FROM = 3;
+
+const LOSS_KEY = 'bible-journey/streak-lost';
+const readLoss = (): string | null => {
+  try {
+    return localStorage.getItem(LOSS_KEY);
+  } catch {
+    return null;
+  }
+};
+const writeLoss = (key: string): void => {
+  try {
+    localStorage.setItem(LOSS_KEY, key);
+  } catch {
+    /* A private window cannot remember, and will say it twice. Harmless. */
+  }
+};
+
 export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }) {
   const { data, markNext, derived } = useStore();
-  const { streakAtRisk } = useReminder();
+  const { risk } = useReminder();
   const { open } = useReader();
   const plan = derived.plan;
   const refs = nextUnread(data.read, SUGGESTION_SIZE, plan);
   const first = refs[0] as (typeof refs)[number] | undefined;
+
+  /*
+   * What a streak was, said once, when it is gone. Keyed by the run and the day
+   * it ended, so a second break is mourned again but the same one never is.
+   * Device-local: telling you on your laptop and again on your phone is a small
+   * redundancy, and putting it in the journal would mean a `normalize()` entry
+   * for a string nothing else needs.
+   */
+  const { current, lastRun, lastReadDay } = derived.streak;
+  const lost = current === 0 && lastRun >= MOURN_FROM && lastReadDay ? lastRun : null;
+  const lossKey = lost ? `${lastReadDay}|${lost}` : null;
+  const [mourn, setMourn] = useState<number | null>(null);
+  useEffect(() => {
+    if (!lossKey || !lost) {
+      setMourn(null);
+      return;
+    }
+    if (readLoss() === lossKey) return;
+    setMourn(lost);
+    writeLoss(lossKey);
+  }, [lossKey, lost]);
 
   /*
    * The day's book, fetched here rather than when Read is pressed. A book is
@@ -80,10 +124,27 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
 
   return (
     <section className="panel" aria-label="Today's reading">
-      {streakAtRisk && (
-        <p className="riskNote">
+      {/*
+        One line, and it escalates: `streakRisk` decides the wording from the
+        clock and from whether a rest day is in hand. The tone is an attribute
+        rather than three components, so the copy and the colour cannot drift
+        apart.
+      */}
+      {risk && (
+        <p className="riskNote" data-level={risk.level}>
           <Flame size={14} />
-          Your {derived.streak.current} day streak is still waiting on today.
+          {risk.text}
+        </p>
+      )}
+
+      {/*
+        A broken streak used to become "No active streak" in the hero and
+        nothing else: twelve days gone without a word. This says it once, plainly
+        and without ceremony, and then never again.
+      */}
+      {mourn !== null && (
+        <p className="lossNote">
+          Your {mourn} day streak ended. Today starts a new one.
         </p>
       )}
 
