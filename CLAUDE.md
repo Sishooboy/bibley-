@@ -378,7 +378,7 @@ redeploy.**
   `prefers-reduced-motion` was designed in rather than bolted on: no swell, no bounce and no sparks
   at all, but today's cell still changes colour, because that is the record of having read today and
   not decoration.
-- **`StreakCelebration` is the version of that moment meant to be looked at, not glimpsed.** The
+- **`StreakCelebration` is the version of that moment meant to be looked at, not glimpsed**, and it now carries the finished book as well. The
   hero's flame is an ambient touch for whoever is already looking there; this is a full screen
   takeover, centred, for when growing the streak deserves the reader's whole attention. Same trigger
   as the flame and the bell, `cue.name === 'streak'` on the store, so all three fire off one signal
@@ -397,6 +397,24 @@ redeploy.**
   screen element snapping straight into existence is a bigger jolt than the fade it is trying to
   avoid. It lives in `Shell` beside `UndoBar`, never inside anything transformed, since `.celebrate`
   is `position: fixed` and a transformed ancestor becomes the containing block for that.
+- **A finished book gets the bigger moment, and the cue carries the name.** `fire()` in the reducer
+  attaches `books` to a `book` cue, because "a book finished" is not enough for a screen that wants
+  to put the name on it; the other cues stay two fields. The book variant is the streak's machinery
+  with what a book has that a streak does not: the name rises through a clip like a title card
+  before the reels roll to where that leaves the count, three rings leave the cross, and it holds a
+  second longer. Its chapter count comes from the canon, not the track, since a reader can finish a
+  book their track does not contain by wandering into it from the reader. **This also settles the
+  gap `chooseCue` left**: finishing a book on the day a streak grows used to ring the book bell and
+  show nothing, because only the streak cue had a screen. Now the larger moment wins, which is what
+  the ladder meant all along.
+- **`.celebrate` reduced-motion rules key on `data-calm`, never on the media query.** The attribute
+  is set from `reducedMotion()`, which reads that same query, so they agree in the wild, and keying
+  on one switch rather than two is what keeps them from drifting. The book block was first written
+  inside `@media (prefers-reduced-motion)` and failed silently: the rings kept expanding and the
+  name kept rising for a reader who had asked for neither, and only the attribute-driven test
+  caught it. The `book` voice runs about 4.2 seconds against a 4.6 second hold, scored the same way
+  as `streak`: root and fifth under everything, a quick shimmer up through the octave as the rings
+  leave, a chord as the name lands and a higher one as the count does.
 
 ### The data model
 

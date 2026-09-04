@@ -215,15 +215,19 @@ function tick(
  * major key.
  *
  * The upper notes stay between 220 and 880, because a phone speaker has almost
- * nothing below that and gets shrill above. A2 breaks that rule and is only
- * ever used by `drone`, where it is felt under the other notes rather than
- * heard on its own, and where the filter keeps it from turning to mud.
+ * nothing below that and gets shrill above. Two notes break that rule. A2 and
+ * E3 are only ever used by `drone`, felt under the rest rather than heard, with
+ * the filter keeping them from turning to mud. E6 appears only in the finished
+ * book's flourishes, brief and quiet, where a little shimmer at the top is the
+ * point and a sustained note there would not be.
  */
 const A2 = 110;
+const E3 = 164.81;
 const A3 = 220;
 const A4 = 440;
 const E5 = 659.25;
 const A5 = 880;
+const E6 = 1318.51;
 
 /**
  * A low note that swells instead of striking, and brightens while it holds.
@@ -353,10 +357,37 @@ const VOICES: Record<Cue, Voice> = {
     bell(c, out, at + 2.06, A5, 1.7, 0.12);
   },
 
-  /** Bigger, slower and allowed to ring. The reward the app never had. */
+  /**
+   * Scored against the book celebration the way `streak` is scored against its
+   * own, and bigger in every direction that the moment is: a longer hold, a
+   * fifth under the drone, and two arrivals rather than one, the name and then
+   * the count. The timings are that animation's.
+   *
+   *   0.00  scrim, drone on the root and its fifth
+   *   0.08  the cross lands
+   *   0.32  rings leave the cross, a quick shimmer up through the octave
+   *   0.62  the name rises, first chord
+   *   1.50  the reels turn
+   *   3.00  the count lands, second chord an octave up
+   *   4.28  the scrim starts to leave, everything still ringing out
+   */
   book: (c, out, at) => {
-    bell(c, out, at, A4, 1.5, 0.24);
-    bell(c, out, at + 0.14, E5, 1.8, 0.2);
+    drone(c, out, at, A2, 4.0, 0.1);
+    drone(c, out, at, E3, 3.7, 0.055);
+    bell(c, out, at + 0.06, A3, 1.5, 0.1);
+    // The rings: three short high strikes climbing, quiet, gone in half a second.
+    bell(c, out, at + 0.32, E5, 0.45, 0.06);
+    bell(c, out, at + 0.46, A5, 0.45, 0.06);
+    bell(c, out, at + 0.6, E6, 0.5, 0.045);
+    // The name.
+    bell(c, out, at + 0.62, A4, 1.6, 0.2);
+    bell(c, out, at + 0.7, E5, 1.7, 0.15);
+    // The reels turning.
+    sweep(c, out, at + 1.4, 1.62, 0.05);
+    // The count landing, an octave above where the name arrived.
+    bell(c, out, at + 3.0, A4, 1.5, 0.14);
+    bell(c, out, at + 3.0, A5, 1.5, 0.17);
+    bell(c, out, at + 3.08, E6, 1.3, 0.09);
   },
 
   /**

@@ -58,16 +58,22 @@ export type State = {
    * a string would only fire once. An action that earns no sound leaves the last
    * cue in place, which is inert, since the effect turns on the id changing.
    */
-  cue: { id: number; name: Cue } | null;
+  cue: { id: number; name: Cue; books?: string[] } | null;
 };
 
 function withUndo(state: State, data: AppData, label: string, tone?: 'done'): State {
   return { data, previous: { data: state.data, label, tone }, cue: state.cue };
 }
 
-/** Stamps a cue so an unchanged repeat still reads as a new one. */
-function fire(state: State, name: Cue): { id: number; name: Cue } {
-  return { id: (state.cue?.id ?? 0) + 1, name };
+/**
+ * Stamps a cue so an unchanged repeat still reads as a new one. A book cue
+ * carries the names, because "a book finished" is not enough for a celebration
+ * that wants to say which. Only set when there is something to say, so the
+ * other cues stay two fields.
+ */
+function fire(state: State, name: Cue, books?: string[]): State['cue'] {
+  const id = (state.cue?.id ?? 0) + 1;
+  return books && books.length > 0 ? { id, name, books } : { id, name };
 }
 
 /**
@@ -279,13 +285,8 @@ export function reducer(state: State, action: Action): State {
        * bell the slider does. Tapping the last chapter of Jude and hearing the
        * tick you get for any other chapter would be the worse of the two.
        */
-      const cue = markCue(
-        data.read,
-        read,
-        booksFinishedBy(data.read, read, [action.book]),
-        activeTrack(data.planId),
-        1,
-      );
+      const finished = booksFinishedBy(data.read, read, [action.book]);
+      const cue = markCue(data.read, read, finished, activeTrack(data.planId), 1);
       return {
         ...state,
         data: {
@@ -295,7 +296,7 @@ export function reducer(state: State, action: Action): State {
           markedAt: stampMarks(data, [key]),
           slots: stampSlots(data, [key], action.slot),
         },
-        cue: cue ? fire(state, cue) : state.cue,
+        cue: cue ? fire(state, cue, finished) : state.cue,
       };
     }
     case 'markNext': {
@@ -325,7 +326,7 @@ export function reducer(state: State, action: Action): State {
       );
       // Five chapters at once is one sound, not five.
       const cue = markCue(data.read, read, finished, plan, keys.length);
-      return cue ? { ...next, cue: fire(state, cue) } : next;
+      return cue ? { ...next, cue: fire(state, cue, finished) } : next;
     }
     /**
      * Marks an explicit set of chapters against one day. Chapters already read
@@ -361,7 +362,7 @@ export function reducer(state: State, action: Action): State {
         activeTrack(data.planId),
         keys.length,
       );
-      return cue ? { ...next, cue: fire(state, cue) } : next;
+      return cue ? { ...next, cue: fire(state, cue, finished) } : next;
     }
     case 'clearChapters': {
       const read = { ...data.read };

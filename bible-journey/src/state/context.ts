@@ -44,7 +44,7 @@ export type Store = {
    * Never persisted, and never part of `AppData`. See the note on the reducer's
    * `State`, which explains what syncing one would do.
    */
-  cue: { id: number; name: Cue } | null;
+  cue: { id: number; name: Cue; books?: string[] } | null;
   /**
    * The day marking is logged against, or null for whenever today is. Session
    * only: reading yesterday's chapters is a moment, not a setting.

@@ -52,7 +52,7 @@ describe('the sound a change earns', () => {
     expect(next.cue).toEqual({ id: 1, name: 'chapter' });
   });
 
-  it('rings the bell for a finished book', () => {
+  it('rings the bell for a finished book, and says which', () => {
     const next = reducer(readToday(), {
       type: 'markChapters',
       book: 'Jude',
@@ -60,7 +60,15 @@ describe('the sound a change earns', () => {
       day: TODAY,
       slot: null,
     });
-    expect(next.cue?.name).toBe('book');
+    // The name rides on the cue: "a book finished" is not enough for a
+    // celebration that wants to put the name on screen.
+    expect(next.cue).toEqual({ id: 1, name: 'book', books: ['Jude'] });
+  });
+
+  it('keeps the other cues to two fields', () => {
+    const next = reducer(readToday(), { type: 'markNext', count: 1, day: TODAY, slot: null });
+    expect(next.cue).toEqual({ id: 1, name: 'chapter' });
+    expect('books' in (next.cue ?? {})).toBe(false);
   });
 
   /*

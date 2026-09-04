@@ -6418,3 +6418,157 @@ select {
     opacity: 0;
   }
 }
+
+/* ── A finished book, as a moment ──────────────────────────── */
+/*
+ * The bigger of the two celebrations. Same scrim, same cross, same reels, and
+ * it holds a second longer, so the scrim's exit is retimed here. Everything
+ * else in this block is what a book has that a streak does not: rings leaving
+ * the cross, and a name rising before the count rolls.
+ */
+.celebrate--book {
+  animation: celebrateIn 260ms ease-out both, celebrateOut 320ms ease-in 4280ms both;
+}
+
+.celebrate--book .celebrate__inner {
+  gap: 0.25rem;
+}
+
+.celebrate__mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.9rem;
+}
+
+.celebrate--book .celebrate__cross {
+  margin-bottom: 0;
+}
+
+/*
+ * Three rings, each leaving the centre a beat after the last and fading as it
+ * goes. `--r` is the index, so one rule and one keyframe serve all three.
+ * Behind the cross in the stack, since a ring passing in front of it would
+ * read as the cross being crossed out.
+ */
+.celebrate__rings {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.celebrate__rings i {
+  position: absolute;
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--yellow);
+  opacity: 0;
+  transform: scale(0.35);
+  animation: ringOut 1100ms cubic-bezier(0.22, 1, 0.36, 1) calc(320ms + var(--r) * 150ms) both;
+}
+
+@keyframes ringOut {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  18% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(3.6);
+  }
+}
+
+.celebrate__eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  /* Soft gold and not full gold: small text on the dark ground. */
+  color: var(--yellow-soft);
+  animation: celebrateFade 380ms ease-out 480ms both;
+}
+
+/*
+ * The name. A clip with the word rising through it, so it arrives like a title
+ * card rather than fading in like a caption. Balanced wrapping and a size that
+ * gives "1 Thessalonians" a line at 375px: the longest names in the canon are
+ * the ones a reader is proudest of finishing, and they must not spill.
+ */
+.celebrate__nameClip {
+  display: block;
+  overflow: hidden;
+  padding: 0.08em 0.2em;
+  margin: 0.1rem 0 0.4rem;
+}
+
+.celebrate__name {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 11vw, 4.2rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  color: var(--cream);
+  animation: nameRise 640ms cubic-bezier(0.22, 1, 0.36, 1) 620ms both;
+}
+
+@keyframes nameRise {
+  from {
+    transform: translateY(112%);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* The count is the supporting figure here, not the headline, so it is a size
+   down from the streak's number. */
+.celebrate--book .celebrate__number {
+  font-size: clamp(3.4rem, 17vw, 5.6rem);
+}
+
+.celebrate--book .celebrate__label {
+  margin-top: 0.2rem;
+  animation-delay: 1450ms;
+}
+
+.celebrate--book .celebrate__sub {
+  /* After the reels have landed, so the two figures do not compete. */
+  animation-delay: 3050ms;
+}
+
+/*
+ * Reduced motion, keyed on the attribute and not on the media query, the same
+ * way the streak's rules are. `data-calm` is set from `reducedMotion()`, which
+ * reads that same query, so the two agree in the wild; keying on the attribute
+ * alone means one switch rather than two that could drift, and it is what let
+ * the first pass of this block fail silently: wrapped in the media query, the
+ * rings kept expanding and the name kept rising for a reader who had asked for
+ * neither.
+ *
+ * The words are simply there, the rings never appear since they say nothing,
+ * and the scrim still fades because a full screen snapping into existence is a
+ * bigger jolt than the fade it is avoiding.
+ */
+.celebrate--book[data-calm] {
+  animation: celebrateIn 200ms ease-out both, celebrateOut 260ms ease-in 2340ms both;
+}
+
+.celebrate--book[data-calm] .celebrate__rings {
+  display: none;
+}
+
+.celebrate--book[data-calm] .celebrate__eyebrow,
+.celebrate--book[data-calm] .celebrate__name {
+  animation: none;
+}
