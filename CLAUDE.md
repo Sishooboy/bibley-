@@ -266,6 +266,19 @@ redeploy.**
   0.9 puts the book bell at -9.6 and the tick at -14.9, which is where interface sound sits, and
   still leaves 8.7 dB of headroom. `schedule()` is exported so the voices can be rendered offline
   and measured rather than only listened to.
+- **The `streak` voice is scored against `StreakCelebration`, and is the only one that is.** It runs
+  about 3.4 seconds against the overlay's 3.6, because it used to run 0.7 and the cross landed, the
+  reels turned and the number arrived in silence. `drone` is a filtered pair of triangles a few cents
+  apart, felt under the rest rather than heard, and `sweep` is looped noise climbing a bandpass while
+  the digits turn. Deliberately not a ratchet: a literal slot machine would be the one moment in this
+  app that sounds like a casino. The arrival is root, fifth and octave, since a major third would
+  read as a game rewarding you rather than a bell tower.
+- **Attack envelopes are linear and only the decays are exponential.** An exponential ramp climbing
+  from near zero is inaudible for most of its length, roughly 50 dB down a third of the way through a
+  one second rise. Two of those overlapping left a hole at -44 dBFS in the streak cue exactly where
+  the reels start turning, which measured as a dead spot and would have been heard as the sound
+  cutting out. Linear attacks took the same window to -30. Decays stay exponential, because that is
+  how a struck thing actually stops.
 - **One tap, one sound**, decided by `chooseCue`: plan, then book, then streak, then chapter.
   Finishing a book on a day that also extends a streak is otherwise three cues at once, which
   arrives as noise rather than as three pieces of good news, and marking five chapters is one tick

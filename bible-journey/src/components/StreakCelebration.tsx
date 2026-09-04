@@ -4,7 +4,14 @@ import { reducedMotion } from '../lib/motion';
 import { useStore } from '../state/useStore';
 import { Cross } from './Ornament';
 
-/** How long the whole moment stays up before it lets go of the screen. */
+/**
+ * How long the whole moment stays up before it lets go of the screen.
+ *
+ * The `streak` voice in `sound.ts` is scored against this and the reel timings
+ * below, and runs about 3.4 seconds. Shortening this leaves the bells ringing
+ * over a screen that has gone, and lengthening it puts silence on the end, so
+ * the two numbers move together or not at all.
+ */
 const HOLD_MS = 3600;
 /** Under reduced motion there is no roll to wait for, so it leaves sooner. */
 const HOLD_CALM_MS = 2200;

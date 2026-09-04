@@ -209,15 +209,109 @@ function tick(
 }
 
 /*
- * A minor pentatonic set, so any two of these sit together and no cue can clash
- * with another if two ever overlap at the edges. Kept between 220 and 880
- * because a phone speaker has almost nothing below that and gets shrill above.
+ * Octaves and fifths on A, so any two of these sit together and no cue can
+ * clash with another if two ever overlap at the edges. There is no third here
+ * on purpose: it is what keeps the whole set closer to a bell tower than to a
+ * major key.
+ *
+ * The upper notes stay between 220 and 880, because a phone speaker has almost
+ * nothing below that and gets shrill above. A2 breaks that rule and is only
+ * ever used by `drone`, where it is felt under the other notes rather than
+ * heard on its own, and where the filter keeps it from turning to mud.
  */
+const A2 = 110;
 const A3 = 220;
 const A4 = 440;
-const C5 = 523.25;
 const E5 = 659.25;
 const A5 = 880;
+
+/**
+ * A low note that swells instead of striking, and brightens while it holds.
+ *
+ * Two triangles a few cents apart rather than one: the beating between them is
+ * what stops a long note sitting dead still for three seconds. The filter
+ * opening as it swells is the same idea, so the sound arrives somewhere rather
+ * than simply being loud for a while.
+ */
+function drone(
+  c: BaseAudioContext,
+  out: AudioNode,
+  at: number,
+  freq: number,
+  dur: number,
+  level: number,
+): void {
+  const filter = c.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(240, at);
+  filter.frequency.linearRampToValueAtTime(1500, at + dur * 0.62);
+  filter.Q.value = 0.7;
+
+  /*
+   * The swell is linear and the decay is exponential, which is not a stylistic
+   * choice. An exponential ramp climbing from near zero spends almost all of
+   * its length inaudible: rising to full over a second, it is still 50 dB down
+   * a third of the way in. Two of those in a row left a hole in this cue right
+   * where the reels start turning. Decay stays exponential because that is how
+   * a real thing stops.
+   */
+  const gain = c.createGain();
+  gain.gain.setValueAtTime(0, at);
+  gain.gain.linearRampToValueAtTime(level * 0.55, at + dur * 0.13);
+  gain.gain.linearRampToValueAtTime(level, at + dur * 0.5);
+  gain.gain.setValueAtTime(level, at + dur * 0.62);
+  gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+  filter.connect(gain).connect(out);
+
+  for (const detune of [-6, 6]) {
+    const osc = c.createOscillator();
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    osc.detune.value = detune;
+    osc.connect(filter);
+    osc.start(at);
+    osc.stop(at + dur + 0.05);
+  }
+}
+
+/**
+ * Filtered noise climbing through the spectrum, for the stretch where the
+ * digits are turning and nothing has landed yet.
+ *
+ * Deliberately not a ratchet or a click track. A literal slot machine would be
+ * the one moment in this app that sounds like a casino, and everything else
+ * here is closer to a bell tower. This is tension without a genre.
+ *
+ * The noise buffer is a tenth of a second, so it has to loop to cover the roll.
+ */
+function sweep(
+  c: BaseAudioContext,
+  out: AudioNode,
+  at: number,
+  dur: number,
+  level: number,
+): void {
+  const source = c.createBufferSource();
+  source.buffer = noiseBuffer(c);
+  source.loop = true;
+
+  const band = c.createBiquadFilter();
+  band.type = 'bandpass';
+  band.frequency.setValueAtTime(700, at);
+  band.frequency.exponentialRampToValueAtTime(3400, at + dur);
+  band.Q.value = 2.4;
+
+  // Linear both ways: this is a swell of air, not something struck, and the
+  // same exponential trap as `drone` applies to the way in.
+  const gain = c.createGain();
+  gain.gain.setValueAtTime(0, at);
+  gain.gain.linearRampToValueAtTime(level, at + dur * 0.58);
+  gain.gain.linearRampToValueAtTime(0, at + dur);
+
+  source.connect(band).connect(gain).connect(out);
+  source.start(at);
+  source.stop(at + dur + 0.05);
+}
 
 type Voice = (c: BaseAudioContext, out: AudioNode, at: number) => void;
 
@@ -232,11 +326,31 @@ const VOICES: Record<Cue, Voice> = {
   /** The chapter tap, lower and softer. Taking something back, not doing it. */
   undo: (c, out, at) => tick(c, out, at, 380, 1150, 0.15),
 
-  /** Three notes rising, quick enough to be one gesture. Once a day at most. */
+  /**
+   * The only cue written against something on screen, because it is the only
+   * one with something on screen: `StreakCelebration` holds for 3.6 seconds and
+   * this used to be over in 0.7, so the cross landed, the reels turned and the
+   * number arrived in silence. The timings below are that animation's.
+   *
+   *   0.00  scrim, and the drone begins to swell
+   *   0.08  the cross lands
+   *   0.42  the reels start turning
+   *   1.88  the first reel stops, and the chord arrives
+   *   3.28  the scrim starts to leave, the bells still ringing out
+   *
+   * The arrival is root, fifth and octave rather than a major chord. A major
+   * third here would read as a game rewarding you; open fifths read as a bell
+   * tower, which is the company this app keeps.
+   */
   streak: (c, out, at) => {
-    bell(c, out, at, A4, 0.42, 0.15);
-    bell(c, out, at + 0.08, C5, 0.46, 0.16);
-    bell(c, out, at + 0.16, E5, 0.8, 0.2);
+    drone(c, out, at, A2, 3.2, 0.1);
+    bell(c, out, at + 0.06, A3, 1.4, 0.1);
+    // Begins before the reels do, so the tension is already there when they
+    // start turning rather than fading up after them.
+    sweep(c, out, at + 0.3, 1.62, 0.05);
+    bell(c, out, at + 1.88, A4, 1.8, 0.2);
+    bell(c, out, at + 1.94, E5, 1.9, 0.15);
+    bell(c, out, at + 2.06, A5, 1.7, 0.12);
   },
 
   /** Bigger, slower and allowed to ring. The reward the app never had. */
