@@ -10,6 +10,7 @@ import {
   verseRootOf,
   type Range,
 } from '../lib/highlight';
+import { relativeDay, today } from '../lib/dates';
 import { useKeyboardInset } from '../lib/keyboard';
 import { reducedMotion } from '../lib/motion';
 import { neighbours } from '../lib/navigate';
@@ -53,6 +54,13 @@ export function Reader({
   const [searching, setSearching] = useState(false);
   /** A verse arrived at from a search result, marked until it has been seen. */
   const [landedOn, setLandedOn] = useState<number | null>(null);
+  /**
+   * True for a moment after marking, and only marking: it drives the gold sweep
+   * across the button. Unmarking gets no sweep, since taking something back is
+   * not a thing to celebrate, and turning the page clears it so a sweep never
+   * plays on a chapter it was not for.
+   */
+  const [justMarked, setJustMarked] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
@@ -91,8 +99,30 @@ export function Reader({
     body.scrollTo({ top: Math.max(0, top), behavior: reducedMotion() ? 'auto' : 'smooth' });
   }, [speech.verse]);
 
+  useEffect(() => {
+    setJustMarked(false);
+  }, [book, chapter]);
+  useEffect(() => {
+    if (!justMarked) return;
+    const timer = setTimeout(() => setJustMarked(false), 900);
+    return () => clearTimeout(timer);
+  }, [justMarked]);
+
   const key = chapterKey(book, chapter);
   const isRead = key in data.read;
+  /*
+   * How many chapters of this book are still unread, this one included. When
+   * that is one, pressing the button finishes the book, and the button should
+   * say so rather than "Mark as read" like any other chapter: it is the
+   * difference between a task and a milestone, and the celebration that
+   * follows should not be a surprise. Needs the text loaded to know the
+   * chapter count; until then it falls back to the plain label.
+   */
+  const bookTotal = text?.chapters.length ?? 0;
+  let unreadLeft = 0;
+  for (let c = 1; c <= bookTotal; c++) if (!(chapterKey(book, c) in data.read)) unreadLeft++;
+  const lastOne = !isRead && bookTotal > 0 && unreadLeft === 1;
+  const readOn = data.read[key];
   const marks = useMemo(
     () => highlightsFor(data.highlights, book, chapter),
     [data.highlights, book, chapter],
@@ -586,32 +616,90 @@ export function Reader({
           <LogDayPicker id={`reader-log-${chapterKey(book, chapter)}`} />
         </div>
 
+        {/*
+          Three controls that each say what pressing them does. Back and Next
+          name their destination, and say when it is a different book, because
+          "Next" tells you nothing and "Exodus 1" is a small event. The mark
+          button names the consequence: how many are left in the book, or that
+          this one finishes it.
+        */}
         <div className="reader__actions">
           <button
             type="button"
-            className="btn btn--sm"
+            className="btn readerNav readerNav--back"
             disabled={!previous}
             onClick={() => previous && onNavigate(previous.book, previous.chapter)}
           >
             <Chevron size={14} className="reader__back" />
-            Back
+            <span className="readerNav__text">
+              <span className="readerNav__eyebrow">
+                {previous && previous.book !== book ? 'Back a book' : 'Back'}
+              </span>
+              <span className="readerNav__to">
+                {previous ? (
+                  <>
+                    <span className="readerNav__book">{previous.book}</span>
+                    <span className="readerNav__n">{previous.chapter}</span>
+                  </>
+                ) : (
+                  <span className="readerNav__book">Start of the Bible</span>
+                )}
+              </span>
+            </span>
           </button>
 
           <button
             type="button"
-            className={`btn btn--sm${isRead ? ' btn--ghost' : ' btn--primary'}`}
-            onClick={() => toggleChapter(book, chapter)}
+            className={`btn readerMark${isRead ? ' btn--done' : ' btn--primary'}${
+              lastOne ? ' readerMark--finish' : ''
+            }`}
+            data-just={justMarked ? '' : undefined}
+            onClick={() => {
+              if (!isRead) setJustMarked(true);
+              toggleChapter(book, chapter);
+            }}
           >
-            {isRead ? 'Read, undo' : 'Mark as read'}
+            <span className="readerMark__eyebrow">
+              {isRead
+                ? readOn && readOn !== today()
+                  ? `Marked ${relativeDay(readOn)}, tap to undo`
+                  : 'Marked today, tap to undo'
+                : lastOne
+                  ? `Last chapter of ${book}`
+                  : unreadLeft > 1
+                    ? `${unreadLeft - 1} more to finish ${book}`
+                    : `${book} ${chapter}`}
+            </span>
+            <span className="readerMark__main">
+              {isRead && <Check size={15} />}
+              {isRead ? 'Read' : lastOne ? `Finish ${book}` : 'Mark as read'}
+            </span>
           </button>
 
           <button
             type="button"
-            className="btn btn--sm"
+            className="btn readerNav readerNav--next"
             disabled={!next}
             onClick={() => next && onNavigate(next.book, next.chapter)}
           >
-            Next
+            <span className="readerNav__text">
+              <span className="readerNav__eyebrow">
+                {next && next.book !== book ? 'Next book' : 'Next'}
+              </span>
+              {/* Name and number apart, so a long name gives way to an ellipsis
+                  and the number, which is the part that matters on a button
+                  that turns a page, always survives. */}
+              <span className="readerNav__to">
+                {next ? (
+                  <>
+                    <span className="readerNav__book">{next.book}</span>
+                    <span className="readerNav__n">{next.chapter}</span>
+                  </>
+                ) : (
+                  <span className="readerNav__book">End of the Bible</span>
+                )}
+              </span>
+            </span>
             <Chevron size={14} />
           </button>
         </div>

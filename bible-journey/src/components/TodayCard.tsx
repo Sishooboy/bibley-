@@ -1,4 +1,6 @@
-import { formatNumber, formatRefs } from '../lib/format';
+import { useEffect, useState } from 'react';
+import { cachedBook, loadBook, type BookText } from '../lib/bible';
+import { countWords, formatNumber, formatRefs, readingMinutes } from '../lib/format';
 import { nextUnread } from '../lib/progress';
 import { useReader } from '../state/useReader';
 import { useReminder } from '../state/useReminder';
@@ -17,8 +19,41 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
   const { open } = useReader();
   const plan = derived.plan;
   const refs = nextUnread(data.read, SUGGESTION_SIZE, plan);
+  const first = refs[0] as (typeof refs)[number] | undefined;
 
-  if (refs.length === 0) {
+  /*
+   * The day's book, fetched here rather than when Read is pressed. A book is
+   * one request of about sixty kilobytes, and having it in hand already does
+   * two things: the reader opens on the text instead of on "Opening Genesis",
+   * and the button can say how long the chapter is, which is the most inviting
+   * thing a button can know. Before the early return below, because hooks are.
+   */
+  // The name alone, so the effect keys on the book and not on a `refs` array
+  // that is new every render.
+  const firstBook = first?.book;
+  const [text, setText] = useState<BookText | undefined>(() =>
+    firstBook ? cachedBook(firstBook) : undefined,
+  );
+  useEffect(() => {
+    if (!firstBook) return;
+    const hit = cachedBook(firstBook);
+    if (hit) {
+      setText(hit);
+      return;
+    }
+    let live = true;
+    setText(undefined);
+    // Offline with the book uncached is the one case this fails, and the
+    // button simply says less. The reader itself explains when pressed.
+    loadBook(firstBook)
+      .then((loaded) => live && setText(loaded))
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [firstBook]);
+
+  if (!first) {
     return (
       <section className="panel panel--done" aria-label="Today's reading">
         {/* The one moment in the app worth marking. Everywhere else this would
@@ -36,8 +71,10 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
     );
   }
 
-  const first = refs[0];
   const phase = plan.phases.find((p) => p.phase === first.phase);
+  const verses = text?.chapters[first.chapter - 1];
+  const minutes = verses ? readingMinutes(countWords(verses)) : null;
+  const verseCount = verses ? verses.filter((v) => v !== null).length : 0;
   const started = derived.pace.chaptersLogged > 0;
 
 
@@ -68,7 +105,20 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
         className="btn btn--primary today__go"
         onClick={() => open(first.book, first.chapter)}
       >
-        Read {first.book} {first.chapter}
+        <span className="today__goMain">
+          Read {first.book} {first.chapter}
+        </span>
+        {/*
+          The cost of saying yes, in the reader's own units. Nothing lowers the
+          bar to starting like being told it is three minutes, and nothing on
+          this screen is allowed to say that unless the text is in hand to
+          count it.
+        */}
+        {minutes !== null && (
+          <span className="today__goSub">
+            {verseCount} verses · about {minutes === 1 ? 'a minute' : `${minutes} min`}
+          </span>
+        )}
       </button>
 
       {/*

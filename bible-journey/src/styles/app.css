@@ -941,22 +941,31 @@ select {
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
+  /*
+   * The release. A transition belongs to the state being entered, so this rule
+   * owns letting go and `:active` below owns the press: down fast and flat,
+   * back with a little overshoot. The overshoot is what reads as springy
+   * rather than sticky, and it is the only feedback a phone gives at all.
+   */
   transition:
     background 120ms ease,
     color 120ms ease,
     border-color 120ms ease,
-    box-shadow 140ms ease,
-    transform 90ms ease;
+    box-shadow 160ms ease,
+    transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/*
- * The press. It is one line and it is most of what makes a control feel like a
- * thing rather than a picture of one, because it is the only feedback a phone
- * gives at all: there is no hover there, so without this a tap produces nothing
- * until the screen has already changed.
- */
 .btn:active {
-  transform: translateY(1px);
+  transform: scale(0.97);
+  transition-duration: 120ms, 120ms, 120ms, 80ms, 70ms;
+  transition-timing-function: ease, ease, ease, ease, ease-in;
+}
+
+/* Keyboard focus in the reward colour, so it reads as chosen rather than as an
+   error outline, and never on a pointer press. */
+.btn:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
 }
 
 @media (hover: hover) {
@@ -978,7 +987,7 @@ select {
 }
 
 .btn--primary:active {
-  transform: translateY(1px);
+  transform: scale(0.97);
   box-shadow: 0 1px 3px -2px rgba(150, 22, 31, 0.5);
 }
 
@@ -4161,11 +4170,19 @@ select {
   justify-content: center;
 }
 
+/*
+ * The mark across the top, Back and Next beneath it, at every width. It was a
+ * flex row that wrapped when it had to, which put the primary action wherever
+ * the wrap happened to leave it. Named areas mean the DOM keeps its reading
+ * order and the layout keeps its shape.
+ */
 .reader__actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    'mark mark'
+    'back next';
   gap: 0.5rem;
-  align-items: center;
-  justify-content: center;
 }
 
 /*
@@ -4206,9 +4223,158 @@ select {
   }
 }
 
-.reader__actions .btn--primary {
-  min-width: 9.5rem;
-  justify-content: center;
+/* Back and Next: an eyebrow saying which way, a destination in the display
+   face saying where. The destination truncates rather than wraps, because
+   "1 Thessalonians 5" beside a chevron at 375px has to give somewhere. */
+.reader__actions .readerNav {
+  justify-content: space-between;
+  min-height: 52px;
+  padding-inline: 0.7rem;
+  text-align: left;
+}
+
+.reader__actions .readerNav--back {
+  grid-area: back;
+}
+
+.reader__actions .readerNav--next {
+  grid-area: next;
+  text-align: right;
+}
+
+.readerNav__text {
+  display: grid;
+  gap: 0.08rem;
+  min-width: 0;
+}
+
+.readerNav--next .readerNav__text {
+  justify-items: end;
+}
+
+.readerNav__eyebrow {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.readerNav__to {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3em;
+  max-width: 100%;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.readerNav--next .readerNav__to {
+  justify-content: flex-end;
+}
+
+/* The name is what gives way. The number never does: on a button that turns
+   a page, "1 Thessalonian" with the 4 cut off says less than "1 Thessal 4". */
+.readerNav__book {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.readerNav__n {
+  flex: none;
+}
+
+.reader__actions .readerNav:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/*
+ * The mark. Two lines again: the consequence above, the action below. When
+ * this chapter is the last unread in its book the action becomes "Finish
+ * Genesis" with a gold edge, because that press is a milestone and the
+ * celebration behind it should not come as a surprise.
+ */
+.reader__actions .readerMark {
+  position: relative;
+  overflow: hidden;
+  grid-area: mark;
+  display: grid;
+  justify-items: center;
+  gap: 0.1rem;
+  min-height: 56px;
+}
+
+/* White at full strength: white at 0.85 over red-600 measures 4.47 at this
+   size, a hair under the 4.5 that small text needs. */
+.readerMark__eyebrow {
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.readerMark__main {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-display);
+  font-size: 1.04rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.reader__actions .readerMark--finish {
+  box-shadow:
+    inset 0 -3px 0 var(--yellow),
+    0 2px 6px -2px rgba(150, 22, 31, 0.55);
+}
+
+/*
+ * Marked. Gold is the progress colour, and a read chapter is progress, so the
+ * done state sits on a gold tint with a gold edge and ink text. Not a gold
+ * check on cream: that measured 1.68 against the 3 a graphic needs.
+ */
+.reader__actions .btn--done {
+  background: rgba(247, 184, 1, 0.16);
+  border-color: var(--yellow);
+  color: var(--text);
+}
+
+.reader__actions .btn--done .readerMark__eyebrow {
+  color: var(--muted);
+}
+
+/*
+ * The sweep, once, as a chapter is marked. A wash of gold crossing the button
+ * left to right, which is the progress fill happening in the one place you
+ * are looking. Driven by an attribute React sets for under a second, never a
+ * class, since React owns className on this element.
+ */
+.readerMark[data-just]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(247, 184, 1, 0) 0%,
+    rgba(247, 184, 1, 0.6) 50%,
+    rgba(247, 184, 1, 0) 100%
+  );
+  transform: translateX(-100%);
+  animation: markSweep 700ms var(--ease-out) both;
+  pointer-events: none;
+}
+
+@keyframes markSweep {
+  to {
+    transform: translateX(100%);
+  }
 }
 
 .reader__back {
@@ -5911,40 +6077,76 @@ select {
 /* The one thing the journey exists to get you to do. */
 /*
  * The single thing this screen exists to get you to press, so it is allowed to
- * be the loudest control in the app: taller, heavier, and carrying an arrow
- * that says it takes you somewhere rather than toggling something here.
+ * be the loudest control in the app. Two lines: what you would be reading, and
+ * what it would cost you in minutes, which is the most inviting thing a button
+ * can know and the only thing here allowed to say it once the text is in hand.
  */
 .today__go {
   position: relative;
   overflow: hidden;
   width: 100%;
-  justify-content: center;
+  display: grid;
+  justify-items: center;
+  gap: 0.14rem;
   margin-top: 1rem;
-  padding-block: 0.95rem;
+  padding-block: 0.85rem;
   border-radius: 6px;
+}
+
+.today__goMain {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   font-family: var(--font-display);
-  font-size: 1.08rem;
+  font-size: 1.12rem;
   font-weight: 600;
   letter-spacing: 0.01em;
 }
 
-.today__go::after {
-  content: '→';
-  margin-left: 0.15rem;
+/*
+ * The arrow says this takes you somewhere rather than toggling something here.
+ * It beckons once, a second after the card lands, and then rests: a thing that
+ * waves forever is a thing you learn to ignore.
+ */
+.today__goMain::after {
+  content: '\2192';
+  display: inline-block;
   transition: transform 160ms var(--ease-out);
+  animation: beckon 700ms var(--ease-out) 1300ms 1 both;
+}
+
+@keyframes beckon {
+  0%,
+  100% {
+    transform: none;
+  }
+  40% {
+    transform: translateX(5px);
+  }
 }
 
 @media (hover: hover) {
-  .today__go:hover::after {
+  .today__go:hover .today__goMain::after {
     transform: translateX(3px);
   }
 }
 
+/* Solid white and not a tint: at this size on the gradient's brightest point a
+   tint measured 3.86 and small text needs 4.5. Size and weight carry the
+   hierarchy instead. */
+.today__goSub {
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #fff;
+}
+
 /*
- * A slow sheen crossing the button every few seconds. It is the one piece of
- * motion in the app that runs without being asked for, so it is deliberately
- * faint and slow: enough to catch an eye passing over the screen, not enough to
- * read as a thing demanding attention while you are trying to read the card.
+ * One sheen, crossing the button once shortly after the card appears, then
+ * never again. It was on a loop, which made it the only motion in the app that
+ * ran without being asked for, and a thing that repeats every few seconds is a
+ * thing you stop seeing. Once says "here" and gets out of the way.
  */
 .today__go::before {
   content: '';
@@ -5953,20 +6155,16 @@ select {
   background: linear-gradient(
     105deg,
     transparent 34%,
-    rgba(255, 255, 255, 0.18) 48%,
+    rgba(255, 255, 255, 0.2) 48%,
     transparent 62%
   );
   transform: translateX(-120%);
-  animation: todaySheen 5.5s ease-in-out 1.5s infinite;
+  animation: todaySheen 1300ms ease-in-out 700ms 1 both;
   pointer-events: none;
 }
 
 @keyframes todaySheen {
-  0%,
-  62% {
-    transform: translateX(-120%);
-  }
-  100% {
+  to {
     transform: translateX(120%);
   }
 }
@@ -6413,8 +6611,14 @@ select {
       box-shadow 140ms ease;
   }
 
-  .today__go::before {
+  .today__go::before,
+  .today__goMain::after,
+  .readerMark[data-just]::before {
     animation: none;
+  }
+
+  .today__go::before,
+  .readerMark[data-just]::before {
     opacity: 0;
   }
 }

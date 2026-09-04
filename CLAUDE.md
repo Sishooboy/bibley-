@@ -146,20 +146,37 @@ redeploy.**
   the state applied after a tap: tapping a note twice left it beige until you touched something
   else. Guard any new hover rule the same way. This finds a stray one:
   `node -e "require('fs').readFileSync('src/styles/app.css','utf8').split(/\r?\n/).forEach((l,i)=>{if(/^[.#a-zA-Z\[]/.test(l)&&l.includes(':hover'))console.log(i+1,l)})"`
-- **Every `.btn` presses, and that one line carries a phone.** `:active` moves it a pixel down,
-  because a hover state is feedback a touch device never gets: without it a tap produces nothing at
-  all until the screen has already changed, which is what made these feel like pictures of buttons.
-  `.btn--primary` sits on a gradient with a shadow under it, lifting on hover and sinking on press,
-  and both ends of that gradient clear AA against white so the text is safe wherever the sweep falls.
-- **`.today__go` is allowed to be the loudest control in the app**, since the entire first screen
-  exists to get it pressed: display face, heavier, taller, an arrow saying it takes you somewhere,
-  and a slow sheen every five and a half seconds. That sheen is **the only motion in the app that
-  runs without being asked for**, so it is deliberately faint and slow. Anything more insistent
-  competes with the card it is sitting on. Under reduced motion it does not run at all, while every
-  colour and shadow change stays, because those are what say a control is live.
-- Back, Mark as read and Next in the reader are **44px tall**, the same floor the transport got.
-  They were `btn--sm`, sized to look tidy in a strip, which is the wrong thing to optimise for the
-  three controls you reach for most while actually reading.
+- **A button invites a press by saying what pressing it does.** That is the rule behind all four of
+  the controls the app is built around, and it is why none of them is a plain label any more. The
+  today button carries a second line, "29 verses, about 3 min", which is the cost of saying yes in
+  the reader's own units, and it may only say it because `TodayCard` prefetches the day's book:
+  `loadBook` on mount, about sixty kilobytes, which also means Read opens on the text instead of on
+  "Opening Genesis". `readingMinutes` in `format.ts` promises whole minutes at 200 words a minute,
+  a slow reader taking scripture in, and never less than one. Back and Next in the reader name
+  their destination in the display face, with an eyebrow that says when it is a different book,
+  because "Next" says nothing and "Exodus 1" is a small event; the name truncates and the chapter
+  number never does. The mark button names the consequence: "41 more to finish Genesis" above
+  "Mark as read", and on the last unread chapter of a book it becomes **"Finish Genesis"** with a
+  gold edge, so the celebration behind that press is announced rather than sprung.
+- **Every `.btn` presses.** `:active` scales to 0.97 fast and flat, and the base rule lets it back
+  with a small overshoot, because a transition belongs to the state being entered: `:active` owns
+  the press, the base owns the release. That overshoot is what reads as springy rather than sticky,
+  and it is the only feedback a phone gives at all, since hover never happens there. Keyboard focus
+  is a gold ring, so it reads as chosen rather than as an error outline.
+- **The today button's motion is one-shot.** The arrow beckons once, a second after the card lands,
+  and a sheen crosses the button once. Both used to loop, which made them the only motion in the
+  app that ran without being asked for, and a thing that repeats every few seconds is a thing you
+  stop seeing. Once says "here" and gets out of the way.
+- **Marking sweeps gold across the button, once**, driven by `data-just`, which `Reader` sets for
+  under a second on marking and never on unmarking. Gold is the progress colour, and this is the
+  progress fill happening in the one place you are looking. The done state sits on a gold tint
+  with ink text: a gold check on cream was tried and measured 1.68 against the 3 a graphic needs.
+  Every new small text here was measured against the gradient's brightest point, and two tints
+  failed and became solid white: a white tint at 0.82 measured 3.86 and at 0.85 measured 4.47,
+  against the 4.5 that small text needs.
+- Back, Mark and Next are a **named-area grid**, mark across the top and the two destinations
+  beneath, at every width. They were a flex row that wrapped when it had to, which put the primary
+  action wherever the wrap left it. Each is 52 to 61px tall, above the 44 a thumb needs.
 - **Contrast is measured, not judged.** Red and gold sit close in luminance, so eyeballing it fails.
   The masthead gradient's light end is `--red-700`, not `--red-600`, and its gold wash is 0.18, both
   chosen so every colour on it clears WCAG AA at the *brightest* point of the sweep rather than
