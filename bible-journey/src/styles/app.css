@@ -940,7 +940,23 @@ select {
   padding: 0.5rem 0.9rem;
   font-size: 0.85rem;
   font-weight: 500;
-  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease,
+    box-shadow 140ms ease,
+    transform 90ms ease;
+}
+
+/*
+ * The press. It is one line and it is most of what makes a control feel like a
+ * thing rather than a picture of one, because it is the only feedback a phone
+ * gives at all: there is no hover there, so without this a tap produces nothing
+ * until the screen has already changed.
+ */
+.btn:active {
+  transform: translateY(1px);
 }
 
 @media (hover: hover) {
@@ -949,16 +965,29 @@ select {
   }
 }
 
+/*
+ * Lit from above and sitting on the page rather than printed into it. Both ends
+ * of the gradient carry white well past AA, so the text is safe wherever the
+ * sweep happens to fall behind it.
+ */
 .btn--primary {
-  background: var(--red-600);
-  border-color: var(--red-600);
+  background: linear-gradient(180deg, var(--red-600), #b21a22);
+  border-color: var(--red-700);
   color: #fff;
+  box-shadow: 0 2px 6px -2px rgba(150, 22, 31, 0.55);
+}
+
+.btn--primary:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 3px -2px rgba(150, 22, 31, 0.5);
 }
 
 @media (hover: hover) {
   .btn--primary:hover {
-    background: var(--red-700);
+    background: linear-gradient(180deg, #d42730, var(--red-600));
     border-color: var(--red-700);
+    box-shadow: 0 5px 14px -4px rgba(150, 22, 31, 0.6);
+    transform: translateY(-1px);
   }
 }
 
@@ -4139,10 +4168,42 @@ select {
   justify-content: center;
 }
 
+/*
+ * Back, Mark as read and Next. They were `btn--sm`, sized to look tidy in a
+ * strip, which is the wrong thing to optimise for the three controls you reach
+ * for most while actually reading. 44px is the smallest a thumb reliably hits,
+ * the same floor the transport buttons got.
+ */
 .reader__actions .btn {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
+  min-height: 44px;
+  padding-inline: 0.85rem;
+  font-size: 0.86rem;
+}
+
+/* The chevron leans the way the button takes you, and leans further on press. */
+.reader__actions .btn svg {
+  transition: transform 160ms var(--ease-out);
+}
+
+.reader__actions .btn:active svg {
+  transform: translateX(2px);
+}
+
+.reader__actions .btn:active .reader__back {
+  transform: translateX(-2px);
+}
+
+@media (hover: hover) {
+  .reader__actions .btn:hover svg {
+    transform: translateX(2px);
+  }
+
+  .reader__actions .btn:hover .reader__back {
+    transform: translateX(-2px);
+  }
 }
 
 .reader__actions .btn--primary {
@@ -5848,12 +5909,66 @@ select {
 }
 
 /* The one thing the journey exists to get you to do. */
+/*
+ * The single thing this screen exists to get you to press, so it is allowed to
+ * be the loudest control in the app: taller, heavier, and carrying an arrow
+ * that says it takes you somewhere rather than toggling something here.
+ */
 .today__go {
+  position: relative;
+  overflow: hidden;
   width: 100%;
   justify-content: center;
   margin-top: 1rem;
-  padding-block: 0.75rem;
-  font-size: 0.98rem;
+  padding-block: 0.95rem;
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.today__go::after {
+  content: '→';
+  margin-left: 0.15rem;
+  transition: transform 160ms var(--ease-out);
+}
+
+@media (hover: hover) {
+  .today__go:hover::after {
+    transform: translateX(3px);
+  }
+}
+
+/*
+ * A slow sheen crossing the button every few seconds. It is the one piece of
+ * motion in the app that runs without being asked for, so it is deliberately
+ * faint and slow: enough to catch an eye passing over the screen, not enough to
+ * read as a thing demanding attention while you are trying to read the card.
+ */
+.today__go::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 34%,
+    rgba(255, 255, 255, 0.18) 48%,
+    transparent 62%
+  );
+  transform: translateX(-120%);
+  animation: todaySheen 5.5s ease-in-out 1.5s infinite;
+  pointer-events: none;
+}
+
+@keyframes todaySheen {
+  0%,
+  62% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
 }
 
 .today__first {
@@ -6276,4 +6391,30 @@ select {
 
 .celebrate[data-calm] .reel {
   mask-image: none;
+}
+
+/* ── Buttons under reduced motion ────────────────────────── */
+/*
+ * The sheen goes entirely, and nothing moves. What stays is every colour and
+ * shadow change, because those are what tell you a control is live, and losing
+ * them would make the app less usable rather than calmer.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn:active,
+  .btn--primary:active,
+  .today__go::after,
+  .reader__actions .btn svg {
+    transform: none;
+    transition:
+      background 120ms ease,
+      color 120ms ease,
+      border-color 120ms ease,
+      box-shadow 140ms ease;
+  }
+
+  .today__go::before {
+    animation: none;
+    opacity: 0;
+  }
 }

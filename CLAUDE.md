@@ -146,6 +146,20 @@ redeploy.**
   the state applied after a tap: tapping a note twice left it beige until you touched something
   else. Guard any new hover rule the same way. This finds a stray one:
   `node -e "require('fs').readFileSync('src/styles/app.css','utf8').split(/\r?\n/).forEach((l,i)=>{if(/^[.#a-zA-Z\[]/.test(l)&&l.includes(':hover'))console.log(i+1,l)})"`
+- **Every `.btn` presses, and that one line carries a phone.** `:active` moves it a pixel down,
+  because a hover state is feedback a touch device never gets: without it a tap produces nothing at
+  all until the screen has already changed, which is what made these feel like pictures of buttons.
+  `.btn--primary` sits on a gradient with a shadow under it, lifting on hover and sinking on press,
+  and both ends of that gradient clear AA against white so the text is safe wherever the sweep falls.
+- **`.today__go` is allowed to be the loudest control in the app**, since the entire first screen
+  exists to get it pressed: display face, heavier, taller, an arrow saying it takes you somewhere,
+  and a slow sheen every five and a half seconds. That sheen is **the only motion in the app that
+  runs without being asked for**, so it is deliberately faint and slow. Anything more insistent
+  competes with the card it is sitting on. Under reduced motion it does not run at all, while every
+  colour and shadow change stays, because those are what say a control is live.
+- Back, Mark as read and Next in the reader are **44px tall**, the same floor the transport got.
+  They were `btn--sm`, sized to look tidy in a strip, which is the wrong thing to optimise for the
+  three controls you reach for most while actually reading.
 - **Contrast is measured, not judged.** Red and gold sit close in luminance, so eyeballing it fails.
   The masthead gradient's light end is `--red-700`, not `--red-600`, and its gold wash is 0.18, both
   chosen so every colour on it clears WCAG AA at the *brightest* point of the sweep rather than
