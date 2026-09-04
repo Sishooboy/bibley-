@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { resolveVoice, sortVoices, speechSupported, toPieces, voiceScore } from './speech';
+import {
+  isGoodVoice,
+  resolveVoice,
+  sortVoices,
+  speechSupported,
+  toPieces,
+  voiceScore,
+} from './speech';
 
 const words = (n: number) => Array.from({ length: n }, (_, i) => `word${i}`).join(' ');
 
@@ -156,6 +163,48 @@ describe('choosing a voice', () => {
     const list = [voice('B', 'en-US'), voice('A', 'en-US')];
     sortVoices(list);
     expect(list.map((v) => v.name)).toEqual(['B', 'A']);
+  });
+});
+
+/**
+ * "Which of these is least bad" and "is any of these actually good" are
+ * different questions, and the second is the one a reader with a poor device is
+ * really asking. Getting it wrong in the optimistic direction is worse: it
+ * tells someone their voice list is fine when it is not.
+ */
+describe('isGoodVoice', () => {
+  it('accepts the voices a platform marks as its better ones', () => {
+    for (const name of [
+      'Samantha (Enhanced)',
+      'Ava (Premium)',
+      'Microsoft Aria Online (Natural)',
+      'Google UK English Female',
+      'Siri Voice 4',
+    ]) {
+      expect(isGoodVoice(voice(name, 'en-US'))).toBe(true);
+    }
+  });
+
+  it('rejects the compact voices and the Windows desktop set', () => {
+    for (const name of [
+      'Daniel (Compact)',
+      'Microsoft David - English (United States)',
+      'Microsoft Zira - English (United States)',
+      'eSpeak English',
+      'Albert (Novelty)',
+    ]) {
+      expect(isGoodVoice(voice(name, 'en-US'))).toBe(false);
+    }
+  });
+
+  /*
+   * An unmarked name is the ordinary case on iOS, where the plain entry may be
+   * the compact voice or the downloaded one and the API does not say which.
+   * Called good, it would tell a reader their list is fine when it is not.
+   */
+  it('does not vouch for a voice whose name claims nothing', () => {
+    expect(isGoodVoice(voice('Samantha', 'en-US'))).toBe(false);
+    expect(isGoodVoice(voice('Daniel', 'en-GB'))).toBe(false);
   });
 });
 

@@ -132,6 +132,24 @@ export function voiceScore(v: SpeechSynthesisVoice): number {
   return score;
 }
 
+/**
+ * Whether a voice is one of the good ones, rather than merely the best of a bad
+ * set.
+ *
+ * A browser gives no quality field, so the name is the only signal there is,
+ * and every platform does label the voices it wants you to use. This is the
+ * same evidence `voiceScore` ranks on, asked as a yes or no, because "which of
+ * these is least bad" and "is any of these actually good" are different
+ * questions and the second one is the one a reader is really asking.
+ */
+export function isGoodVoice(v: SpeechSynthesisVoice): boolean {
+  const name = v.name.toLowerCase();
+  if (/compact|eloquence|espeak|novelty/.test(name)) return false;
+  // The Windows desktop voices: deep, flat, and named without any marker.
+  if (/microsoft/.test(name) && !/online|natural|neural/.test(name)) return false;
+  return /enhanced|premium|neural|natural|online|google|siri/.test(name);
+}
+
 /** Best first, so the picker opens on something worth hearing. */
 export function sortVoices(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice[] {
   return [...voices].sort((a, b) => {

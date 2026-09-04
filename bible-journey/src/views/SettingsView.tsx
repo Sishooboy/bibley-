@@ -16,6 +16,7 @@ import { REMINDERS_UNLOCKED, formatTime } from '../lib/prefs';
 import { overallProgress, phaseProgressAll } from '../lib/progress';
 import { play, setSoundEnabled } from '../lib/sound';
 import {
+  isGoodVoice,
   PITCH_DEFAULT,
   PITCH_MAX,
   PITCH_MIN,
@@ -39,6 +40,13 @@ export function SettingsView() {
   const rate = prefs.speechRate ?? RATE_DEFAULT;
   const pitch = prefs.speechPitch ?? PITCH_DEFAULT;
   const speech = useChapterSpeech(rate, pitch);
+  /*
+   * Split rather than merely sorted. Sorting answered "which of these is least
+   * bad", and a reader whose device has nothing good still saw twenty entries
+   * and no way to tell. This answers the question they are actually asking.
+   */
+  const goodVoices = speech.voices.filter(isGoodVoice);
+  const basicVoices = speech.voices.filter((v) => !isGoodVoice(v));
 
   /*
    * Grouped by testament rather than listed flat. Nine orders in one column is
@@ -280,7 +288,9 @@ export function SettingsView() {
                     {/* Not synced, and the hint says so, because the list is
                         different on every device and a choice made here cannot
                         mean anything on another one. */}
-                    Best first, and kept on this device since the voices differ on each one
+                    {goodVoices.length > 0
+                      ? `${plural(goodVoices.length, 'good voice')} on this device`
+                      : 'No high quality voice installed on this device'}
                   </span>
                 </label>
                 <select
@@ -292,12 +302,30 @@ export function SettingsView() {
                   {/* Not "whatever the device prefers": left alone a browser
                       hands back its first voice, which is always one of the old
                       compact ones. This picks the best it can find instead. */}
-                  <option value="">Best on this device</option>
-                  {speech.voices.map((v) => (
-                    <option key={v.voiceURI} value={v.voiceURI}>
-                      {v.name} ({v.lang})
-                    </option>
-                  ))}
+                  <option value="">
+                    {goodVoices.length > 0 ? 'Best on this device' : 'Best available'}
+                  </option>
+                  {goodVoices.length > 0 && (
+                    <optgroup label="Worth listening to">
+                      {goodVoices.map((v) => (
+                        <option key={v.voiceURI} value={v.voiceURI}>
+                          {v.name} ({v.lang})
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                  {/* Still offered, never hidden: on a device with nothing good
+                      these are the only voices there are, and an empty picker
+                      would be worse than an honest one. */}
+                  {basicVoices.length > 0 && (
+                    <optgroup label="Basic voices">
+                      {basicVoices.map((v) => (
+                        <option key={v.voiceURI} value={v.voiceURI}>
+                          {v.name} ({v.lang})
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
                 </select>
               </div>
 
@@ -363,13 +391,15 @@ export function SettingsView() {
                 Every platform ships a much better voice than the one it defaults
                 to, and simply does not install it until asked.
               */}
-              <p className="notice">
-                <b>If the voice sounds flat, your device has better ones it has not downloaded.</b>{' '}
+              {goodVoices.length === 0 && (
+              <p className="notice notice--warn">
+                <b>Nothing on this device is worth listening to yet, and that is fixable.</b>{' '}
                 On an iPhone they are in Settings, Accessibility, Spoken Content, Voices, English:
                 pick one marked Enhanced or Premium. On Android look under Accessibility,
-                Text-to-speech output. They appear in the list above once installed, and cost
-                nothing.
+                Text-to-speech output. One download and it appears above under "Worth listening
+                to", chosen automatically, and it costs nothing.
               </p>
+              )}
 
               <p className="notice notice--gold">
                 A phone stops speech when the screen locks or you switch app, so this is for

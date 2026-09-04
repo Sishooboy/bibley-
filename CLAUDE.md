@@ -362,6 +362,16 @@ redeploy.**
   Microsoft voice carries Online or Natural and the absence of both is the tell. On a machine that
   has nothing better installed this changes nothing, because there is nothing to change to, which is
   why the Settings card tells the reader where to download one.
+- **`isGoodVoice` answers a different question from `voiceScore`, and the picker needs both.**
+  Ranking answers "which of these is least bad", which is all a sorted list can ever say; a reader
+  whose device has nothing good still saw twenty entries and no way to tell. The yes-or-no answers
+  "is any of these actually good", and Settings splits the picker on it: "Worth listening to" above
+  "Basic voices", with the hint reading either the count or **"No high quality voice installed on
+  this device"**. The download note only appears when there is nothing good, since advice about a
+  problem you do not have is noise. **An unmarked name is deliberately not good**: on iOS the plain
+  entry may be the compact voice or the downloaded one and the API does not say which, and guessing
+  optimistically would tell a reader their list is fine when it is not. The basic voices are still
+  offered, never hidden, because on a poor device they are the only voices there are.
 - **`prefs.speechPitch` exists for the machine with only bad voices.** Lifting a voice a little is
   the one lever left when the list is poor, and the band is deliberately narrow, 0.8 to 1.4: past
   that a synthesised voice stops sounding lighter and starts sounding like a cartoon. Synced, for
