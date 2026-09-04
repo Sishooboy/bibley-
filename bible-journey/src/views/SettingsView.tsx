@@ -15,16 +15,6 @@ import { useReveal } from '../lib/motion';
 import { REMINDERS_UNLOCKED, formatTime } from '../lib/prefs';
 import { overallProgress, phaseProgressAll } from '../lib/progress';
 import { play, setSoundEnabled } from '../lib/sound';
-import {
-  isGoodVoice,
-  PITCH_DEFAULT,
-  PITCH_MAX,
-  PITCH_MIN,
-  RATE_DEFAULT,
-  RATE_MAX,
-  RATE_MIN,
-  useChapterSpeech,
-} from '../lib/speech';
 import { useReminder } from '../state/useReminder';
 import { useStore } from '../state/useStore';
 
@@ -37,16 +27,6 @@ export function SettingsView() {
   const unsupported = permission === 'unsupported';
   // Absent means on, the same reading `normalizePrefs` gives an older journal.
   const soundOn = prefs.soundEnabled !== false;
-  const rate = prefs.speechRate ?? RATE_DEFAULT;
-  const pitch = prefs.speechPitch ?? PITCH_DEFAULT;
-  const speech = useChapterSpeech(rate, pitch);
-  /*
-   * Split rather than merely sorted. Sorting answered "which of these is least
-   * bad", and a reader whose device has nothing good still saw twenty entries
-   * and no way to tell. This answers the question they are actually asking.
-   */
-  const goodVoices = speech.voices.filter(isGoodVoice);
-  const basicVoices = speech.voices.filter((v) => !isGoodVoice(v));
 
   /*
    * Grouped by testament rather than listed flat. Nine orders in one column is
@@ -260,171 +240,6 @@ export function SettingsView() {
               A finished book
             </button>
           </div>
-        </section>
-
-        <section ref={reveal} className="card reveal">
-          <div className="card__head">
-            <div>
-              <h3 className="card__title">Read aloud</h3>
-              <p className="card__note">
-                The speaker in the reader reads the chapter you are on, and the verse being read
-                lights up as it goes. It uses the voices already on this device, so it costs
-                nothing and works with no connection once the book is open.
-              </p>
-            </div>
-          </div>
-
-          {!speech.supported ? (
-            <p className="notice notice--warn">
-              This browser has no speech built in, so the speaker does not appear in the reader.
-              Every recent phone and desktop browser has one.
-            </p>
-          ) : (
-            <>
-              <div className="settingRow settingRow--stack">
-                <label className="settingRow__main" htmlFor="voice">
-                  <span className="settingRow__label">Voice</span>
-                  <span className="settingRow__hint">
-                    {/* Not synced, and the hint says so, because the list is
-                        different on every device and a choice made here cannot
-                        mean anything on another one. */}
-                    {goodVoices.length > 0
-                      ? `${plural(goodVoices.length, 'good voice')} on this device`
-                      : 'No high quality voice installed on this device'}
-                  </span>
-                </label>
-                <select
-                  id="voice"
-                  className="select settingRow__voice"
-                  value={speech.voiceURI ?? ''}
-                  onChange={(e) => speech.chooseVoice(e.target.value || null)}
-                >
-                  {/* Not "whatever the device prefers": left alone a browser
-                      hands back its first voice, which is always one of the old
-                      compact ones. This picks the best it can find instead. */}
-                  <option value="">
-                    {goodVoices.length > 0 ? 'Best on this device' : 'Best available'}
-                  </option>
-                  {goodVoices.length > 0 && (
-                    <optgroup label="Worth listening to">
-                      {goodVoices.map((v) => (
-                        <option key={v.voiceURI} value={v.voiceURI}>
-                          {v.name} ({v.lang})
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-                  {/* Still offered, never hidden: on a device with nothing good
-                      these are the only voices there are, and an empty picker
-                      would be worse than an honest one. */}
-                  {basicVoices.length > 0 && (
-                    <optgroup label="Basic voices">
-                      {basicVoices.map((v) => (
-                        <option key={v.voiceURI} value={v.voiceURI}>
-                          {v.name} ({v.lang})
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-                </select>
-              </div>
-
-              <div className="settingRow">
-                <label className="settingRow__main" htmlFor="rate">
-                  <span className="settingRow__label">Speed</span>
-                  <span className="settingRow__hint">
-                    {rate === 1 ? 'Normal' : `${rate.toFixed(2)}x`}
-                  </span>
-                </label>
-                <input
-                  id="rate"
-                  className="settingRow__rate"
-                  type="range"
-                  min={RATE_MIN}
-                  max={RATE_MAX}
-                  step={0.05}
-                  value={rate}
-                  onChange={(e) => setPrefs({ ...prefs, speechRate: Number(e.target.value) })}
-                />
-              </div>
-
-              <div className="settingRow">
-                <label className="settingRow__main" htmlFor="pitch">
-                  <span className="settingRow__label">Tone</span>
-                  <span className="settingRow__hint">
-                    {pitch === 1 ? 'Normal' : pitch > 1 ? 'Lighter' : 'Deeper'}
-                  </span>
-                </label>
-                {/* Lifts a voice that sits too low. The band is narrow because
-                    past about 1.4 a synthesised voice stops sounding lighter
-                    and starts sounding like a cartoon. */}
-                <input
-                  id="pitch"
-                  className="settingRow__rate"
-                  type="range"
-                  min={PITCH_MIN}
-                  max={PITCH_MAX}
-                  step={0.05}
-                  value={pitch}
-                  onChange={(e) => setPrefs({ ...prefs, speechPitch: Number(e.target.value) })}
-                />
-              </div>
-
-              <div className="card__actions">
-                {/*
-                  A remove and re-add of the setting, by hand. A stored pick
-                  bypasses the ranking, so a voice chosen once and regretted
-                  later cannot be improved by anything the app learns
-                  afterwards; this throws it away and lets the ranking choose.
-                */}
-                <button
-                  type="button"
-                  className="btn btn--sm"
-                  onClick={() => {
-                    speech.forgetVoice();
-                    setPrefs({ ...prefs, speechRate: RATE_DEFAULT, speechPitch: PITCH_DEFAULT });
-                  }}
-                  disabled={speech.voiceURI === null && rate === RATE_DEFAULT && pitch === PITCH_DEFAULT}
-                >
-                  Start fresh
-                </button>
-                <button
-                  type="button"
-                  className="btn btn--sm"
-                  onClick={() =>
-                    speech.status === 'idle'
-                      ? speech.start([
-                          'For God so loved the world, that he gave his one and only Son, that whoever believes in him should not perish, but have eternal life.',
-                        ])
-                      : speech.stop()
-                  }
-                >
-                  {speech.status === 'idle' ? 'Hear a verse' : 'Stop'}
-                </button>
-              </div>
-
-              {/*
-                The single biggest quality difference available, and it is free.
-                Every platform ships a much better voice than the one it defaults
-                to, and simply does not install it until asked.
-              */}
-              {goodVoices.length === 0 && (
-              <p className="notice notice--warn">
-                <b>Nothing on this device is worth listening to yet, and that is fixable.</b>{' '}
-                On an iPhone they are in Settings, Accessibility, Spoken Content, Voices, English:
-                pick one marked Enhanced or Premium. On Android look under Accessibility,
-                Text-to-speech output. One download and it appears above under "Worth listening
-                to", chosen automatically, and it costs nothing.
-              </p>
-              )}
-
-              <p className="notice notice--gold">
-                A phone stops speech when the screen locks or you switch app, so this is for
-                reading along rather than for listening with the phone in a pocket. That changes
-                with the App Store build.
-              </p>
-            </>
-          )}
         </section>
 
         <section ref={reveal} className="card card--locked reveal">

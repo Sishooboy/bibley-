@@ -25,18 +25,16 @@ import {
   type NoteMode,
 } from '../lib/insights';
 import { useKeyboardInset } from '../lib/keyboard';
-import { reducedMotion } from '../lib/motion';
 import { neighbours } from '../lib/navigate';
 import { DEFAULT_PREFS, TEXT_SIZES, textScale } from '../lib/prefs';
 import { chime } from '../lib/sound';
-import { PITCH_DEFAULT, RATE_DEFAULT, useChapterSpeech } from '../lib/speech';
 import { chapterKey, newId, type Highlight } from '../lib/storage';
 import { useStore } from '../state/useStore';
 import { BibleSearch } from './BibleSearch';
 import { HighlightSheet } from './HighlightSheet';
 import { AboutPill, BookSheet, ChapterNoteCard } from './Insight';
 import { LogDayPicker } from './LogDayPicker';
-import { Check, Chevron, Pause, Play, Search, Speaker, Stop } from './icons';
+import { Check, Chevron, Search } from './icons';
 
 /**
  * The reader. Until this existed you tracked your reading in Bibley and did the
@@ -87,38 +85,6 @@ export function Reader({
   const shellRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const keyboard = useKeyboardInset();
-  const speech = useChapterSpeech(
-    prefs.speechRate ?? RATE_DEFAULT,
-    prefs.speechPitch ?? PITCH_DEFAULT,
-  );
-  const stopSpeech = speech.stop;
-
-  /*
-   * Follow the voice down the page. Centred rather than at the top, so the verse
-   * being read has the ones around it for context, and instant under reduced
-   * motion because a page that slides on its own every few seconds is exactly
-   * what that setting is asking not to happen.
-   */
-  useEffect(() => {
-    if (speech.verse === null) return;
-    const body = bodyRef.current;
-    const verse = textRef.current?.querySelector(`[data-verse="${speech.verse}"]`);
-    if (!body || !verse) return;
-
-    /*
-     * Scrolls the reader's own box rather than calling `scrollIntoView`, which
-     * walks every scrollable ancestor and, inside a fixed modal, also drags the
-     * page behind it around.
-     *
-     * A third of the way down and not centred: what you want in view while
-     * something is read to you is the verse and the ones *after* it, and dead
-     * centre wastes half the screen on text already spoken.
-     */
-    const bodyBox = body.getBoundingClientRect();
-    const verseBox = verse.getBoundingClientRect();
-    const top = body.scrollTop + (verseBox.top - bodyBox.top) - bodyBox.height * 0.32;
-    body.scrollTo({ top: Math.max(0, top), behavior: reducedMotion() ? 'auto' : 'smooth' });
-  }, [speech.verse]);
 
   useEffect(() => {
     setJustMarked(false);
@@ -233,10 +199,7 @@ export function Reader({
     bodyRef.current?.scrollTo({ top: 0 });
     setPending(null);
     setEditing(null);
-    // The voice was reading the chapter you just left. Carrying on would be
-    // reading one page aloud while another is on screen.
-    stopSpeech();
-  }, [book, chapter, stopSpeech]);
+  }, [book, chapter]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -422,12 +385,6 @@ export function Reader({
 
   const chapterCount = text?.chapters.length ?? 0;
   const verses = text?.chapters[chapter - 1];
-  /*
-   * Named so the reader can tell whether the voice they are hearing is the one
-   * they picked. Blank rather than "Default" when nothing is chosen, since the
-   * browser's own pick has no name worth printing.
-   */
-  const voiceName = speech.voices.find((v) => v.voiceURI === speech.voiceURI)?.name ?? '';
   const open = marks.find((h) => h.id === editing);
 
   return (
@@ -447,7 +404,6 @@ export function Reader({
         } as CSSProperties
       }
     >
-      <div className="reader__top">
       <header className="reader__bar">
         <button
           type="button"
@@ -502,21 +458,6 @@ export function Reader({
           )}
         </div>
 
-        {speech.supported && verses && (
-          <button
-            type="button"
-            className={`reader__tool${speech.status !== 'idle' ? ' reader__tool--on' : ''}`}
-            /* Started from the tap itself, never from an effect: iOS refuses a
-               first `speak` that is not inside a real gesture. */
-            onClick={() => (speech.status === 'idle' ? speech.start(verses) : speech.stop())}
-            aria-pressed={speech.status !== 'idle'}
-            aria-label={speech.status === 'idle' ? 'Read this chapter aloud' : 'Stop reading aloud'}
-            title="Read aloud"
-          >
-            <Speaker size={16} />
-          </button>
-        )}
-
         <button
           type="button"
           className={`reader__tool${searching ? ' reader__tool--on' : ''}`}
@@ -554,42 +495,6 @@ export function Reader({
           </span>
         )}
       </header>
-
-      {/*
-        Inside `reader__top` and not a child of `.reader` directly. The reader is
-        a three row grid, and a fourth child landed in the `minmax(0, 1fr)` row
-        meant for the text: `minmax(0, ...)` allows zero, so the bar collapsed to
-        17px and its buttons spilled over the chapter heading.
-      */}
-      {speech.status !== 'idle' && (
-        <div className="listenBar" role="group" aria-label="Reading aloud">
-          <button
-            type="button"
-            className="listenBar__btn"
-            onClick={() => (speech.status === 'speaking' ? speech.pause() : speech.resume())}
-            aria-label={speech.status === 'speaking' ? 'Pause' : 'Continue'}
-          >
-            {speech.status === 'speaking' ? <Pause size={17} /> : <Play size={17} />}
-          </button>
-          <button
-            type="button"
-            className="listenBar__btn"
-            onClick={() => speech.stop()}
-            aria-label="Stop reading aloud"
-          >
-            <Stop size={15} />
-          </button>
-          <span className="listenBar__where" aria-live="polite">
-            {speech.status === 'paused'
-              ? 'Paused'
-              : speech.verse
-                ? `Verse ${speech.verse}`
-                : 'Starting'}
-          </span>
-          <span className="listenBar__voice">{voiceName}</span>
-        </div>
-      )}
-      </div>
 
       <div className="reader__body" ref={bodyRef} data-sheet={sheetOpen ? '' : undefined}>
         {sheetOpen && bookInsight(insights, book) && (
@@ -661,9 +566,6 @@ export function Reader({
                     // Set from React rather than added to className imperatively,
                     // which is the mistake that once left an opened note invisible.
                     data-landed={landedOn === i + 1 ? '' : undefined}
-                    // Same rule as data-landed: React owns className on this
-                    // element, so a class added from outside would be wiped.
-                    data-speaking={speech.verse === i + 1 ? '' : undefined}
                   >
                     {segmentVerse(verse, i + 1, marks).map((segment, s) =>
                       segment.id ? (

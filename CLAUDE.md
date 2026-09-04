@@ -329,82 +329,11 @@ redeploy.**
   the toggle on calls `setSoundEnabled` directly before playing its preview, for the same reason:
   the effect that watches the pref has not run yet while the gesture is still live.
 
-- **Reading a chapter aloud is `speechSynthesis`, the device's own voices.** Nothing is downloaded,
-  nothing is paid for per chapter, no API key has to live in a public bundle, and it works offline
-  once the book is cached. A cloud voice would sound better and would need a backend, a key and a
-  bill, none of which this app has. `toPieces` splits a chapter **verse by verse**, which is what
-  lets `onstart` say which verse is being read, and that is what lights up `data-speaking`. It also
-  sidesteps Chrome cutting off any single utterance after about fifteen seconds. A verse longer than
-  240 characters is split again at a sentence end, and both halves keep the same verse number, or
-  following along would jump to a verse that does not exist. **Every branch of that split has to
-  give a positive index**: a bare `lastIndexOf` returns -1 when it finds nothing, and slicing on
-  that drops a character off one piece and repeats it on the next, which is inaudible in testing and
-  wrong in every verse. A test pins that nothing is lost.
-- **Verses are spoken one at a time and chained on `onend`, never queued up front.** Queueing the
-  whole chapter works on desktop Chrome and is unreliable on iOS Safari, which fires `onstart` for
-  some utterances and not others: the audio kept going while the highlight froze on verse one. The
-  chain sets the verse when a piece is *scheduled* rather than in `onstart`, for the same reason, and
-  a highlight a beat early is nothing beside one that never moves. `onend` chains through a
-  `setTimeout(0)`, because iOS refuses a `speak` issued from inside `onend` often enough to strand a
-  chapter half read.
-- **`voiceScore` picks the voice, not the browser.** Left alone every platform hands back its first
-  voice, which is always one of the old compact ones, while the good voices sit unused further down
-  the same list. They are recognisable by name, because every platform labels them Enhanced, Premium,
-  Natural or Neural. This is the single biggest difference between read-aloud being worth using and
-  sounding like 1998, and it costs nothing. Quality deliberately outweighs `localService`: a network
-  voice needs a connection, which this app otherwise avoids relying on, but a voice nobody wants to
-  hear is worth less than one that occasionally cannot load. The Settings card also says where to
-  download the better ones, which is the other half of the same answer.
-- **`default` is not a quality signal, and treating it as one is what made the reader sound like a
-  eulogy.** `voiceScore` gave the system default a bonus, and the system default is almost always
-  the same basic voice the ranking exists to avoid: on Windows that is Microsoft David, deep and
-  flat. The bonus is gone, and the SAPI era Windows voices are penalised by name, since every good
-  Microsoft voice carries Online or Natural and the absence of both is the tell. On a machine that
-  has nothing better installed this changes nothing, because there is nothing to change to, which is
-  why the Settings card tells the reader where to download one.
-- **A stored voice bypasses the ranking entirely, and that is what made three fixes look like they
-  did nothing.** `resolveVoice` returns a stored pick before `sortVoices` is ever consulted, so a
-  reader who once tapped a bad voice stayed pinned to it and every later improvement was dead code
-  on their device. Nothing in the picker said so, and nothing could: the app was doing exactly what
-  it had been told. `VOICE_EPOCH` in `speech.ts` is the remedy. Bumping it discards every pick made
-  before the current ranking, which is a remove and re-add of the setting, and Settings carries a
-  **Start fresh** button that does the same by hand and puts speed and tone back to normal.
-  **Bump the epoch whenever the selection logic changes enough that an old choice should not
-  survive it**, or the readers who most need the improvement are the ones who will not get it.
-- **`isGoodVoice` answers a different question from `voiceScore`, and the picker needs both.**
-  Ranking answers "which of these is least bad", which is all a sorted list can ever say; a reader
-  whose device has nothing good still saw twenty entries and no way to tell. The yes-or-no answers
-  "is any of these actually good", and Settings splits the picker on it: "Worth listening to" above
-  "Basic voices", with the hint reading either the count or **"No high quality voice installed on
-  this device"**. The download note only appears when there is nothing good, since advice about a
-  problem you do not have is noise. **An unmarked name is deliberately not good**: on iOS the plain
-  entry may be the compact voice or the downloaded one and the API does not say which, and guessing
-  optimistically would tell a reader their list is fine when it is not. The basic voices are still
-  offered, never hidden, because on a poor device they are the only voices there are.
-- **`prefs.speechPitch` exists for the machine with only bad voices.** Lifting a voice a little is
-  the one lever left when the list is poor, and the band is deliberately narrow, 0.8 to 1.4: past
-  that a synthesised voice stops sounding lighter and starts sounding like a cartoon. Synced, for
-  the same reason the pace is.
-- **Following along scrolls `reader__body` itself, not `scrollIntoView`.** That walks every
-  scrollable ancestor and, inside a fixed modal, drags the page behind it around too. It targets a
-  third of the way down rather than centred, because what you want in view while something is read
-  to you is the verse and the ones after it.
-- **The transport lives inside `reader__top`, with the header.** `.reader` is a three row grid and
-  its middle row is `minmax(0, 1fr)`, which permits zero: a fourth child took that row, flattened to
-  17px, and its 44px buttons hung over the chapter heading while the text kept the `auto` row.
-  Anything else pinned to the top of the reader belongs in that wrapper, not beside it.
-- Every control in the reader bar is the **same 38px circle**, and the transport buttons are 44px,
-  which is the smallest thing a thumb reliably hits. The transport was 30px and sized to look neat
-  in a thin bar, which is the wrong thing to optimise for a control you reach for while something is
-  already playing. On a phone the bar tightens its gaps rather than letting the book name collapse:
-  at the desktop gap, Psalms rendered as "P..", and the book name is the one thing there that has to
-  stay readable.
-- The read-aloud keep-alive (`resume()` every 8s) is Chrome's long-standing stall, and it **only
-  runs while the status is `speaking`**. Poking a queue the reader deliberately paused would start
-  it again on its own, which is the one way this feature could feel possessed.
-- **The voice is device-local and the speed is synced.** A voice on an iPhone does not exist on a
-  Windows laptop, so carrying that choice across would only ever resolve to a fallback; pace is
-  about the person, so `prefs.speechRate` travels. Same reasoning as `loadNotifiedDay`.
+- Every control in the reader bar is the **same 38px circle**. On a phone the bar tightens its gaps
+  rather than letting the book name collapse: at the desktop gap, Psalms rendered as "P..", and the
+  book name is the one thing there that has to stay readable. That was measured with four controls
+  in the bar and there are three now, so there is room, but the rule stands for whatever goes in
+  next.
 - **The streak animation reads the cue channel the sounds use**, exposed as `cue` on the store, so
   one moment drives both rather than two systems separately noticing the same event and disagreeing
   about when. It is four small things: the flame swells and warms, the number counts up through
@@ -451,6 +380,16 @@ redeploy.**
   caught it. The `book` voice runs about 4.2 seconds against a 4.6 second hold, scored the same way
   as `streak`: root and fifth under everything, a quick shimmer up through the octave as the rings
   leave, a chord as the name lands and a higher one as the count does.
+
+- **Read aloud was removed.** It read a chapter through `speechSynthesis` with the spoken verse
+  lit up, and it went because the voices a browser can reach were not good enough to want: on iOS
+  the good Siri voices are not exposed to web pages at all, so the ceiling was low and no amount of
+  ranking, pitch or resetting moved it. Four attempts are in the history if the reasoning is ever
+  wanted. **`git revert` the removal commit brings all of it back**, including the tests, so this is
+  a decision that can be taken again rather than work that has to be redone. If it does come back,
+  the thing that would actually change the answer is not synthesis: it is the public domain human
+  narrations of this exact translation, which are real recordings and would need hosting, verse
+  timing, and a decision about the `<audio>` element the sound rules currently forbid.
 
 - **A book introduces itself the first time it is opened, and key chapters say why they matter.**
   The words are in `public/bible/insights.json`: an eyebrow and three facts for all 73 books, and
@@ -587,9 +526,9 @@ per-account sync with the merge rules above, chapter marking by slider, quick am
 undo, backdating so a chapter counts on the day it was read, an optional time of day, the text
 itself in a reader that opens at any book and any chapter, highlighting with a thought attached,
 notes, stats, streaks, an offline app shell, a six panel welcome guide, full text search over all
-73 books, five synthesised sounds with a synced mute switch, chapters read aloud with the verse
-lighting up as it goes, a streak that celebrates itself when it grows, and a synced settings
-screen.
+73 books, five synthesised sounds with a synced mute switch, a card introducing every book and a
+note on the chapters that matter, a streak that celebrates itself when it grows, and a synced
+settings screen.
 
 Notes and highlights share one feed in the Notes view, sorted by when each was last touched. They
 are different objects with the same purpose, so the filter switches between them rather than

@@ -1739,47 +1739,6 @@ select {
   color: var(--muted);
 }
 
-/* The voice list holds long names like "Microsoft Aria Online (Natural)", so it
-   is allowed to take the width it needs and truncate rather than push the label
-   off a 375px screen. */
-.settingRow__voice {
-  flex: 1 1 11rem;
-  min-width: 0;
-  max-width: 15rem;
-}
-
-/*
- * A voice is named "Microsoft Aria Online (Natural) - English (United States)".
- * Beside a label on a 375px phone that leaves the select about 85px, which
- * renders as "Whateve" and a chevron: a control you cannot read is not a
- * control. Under 560px the row stacks and the select takes the full width.
- */
-@media (max-width: 560px) {
-  .settingRow--stack {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.55rem;
-  }
-
-  /*
-   * `width: 100%` and not only `max-width`, because a select is sized by its
-   * widest option unless it is told otherwise, and the widest voice name is
-   * wider than the card. Without it the control breaks out through the card's
-   * padding and takes the border with it.
-   */
-  .settingRow--stack .settingRow__voice {
-    width: 100%;
-    max-width: none;
-    flex: none;
-  }
-}
-
-.settingRow__rate {
-  flex: 0 1 9rem;
-  min-width: 6rem;
-  accent-color: var(--red-600);
-}
-
 .settingRow__time {
   width: auto;
   flex: none;
@@ -3962,17 +3921,6 @@ select {
   }
 }
 
-/*
- * The header and, while something is being read, the transport under it. They
- * are wrapped because `.reader` is a three row grid and a fourth child takes
- * the row the text needs: `minmax(0, 1fr)` allows zero, so the bar flattened to
- * 17px and its 44px buttons hung over the chapter heading. Anything else pinned
- * to the top of the reader belongs in here too.
- */
-.reader__top {
-  min-width: 0;
-}
-
 .reader__bar {
   display: flex;
   align-items: center;
@@ -5741,102 +5689,6 @@ select {
 @media (prefers-reduced-motion: reduce) {
   .verse__t[data-landed] {
     animation: none;
-  }
-}
-
-/* ── Reading aloud ──────────────────────────────────────── */
-/*
- * The transport, which exists only while something is being read. It is a
- * second row under the header rather than three more buttons in it: that bar is
- * already close to the edge of a 375px phone, and adding one control to it once
- * pushed the whole reader 53px off the screen.
- */
-.listenBar {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.5rem max(0.75rem, env(safe-area-inset-left));
-  background: var(--ink);
-  color: var(--cream);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
-}
-
-/*
- * 44px, which is the smallest thing a thumb reliably hits. These were 30px and
- * they were sized to look neat in a thin bar, which is the wrong thing to
- * optimise for a control you reach for while something is already playing: at
- * 30px pausing took two or three attempts. The bar is taller for it, and that
- * is the right trade.
- */
-.listenBar__btn {
-  flex: none;
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--cream);
-  cursor: pointer;
-}
-
-.listenBar__btn:active {
-  background: rgba(247, 184, 1, 0.2);
-  border-color: var(--yellow);
-}
-
-/* Never wraps. It is two words that change every few seconds, and a label that
-   reflows to two lines makes the whole bar jump while you are reading. */
-.listenBar__where {
-  flex: none;
-  white-space: nowrap;
-  font-family: var(--font-display);
-  font-size: 0.86rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--yellow);
-}
-
-/*
- * The chosen voice, on screens with room to spare. It is useful context when
- * what you are hearing is wrong, and on a phone it is not worth the space: a
- * name like "Microsoft Zira - English (United States)" pushed the verse label
- * into a second line and made the bar jump on every verse. Hidden below the
- * width where it fits, rather than truncated to something unreadable.
- */
-.listenBar__voice {
-  display: none;
-  margin-left: auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.62);
-}
-
-@media (min-width: 560px) {
-  .listenBar__voice {
-    display: block;
-  }
-}
-
-/*
- * The verse being read. Deliberately quieter than a highlight and quieter than
- * the landing flash: it moves every few seconds, so anything with a border or a
- * shadow would make the page twitch all the way down a chapter. An attribute
- * and not a class, for the same reason as data-landed.
- */
-.verse__t[data-speaking] {
-  background: rgba(247, 184, 1, 0.22);
-  border-radius: 3px;
-  box-shadow: 0 0 0 3px rgba(247, 184, 1, 0.22);
-}
-
-@media (hover: hover) {
-  .listenBar__btn:hover {
-    border-color: var(--yellow);
-    color: var(--yellow);
   }
 }
 

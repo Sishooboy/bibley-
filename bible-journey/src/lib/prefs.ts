@@ -25,15 +25,6 @@ export type Prefs = {
    * you cannot make a noise in.
    */
   soundEnabled?: boolean;
-  /**
-   * How fast a chapter is read aloud. Synced, because reading pace is about the
-   * person. The *voice* is not synced and lives in localStorage instead: a voice
-   * on an iPhone does not exist on a Windows laptop, so carrying the choice
-   * across would only ever resolve to a fallback.
-   */
-  speechRate?: number;
-  /** Lifts a voice that sits too low. Synced for the same reason as the pace. */
-  speechPitch?: number;
   /** Set on every change so two devices can be compared. */
   updatedAt?: string;
 };
@@ -43,8 +34,6 @@ export const DEFAULT_PREFS: Prefs = {
   reminderTime: '20:00',
   textSize: 1,
   soundEnabled: true,
-  speechRate: 1,
-  speechPitch: 1,
 };
 
 /**
@@ -73,14 +62,6 @@ export function normalizePrefs(input: unknown): Prefs | undefined {
     // Absent means on, so every journal written before sound existed arrives
     // with it enabled rather than silently muted.
     soundEnabled: raw.soundEnabled !== false,
-    speechRate:
-      typeof raw.speechRate === 'number' && raw.speechRate >= 0.6 && raw.speechRate <= 1.6
-        ? raw.speechRate
-        : DEFAULT_PREFS.speechRate,
-    speechPitch:
-      typeof raw.speechPitch === 'number' && raw.speechPitch >= 0.8 && raw.speechPitch <= 1.4
-        ? raw.speechPitch
-        : DEFAULT_PREFS.speechPitch,
     updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : undefined,
   };
 }
