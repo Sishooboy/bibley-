@@ -340,6 +340,25 @@ redeploy.**
   `prefers-reduced-motion` was designed in rather than bolted on: no swell, no bounce and no sparks
   at all, but today's cell still changes colour, because that is the record of having read today and
   not decoration.
+- **`StreakCelebration` is the version of that moment meant to be looked at, not glimpsed.** The
+  hero's flame is an ambient touch for whoever is already looking there; this is a full screen
+  takeover, centred, for when growing the streak deserves the reader's whole attention. Same trigger
+  as the flame and the bell, `cue.name === 'streak'` on the store, so all three fire off one signal
+  rather than three systems independently deciding the same thing happened. It reads `derived.streak`
+  once, the instant the cue arrives, and holds that snapshot in its own state: a later mark changing
+  `derived` must not renumber or reopen a celebration already on screen.
+  The cross lands first, then a reel per digit rolls in like a slot machine, most significant digit
+  left to right via `digitsOf` in `format.ts`. Each reel is a 30 entry strip, three runs of 0 to 9,
+  with the target sitting in the last run: it is what makes a reel travel a full roll rather than
+  nudge one step, and a single `--reel-end` custom property parameterises the keyframe so one
+  `@keyframes` serves every digit rather than ten. It is keyed on the cue's `id`, not just shown or
+  hidden, so a second streak later in the same session replaces the whole element and every animation
+  restarts, the same reasoning as the flame's burst counter above. Dismisses on a timeout, a tap
+  anywhere, or Escape. **Reduced motion skips the roll and the bounce, not the moment**: the reels sit
+  at their final digits from the first frame and the scrim still fades in and out, because a full
+  screen element snapping straight into existence is a bigger jolt than the fade it is trying to
+  avoid. It lives in `Shell` beside `UndoBar`, never inside anything transformed, since `.celebrate`
+  is `position: fixed` and a transformed ancestor becomes the containing block for that.
 
 ### The data model
 

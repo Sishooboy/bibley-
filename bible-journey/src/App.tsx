@@ -4,6 +4,7 @@ import { Guide } from './components/Guide';
 import { PlanChooser } from './components/PlanChooser';
 import { PREPARING_MS, Preparing } from './components/Preparing';
 import { SignInScreen } from './components/SignInScreen';
+import { StreakCelebration } from './components/StreakCelebration';
 import { SPLASH_MS, Splash } from './components/Splash';
 import { SyncBadge } from './components/SyncBadge';
 import { UndoBar } from './components/UndoBar';
@@ -140,6 +141,10 @@ function Shell() {
       </main>
 
       <UndoBar />
+      {/* Full screen for a few seconds when the streak grows. Here beside the
+          undo bar and never inside anything transformed, or `fixed` would stop
+          meaning the screen. */}
+      <StreakCelebration />
       {/* Renders nothing once it has been seen, which is a synced pref. */}
       <Guide />
     </div>

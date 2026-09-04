@@ -25,3 +25,14 @@ export function plural(n: number, one: string, many = `${one}s`): string {
 export function formatNumber(n: number): string {
   return n.toLocaleString();
 }
+
+/**
+ * The digits of a streak, most significant first, for the celebration's slot
+ * reels: one entry per reel, so "12" is two reels reading left to right rather
+ * than one reel and a stray digit.
+ */
+export function digitsOf(n: number): number[] {
+  return String(Math.max(0, Math.floor(n)))
+    .split('')
+    .map(Number);
+}

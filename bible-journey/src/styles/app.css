@@ -6104,3 +6104,176 @@ select {
   color: var(--red-800);
   font-variant-numeric: tabular-nums;
 }
+
+/* ── The streak growing, as a moment ───────────────────────── */
+/*
+ * Full screen and in the middle, over everything including the reader, since a
+ * chapter can be marked from inside it. Above the guide too: a streak that grows
+ * while the guide is up is rare, and a celebration under a panel is no
+ * celebration.
+ *
+ * The scrim is the chooser's ground, ink with the red wash off one corner, so
+ * this reads as the same app and not as a system dialog. Opacity only on the
+ * way in and out: this element is `fixed`, and a transform here would be the
+ * containing-block bug all over again.
+ */
+.celebrate {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+  background:
+    radial-gradient(80% 60% at 90% -10%, rgba(200, 29, 37, 0.34), transparent 62%),
+    rgba(26, 21, 18, 0.94);
+  color: var(--cream);
+  animation: celebrateIn 260ms ease-out both, celebrateOut 320ms ease-in 3280ms both;
+  cursor: pointer;
+}
+
+@keyframes celebrateIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes celebrateOut {
+  to {
+    opacity: 0;
+  }
+}
+
+.celebrate__inner {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  text-align: center;
+}
+
+/*
+ * The cross comes first and lands with a little overshoot, then the number
+ * rolls in under it. Gold because it is the reward colour, and a mark rather
+ * than wallpaper because it is the only thing on screen for the first beat.
+ */
+.celebrate__cross {
+  color: var(--yellow);
+  margin-bottom: 0.9rem;
+  animation: crossIn 520ms cubic-bezier(0.22, 1.35, 0.36, 1) 80ms both;
+}
+
+@keyframes crossIn {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/*
+ * The number. One reel per digit, tabular so a 1 is as wide as an 8 and the
+ * reels never shuffle sideways while they roll. Huge, because the point of a
+ * full screen is that this is the only thing on it.
+ */
+.celebrate__number {
+  display: flex;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(6rem, 28vw, 9.5rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--cream);
+}
+
+.reel {
+  display: block;
+  height: 1em;
+  min-width: 0.62em;
+  overflow: hidden;
+  /* The window fades at both edges, so the digits passing through read as a
+     drum turning rather than a list scrolling. */
+  mask-image: linear-gradient(to bottom, transparent, black 22%, black 78%, transparent);
+}
+
+.reel__strip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: reelRoll 1.5s cubic-bezier(0.18, 1.12, 0.3, 1) var(--reel-delay) both;
+}
+
+.reel__digit {
+  display: block;
+  height: 1em;
+  line-height: 1;
+}
+
+/* From the top of the strip to the target in the last run of ten. The end is a
+   custom property so one keyframe serves every digit. */
+@keyframes reelRoll {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(var(--reel-end));
+  }
+}
+
+.celebrate__label {
+  margin: 0.55rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 6vw, 1.9rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  animation: celebrateFade 420ms ease-out 1750ms both;
+}
+
+.celebrate__sub {
+  margin: 0;
+  font-size: 0.92rem;
+  /* Soft gold and not full gold: this is small text on the dark ground, and
+     full --yellow measures 3.8:1 there. */
+  color: var(--yellow-soft);
+  animation: celebrateFade 420ms ease-out 1950ms both;
+}
+
+@keyframes celebrateFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+ * Reduced motion: the same moment, still. No roll, no bounce, no rise. The
+ * scrim still fades in and out because a full screen that snaps into existence
+ * is more of a jolt than a fade, and it leaves sooner because there is nothing
+ * to wait for.
+ */
+.celebrate[data-calm] {
+  animation: celebrateIn 200ms ease-out both, celebrateOut 260ms ease-in 1940ms both;
+}
+
+.celebrate[data-calm] .celebrate__cross,
+.celebrate[data-calm] .reel__strip,
+.celebrate[data-calm] .celebrate__label,
+.celebrate[data-calm] .celebrate__sub {
+  animation: none;
+}
+
+.celebrate[data-calm] .reel__strip {
+  transform: translateY(var(--reel-end));
+}
+
+.celebrate[data-calm] .reel {
+  mask-image: none;
+}
