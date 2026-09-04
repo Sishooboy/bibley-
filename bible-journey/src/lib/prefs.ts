@@ -32,6 +32,8 @@ export type Prefs = {
    * across would only ever resolve to a fallback.
    */
   speechRate?: number;
+  /** Lifts a voice that sits too low. Synced for the same reason as the pace. */
+  speechPitch?: number;
   /** Set on every change so two devices can be compared. */
   updatedAt?: string;
 };
@@ -42,6 +44,7 @@ export const DEFAULT_PREFS: Prefs = {
   textSize: 1,
   soundEnabled: true,
   speechRate: 1,
+  speechPitch: 1,
 };
 
 /**
@@ -74,6 +77,10 @@ export function normalizePrefs(input: unknown): Prefs | undefined {
       typeof raw.speechRate === 'number' && raw.speechRate >= 0.6 && raw.speechRate <= 1.6
         ? raw.speechRate
         : DEFAULT_PREFS.speechRate,
+    speechPitch:
+      typeof raw.speechPitch === 'number' && raw.speechPitch >= 0.8 && raw.speechPitch <= 1.4
+        ? raw.speechPitch
+        : DEFAULT_PREFS.speechPitch,
     updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : undefined,
   };
 }

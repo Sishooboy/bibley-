@@ -14,7 +14,7 @@ import { useKeyboardInset } from '../lib/keyboard';
 import { reducedMotion } from '../lib/motion';
 import { neighbours } from '../lib/navigate';
 import { DEFAULT_PREFS, TEXT_SIZES, textScale } from '../lib/prefs';
-import { RATE_DEFAULT, useChapterSpeech } from '../lib/speech';
+import { PITCH_DEFAULT, RATE_DEFAULT, useChapterSpeech } from '../lib/speech';
 import { chapterKey, newId, type Highlight } from '../lib/storage';
 import { useStore } from '../state/useStore';
 import { BibleSearch } from './BibleSearch';
@@ -58,7 +58,10 @@ export function Reader({
   const shellRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const keyboard = useKeyboardInset();
-  const speech = useChapterSpeech(prefs.speechRate ?? RATE_DEFAULT);
+  const speech = useChapterSpeech(
+    prefs.speechRate ?? RATE_DEFAULT,
+    prefs.speechPitch ?? PITCH_DEFAULT,
+  );
   const stopSpeech = speech.stop;
 
   /*

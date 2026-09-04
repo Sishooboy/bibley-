@@ -338,6 +338,17 @@ redeploy.**
   voice needs a connection, which this app otherwise avoids relying on, but a voice nobody wants to
   hear is worth less than one that occasionally cannot load. The Settings card also says where to
   download the better ones, which is the other half of the same answer.
+- **`default` is not a quality signal, and treating it as one is what made the reader sound like a
+  eulogy.** `voiceScore` gave the system default a bonus, and the system default is almost always
+  the same basic voice the ranking exists to avoid: on Windows that is Microsoft David, deep and
+  flat. The bonus is gone, and the SAPI era Windows voices are penalised by name, since every good
+  Microsoft voice carries Online or Natural and the absence of both is the tell. On a machine that
+  has nothing better installed this changes nothing, because there is nothing to change to, which is
+  why the Settings card tells the reader where to download one.
+- **`prefs.speechPitch` exists for the machine with only bad voices.** Lifting a voice a little is
+  the one lever left when the list is poor, and the band is deliberately narrow, 0.8 to 1.4: past
+  that a synthesised voice stops sounding lighter and starts sounding like a cartoon. Synced, for
+  the same reason the pace is.
 - **Following along scrolls `reader__body` itself, not `scrollIntoView`.** That walks every
   scrollable ancestor and, inside a fixed modal, drags the page behind it around too. It targets a
   third of the way down rather than centred, because what you want in view while something is read

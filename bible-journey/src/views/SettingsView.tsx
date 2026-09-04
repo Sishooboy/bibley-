@@ -16,6 +16,9 @@ import { REMINDERS_UNLOCKED, formatTime } from '../lib/prefs';
 import { overallProgress, phaseProgressAll } from '../lib/progress';
 import { play, setSoundEnabled } from '../lib/sound';
 import {
+  PITCH_DEFAULT,
+  PITCH_MAX,
+  PITCH_MIN,
   RATE_DEFAULT,
   RATE_MAX,
   RATE_MIN,
@@ -34,7 +37,8 @@ export function SettingsView() {
   // Absent means on, the same reading `normalizePrefs` gives an older journal.
   const soundOn = prefs.soundEnabled !== false;
   const rate = prefs.speechRate ?? RATE_DEFAULT;
-  const speech = useChapterSpeech(rate);
+  const pitch = prefs.speechPitch ?? PITCH_DEFAULT;
+  const speech = useChapterSpeech(rate, pitch);
 
   /*
    * Grouped by testament rather than listed flat. Nine orders in one column is
@@ -313,6 +317,28 @@ export function SettingsView() {
                   step={0.05}
                   value={rate}
                   onChange={(e) => setPrefs({ ...prefs, speechRate: Number(e.target.value) })}
+                />
+              </div>
+
+              <div className="settingRow">
+                <label className="settingRow__main" htmlFor="pitch">
+                  <span className="settingRow__label">Tone</span>
+                  <span className="settingRow__hint">
+                    {pitch === 1 ? 'Normal' : pitch > 1 ? 'Lighter' : 'Deeper'}
+                  </span>
+                </label>
+                {/* Lifts a voice that sits too low. The band is narrow because
+                    past about 1.4 a synthesised voice stops sounding lighter
+                    and starts sounding like a cartoon. */}
+                <input
+                  id="pitch"
+                  className="settingRow__rate"
+                  type="range"
+                  min={PITCH_MIN}
+                  max={PITCH_MAX}
+                  step={0.05}
+                  value={pitch}
+                  onChange={(e) => setPrefs({ ...prefs, speechPitch: Number(e.target.value) })}
                 />
               </div>
 

@@ -115,8 +115,20 @@ export function voiceScore(v: SpeechSynthesisVoice): number {
   if (/google|siri/.test(name)) score += 25;
   // And what they call the ones they shipped in 2005.
   if (/compact|eloquence|espeak|novelty/.test(name)) score -= 40;
-  if (v.default) score += 5;
+  /*
+   * Windows still ships the SAPI era desktop voices, David, Zira, Mark and
+   * company, which are the deep flat ones that read scripture like a eulogy.
+   * Every good Microsoft voice carries Online or Natural in its name, so the
+   * absence of both is the tell.
+   */
+  if (/microsoft/.test(name) && !/online|natural|neural/.test(name)) score -= 30;
   if (v.localService) score += 2;
+  /*
+   * `default` is deliberately not a bonus. It marks what the system picked, not
+   * what is worth hearing, and on most machines those are the same basic voice
+   * this whole ranking exists to avoid. Boosting it was enough to hand a reader
+   * Microsoft David over anything else installed.
+   */
   return score;
 }
 
@@ -147,13 +159,23 @@ export const RATE_MIN = 0.6;
 export const RATE_MAX = 1.6;
 export const RATE_DEFAULT = 1;
 
+/*
+ * Pitch, for lifting a voice that sits too low. Kept to a narrow band on
+ * purpose: past about 1.4 a synthesised voice stops sounding lighter and starts
+ * sounding like a cartoon, and below 0.8 every voice becomes the thing this was
+ * added to escape.
+ */
+export const PITCH_MIN = 0.8;
+export const PITCH_MAX = 1.4;
+export const PITCH_DEFAULT = 1;
+
 /**
  * Reads a chapter aloud and says which verse it is on.
  *
  * `speak` has to be called inside a real gesture the first time or iOS refuses
  * it, so `start` is only ever wired to a tap, never to an effect.
  */
-export function useChapterSpeech(rate: number) {
+export function useChapterSpeech(rate: number, pitch: number = PITCH_DEFAULT) {
   const [status, setStatus] = useState<SpeechStatus>('idle');
   const [verse, setVerse] = useState<number | null>(null);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -166,6 +188,8 @@ export function useChapterSpeech(rate: number) {
      applies to the next verse instead of rebuilding the whole run. */
   const rateRef = useRef(rate);
   rateRef.current = rate;
+  const pitchRef = useRef(pitch);
+  pitchRef.current = pitch;
 
   // The list is empty on first call in most browsers and arrives later.
   useEffect(() => {
@@ -227,6 +251,7 @@ export function useChapterSpeech(rate: number) {
       utterance.lang = voice.lang;
     }
     utterance.rate = rateRef.current;
+    utterance.pitch = pitchRef.current;
     setVerse(piece.verse);
 
     utterance.onend = () => {

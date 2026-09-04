@@ -129,6 +129,29 @@ describe('choosing a voice', () => {
     expect(sorted[0].name).toBe('Ava');
   });
 
+  /*
+   * `default` marks what the system picked, not what is worth hearing, and on
+   * most machines those are the same basic voice this ranking exists to avoid.
+   * Treating it as a bonus was enough to hand a reader Microsoft David over
+   * everything else installed, which is where "it sounds like the grim reaper"
+   * came from.
+   */
+  it('does not prefer a voice merely for being the system default', () => {
+    const sorted = sortVoices([
+      voice('Microsoft David - English (United States)', 'en-US', true, true),
+      voice('Microsoft Aria Online (Natural)', 'en-US', false),
+    ]);
+    expect(sorted[0].name).toBe('Microsoft Aria Online (Natural)');
+  });
+
+  it('sinks the old Windows desktop voices but not the good Microsoft ones', () => {
+    const legacy = voice('Microsoft Zira - English (United States)', 'en-US', true);
+    const modern = voice('Microsoft Aria Online (Natural)', 'en-US', false);
+    expect(voiceScore(modern)).toBeGreaterThan(voiceScore(legacy));
+    // And the penalty must not catch a plain non-Microsoft voice.
+    expect(voiceScore(voice('Ava', 'en-US'))).toBeGreaterThan(voiceScore(legacy));
+  });
+
   it('leaves the list it was given alone', () => {
     const list = [voice('B', 'en-US'), voice('A', 'en-US')];
     sortVoices(list);
