@@ -1,10 +1,9 @@
 import type { CSSProperties, ReactNode } from 'react';
 import {
-  Area,
-  AreaChart,
   Bar,
-  BarChart,
   Cell,
+  ComposedChart,
+  Line,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -13,7 +12,6 @@ import {
 import { FoldCard } from '../components/FoldCard';
 import { Heatmap } from '../components/Heatmap';
 import { ShareCard } from '../components/ShareCard';
-import { Sparkline } from '../components/Sparkline';
 import { StatRing } from '../components/StatRing';
 import { Flame } from '../components/icons';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
@@ -40,24 +38,17 @@ const CHART_H = 180;
 
 const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
-type TipPayload = { payload?: { day: string; chapters?: number; total?: number } }[];
+type TipPayload = { payload?: { day: string; chapters: number; total: number } }[];
 
-function ChartTip({
-  active,
-  payload,
-  unit,
-}: {
-  active?: boolean;
-  payload?: TipPayload;
-  unit: 'chapters' | 'total';
-}) {
+/** One day, both series. The chart draws two things, so the tooltip says two. */
+function ChartTip({ active, payload }: { active?: boolean; payload?: TipPayload }) {
   const point = active ? payload?.[0]?.payload : undefined;
   if (!point) return null;
-  const value = unit === 'chapters' ? point.chapters ?? 0 : point.total ?? 0;
   return (
     <div className="tooltip">
       <div>{formatDay(point.day)}</div>
-      <b>{unit === 'chapters' ? plural(value, 'chapter') : `${value} read in total`}</b>
+      <b>{plural(point.chapters, 'chapter')}</b>
+      <div className="tooltip__sub">{formatNumber(point.total)} read in total</div>
     </div>
   );
 }
@@ -68,33 +59,35 @@ function Counter({ value, decimals = 0 }: { value: number; decimals?: number }) 
   return <>{decimals ? n.toFixed(decimals) : formatNumber(Math.round(n))}</>;
 }
 
-function StatCard({
+/**
+ * One figure in the strip: a label, a number, and what the number is out of.
+ *
+ * These were four cards and a three item list in the hero, which between them
+ * said books done twice and the chapters remaining twice, in 560px of bordered
+ * boxes. A figure is not a panel and does not need panel furniture, so the
+ * strip carries all six on hairlines and takes about a third of the room.
+ */
+function Figure({
   label,
   value,
   note,
-  spark,
-  tone,
-  reveal,
-  index,
+  icon,
+  gold,
 }: {
   label: string;
   value: ReactNode;
   note: ReactNode;
-  spark?: number[];
-  tone?: 'accent';
-  reveal: (node: Element | null) => void;
-  index: number;
+  icon?: ReactNode;
+  gold?: boolean;
 }) {
   return (
-    <div
-      ref={reveal}
-      className={`statCard reveal${tone === 'accent' ? ' statCard--accent' : ''}`}
-      style={{ '--i': index } as CSSProperties}
-    >
-      <span className="statCard__label">{label}</span>
-      <span className="statCard__value">{value}</span>
-      <span className="statCard__note">{note}</span>
-      {spark && <Sparkline values={spark} tone={tone === 'accent' ? 'gold' : 'red'} />}
+    <div className={`figure${gold ? ' figure--gold' : ''}`}>
+      <span className="figure__label">{label}</span>
+      <span className="figure__value">
+        {icon}
+        {value}
+      </span>
+      <span className="figure__note">{note}</span>
     </div>
   );
 }
@@ -153,10 +146,19 @@ export function StatsView() {
 
   const daily = last30Days(data.read);
   const running = cumulative(data.read);
+  /*
+   * One row per day carrying both series. They were two charts of the same
+   * thirty days with the same x-axis stacked one above the other, which is two
+   * cards, two heads and two axes to say "here is the month" twice.
+   */
+  const thirty = daily.map((d, i) => ({
+    day: d.day,
+    chapters: d.chapters,
+    total: running[i].total,
+  }));
   const todayKey = today();
   const busiest = daily.reduce((max, d) => Math.max(max, d.chapters), 0);
   const lastWeek = last30Days(data.read, 7);
-  const spark = daily.slice(-14).map((d) => d.chapters);
   const days = recentDays(data.read);
 
   // Time of day is opt-in, so this counts only what was actually tagged rather
@@ -169,8 +171,6 @@ export function StatsView() {
   const taggedTotal = SLOTS.reduce((n, slot) => n + slotCounts[slot], 0);
   const topSlot = Math.max(...SLOTS.map((slot) => slotCounts[slot]));
 
-  const booksPercent =
-    overall.booksTotal === 0 ? 0 : (overall.booksDone / overall.booksTotal) * 100;
   const phasesDone = phases.filter((p) => p.done).length;
   const loggedChapters = days.reduce((n, d) => n + d.total, 0);
 
@@ -245,103 +245,73 @@ export function StatsView() {
                   ? `Hold this pace and the last chapter lands ${formatDay(pace.finishBy)}.`
                   : 'Plan complete. Every chapter in this plan is marked.'}
             </p>
-            <dl className="statsHero__facts">
-              <div>
-                <dt>Remaining</dt>
-                <dd>{formatNumber(pace.remaining)}</dd>
-              </div>
-              <div>
-                <dt>Books done</dt>
-                <dd>
-                  {overall.booksDone}
-                  <small>/{overall.booksTotal}</small>
-                </dd>
-              </div>
-              <div>
-                <dt>Longest streak</dt>
-                <dd>
-                  {streak.longest}
-                  <small> {streak.longest === 1 ? 'day' : 'days'}</small>
-                </dd>
-              </div>
-            </dl>
           </div>
         </section>
 
-        <div className="statGrid">
-          <StatCard
-            reveal={reveal}
-            index={0}
+        {/*
+          Six figures on hairlines rather than four bordered cards and a list in
+          the hero. Between them those two said books done twice and the
+          chapters remaining twice, and spent about 560px doing it.
+        */}
+        <section ref={reveal} className="figures reveal">
+          <Figure
             label="Chapters read"
             value={<Counter value={overall.planRead} />}
-            note={`of ${formatNumber(overall.planTotal)} · ${overall.percent.toFixed(1)}%`}
-            spark={spark}
+            note={`of ${formatNumber(overall.planTotal)}`}
           />
-          {/*
-            The completion circle lives here rather than in a chart of its own
-            further down. Books done was being said four times on this screen:
-            in the masthead, in the hero facts, in this square, and in a donut
-            the size of a bar chart that carried the same two numbers.
-          */}
-          <div
-            ref={reveal}
-            className="statCard statCard--ring reveal"
-            style={{ '--i': 1 } as CSSProperties}
-          >
-            <span className="statCard__label">Books complete</span>
-            <div className="statCard__ringRow">
-              <StatRing
-                percent={booksPercent}
-                label={`${overall.booksDone}`}
-                sublabel={`of ${overall.booksTotal}`}
-                size={104}
-                tone="light"
-              />
-              <span className="statCard__note">
-                {plural(overall.booksTotal - overall.booksDone, 'book')} to go
-                <b>{booksPercent.toFixed(0)}% of the books</b>
-              </span>
-            </div>
-          </div>
-          <StatCard
-            reveal={reveal}
-            index={2}
+          <Figure
             label="Pace"
             value={<Counter value={pace.perWeek} decimals={1} />}
-            note={`chapters / week over ${plural(pace.daysActive, 'reading day')}`}
-            spark={spark}
+            note="chapters a week"
           />
-          <StatCard
-            reveal={reveal}
-            index={3}
-            tone="accent"
+          <Figure
+            label="Books done"
+            value={overall.booksDone}
+            note={`of ${overall.booksTotal}`}
+          />
+          <Figure
+            label="Streak"
+            value={streak.current}
+            note={streak.current === 1 ? 'day running' : 'days running'}
+            icon={
+              <Flame size={19} className={`flame${streak.current > 0 ? ' flame--lit' : ''}`} />
+            }
+          />
+          <Figure
+            label="Longest"
+            value={streak.longest}
+            note={streak.longest === 1 ? 'day' : 'days'}
+          />
+          <Figure
+            gold
             label="At this pace"
             value={pace.finishBy ? formatDay(pace.finishBy, { day: undefined }) : 'Not yet'}
             note={
               pace.finishBy
-                ? `${formatNumber(pace.remaining)} chapters left · finishes ${formatDay(pace.finishBy)}`
+                ? `${formatNumber(pace.remaining)} to go`
                 : overall.planRead === overall.planTotal
                   ? 'Plan complete'
-                  : 'Mark a few chapters to get an estimate'
+                  : 'Mark a few more'
             }
           />
-        </div>
+        </section>
 
-        <section ref={reveal} className="card streakPanel reveal">
-          <div className="streakPanel__figure">
-            <Flame size={30} className={`flame${streak.current > 0 ? ' flame--lit' : ''}`} />
-            <span className="streakPanel__count">{streak.current}</span>
-            <span className="streakPanel__unit">
-              {streak.current === 1 ? 'day' : 'days'} running
-            </span>
+        {/*
+          Both halves of the same question. The seven days say whether you read,
+          the four bars say when, and they were two cards asking it separately.
+        */}
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
+            <div>
+              <h3 className="card__title">Your week</h3>
+              <p className="card__note">
+                {streak.current === 0
+                  ? 'No streak going. Mark anything today and it starts at one.'
+                  : `Longest run so far is ${plural(streak.longest, 'day')}.`}
+              </p>
+            </div>
           </div>
-          <div className="streakPanel__body">
-            <h3 className="card__title">Streak</h3>
-            <p className="card__note">
-              {streak.current === 0
-                ? 'No streak going. Mark anything today and it starts at one.'
-                : `Longest run so far is ${plural(streak.longest, 'day')}.`}
-            </p>
+          <div className="habit">
             <div className="weekStrip">
               {lastWeek.map((d, i) => (
                 <span
@@ -357,57 +327,63 @@ export function StatsView() {
                 </span>
               ))}
             </div>
-          </div>
-        </section>
 
-        <section ref={reveal} className="card reveal">
-          <div className="card__head">
-            <div>
-              <h3 className="card__title">When you read</h3>
-              <p className="card__note">
-                {taggedTotal === 0
-                  ? 'Optional. Tag a chapter with a time of day when you mark it and this fills in.'
-                  : `From the ${plural(taggedTotal, 'chapter')} you have tagged.`}
+            <div className="habit__slots">
+              <p className="habit__sub">
+                When you read
+                <span>
+                  {taggedTotal === 0
+                    ? 'Optional. Tag a chapter when you mark it.'
+                    : `from ${plural(taggedTotal, 'tagged chapter')}`}
+                </span>
               </p>
+              <div className="slotChart">
+                {SLOTS.map((slot) => {
+                  const count = slotCounts[slot];
+                  const pct = taggedTotal === 0 ? 0 : (count / taggedTotal) * 100;
+                  const best = count > 0 && count === topSlot;
+                  return (
+                    <div className={`slotBar${best ? ' slotBar--best' : ''}`} key={slot}>
+                      <span className="slotBar__name">
+                        {SLOT_LABELS[slot].replace(/^in the /, '')}
+                      </span>
+                      <span className="slotBar__track" aria-hidden="true">
+                        <span className="slotBar__fill" style={{ width: `${pct}%` }} />
+                      </span>
+                      <span className="slotBar__count">{count}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-          <div className="slotChart">
-            {SLOTS.map((slot) => {
-              const count = slotCounts[slot];
-              const pct = taggedTotal === 0 ? 0 : (count / taggedTotal) * 100;
-              const best = count > 0 && count === topSlot;
-              return (
-                <div className={`slotBar${best ? ' slotBar--best' : ''}`} key={slot}>
-                  <span className="slotBar__name">{SLOT_LABELS[slot].replace(/^in the /, '')}</span>
-                  <span className="slotBar__track" aria-hidden="true">
-                    <span className="slotBar__fill" style={{ width: `${pct}%` }} />
-                  </span>
-                  <span className="slotBar__count">{count}</span>
-                </div>
-              );
-            })}
-          </div>
         </section>
 
+        {/*
+          One chart, two series. The bars are the day and the gold line is the
+          running total, which is the one pairing where a second axis earns its
+          keep: the shape of the climb is the answer, so the right axis is
+          hidden and the tooltip carries the number.
+        */}
         <section ref={reveal} className="card reveal">
           <div className="card__head">
             <div>
-              <h3 className="card__title">Chapters read, last 30 days</h3>
+              <h3 className="card__title">The last 30 days</h3>
               <p className="card__note">
-                Busiest day: {busiest} · current streak {streak.current} · longest {streak.longest}
+                Chapters a day, and the total climbing behind them. Busiest day: {busiest}.
               </p>
             </div>
             <div className="legend">
               <span className="legend__key">
-                <span className="legend__swatch" style={{ background: RED }} /> chapters
+                <span className="legend__swatch" style={{ background: RED }} /> a day
               </span>
               <span className="legend__key">
-                <span className="legend__swatch" style={{ background: YELLOW }} /> today
+                <span className="legend__swatch legend__swatch--line" /> total
               </span>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={CHART_H}>
-            <BarChart data={daily} margin={{ top: 4, right: 8, bottom: 4, left: -18 }}>
+            <ComposedChart data={thirty} margin={{ top: 6, right: 4, bottom: 4, left: -18 }}>
               <defs>
                 <linearGradient id="barRed" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#e0313a" />
@@ -427,67 +403,33 @@ export function StatsView() {
                 tickFormatter={(d: string) => formatDay(d, { year: undefined })}
               />
               <YAxis
+                yAxisId="day"
                 tick={tickStyle}
                 tickLine={false}
                 axisLine={false}
                 allowDecimals={false}
                 width={44}
               />
-              <Tooltip
-                cursor={{ fill: 'rgba(200,29,37,0.07)' }}
-                content={<ChartTip unit="chapters" />}
-              />
-              <Bar dataKey="chapters" radius={[3, 3, 0, 0]} isAnimationActive={false}>
-                {daily.map((d) => (
+              {/* Hidden on purpose. Two axes on a 288px phone leaves no room for
+                  thirty bars, and the total is in the tooltip and the strip. */}
+              <YAxis yAxisId="total" orientation="right" hide />
+              <Tooltip cursor={{ fill: 'rgba(200,29,37,0.07)' }} content={<ChartTip />} />
+              <Bar yAxisId="day" dataKey="chapters" radius={[3, 3, 0, 0]} isAnimationActive={false}>
+                {thirty.map((d) => (
                   <Cell key={d.day} fill={d.day === todayKey ? 'url(#barGold)' : 'url(#barRed)'} />
                 ))}
               </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </section>
-
-        <section ref={reveal} className="card reveal">
-          <div className="card__head">
-            <div>
-              <h3 className="card__title">Cumulative progress</h3>
-              <p className="card__note">Total plan chapters read, same 30-day window</p>
-            </div>
-          </div>
-          <ResponsiveContainer width="100%" height={CHART_H}>
-            <AreaChart data={running} margin={{ top: 4, right: 8, bottom: 4, left: -18 }}>
-              <defs>
-                <linearGradient id="cumFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={RED} stopOpacity={0.3} />
-                  <stop offset="100%" stopColor={RED} stopOpacity={0.02} />
-                </linearGradient>
-              </defs>
-              <XAxis
-                dataKey="day"
-                tick={tickStyle}
-                tickLine={false}
-                axisLine={{ stroke: LINE }}
-                interval={6}
-                tickFormatter={(d: string) => formatDay(d, { year: undefined })}
-              />
-              <YAxis
-                tick={tickStyle}
-                tickLine={false}
-                axisLine={false}
-                allowDecimals={false}
-                width={44}
-              />
-              <Tooltip content={<ChartTip unit="total" />} />
-              <Area
+              <Line
+                yAxisId="total"
                 type="monotone"
                 dataKey="total"
-                stroke={RED}
+                stroke={YELLOW}
                 strokeWidth={2.5}
-                fill="url(#cumFill)"
                 isAnimationActive={false}
                 dot={false}
                 activeDot={{ r: 4, fill: YELLOW, stroke: '#96161f', strokeWidth: 2 }}
               />
-            </AreaChart>
+            </ComposedChart>
           </ResponsiveContainer>
         </section>
 

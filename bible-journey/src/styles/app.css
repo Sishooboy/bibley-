@@ -1137,6 +1137,7 @@ select {
   }
 }
 
+
 .bar {
   height: 6px;
   background: var(--line);
@@ -2732,37 +2733,130 @@ select {
   max-width: 44ch;
 }
 
-.statsHero__facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 2rem;
-  margin: 1.25rem 0 0;
-  padding-top: 1.1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
+/* ── The figure strip ───────────────────────────────────────────────────── */
+/*
+ * Six numbers in one panel, on hairlines.
+ *
+ * They were four bordered squares and a three item list inside the hero, which
+ * between them said books done twice and the chapters remaining twice, in about
+ * 560px of furniture on a phone. A figure is not a panel and does not need
+ * panel furniture: one border around the six of them, and the grid gap does the
+ * dividing.
+ *
+ * The hairlines are the gap, not a border on each cell. A 1px gap over a
+ * `--line` background paints a perfect grid of rules with no cell needing to
+ * know whether it is in the last row or the last column, which is the thing
+ * that always breaks when the column count changes at three breakpoints.
+ */
+.figures {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  position: relative;
+  background: var(--line);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--panel-radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
 }
 
-.statsHero__facts dt {
+/* Red into gold across the top edge, the same as every panel. Above the cells,
+   since they paint their own background over the shared one. */
+.figures::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  z-index: 1;
+  background: linear-gradient(90deg, var(--red-600), var(--yellow) 82%);
+}
+
+.figure {
+  display: grid;
+  align-content: start;
+  gap: 0.16rem;
+  padding: 0.95rem 1rem 0.85rem;
+  background: var(--paper);
+}
+
+.figure__label {
   font-size: 0.66rem;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--muted-dark);
-  margin-bottom: 0.15rem;
+  color: var(--muted);
 }
 
-.statsHero__facts dd {
-  margin: 0;
+.figure__value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
   font-family: var(--font-display);
-  font-size: 1.4rem;
+  font-size: 1.72rem;
   font-weight: 600;
-  line-height: 1;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--red-700);
   font-variant-numeric: tabular-nums;
+  /* "Feb 2028" is the longest thing that lands here and it must not wrap onto
+     two lines while the five numbers beside it sit on one. */
+  white-space: nowrap;
 }
 
-.statsHero__facts small {
-  font-size: 0.6em;
-  color: var(--muted-dark);
-  font-weight: 500;
+.figure__note {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+/* The one figure that is a date rather than a count, in the colour the app
+   keeps for a headline figure. */
+.figure--gold .figure__value {
+  color: var(--yellow-dim);
+  font-size: 1.5rem;
+}
+
+/* The flame sits with the streak count, which is the only place on this page
+   it still appears now that the streak panel has folded into the week card. */
+.figure__value .flame {
+  align-self: center;
+  flex: none;
+}
+
+/* ── The week, and when ─────────────────────────────────────────────────── */
+/*
+ * Two halves of one question: the seven cells say whether you read, the four
+ * bars say when. They were two cards asking it separately, which cost a second
+ * head, a second note and a second border to say less than this does.
+ *
+ * Stacked at every width on purpose. Side by side they would each get half of a
+ * 334px column on a tablet, and seven day cells in 160px is exactly the kind of
+ * squeezing this whole pass was meant to undo.
+ */
+.habit {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.habit__sub {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.1rem 0.55rem;
+  margin-top: 1.15rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.habit__sub span {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--muted);
 }
 
 /* ── Progress ring ──────────────────────────────────────────────────────── */
@@ -2848,127 +2942,10 @@ select {
   }
 }
 
-/* ── Stat cards ─────────────────────────────────────────────────────────── */
-.statGrid {
-  display: grid;
-  /*
-   * 240px and not 215px. At 215 a tablet fits three, which leaves the fourth
-   * card alone on a row of its own and squeezes the completion ring until its
-   * note breaks "3% of the books" over three lines. At 240 the same widths give
-   * two across on a tablet, matching the two columns of panels below it, and
-   * still four across on a laptop.
-   */
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 0.9rem;
-}
-
-.statCard {
-  position: relative;
-  overflow: hidden;
-  display: grid;
-  align-content: start;
-  gap: 0.3rem;
-  padding: 1.2rem 1.25rem 1rem;
-  background: var(--paper);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--panel-radius);
-  box-shadow: var(--shadow-sm);
-  transition:
-    transform 260ms var(--ease-out),
-    box-shadow 260ms var(--ease-out),
-    border-color 260ms var(--ease-out);
-}
-
-.statCard::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 3px;
-  background: var(--yellow);
+@media (hover: hover) {
 }
 
 @media (hover: hover) {
-  .statCard:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--red-500);
-  }
-}
-
-.statCard__label {
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.statCard__value {
-  font-family: var(--font-display);
-  font-size: 2.4rem;
-  font-weight: 600;
-  line-height: 1.02;
-  letter-spacing: -0.035em;
-  font-variant-numeric: tabular-nums;
-  color: var(--red-800);
-}
-
-.statCard__value small {
-  font-size: 0.42em;
-  color: var(--muted);
-  font-weight: 500;
-  letter-spacing: 0;
-}
-
-.statCard__note {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-/* The books square: a completion circle where the other three have a figure. */
-.statCard__ringRow {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  margin-top: 0.35rem;
-}
-
-.statCard--ring .statCard__note {
-  display: grid;
-  gap: 0.2rem;
-  min-width: 0;
-}
-
-.statCard--ring .statCard__note b {
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--red-800);
-}
-
-.statCard--accent {
-  color: var(--cream);
-  border-color: var(--ink);
-  background:
-    radial-gradient(120% 120% at 100% 0%, rgba(200, 29, 37, 0.5), transparent 60%),
-    linear-gradient(150deg, var(--ink), var(--red-900));
-}
-
-@media (hover: hover) {
-  .statCard--accent:hover {
-    border-color: var(--yellow);
-  }
-}
-
-.statCard--accent .statCard__label,
-.statCard--accent .statCard__note {
-  color: var(--muted-dark);
-}
-
-.statCard--accent .statCard__value {
-  color: var(--yellow);
-  font-size: 1.9rem;
 }
 
 /* ── Stats, packed ──────────────────────────────────────────────────────── */
@@ -2997,11 +2974,24 @@ select {
     align-items: start;
   }
 
-  /* The headline and the four figures are the page's opening, so they keep the
+  /* The headline and the six figures are the page's opening, so they keep the
      full width and everything else flows two at a time under them. */
   .statsView > .statsHero,
-  .statsView > .statGrid {
+  .statsView > .figures {
     grid-column: 1 / -1;
+  }
+
+  /* Three across once there is room, six once there is plenty. Never more
+     columns than the longest label can hold: "Chapters read" needs about
+     150px before it breaks, and six of those wants 900px of panel. */
+  .figures {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1040px) {
+  .figures {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }
 
@@ -3035,64 +3025,6 @@ select {
     margin-top: 0.25rem;
   }
 
-  .statCard {
-    padding: 0.9rem 0.85rem 0.8rem;
-  }
-}
-
-.spark {
-  width: 100%;
-  height: 26px;
-  margin-top: 0.6rem;
-  overflow: visible;
-}
-
-.spark__line {
-  fill: none;
-  stroke-width: 1.8;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.spark__area {
-  stroke: none;
-}
-
-.spark--red .spark__line {
-  stroke: var(--red-600);
-}
-
-.spark--red .spark__area {
-  fill: rgba(200, 29, 37, 0.1);
-}
-
-.spark--gold .spark__line {
-  stroke: var(--yellow);
-}
-
-.spark--gold .spark__area {
-  fill: rgba(247, 184, 1, 0.14);
-}
-
-/* ── Streak ─────────────────────────────────────────────────────────────── */
-.streakPanel {
-  display: flex;
-  gap: clamp(1.25rem, 3vw, 2.25rem);
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.streakPanel__figure {
-  flex: none;
-  display: grid;
-  justify-items: center;
-  gap: 0.1rem;
-  padding: 1.1rem 1.5rem;
-  border-radius: 8px;
-  color: var(--cream);
-  background: linear-gradient(150deg, var(--ink), var(--red-900));
-  min-width: 132px;
 }
 
 .flame {
@@ -3116,33 +3048,6 @@ select {
     opacity: 0.78;
     transform: scale(0.96);
   }
-}
-
-.streakPanel__count {
-  font-family: var(--font-display);
-  font-size: 2.6rem;
-  font-weight: 600;
-  line-height: 1;
-  color: var(--yellow);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.04em;
-}
-
-.streakPanel__unit {
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted-dark);
-}
-
-.streakPanel__body {
-  flex: 1 1 240px;
-  min-width: 0;
-}
-
-.streakPanel__body .card__note {
-  margin-bottom: 1rem;
 }
 
 .weekStrip {
@@ -3329,6 +3234,20 @@ select {
   line-height: 1.4;
   box-shadow: var(--shadow-md);
   border: 1px solid rgba(247, 184, 1, 0.35);
+}
+
+/* The total is a line on the chart, so it is a line in the key. A gold square
+   beside a red square reads as two bar series. */
+.legend__swatch--line {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--yellow);
+}
+
+.tooltip__sub {
+  margin-top: 0.15rem;
+  font-size: 0.76rem;
+  color: var(--muted-dark);
 }
 
 .tooltip b {
@@ -4050,27 +3969,8 @@ select {
     text-align: center;
   }
 
-  .statsHero__facts {
-    justify-content: center;
-    text-align: center;
-    /* A 2rem gap put the three of them on three rows. They still wrap, since
-       "LONGEST STREAK" alone is 112px of a 287px line, but on two rows now. */
-    gap: 0.5rem 1rem;
-  }
-
   .statsHero__note {
     margin-inline: auto;
-  }
-
-  /*
-   * Four figures in a column was 652px to say four numbers. Two by two is the
-   * same four numbers in half the room. It was one column because the base rule
-   * is `auto-fit, minmax(215px, 1fr)` and 215px does not fit twice on a phone;
-   * naming two columns explicitly is what lets them be narrower than that.
-   */
-  .statGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.6rem;
   }
 
   .notesBar {
@@ -4093,9 +3993,6 @@ select {
     border-radius: 1px;
   }
 
-  .streakPanel__figure {
-    width: 100%;
-  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -7074,5 +6971,133 @@ select {
   .aboutPill:hover {
     border-color: var(--yellow);
     color: var(--text);
+  }
+}
+
+/* ── Everything answers to a finger ─────────────────────── */
+/*
+ * `.btn` has pressed since the day it was written and nothing else did, so the
+ * app had one control that felt connected and about a hundred that did not:
+ * seventy-one book squares, fifteen phase rows, the nav, the switches, every
+ * row in Notes. This is the same press physics for all of them.
+ *
+ * Driven by `data-press`, which `listenForPresses` sets on pointerdown, **not**
+ * by `:active`. Two reasons. `:active` on a phone is unreliable once a scroll
+ * begins inside a pressed element, and Safari drops it entirely unless the
+ * element or an ancestor carries a touch handler. And the same listener is what
+ * plays the knock, so the sound and the dip come from one signal and cannot
+ * disagree about whether a press happened.
+ *
+ * An attribute rather than a class, because React owns `className` on almost
+ * all of these and rewrites the whole attribute on the next render, which would
+ * leave an element shrunk with nothing to put it back. Same trap `useReveal`
+ * documents.
+ *
+ * **This block has to be last in the file.** `[data-press]` is one attribute,
+ * specificity 0,1,0, and it is overriding `transform` and `transition` on
+ * components that declare their own. Written where it reads best, next to the
+ * buttons, it lost to every rule below it: `.book__row` sets a 260ms transition
+ * a couple of thousand lines further down, so the 90ms press never finished
+ * before the finger came off and the row simply never moved. Nothing failed.
+ */
+[data-press] {
+  transform: scale(0.96);
+  transition-duration: 90ms;
+  transition-timing-function: ease-in;
+}
+
+/*
+ * The release, and the reason the dip reads as springy rather than sticky: a
+ * transition belongs to the state being entered, so this owns letting go.
+ */
+button,
+summary,
+label,
+[role='button'],
+[role='tab'],
+[role='switch'] {
+  transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/*
+ * A row is not a button, and the dip has to be scaled to what is moving. 0.96
+ * on a 335px row is thirteen pixels of travel, which reads as the layout
+ * lurching rather than as something being pressed. 0.985 is five, which is
+ * plainly a press and never a jolt. Anything under about 0.99 on a row that
+ * wide is under two pixels and may as well not be there.
+ */
+.book__row[data-press],
+.phase__row[data-press],
+.planPick[data-press],
+.entry[data-press],
+.entry__head[data-press],
+.fold__head[data-press],
+.settingRow__main[data-press],
+.quickMark__summary[data-press] {
+  transform: scale(0.985);
+}
+
+/*
+ * A scale is a proportion and a press is a gesture, so the same number is five
+ * pixels of travel on a 330px phone row and fifteen on a 1000px laptop one. The
+ * gesture has not got bigger, so neither should the movement: this keeps a wide
+ * row at about six.
+ */
+@media (min-width: 720px) {
+  .book__row[data-press],
+  .phase__row[data-press],
+  .planPick[data-press],
+  .entry[data-press],
+  .entry__head[data-press],
+  .fold__head[data-press],
+  .settingRow__main[data-press] {
+    transform: scale(0.994);
+  }
+}
+
+/* The book grid is 71 squares of 14px. They can take a real squeeze, and at
+   that size anything gentler is invisible. */
+.bookGrid__cell[data-press] {
+  transform: scale(0.88);
+}
+
+/*
+ * Every `.btn` presses exactly as it always has, including the full width ones.
+ * 0.97 is the number `:active` has used since the day that rule was written and
+ * the one the reader is already used to.
+ *
+ * The shadow has to come with it. `:active` inverts the lighting, the top edge
+ * highlight going and the shadow moving inside, and this is the path a phone
+ * actually takes, since `:active` is the unreliable one there. Without it a
+ * button would shrink on a phone and press on a laptop.
+ */
+.btn[data-press] {
+  transform: scale(0.97);
+  box-shadow: inset 0 1px 3px rgba(74, 45, 20, 0.2);
+}
+
+.btn--primary[data-press],
+.btn--danger[data-press] {
+  box-shadow: inset 0 1px 4px rgba(71, 9, 14, 0.45);
+}
+
+/*
+ * Asked for less motion, given none. The knock still plays: it is feedback that
+ * a press registered, not decoration, and the reader who turns motion down is
+ * often the one who most wants to be told.
+ */
+@media (prefers-reduced-motion: reduce) {
+  [data-press],
+  .book__row[data-press],
+  .phase__row[data-press],
+  .planPick[data-press],
+  .entry[data-press],
+  .entry__head[data-press],
+  .fold__head[data-press],
+  .settingRow__main[data-press],
+  .quickMark__summary[data-press],
+  .bookGrid__cell[data-press],
+  .btn[data-press] {
+    transform: none;
   }
 }

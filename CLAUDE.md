@@ -198,6 +198,41 @@ redeploy.**
 - **Every hover excludes `:disabled` rather than being undone afterwards.** The old reset named one
   background, so it could only ever put the plain button back: a disabled primary still repainted
   itself under the cursor, because each variant names its own.
+- **Everything in the app answers to a finger.** `.btn` had pressed since the day it was written
+  and nothing else ever did, so there was one control that felt connected and about a hundred that
+  did not: seventy-one book squares, fifteen phase rows, the nav, the switches, every row in Notes.
+  `src/lib/press.ts` is **one delegated listener** on `window`, matching element types and ARIA
+  roles rather than the app's class names, because a class list would be wrong the first time
+  anyone added a component and nothing would fail to say so. `pointerdown` and not `click`, so the
+  knock lands with the finger; capture, so a component calling `stopPropagation` cannot silence
+  itself; passive, so it can never delay a scroll. It marks with **`data-press`, never a class**,
+  the same reason `useReveal` does. `pointercancel` matters as much as `pointerup`: a press that
+  turns into a scroll fires only the former, and without it the element stays visibly held down.
+- **The knock has no pitch, and that is the whole design.** Every other sound in the app is tuned
+  because every other sound means something. A tap means nothing happened, someone touched
+  something, and the moment it carries a note it competes with the cues for the same job. It is
+  noise through a closing lowpass, 35ms, so it is over before a cue triggered by the same press
+  arrives. **Measured, not judged**, like `MASTER`: -33 dBFS against the quietest cue's -17.5,
+  which is 15.5 dB down. It fires hundreds of times a session against the chapter tick's three, so
+  it has to read as the texture of pressing rather than as a sound the app is making at you. It is
+  deliberately **not a `Cue`**: nothing in the journal changed, so it is not the reducer's business,
+  the same reasoning as the two insight chimes.
+- **The tap's rate limit is on `performance.now()`, never `currentTime`.** An audio clock stops
+  advancing while its context is suspended, which is what iOS does the moment the app is
+  backgrounded, so a gap measured that way would still be reading the moment before the phone went
+  in a pocket and would refuse every tap from then on.
+- **The dip is scaled to what is moving.** 0.96 on a 1000px row is fifteen pixels of travel, which
+  reads as the layout lurching rather than as something being pressed; a gesture does not get bigger
+  with the screen. Buttons take 0.97, rows 0.985 and 0.994 once they are wide, and the 14px book
+  squares take 0.88 because anything gentler is invisible at that size. The reader's own text is
+  exempt: a verse carries a label for highlighting, and someone reading is dragging across words,
+  so a knock per word would turn reading into typing.
+- **The press block has to be last in `app.css`.** `[data-press]` is one attribute, 0,1,0, and it
+  is overriding `transform` and `transition` on components that declare their own. Written where it
+  read best, next to the buttons, it lost to every rule below it: `.book__row` sets a 260ms
+  transition two thousand lines further down, so the 90ms press never finished before the finger
+  came off and the row simply never moved. `src/lib/press.test.ts` pins it below every rule it has
+  to beat, and each of its pins was checked by breaking the thing it claims to catch.
 - **The today button's motion is one-shot.** The arrow beckons once, a second after the card lands,
   and a sheen crosses the button once. Both used to loop, which made them the only motion in the
   app that ran without being asked for, and a thing that repeats every few seconds is a thing you
@@ -260,16 +295,31 @@ redeploy.**
   gold, and neither shows on paper. The two long tables, the reading log and the phase table, end the
   page inside `FoldCard` and start shut, since both repeat row by row what the charts say in a
   picture. `FoldCard` is a real `<details>`, so it opens from a keyboard and find-in-page reveals it.
-- **Stats is two columns from 720px, and the source order is what pairs them.** Nine panels one
-  under another was 3,709px on a laptop and 4,208px on a phone, most of it white: every panel took
-  the full width whatever it had to say, so a 242px bar of four labels got the same room as a
-  heatmap. The order is streak, when you read, the two 30-day charts, the heatmap, then the share
-  card, which is habit, then the recent window, then the long view, then the thing worth sending.
-  That order is also what packs: **the two 30-day charts are the same height and the same x-axis**,
-  so side by side they read as one picture, and the tallest panel lands beside the shortest instead
-  of beside another tall one. Doing it in the source rather than with `order` keeps the DOM order,
-  the reading order and the tab order agreeing. 720 and not a round 800 because iPad portrait is
-  768. It is 2,467px on a laptop and 2,545px on a tablet now.
+- **Stats is eight blocks, not ten panels, and two columns from 720px.** Laying the same ten cards
+  out side by side was the first attempt and it was not enough: it halved the laptop and barely
+  touched the phone, because the cost was never the arrangement, it was that every panel carried a
+  full set of panel furniture to say one thing. **Merging beat arranging.** The four stat squares
+  and the hero's three facts became one **figure strip**, six numbers on hairlines in a single
+  panel, which also killed the duplication those two had between them: books done was said twice
+  and chapters remaining twice. The streak card and the "when you read" card became **one "Your
+  week" card**, since the seven cells and the four bars are two halves of the same question. And
+  the 30-day bar chart and the 30-day cumulative chart became **one chart**, bars for the day and a
+  gold line for the running total, which is the pairing where a second axis earns its keep. 3,709px
+  to 2,165 on a laptop, 3,530 to 2,061 on a tablet, 4,208 to 2,956 on a phone.
+- **The figure strip's hairlines are the grid gap, not a border per cell.** A 1px gap over a
+  `--line` background paints a perfect grid of rules, and no cell has to know whether it is in the
+  last row or the last column, which is the thing that always breaks when the column count changes
+  at three breakpoints. It goes two across, then three, then six.
+- **"Your week" stacks at every width on purpose.** Side by side the two halves would each get half
+  of a 334px column on a tablet, and seven day cells in 160px is exactly the squeezing this pass
+  was meant to undo. `.figure__value` is `white-space: nowrap` for the same reason: "Feb 2028" is
+  the longest thing that lands there and it must not wrap while five numbers beside it sit on one
+  line.
+- **The combined chart hides its right axis.** Two axes on a 288px phone leaves no room for thirty
+  bars, and the shape of the climb is the answer the line is there to give; the number is in the
+  tooltip and in the strip above. The source order pairs the panels for the two column layout, so
+  the DOM order, the reading order and the tab order still agree and nothing needs `order`. 720 and
+  not a round 800 because iPad portrait is 768.
 - **On a phone the room comes out of the panels, and the card head was most of it.** 122px each: a
   1.32rem title over a note set to 62ch, which at 288px of usable width is three lines, over 34px of
   padding and margin and a rule. Six of those was 732px spent introducing charts that are already
@@ -600,7 +650,8 @@ itself in a reader that opens at any book and any chapter, highlighting with a t
 notes, stats, streaks, an offline app shell, a six panel welcome guide, full text search over all
 73 books, five synthesised sounds with a synced mute switch, a card introducing every book and a
 note on the chapters that matter, a streak that celebrates itself when it grows and can be
-protected by rest days it earns, and a synced settings screen.
+protected by rest days it earns, a knock and a dip on every press in the app, and a synced settings
+screen.
 
 Notes and highlights share one feed in the Notes view, sorted by when each was last touched. They
 are different objects with the same purpose, so the filter switches between them rather than

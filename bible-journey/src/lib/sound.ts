@@ -458,6 +458,90 @@ export function scheduleArrival(
   ARRIVALS[kind](c, out, at);
 }
 
+/* ── The tap ──────────────────────────────────────────── */
+/**
+ * Noise through a closing lowpass, and nothing else.
+ *
+ * **It has no pitch on purpose.** Every other sound here is tuned, because every
+ * other sound here means something: a chapter, a book, a streak. A tap means
+ * nothing happened, someone touched something, and the moment it carries a note
+ * it starts competing with the cues for the same job. A dull knock is the sound
+ * of contact rather than the sound of news, which is why a keyboard makes one
+ * and a doorbell does not.
+ *
+ * 35ms, so it is over well before a cue triggered by the same press arrives.
+ */
+function thock(c: BaseAudioContext, out: AudioNode, at: number, level: number): void {
+  const source = c.createBufferSource();
+  source.buffer = noiseBuffer(c);
+
+  const lp = c.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.setValueAtTime(2400, at);
+  lp.frequency.exponentialRampToValueAtTime(620, at + 0.03);
+  lp.Q.value = 0.5;
+
+  // Linear in, exponential out, the same rule as everything else here: an
+  // exponential attack on a 4ms ramp would be inaudible for most of it.
+  const gain = c.createGain();
+  gain.gain.setValueAtTime(0, at);
+  gain.gain.linearRampToValueAtTime(level, at + 0.004);
+  gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.035);
+
+  source.connect(lp).connect(gain).connect(out);
+  source.start(at);
+  source.stop(at + 0.06);
+}
+
+/**
+ * Level and rate limit for the tap.
+ *
+ * The level is the whole design. This fires on every press in the app, hundreds
+ * of times a session against the chapter tick's three, so it has to sit far
+ * enough under the cues that it reads as the texture of pressing rather than as
+ * a sound the app is making at you. Measured, not judged, like `MASTER`:
+ * `sound.test.ts` pins it below the quietest cue by a real margin.
+ *
+ * The rate limit is for the drag that turns into six pointerdowns and for a
+ * double tap, which should knock once rather than machine-gun. It is measured
+ * on the wall clock and **not** on `currentTime`: an audio clock stops
+ * advancing while its context is suspended, which is what iOS does the moment
+ * the app goes to the background, so a gap measured that way would still be
+ * reading the moment before the phone was pocketed and would refuse every tap
+ * from then on. A muted app that never explains itself is the worst version of
+ * this feature.
+ */
+const TAP_LEVEL = 0.055;
+const TAP_GAP_MS = 50;
+
+let lastTap = -Infinity;
+
+/**
+ * The press. Never a cue: nothing in the journal changed, so it is not the
+ * reducer's business, the same reasoning as the two insight chimes.
+ */
+export function tap(): void {
+  if (!enabled) return;
+  const c = context();
+  if (!c || !master) return;
+
+  const now = performance.now();
+  if (now - lastTap < TAP_GAP_MS) return;
+  lastTap = now;
+
+  if (c.state === 'suspended') void c.resume().catch(() => {});
+  try {
+    thock(c, master, c.currentTime + 0.004, TAP_LEVEL);
+  } catch {
+    /* A press must never be able to throw. */
+  }
+}
+
+/** For the offline measurement, the same way `schedule` serves the cues. */
+export function scheduleTap(c: BaseAudioContext, out: AudioNode, at: number): void {
+  thock(c, out, at, TAP_LEVEL);
+}
+
 /** Mirrors the reader's preference, so a muted app never even builds a voice. */
 export function setSoundEnabled(on: boolean): void {
   enabled = on;
