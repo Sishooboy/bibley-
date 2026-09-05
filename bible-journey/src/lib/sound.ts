@@ -224,6 +224,7 @@ function tick(
 const A2 = 110;
 const E3 = 164.81;
 const A3 = 220;
+const E4 = 329.63;
 const A4 = 440;
 const E5 = 659.25;
 const A5 = 880;
@@ -540,6 +541,63 @@ export function tap(): void {
 /** For the offline measurement, the same way `schedule` serves the cues. */
 export function scheduleTap(c: BaseAudioContext, out: AudioNode, at: number): void {
   thock(c, out, at, TAP_LEVEL);
+}
+
+/* ── The tour ─────────────────────────────────────── */
+/**
+ * A rung of the ladder the tour climbs, one per stop.
+ *
+ * It borrowed the insight bell at first, which meant the same note six times.
+ * That is the difference between a sound and a score: an identical chime on
+ * every step tells you something happened and nothing else, so by the third one
+ * you have stopped hearing it. A line that climbs tells you where you are in
+ * the walk without anyone having to read "4 of 6", and it is the reason the
+ * last step lands rather than merely stopping.
+ *
+ * Octaves and fifths on A and no third, the same rule the rest of the set
+ * follows, and every rung inside the 220 to 880 window a phone speaker can
+ * actually reproduce.
+ */
+const TOUR_LADDER = [A3, E4, A4, E5, A5];
+
+export function tourStep(index: number, total: number): void {
+  if (!enabled) return;
+  const c = context();
+  if (!c || !master) return;
+  if (c.state === 'suspended') void c.resume().catch(() => {});
+  try {
+    scheduleTourStep(index, total, c, master, c.currentTime + 0.02);
+  } catch {
+    /* A step of a tour is never worth an exception. */
+  }
+}
+
+/** Exported whole so the ladder can be rendered offline and measured. */
+export function scheduleTourStep(
+  index: number,
+  total: number,
+  c: BaseAudioContext,
+  out: AudioNode,
+  at: number,
+): void {
+  /*
+   * The last stop is the arrival, so it stops climbing and resolves instead:
+   * root, fifth and octave, spread by fifty milliseconds so it reads as a bell
+   * being struck rather than a chord being played. Same shape the streak cue
+   * lands on, and no third there either.
+   */
+  if (index >= total - 1) {
+    bell(c, out, at, A4, 1.15, 0.15);
+    bell(c, out, at + 0.05, E5, 1.0, 0.12);
+    bell(c, out, at + 0.1, A5, 0.85, 0.1);
+    return;
+  }
+
+  // Clamped rather than wrapped: a seventh stop would repeat the top rung
+  // instead of dropping back to the bottom one, which would read as going
+  // backwards through a tour that is still going forwards.
+  const freq = TOUR_LADDER[Math.min(index, TOUR_LADDER.length - 1)];
+  bell(c, out, at, freq, 0.8, 0.14);
 }
 
 /** Mirrors the reader's preference, so a muted app never even builds a voice. */

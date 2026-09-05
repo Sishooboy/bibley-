@@ -363,6 +363,24 @@ redeploy.**
   an inner view that is there whether or not the account has read anything. A new reader's Stats
   screen is `NothingYet`, so a spotlight expecting the figure strip would have found nothing on the
   exact account the tour exists for.
+- **The tour climbs a ladder rather than ringing one note six times.** It borrowed the insight bell
+  first, which meant the same A5 on every stop, and that is the difference between a sound and a
+  score: an identical chime says something happened and nothing else, so by the third one you have
+  stopped hearing it. `TOUR_LADDER` is A3, E4, A4, E5, A5, one rung a stop, and the last stop stops
+  climbing and **resolves** instead, root fifth and octave spread over a tenth of a second, the same
+  arrival shape the streak cue lands on and no third in either. Octaves and fifths on A like the
+  rest of the set, every rung inside the 220 to 880 a phone speaker can reproduce, and **measured**:
+  about -15.7 dBFS a rung against the arrival's -12.8, which is what makes the end feel like an end.
+  `E4` was added for this and is the only note in the palette that had no user before.
+- **The tour's effects are the app's own, borrowed rather than invented.** Light crosses the lit
+  control once as it lands, which is the move the today button already makes on arrival; a second
+  flourish would make the tour feel like a different product. It travels by `background-position`
+  and not by `transform`, because a transform carries the pseudo-element's rounded corners out of
+  the box with it and the sweep has to stay clipped to the shape of the thing being lit.
+- **The progress rail lives outside the keyed stage.** The words are keyed on the step so each one
+  arrives rather than swapping in place, which means everything inside that key is replaced on every
+  stop. A rail in there would start from nothing six times, which is the one thing a progress
+  indicator may not do. It sits on the panel and only its width changes.
 - **The spotlight is one box with a 9999px spread shadow**, so the hole *is* the element and there
   is nothing to keep in step with it. Four divs arranged around a gap have four edges to align and
   they drift the moment the target moves, which here is every frame. A full screen catcher sits over

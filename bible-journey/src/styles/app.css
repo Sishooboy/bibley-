@@ -7009,6 +7009,41 @@ select {
     height 260ms var(--ease-out);
 }
 
+/*
+ * Light crosses the control once as it lands.
+ *
+ * The same move the today button makes on arrival, borrowed on purpose: this
+ * app already has an idiom for "look here", and inventing a second one for the
+ * tour would make the tour feel like a different product.
+ *
+ * It travels by `background-position` rather than by `transform`, which is what
+ * the today button uses. A transform would carry the pseudo-element's own
+ * rounded corners out of the box with it; moving the background inside a fixed
+ * box keeps the sweep clipped to the shape of the thing being lit.
+ */
+.tour__spot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 62%
+  );
+  background-size: 300% 100%;
+  background-position: 130% 0;
+  animation: tourSheen 820ms ease-out 140ms 1 both;
+  pointer-events: none;
+}
+
+@keyframes tourSheen {
+  to {
+    background-position: -40% 0;
+  }
+}
+
 /* One pulse when it lands, and then it holds still. A ring that keeps beating
    while someone reads three lines of explanation is a ring they stop seeing. */
 .tour__spot::after {
@@ -7047,6 +7082,7 @@ select {
   /* `left` is set from the target's centre and clamped to the viewport, so the
      panel must not also be centring itself with a transform. */
   width: min(29rem, calc(100vw - 1.5rem));
+  overflow: hidden;
   padding: 1.15rem 1.25rem 1.1rem;
   border-radius: 10px;
   background: linear-gradient(150deg, var(--ink) 0%, var(--red-900) 78%);
@@ -7056,6 +7092,23 @@ select {
   animation: tourRise 320ms var(--ease-out) both;
 }
 
+/* Keyed on the step, so the words arrive rather than swapping in place. The
+   panel itself is not keyed, or the rail outside it would restart too. */
+.tour__stage {
+  animation: tourWords 300ms var(--ease-out) both;
+}
+
+@keyframes tourWords {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .tour__panel:focus {
   outline: none;
 }
@@ -7063,12 +7116,30 @@ select {
 @keyframes tourRise {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(8px) scale(0.985);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
+}
+
+/*
+ * How far through the walk you are, as a thing rather than as a sentence.
+ *
+ * A rail and not the row of dots the guide uses, because the guide's dots are
+ * a control you can look at while deciding, and this is a progress report you
+ * read out of the corner of your eye. It is also the one part of the panel that
+ * does not get replaced on every step: the panel is keyed on the step so each
+ * one animates in, which means anything inside it restarts, so the rail is
+ * outside that and only its width changes.
+ */
+.tour__rail {
+  position: absolute;
+  inset: 0 auto auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--red-600), var(--yellow));
+  transition: width 420ms var(--ease-out);
 }
 
 .tour__count {
@@ -7150,12 +7221,21 @@ select {
     transition: none;
   }
 
+  .tour__spot::before,
   .tour__spot::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  .tour__panel,
+  .tour__stage {
     animation: none;
   }
 
-  .tour__panel {
-    animation: none;
+  /* The rail still shows how far along the walk is, it just stops sliding
+     there. The number is the information; the travel was the decoration. */
+  .tour__rail {
+    transition: none;
   }
 }
 

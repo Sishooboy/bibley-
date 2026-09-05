@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { reducedMotion } from '../lib/motion';
-import { chime } from '../lib/sound';
+import { tourStep } from '../lib/sound';
 import { Chevron } from './icons';
 
 export type TourView = 'journey' | 'notes' | 'stats' | 'settings';
@@ -122,12 +122,12 @@ export function Tour({
     if (open) setStep(0);
   }, [open]);
 
-  /* Switch screens for the step, and say so quietly. */
+  /* Switch screens for the step, and ring its rung of the ladder. */
   useEffect(() => {
     if (!open) return;
     onView(current.view);
     setMissing(false);
-    chime('note');
+    tourStep(step, STEPS.length);
   }, [open, current.view, step, onView]);
 
   /*
@@ -252,14 +252,23 @@ export function Tour({
         style={{ top, left }}
         ref={panelRef}
         tabIndex={-1}
-        key={step}
         data-press="off"
       >
+        {/* Outside the keyed stage below, so it travels between steps instead
+            of being replaced and starting from nothing each time. */}
+        <span
+          className="tour__rail"
+          style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+          aria-hidden="true"
+        />
+
+        <div className="tour__stage" key={step}>
         <p className="eyebrow tour__count">
           {step + 1} of {STEPS.length}
         </p>
         <h2 className="tour__title">{current.title}</h2>
         <p className="tour__body">{current.body}</p>
+        </div>
 
         <div className="tour__foot">
           <button type="button" className="btn btn--sm btn--ghost tour__skip" onClick={finish}>
