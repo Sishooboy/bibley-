@@ -33,7 +33,7 @@ export function BookGrid({
   const started = books.filter((b) => b.read > 0 && b.read < b.chapters).length;
 
   return (
-    <section className="bookGrid" aria-label="Every book in the plan">
+    <section className="bookGrid" data-tour="books" aria-label="Every book in the plan">
       <div className="bookGrid__head">
         <p className="eyebrow">Book by book</p>
         <p className="bookGrid__count">

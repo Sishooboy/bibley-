@@ -164,6 +164,7 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
       <button
         type="button"
         className="btn btn--primary today__go"
+        data-tour="today"
         onClick={() => open(first.book, first.chapter)}
       >
         <span className="today__goMain">

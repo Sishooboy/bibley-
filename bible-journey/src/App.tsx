@@ -7,9 +7,11 @@ import { SignInScreen } from './components/SignInScreen';
 import { StreakCelebration } from './components/StreakCelebration';
 import { SPLASH_MS, Splash } from './components/Splash';
 import { SyncBadge } from './components/SyncBadge';
+import { Tour } from './components/Tour';
 import { UndoBar } from './components/UndoBar';
 import { Menu } from './components/icons';
 import { returnedFromOAuth } from './lib/supabase';
+import { TOUR_EVENT } from './lib/tour';
 import { CloudProvider } from './state/cloud';
 import { ReaderProvider } from './state/reader';
 import { useCloud } from './state/useCloud';
@@ -34,6 +36,12 @@ type ViewId = (typeof VIEWS)[number]['id'];
 function Shell() {
   const [view, setView] = useState<ViewId>('journey');
   const [menuOpen, setMenuOpen] = useState(false);
+  /*
+   * The tour walks between screens, so it has to be able to change the view,
+   * and the view lives here. That is the whole reason it is mounted at this
+   * level rather than beside the thing it points at.
+   */
+  const [tour, setTour] = useState(false);
 
   /*
    * A new tab starts at its own beginning. Without this the scroll position
@@ -140,16 +148,47 @@ function Shell() {
         </ErrorBoundary>
       </main>
 
+      {/* Listens for the same event Settings fires, so "Take the tour" works
+          from anywhere without threading a callback through four components. */}
+      <TourHost open={tour} setOpen={setTour} onView={setView} />
+
       <UndoBar />
       {/* Full screen for a few seconds when the streak grows. Here beside the
           undo bar and never inside anything transformed, or `fixed` would stop
           meaning the screen. */}
       <StreakCelebration />
-      {/* Renders nothing once it has been seen, which is a synced pref. */}
-      <Guide />
+      {/* Renders nothing once it has been seen, which is a synced pref. The
+          last panel hands over to the tour rather than just closing. */}
+      <Guide onFinish={() => setTour(true)} />
     </div>
     </ReaderProvider>
   );
+}
+
+/**
+ * The tour, and the one listener that lets anything ask for it.
+ *
+ * A custom event rather than a callback threaded down through Settings and its
+ * panels: the only thing the rest of the app ever wants to say about the tour
+ * is "start it", and that is not worth four components each carrying a prop
+ * they do not use themselves.
+ */
+function TourHost({
+  open,
+  setOpen,
+  onView,
+}: {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  onView: (view: ViewId) => void;
+}) {
+  useEffect(() => {
+    const start = () => setOpen(true);
+    window.addEventListener(TOUR_EVENT, start);
+    return () => window.removeEventListener(TOUR_EVENT, start);
+  }, [setOpen]);
+
+  return <Tour open={open} onClose={() => setOpen(false)} onView={onView} />;
 }
 
 /**

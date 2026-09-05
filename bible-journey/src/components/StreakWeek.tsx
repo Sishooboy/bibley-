@@ -61,7 +61,7 @@ export function StreakWeek({
   const calm = reducedMotion();
 
   return (
-    <div className="streakWeek" data-burst={burst > 0 ? burst : undefined}>
+    <div className="streakWeek" data-tour="streak" data-burst={burst > 0 ? burst : undefined}>
       <span className={`streak${current === 0 ? ' streak--cold' : ''}`}>
         {/* Keyed on the burst so the swell replays, and only the flame is
             replaced: re-mounting the whole row would restart the count too. */}

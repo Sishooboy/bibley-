@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { AccountPanel } from '../components/AccountPanel';
 import { ExportPanel } from '../components/ExportPanel';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
-import { Check, Compass, Lock } from '../components/icons';
+import { Check, Compass, Lock, Route } from '../components/icons';
 import {
   TESTAMENTS,
   TESTAMENT_LABELS,
@@ -15,6 +15,7 @@ import { useReveal } from '../lib/motion';
 import { REMINDERS_UNLOCKED, formatTime } from '../lib/prefs';
 import { overallProgress, phaseProgressAll } from '../lib/progress';
 import { play, setSoundEnabled } from '../lib/sound';
+import { startTour } from '../lib/tour';
 import { useReminder } from '../state/useReminder';
 import { useStore } from '../state/useStore';
 
@@ -167,6 +168,25 @@ export function SettingsView() {
             >
               <Compass size={14} className="btn__icon" />
               Show the guide
+            </button>
+          </div>
+
+          <div className="settingRow">
+            <span className="settingRow__main">
+              <span className="settingRow__label">Take the tour</span>
+              <span className="settingRow__hint">
+                A walk round the real screens, pointing at each control
+              </span>
+            </span>
+            {/* An event rather than a prop: the tour lives up in `Shell`,
+                because it changes which view is on screen. */}
+            <button
+              type="button"
+              className="btn btn--sm"
+              onClick={startTour}
+            >
+              <Route size={14} className="btn__icon" />
+              Take the tour
             </button>
           </div>
         </section>

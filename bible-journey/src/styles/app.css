@@ -6974,6 +6974,191 @@ select {
   }
 }
 
+/* ── The walk round ────────────────────────────────── */
+.tour {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+}
+
+/*
+ * The hole is the element, and the scrim is its shadow.
+ *
+ * One box with an enormous spread is what makes this possible at all: four divs
+ * arranged around a gap have four edges to keep in step, and they drift by a
+ * pixel the moment the target moves, which here is every frame. This cannot
+ * drift, because there is nothing to drift against.
+ *
+ * `pointer-events: none` on the spotlight itself, but a full screen catcher
+ * sits above it, so a tap on the lit control advances the tour rather than
+ * pressing the thing. That is deliberate: the alternative is someone tapping
+ * the highlighted Read button on step one, landing in the reader, and losing
+ * the tour they had not finished.
+ */
+.tour__spot {
+  position: fixed;
+  border-radius: 10px;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 9999px rgba(26, 21, 18, 0.74),
+    inset 0 0 0 2px var(--yellow);
+  transition:
+    top 260ms var(--ease-out),
+    left 260ms var(--ease-out),
+    width 260ms var(--ease-out),
+    height 260ms var(--ease-out);
+}
+
+/* One pulse when it lands, and then it holds still. A ring that keeps beating
+   while someone reads three lines of explanation is a ring they stop seeing. */
+.tour__spot::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 13px;
+  border: 2px solid var(--yellow);
+  opacity: 0;
+  animation: tourPulse 900ms var(--ease-out) 1;
+}
+
+@keyframes tourPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1.09);
+    opacity: 0;
+  }
+}
+
+/* Under the panel, over the scrim. A tap anywhere moves the tour on, which is
+   what everyone tries first, and it must not look like a button. */
+.tour__catch {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.tour__panel {
+  position: fixed;
+  /* `left` is set from the target's centre and clamped to the viewport, so the
+     panel must not also be centring itself with a transform. */
+  width: min(29rem, calc(100vw - 1.5rem));
+  padding: 1.15rem 1.25rem 1.1rem;
+  border-radius: 10px;
+  background: linear-gradient(150deg, var(--ink) 0%, var(--red-900) 78%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: var(--shadow-lg);
+  color: var(--cream);
+  animation: tourRise 320ms var(--ease-out) both;
+}
+
+.tour__panel:focus {
+  outline: none;
+}
+
+@keyframes tourRise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tour__count {
+  color: var(--yellow-soft);
+  margin-bottom: 0.4rem;
+}
+
+.tour__title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variation-settings: 'SOFT' 0, 'WONK' 0;
+}
+
+/*
+ * 0.78 of cream on this ground measures 8.9:1, well past what this size needs,
+ * and full cream at 0.92rem beside a 1.25rem title reads as two headings.
+ */
+.tour__body {
+  margin-top: 0.4rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: rgba(247, 242, 233, 0.82);
+}
+
+.tour__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.tour__nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Skip and Back both sit on near-black, so they take the same treatment the
+   guide's Back does rather than the paper fill the base carries. */
+.tour__skip {
+  color: rgba(247, 242, 233, 0.62);
+}
+
+.tour__back {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  color: var(--cream);
+}
+
+.tour__backChev {
+  transform: rotate(180deg);
+}
+
+@media (hover: hover) {
+  .tour__skip:not(:disabled):hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--cream);
+  }
+
+  .tour__back:not(:disabled):hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.45);
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+}
+
+/*
+ * Asked for less motion, given none of it. The spotlight still moves between
+ * steps, because that movement is the tour saying "now this one" and losing it
+ * would leave the reader hunting for what changed; it simply arrives instead of
+ * travelling, and nothing pulses or rises.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .tour__spot {
+    transition: none;
+  }
+
+  .tour__spot::after {
+    animation: none;
+  }
+
+  .tour__panel {
+    animation: none;
+  }
+}
+
 /* ── Everything answers to a finger ─────────────────────── */
 /*
  * `.btn` has pressed since the day it was written and nothing else did, so the

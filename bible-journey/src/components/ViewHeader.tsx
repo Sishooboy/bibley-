@@ -19,7 +19,7 @@ export function ViewHeader({
   meta?: ReactNode;
 }) {
   return (
-    <div className="viewHead">
+    <div className="viewHead" data-tour="masthead">
       <div className="viewHead__glow" aria-hidden="true" />
       <div className="container viewHead__inner">
         <div className="viewHead__main">

@@ -337,14 +337,45 @@ redeploy.**
   works, and `readyLogo()` resolves to null rather than rejecting if it cannot be fetched: a card
   with no mark beats no card. Everything in that header is measured off the thing before it, so a
   missing mark closes the gap instead of leaving a hole.
-- **The welcome guide** is `src/components/Guide.tsx`, six stepped panels shown once. It is a panel
-  rather than coach marks pointing at real controls, because a coach mark has to know where its
-  target is, which breaks the first time a card moves, and it can say nothing at all about a screen
-  you are not on. Each drawing is an inline SVG diagram of the screen it describes, so the shape you
-  are shown is the shape you meet a minute later. Whether it has been seen is `prefs.guideSeenAt`,
-  **synced on purpose**: being walked round the app again on the second device you sign into is an
-  obstacle, not a welcome. Settings clears that field to show it again, which is the whole mechanism,
-  and the component resets to step one when it opens because it stays mounted while hidden.
+- **The welcome guide** is `src/components/Guide.tsx`, six stepped panels shown once. Each drawing is
+  an inline SVG diagram of the screen it describes, so the shape you are shown is the shape you meet
+  a minute later. Whether it has been seen is `prefs.guideSeenAt`, **synced on purpose**: being
+  walked round the app again on the second device you sign into is an obstacle, not a welcome.
+  Settings clears that field to show it again, which is the whole mechanism, and the component
+  resets to step one when it opens because it stays mounted while hidden.
+- **Coach marks were rejected for years, and `src/components/Tour.tsx` is the version that answers
+  the objections instead of ignoring them.** They were real objections. A coach mark has to know
+  where its target is, which breaks the first time a card moves; and it can say nothing at all about
+  a screen you are not on. So this one **never stores a position**: each step names a `data-tour`
+  attribute and the box is measured off the live element **every frame the tour is open**, which
+  survives a card moving, a font landing late, a rotation, and the smooth scroll the tour itself
+  starts to bring the target on screen. A rAF loop rather than scroll and resize listeners precisely
+  because that scroll has no event that says "now I have finished". And it **drives the app**: each
+  step names its view and the tour switches to it before pointing, which is the only reason it can
+  cover Notes, Stats and Settings at all.
+- **A step whose target is not in the document is skipped, never drawn.** The failure mode is a
+  shorter tour and never a hole dimmed around nothing. That also means a renamed anchor fails
+  silently: it does not throw, does not warn, and does not look broken, it just quietly gets
+  shorter. `tour.test.ts` walks every source file and fails if a step names a `data-tour` nothing
+  renders, which is the one pin here worth more than all the others.
+- **The inner views are targeted by their masthead, not their nav button.** The nav collapses behind
+  a menu on a phone, so those buttons have no box to point at, and the masthead is the one thing on
+  an inner view that is there whether or not the account has read anything. A new reader's Stats
+  screen is `NothingYet`, so a spotlight expecting the figure strip would have found nothing on the
+  exact account the tour exists for.
+- **The spotlight is one box with a 9999px spread shadow**, so the hole *is* the element and there
+  is nothing to keep in step with it. Four divs arranged around a gap have four edges to align and
+  they drift the moment the target moves, which here is every frame. A full screen catcher sits over
+  it so a tap anywhere advances: tapping the lit Read button on step one would otherwise land the
+  reader in the reader, having lost the tour they had not finished.
+- **The tour has no "seen" flag of its own, and that is deliberate.** Finishing the guide hands over
+  to it and skipping the guide does not, so the guide's own synced `guideSeenAt` already gates both:
+  one account, one tour. A new field on `prefs` would have needed a release that *reads* it shipped
+  before any release *writes* it, since `normalize()` is a whitelist and an older client would strip
+  it back out on the next sync. Settings has "Take the tour" for a replay, which fires
+  `TOUR_EVENT`. That constant lives in `src/lib/tour.ts` and **not** in `App.tsx`: `App` imports the
+  very view that wants it, so exporting it from there is a cycle whose safety depends on evaluation
+  order, and a plain value exported beside a component turns off fast refresh for that module.
 - `src/lib/bookSearch.ts` ranks books for the journey's finder: exact, then prefix, then substring,
   then subsequence, so "jo" puts John above 1 John and "hbk" still finds Habakkuk.
 - **`src/lib/bibleSearch.ts` searches the text**, which is a different job: `bookSearch` finds a
@@ -647,11 +678,10 @@ sign-in behind a gate,
 per-account sync with the merge rules above, chapter marking by slider, quick amounts and tap,
 undo, backdating so a chapter counts on the day it was read, an optional time of day, the text
 itself in a reader that opens at any book and any chapter, highlighting with a thought attached,
-notes, stats, streaks, an offline app shell, a six panel welcome guide, full text search over all
-73 books, five synthesised sounds with a synced mute switch, a card introducing every book and a
+notes, stats, streaks, an offline app shell, full text search over all 73 books, five synthesised sounds with a synced mute switch, a card introducing every book and a
 note on the chapters that matter, a streak that celebrates itself when it grows and can be
-protected by rest days it earns, a knock and a dip on every press in the app, and a synced settings
-screen.
+protected by rest days it earns, a knock and a dip on every press in the app, a six panel welcome guide that
+hands over to a tour of the real controls, and a synced settings screen.
 
 Notes and highlights share one feed in the Notes view, sorted by when each was last touched. They
 are different objects with the same purpose, so the filter switches between them rather than

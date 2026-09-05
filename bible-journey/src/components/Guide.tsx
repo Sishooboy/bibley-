@@ -257,7 +257,7 @@ const STEPS: Step[] = [
   {
     eyebrow: 'One more thing',
     title: 'It follows the account, not the phone',
-    body: 'Everything is saved against your sign-in. Read on a phone, mark it on a laptop, it is the same journey. You can reopen this guide any time from Settings.',
+    body: 'Everything is saved against your sign-in. Read on a phone, mark it on a laptop, it is the same journey. Next, a quick look at the real thing, pointing at the buttons as you go.',
     art: <ArtSet />,
   },
 ];
@@ -273,7 +273,7 @@ const STEPS: Step[] = [
  * Whether it has been seen lives in `prefs`, so it is synced. Being walked round
  * the app again on the second device you sign into is not a welcome.
  */
-export function Guide() {
+export function Guide({ onFinish }: { onFinish?: () => void }) {
   const { data, setPrefs } = useStore();
   const prefs = data.prefs ?? DEFAULT_PREFS;
   const [step, setStep] = useState(0);
@@ -282,6 +282,23 @@ export function Guide() {
   const open = !prefs.guideSeenAt;
 
   const close = () => setPrefs({ ...prefs, guideSeenAt: new Date().toISOString() });
+
+  /*
+   * Reaching the end hands over to the tour, and skipping does not. Someone who
+   * pressed Skip has said what they want, and following it with a second thing
+   * that dims the screen and points at buttons is the opposite of listening.
+   *
+   * This also settles where the tour's "already seen" flag lives: nowhere. The
+   * guide's own `guideSeenAt` is synced and only opens once per account, so the
+   * thing it hands to only runs once per account either. A new field on `prefs`
+   * would have needed a release that reads it before any release writes it,
+   * because `normalize()` is a whitelist and an older client would strip it
+   * back out on the next sync.
+   */
+  const done = () => {
+    close();
+    onFinish?.();
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -364,9 +381,9 @@ export function Guide() {
               type="button"
               className="btn btn--sm btn--primary"
               ref={nextRef}
-              onClick={() => (last ? close() : setStep((s) => s + 1))}
+              onClick={() => (last ? done() : setStep((s) => s + 1))}
             >
-              {last ? 'Start reading' : 'Next'}
+              {last ? 'Show me around' : 'Next'}
               {!last && <Chevron size={14} />}
             </button>
           </div>

@@ -212,3 +212,25 @@ export function Compass({ size = 16, className }: IconProps) {
     </svg>
   );
 }
+
+export function Route({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {/* Two stops and the path between them, which is what a tour is. */}
+      <circle cx="3.6" cy="12.4" r="1.9" />
+      <circle cx="12.4" cy="3.6" r="1.9" />
+      <path d="M5.5 12.4h3.1a2.9 2.9 0 0 0 0-5.8H7.4a2.9 2.9 0 0 1 0-5.8" strokeDasharray="0.1 2.6" />
+    </svg>
+  );
+}
