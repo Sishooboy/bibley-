@@ -31,6 +31,13 @@ const YELLOW = '#f7b801';
 const LINE = '#e2d8c8';
 const MUTED = '#6b5e55';
 
+/*
+ * Both 30-day charts, so they stay the same height as each other: side by side
+ * on a wide screen they are one picture of the same window, and a 40px
+ * difference between them would read as a mistake.
+ */
+const CHART_H = 180;
+
 const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 type TipPayload = { payload?: { day: string; chapters?: number; total?: number } }[];
@@ -356,6 +363,35 @@ export function StatsView() {
         <section ref={reveal} className="card reveal">
           <div className="card__head">
             <div>
+              <h3 className="card__title">When you read</h3>
+              <p className="card__note">
+                {taggedTotal === 0
+                  ? 'Optional. Tag a chapter with a time of day when you mark it and this fills in.'
+                  : `From the ${plural(taggedTotal, 'chapter')} you have tagged.`}
+              </p>
+            </div>
+          </div>
+          <div className="slotChart">
+            {SLOTS.map((slot) => {
+              const count = slotCounts[slot];
+              const pct = taggedTotal === 0 ? 0 : (count / taggedTotal) * 100;
+              const best = count > 0 && count === topSlot;
+              return (
+                <div className={`slotBar${best ? ' slotBar--best' : ''}`} key={slot}>
+                  <span className="slotBar__name">{SLOT_LABELS[slot].replace(/^in the /, '')}</span>
+                  <span className="slotBar__track" aria-hidden="true">
+                    <span className="slotBar__fill" style={{ width: `${pct}%` }} />
+                  </span>
+                  <span className="slotBar__count">{count}</span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
+            <div>
               <h3 className="card__title">Chapters read, last 30 days</h3>
               <p className="card__note">
                 Busiest day: {busiest} · current streak {streak.current} · longest {streak.longest}
@@ -370,7 +406,7 @@ export function StatsView() {
               </span>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveContainer width="100%" height={CHART_H}>
             <BarChart data={daily} margin={{ top: 4, right: 8, bottom: 4, left: -18 }}>
               <defs>
                 <linearGradient id="barRed" x1="0" y1="0" x2="0" y2="1">
@@ -413,64 +449,11 @@ export function StatsView() {
         <section ref={reveal} className="card reveal">
           <div className="card__head">
             <div>
-              <h3 className="card__title">Share where you are</h3>
-              <p className="card__note">
-                Everything on one card. Save it, send it, or just screenshot what is below.
-              </p>
-            </div>
-          </div>
-          <ShareCard />
-        </section>
-
-        <section ref={reveal} className="card reveal">
-          <div className="card__head">
-            <div>
-              <h3 className="card__title">When you read</h3>
-              <p className="card__note">
-                {taggedTotal === 0
-                  ? 'Optional. Tag a chapter with a time of day when you mark it and this fills in.'
-                  : `From the ${plural(taggedTotal, 'chapter')} you have tagged.`}
-              </p>
-            </div>
-          </div>
-          <div className="slotChart">
-            {SLOTS.map((slot) => {
-              const count = slotCounts[slot];
-              const pct = taggedTotal === 0 ? 0 : (count / taggedTotal) * 100;
-              const best = count > 0 && count === topSlot;
-              return (
-                <div className={`slotBar${best ? ' slotBar--best' : ''}`} key={slot}>
-                  <span className="slotBar__name">{SLOT_LABELS[slot].replace(/^in the /, '')}</span>
-                  <span className="slotBar__track" aria-hidden="true">
-                    <span className="slotBar__fill" style={{ width: `${pct}%` }} />
-                  </span>
-                  <span className="slotBar__count">{count}</span>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        <section ref={reveal} className="card reveal">
-          <div className="card__head">
-            <div>
-              <h3 className="card__title">Reading rhythm</h3>
-              <p className="card__note">
-                Every day of the last eighteen weeks, darkest where you read most
-              </p>
-            </div>
-          </div>
-          <Heatmap read={data.read} />
-        </section>
-
-        <section ref={reveal} className="card reveal">
-          <div className="card__head">
-            <div>
               <h3 className="card__title">Cumulative progress</h3>
               <p className="card__note">Total plan chapters read, same 30-day window</p>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveContainer width="100%" height={CHART_H}>
             <AreaChart data={running} margin={{ top: 4, right: 8, bottom: 4, left: -18 }}>
               <defs>
                 <linearGradient id="cumFill" x1="0" y1="0" x2="0" y2="1">
@@ -506,6 +489,30 @@ export function StatsView() {
               />
             </AreaChart>
           </ResponsiveContainer>
+        </section>
+
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
+            <div>
+              <h3 className="card__title">Reading rhythm</h3>
+              <p className="card__note">
+                Every day of the last eighteen weeks, darkest where you read most
+              </p>
+            </div>
+          </div>
+          <Heatmap read={data.read} />
+        </section>
+
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
+            <div>
+              <h3 className="card__title">Share where you are</h3>
+              <p className="card__note">
+                Everything on one card. Save it, send it, or just screenshot what is below.
+              </p>
+            </div>
+          </div>
+          <ShareCard />
         </section>
 
         {/*

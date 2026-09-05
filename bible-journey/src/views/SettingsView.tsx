@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { AccountPanel } from '../components/AccountPanel';
 import { ExportPanel } from '../components/ExportPanel';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
-import { Check, Lock } from '../components/icons';
+import { Check, Compass, Lock } from '../components/icons';
 import {
   TESTAMENTS,
   TESTAMENT_LABELS,
@@ -165,6 +165,7 @@ export function SettingsView() {
               disabled={!prefs.guideSeenAt}
               onClick={() => setPrefs({ ...prefs, guideSeenAt: undefined })}
             >
+              <Compass size={14} className="btn__icon" />
               Show the guide
             </button>
           </div>

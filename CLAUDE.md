@@ -142,6 +142,16 @@ redeploy.**
   later rule wins, no warning anywhere. A component refining its own earlier rule is fine, so read
   the output for names that belong to *two different components*. This finds them:
   `node -e "const L=require('fs').readFileSync('src/styles/app.css','utf8').split(/\r?\n/);const m=new Map();L.forEach((l,i)=>{const s=l.match(/^(\.[\w-]+(?:__[\w-]+)?(?:--[\w-]+)?)\s*\{/);if(s){(m.get(s[1])??m.set(s[1],[]).get(s[1])).push(i+1)}});[...m].filter(([,v])=>v.length>1).forEach(([k,v])=>console.log(k,v))"`
+- **That one-liner only sees rules at column zero, so it is blind to media queries.** Every rule
+  inside one is indented, and two rules for the same selector at the same specificity in different
+  blocks are decided purely by which comes later in the file. This has cost real time twice now.
+  `.btn--sm` set `padding` and `font-size` nine hundred lines after the `@media (pointer: coarse)`
+  rule meant to bump it, so **every secondary button in the app, 41 of them, was a 12.5px label in a
+  26px box on a phone**, and it looked like a design choice rather than a bug. Then a new
+  `.statGrid` and `.statsHero__facts` for phones lost to the existing ones a thousand lines below.
+  When a rule does not seem to apply, `grep -n` the selector across the whole file before assuming
+  anything. `src/lib/buttons.test.ts` pins the orderings that matter, and its comments say what
+  breaks when each one moves.
 - **Every `:hover` rule sits inside `@media (hover: hover)`.** A phone has no hover, so it leaves
   the state applied after a tap: tapping a note twice left it beige until you touched something
   else. Guard any new hover rule the same way. This finds a stray one:
@@ -163,6 +173,31 @@ redeploy.**
   the press, the base owns the release. That overshoot is what reads as springy rather than sticky,
   and it is the only feedback a phone gives at all, since hover never happens there. Keyboard focus
   is a gold ring, so it reads as chosen rather than as an error outline.
+- **A button is a raised thing, not a hole cut in the page.** The base was a transparent rectangle
+  with a hairline border and a 4px corner, which is what a browser gives you for nothing, and beside
+  the today button and the mark button it read as the one control nobody had got to. Three things
+  carry it now: the **pill**, which is the only shape on the page that is not a panel, so a control
+  never has to be identified by its border alone; **warm paper with a hairline of light along the
+  top edge**, which says "this sticks up" at a fraction of the weight of a shadow big enough to say
+  it alone, and which inverts on press so the light goes and the shadow moves inside; and the
+  **display face**, because the app speaks in Fraunces wherever it is being deliberate. The reader's
+  three controls keep an 8px corner rather than the pill, since they are 44 to 61px tall and a pill
+  that tall is a lozenge. `.btn--onDark` is gone; nothing had ever used it, and `.guide__back` is
+  the real on-dark case, carrying a tenth of white so a pill is visible on near-black without
+  reading as a second primary beside Next.
+- **`white-space: nowrap` on every button.** A label is the control's name and a name does not break
+  in half: "Show the guide" was wrapping inside a settings row, which turned a pill into a lozenge
+  with a hole in it. The buttons that look multi-line are grids stacking their own rows, so this
+  does not touch them.
+- **The gold focus ring needs the ink edge to be a ring at all.** Gold on cream measures 1.7:1,
+  under the 3:1 a graphic needs, and `outline-offset` puts the page between the button and the ring,
+  so there was nothing for the gold to sit against. Two pixels of `--ink-700` fill exactly that gap:
+  8.7:1 for the gold against it, 14.9:1 for the ink against the page, and the colour stays the
+  reward colour. `:focus-visible` is written **above** `:active` on purpose, because they share
+  `box-shadow` and the press has to win while a focused button is held down.
+- **Every hover excludes `:disabled` rather than being undone afterwards.** The old reset named one
+  background, so it could only ever put the plain button back: a disabled primary still repainted
+  itself under the cursor, because each variant names its own.
 - **The today button's motion is one-shot.** The arrow beckons once, a second after the card lands,
   and a sheen crosses the button once. Both used to loop, which made them the only motion in the
   app that ran without being asked for, and a thing that repeats every few seconds is a thing you
@@ -225,6 +260,22 @@ redeploy.**
   gold, and neither shows on paper. The two long tables, the reading log and the phase table, end the
   page inside `FoldCard` and start shut, since both repeat row by row what the charts say in a
   picture. `FoldCard` is a real `<details>`, so it opens from a keyboard and find-in-page reveals it.
+- **Stats is two columns from 720px, and the source order is what pairs them.** Nine panels one
+  under another was 3,709px on a laptop and 4,208px on a phone, most of it white: every panel took
+  the full width whatever it had to say, so a 242px bar of four labels got the same room as a
+  heatmap. The order is streak, when you read, the two 30-day charts, the heatmap, then the share
+  card, which is habit, then the recent window, then the long view, then the thing worth sending.
+  That order is also what packs: **the two 30-day charts are the same height and the same x-axis**,
+  so side by side they read as one picture, and the tallest panel lands beside the shortest instead
+  of beside another tall one. Doing it in the source rather than with `order` keeps the DOM order,
+  the reading order and the tab order agreeing. 720 and not a round 800 because iPad portrait is
+  768. It is 2,467px on a laptop and 2,545px on a tablet now.
+- **On a phone the room comes out of the panels, and the card head was most of it.** 122px each: a
+  1.32rem title over a note set to 62ch, which at 288px of usable width is three lines, over 34px of
+  padding and margin and a rule. Six of those was 732px spent introducing charts that are already
+  labelled. All of it is scoped to `.statsView`, because `.card` is shared with Notes and Settings.
+  **`.statsView .card` has to say `:not(.fold)`**: a fold sets `padding: 0` on purpose, since a shut
+  card is one tappable strip with nothing dead around it, and a descendant selector outranks it.
 - The share card's lower half is **one square per book, in printed order**, filled from the bottom by
   how far in the reader has got. It is the only thing on the card that says something a percentage
   cannot: which parts, and how evenly. It went through two worse ideas first. Three most-read book

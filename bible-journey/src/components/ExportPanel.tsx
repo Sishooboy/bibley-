@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { buildExport, countJournal, exportFilename } from '../lib/exportJournal';
 import { formatNumber, plural } from '../lib/format';
 import { useStore } from '../state/useStore';
+import { Download } from './icons';
 
 type Props = { reveal?: (node: Element | null) => void };
 
@@ -76,6 +77,7 @@ export function ExportPanel({ reveal }: Props) {
 
       <div className="card__actions">
         <button type="button" className="btn btn--sm btn--primary" onClick={save}>
+          <Download size={14} className="btn__icon" />
           Download my journal
         </button>
       </div>

@@ -126,16 +126,6 @@ select {
     font-size: 16px;
   }
 
-  .btn {
-    padding-block: 0.6rem;
-    font-size: 0.9rem;
-  }
-
-  .btn--sm {
-    padding-block: 0.45rem;
-    font-size: 0.85rem;
-  }
-
   .nav__item {
     padding-block: 0.6rem;
   }
@@ -930,16 +920,40 @@ select {
   color: var(--yellow-soft);
 }
 
+/*
+ * A button is a raised thing, not a hole cut in the page. It was a transparent
+ * rectangle with a hairline border and a 4px corner, which is what a browser
+ * gives you for nothing, and next to the today button and the mark button it
+ * read as the one control nobody had got to yet.
+ *
+ * Three things carry it now. The pill, which is the only shape on the page that
+ * is not a panel, so a control never has to be identified by its border alone.
+ * Warm paper with a hairline of light along the top edge, which says "this
+ * sticks up" at a fraction of the weight of a shadow big enough to say it by
+ * itself. And the display face, because the app speaks in Fraunces wherever it
+ * is being deliberate, and a control is the most deliberate thing on a screen.
+ */
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 38px;
   border: 1px solid var(--line-strong);
-  background: transparent;
-  border-radius: var(--radius);
-  padding: 0.5rem 0.9rem;
-  font-size: 0.85rem;
-  font-weight: 500;
+  background: linear-gradient(180deg, #fffdf8, #f3ebdb);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 1px 2px rgba(74, 45, 20, 0.13);
+  border-radius: 999px;
+  padding: 0.5rem 1.05rem;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  /* The clean cut of the face. SOFT and WONK belong to the quote card. */
+  font-variation-settings: 'SOFT' 0, 'WONK' 0;
+  letter-spacing: -0.005em;
+  color: var(--text);
+  white-space: nowrap;
   cursor: pointer;
   /*
    * The release. A transition belongs to the state being entered, so this rule
@@ -955,101 +969,171 @@ select {
     transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/*
+ * Keyboard focus in the reward colour, so it reads as chosen rather than as an
+ * error outline, and never on a pointer press.
+ *
+ * The dark edge is what makes the gold a ring rather than a rumour. Gold on
+ * cream measures 1.7:1, well under the 3:1 a graphic needs, and `outline-offset`
+ * puts the page between the button and the ring, so there was nothing for the
+ * gold to sit against. Two pixels of ink fills exactly that gap: the gold now
+ * reads at 7.9:1 against it, the ink reads against the page, and the colour is
+ * still the reward colour. Above `:active` on purpose, since they share
+ * `box-shadow` and the press has to win while a focused button is held down.
+ */
+.btn:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 2px var(--ink-700),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+/* Pressed in rather than only smaller: the light along the top edge goes and
+   the shadow moves inside, which is what a real key does. */
 .btn:active {
   transform: scale(0.97);
+  box-shadow: inset 0 1px 3px rgba(74, 45, 20, 0.2);
   transition-duration: 120ms, 120ms, 120ms, 80ms, 70ms;
   transition-timing-function: ease, ease, ease, ease, ease-in;
 }
 
-/* Keyboard focus in the reward colour, so it reads as chosen rather than as an
-   error outline, and never on a pointer press. */
-.btn:focus-visible {
-  outline: 2px solid var(--yellow);
-  outline-offset: 2px;
+/*
+ * Every hover excludes `:disabled`. It used to be undone afterwards by a
+ * `.btn:disabled:hover` rule, which could only ever reset the plain button:
+ * a disabled primary still repainted itself on hover, because the reset named
+ * one background and the variants each name their own.
+ */
+@media (hover: hover) {
+  .btn:not(:disabled):hover {
+    background: linear-gradient(180deg, #fffefb, #f8f2e6);
+    border-color: var(--red-600);
+    color: var(--red-700);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      0 4px 10px -4px rgba(74, 45, 20, 0.3);
+    transform: translateY(-1px);
+  }
 }
 
-@media (hover: hover) {
-  .btn:hover {
-    background: #efe7d8;
-  }
+/* A mark on the face of a button, sized to the label rather than to a grid, so
+   it reads as part of the word and not as an icon with a caption. */
+.btn__icon {
+  flex: none;
+  opacity: 0.85;
 }
 
 /*
  * Lit from above and sitting on the page rather than printed into it. Both ends
  * of the gradient carry white well past AA, so the text is safe wherever the
- * sweep happens to fall behind it.
+ * sweep happens to fall behind it. `--red-500` is not an option for the light
+ * end: white on it measures 4.4:1, just under what this size needs.
  */
 .btn--primary {
   background: linear-gradient(180deg, var(--red-600), #b21a22);
   border-color: var(--red-700);
   color: #fff;
-  box-shadow: 0 2px 6px -2px rgba(150, 22, 31, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.26),
+    0 2px 7px -2px rgba(150, 22, 31, 0.55);
 }
 
 .btn--primary:active {
   transform: scale(0.97);
-  box-shadow: 0 1px 3px -2px rgba(150, 22, 31, 0.5);
+  box-shadow: inset 0 1px 4px rgba(71, 9, 14, 0.45);
 }
 
 @media (hover: hover) {
-  .btn--primary:hover {
+  .btn--primary:not(:disabled):hover {
     background: linear-gradient(180deg, #d42730, var(--red-600));
     border-color: var(--red-700);
-    box-shadow: 0 5px 14px -4px rgba(150, 22, 31, 0.6);
+    color: #fff;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      0 6px 16px -5px rgba(150, 22, 31, 0.65);
     transform: translateY(-1px);
   }
 }
 
-.btn--onDark {
-  border-color: rgba(255, 255, 255, 0.28);
-  color: var(--cream);
-}
-
-@media (hover: hover) {
-  .btn--onDark:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-}
-
+/* The quiet one: Sign out, Cancel, Clear. It has to shed the paper and the
+   shadow as well as the border, or "quiet" still arrives raised. */
 .btn--ghost {
+  background: none;
   border-color: transparent;
+  box-shadow: none;
   color: var(--muted);
-  padding-inline: 0.5rem;
+  padding-inline: 0.75rem;
 }
 
 @media (hover: hover) {
-  .btn--ghost:hover {
+  .btn--ghost:not(:disabled):hover {
     background: #ece3d3;
+    border-color: transparent;
     color: var(--text);
+    box-shadow: none;
+    transform: none;
   }
 }
 
+/*
+ * Small, not shrunk. It was 0.78rem in a 26px box, and because it is defined
+ * here rather than beside the coarse-pointer rule that bumps every button up on
+ * a phone, its `padding` shorthand quietly won there too: 41 of the app's
+ * buttons, which is every secondary button in it, were 12.5px labels on the one
+ * device where a control most needs to be hittable. Small now means one step
+ * down from the base, not a different idea of what a button is.
+ */
 .btn--sm {
-  padding: 0.3rem 0.6rem;
-  font-size: 0.78rem;
+  min-height: 34px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.84rem;
 }
 
 .btn--danger {
-  background: var(--red-700);
-  border-color: var(--red-700);
+  background: linear-gradient(180deg, var(--red-700), var(--red-800));
+  border-color: var(--red-800);
   color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 2px 7px -2px rgba(71, 9, 14, 0.5);
 }
 
 @media (hover: hover) {
-  .btn--danger:hover {
-    background: var(--red-800);
+  .btn--danger:not(:disabled):hover {
+    background: linear-gradient(180deg, var(--red-600), var(--red-700));
     border-color: var(--red-800);
+    color: #fff;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.24),
+      0 6px 16px -5px rgba(71, 9, 14, 0.6);
+    transform: translateY(-1px);
   }
 }
 
+/* Flat and pale: nothing to press, so nothing sticking up. */
 .btn:disabled {
   opacity: 0.45;
+  box-shadow: none;
   cursor: not-allowed;
 }
 
-@media (hover: hover) {
-  .btn:disabled:hover {
-    background: transparent;
+/*
+ * Here rather than up with the other coarse-pointer rules, which is the whole
+ * point: the earlier block sets `padding-block`, and `.btn--sm`'s `padding`
+ * shorthand is a later rule of the same specificity, so from up there the bump
+ * never reached a single small button.
+ */
+@media (pointer: coarse) {
+  .btn {
+    min-height: 44px;
+    padding-block: 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .btn--sm {
+    min-height: 40px;
+    padding-block: 0.5rem;
+    font-size: 0.86rem;
   }
 }
 
@@ -2767,7 +2851,14 @@ select {
 /* ── Stat cards ─────────────────────────────────────────────────────────── */
 .statGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+  /*
+   * 240px and not 215px. At 215 a tablet fits three, which leaves the fourth
+   * card alone on a row of its own and squeezes the completion ring until its
+   * note breaks "3% of the books" over three lines. At 240 the same widths give
+   * two across on a tablet, matching the two columns of panels below it, and
+   * still four across on a laptop.
+   */
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 0.9rem;
 }
 
@@ -2878,6 +2969,75 @@ select {
 .statCard--accent .statCard__value {
   color: var(--yellow);
   font-size: 1.9rem;
+}
+
+/* ── Stats, packed ──────────────────────────────────────────────────────── */
+/*
+ * Nine panels one under another was four screens of scrolling on a laptop and
+ * five on a phone, most of it white: every panel was full width whatever it had
+ * to say, so a 242px bar of four labels got the same room as a heatmap.
+ *
+ * Two columns from 720px up, which is under iPad portrait's 768 on purpose: at
+ * 768 the columns are 320px each, still wide enough for a 180px chart, and a
+ * round 800 would have left the most common tablet width scrolling twice as far
+ * as it needs to. The source order is what pairs them, so the DOM
+ * order and the visual order agree and nothing needs `order`: the two 30-day
+ * charts sit together because they are the same height and the same x-axis, and
+ * the tallest panel lands beside the shortest rather than beside another tall
+ * one. That is what takes the page from 3,709px to about 2,000.
+ *
+ * Scoped to `.statsView` throughout. `.card` is shared with Notes and Settings,
+ * and tightening it here must not tighten it there.
+ */
+@media (min-width: 720px) {
+  .statsView {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    /* Or a short panel stretches to the height of the tall one beside it and
+       the packing buys nothing. */
+    align-items: start;
+  }
+
+  /* The headline and the four figures are the page's opening, so they keep the
+     full width and everything else flows two at a time under them. */
+  .statsView > .statsHero,
+  .statsView > .statGrid {
+    grid-column: 1 / -1;
+  }
+}
+
+/*
+ * A phone has one column, so the room has to come out of the panels themselves.
+ * The head was 122px of it: a 1.32rem title over a note set to 62ch, which at
+ * 288px of usable width is three lines, over 34px of padding and margin and a
+ * rule. Six of those was 732px, a fifth of the page, spent introducing charts
+ * that are already labelled.
+ */
+@media (max-width: 620px) {
+  .statsView {
+    gap: 0.9rem;
+  }
+
+  .statsView .card:not(.fold) {
+    padding: 1.1rem 1.1rem 1rem;
+  }
+
+  .statsView .card__head {
+    padding-bottom: 0.6rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .statsView .card__title {
+    font-size: 1.06rem;
+  }
+
+  .statsView .card__note {
+    font-size: 0.78rem;
+    margin-top: 0.25rem;
+  }
+
+  .statCard {
+    padding: 0.9rem 0.85rem 0.8rem;
+  }
 }
 
 .spark {
@@ -3893,14 +4053,24 @@ select {
   .statsHero__facts {
     justify-content: center;
     text-align: center;
+    /* A 2rem gap put the three of them on three rows. They still wrap, since
+       "LONGEST STREAK" alone is 112px of a 287px line, but on two rows now. */
+    gap: 0.5rem 1rem;
   }
 
   .statsHero__note {
     margin-inline: auto;
   }
 
+  /*
+   * Four figures in a column was 652px to say four numbers. Two by two is the
+   * same four numbers in half the room. It was one column because the base rule
+   * is `auto-fit, minmax(215px, 1fr)` and 215px does not fit twice on a phone;
+   * naming two columns explicitly is what lets them be narrower than that.
+   */
   .statGrid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
   }
 
   .notesBar {
@@ -4192,6 +4362,9 @@ select {
   min-height: 44px;
   padding-inline: 0.85rem;
   font-size: 0.86rem;
+  /* These three are 44 to 61px tall, and a pill that tall is a lozenge. They
+     keep the panel's corner while the small controls take the pill. */
+  border-radius: 8px;
 }
 
 /* The chevron leans the way the button takes you, and leans further on press. */
@@ -5518,9 +5691,25 @@ select {
 }
 
 /* On this ground the ghost button needs its own border and its own text. */
+/*
+ * Back sits on the dark panel, so it takes the same shape as every other button
+ * and none of the paper. A tenth of white is enough to make a pill visible on
+ * near-black without it reading as a second primary beside Next.
+ */
 .guide__back {
-  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
   color: var(--cream);
+}
+
+@media (hover: hover) {
+  .guide__back:not(:disabled):hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.45);
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
 }
 
 .guide__back:disabled {

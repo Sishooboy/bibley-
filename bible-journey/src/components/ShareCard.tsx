@@ -9,6 +9,7 @@ import {
   readyLogo,
 } from '../lib/shareCard';
 import { useStore } from '../state/useStore';
+import { Share } from './icons';
 
 const FILENAME = 'bibley.jpg';
 const TYPE = 'image/jpeg';
@@ -105,6 +106,7 @@ export function ShareCard() {
 
       <div className="card__actions">
         <button type="button" className="btn btn--sm btn--primary" onClick={save} disabled={busy}>
+          <Share size={14} className="btn__icon" />
           {busy ? 'Preparing…' : 'Save or share'}
         </button>
       </div>

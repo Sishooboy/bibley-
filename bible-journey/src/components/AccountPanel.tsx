@@ -1,4 +1,5 @@
 import { useCloud } from '../state/useCloud';
+import { Sync } from './icons';
 
 function syncLine(lastSyncedAt: string | null): string {
   if (!lastSyncedAt) return 'not synced yet this session';
@@ -60,6 +61,7 @@ export function AccountPanel({ reveal }: Props) {
 
       <div className="card__actions">
         <button type="button" className="btn btn--sm btn--primary" onClick={() => void syncNow()}>
+          <Sync size={14} className="btn__icon" />
           Sync now
         </button>
         <button type="button" className="btn btn--sm btn--ghost" onClick={() => void signOut()}>
@@ -71,6 +73,7 @@ export function AccountPanel({ reveal }: Props) {
         <div className="notice notice--error">
           <p>{error}</p>
           <button type="button" className="btn btn--sm" onClick={() => void syncNow()}>
+            <Sync size={14} className="btn__icon" />
             Try again
           </button>
         </div>

@@ -120,3 +120,95 @@ export function Chevron({ size = 16, className }: IconProps) {
     </svg>
   );
 }
+
+/*
+ * The four marks that sit on a button face. A label says what a control does
+ * and the mark says it a second time in a tenth of the space, which is what
+ * lets someone find the one they want without reading the row. Same 16px box
+ * and the same stroke as the rest, so they belong to the set rather than
+ * looking borrowed.
+ */
+export function Sync({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {/* Not a closed circle: the gap is where the arrowhead comes from, which
+          is what makes it read as turning rather than as a ring. */}
+      <path d="M13.7 8a5.7 5.7 0 1 1-1.9-4.2" />
+      <path d="M13.4 1.9v3.2h-3.2" />
+    </svg>
+  );
+}
+
+export function Download({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M8 1.9v7.6" />
+      <path d="m4.9 6.5 3.1 3.1 3.1-3.1" />
+      <path d="M2.6 11.2v1.3a1.6 1.6 0 0 0 1.6 1.6h7.6a1.6 1.6 0 0 0 1.6-1.6v-1.3" />
+    </svg>
+  );
+}
+
+export function Share({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M8 10.1V2" />
+      <path d="m4.9 5.1 3.1-3.1 3.1 3.1" />
+      <path d="M2.6 9.5v3a1.6 1.6 0 0 0 1.6 1.6h7.6a1.6 1.6 0 0 0 1.6-1.6v-3" />
+    </svg>
+  );
+}
+
+export function Compass({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="8" cy="8" r="6.2" />
+      {/* The needle, drawn as one closed kite so it stays legible at 14px. */}
+      <path d="m10.9 5.1-1.6 4.2-4.2 1.6 1.6-4.2z" />
+    </svg>
+  );
+}
