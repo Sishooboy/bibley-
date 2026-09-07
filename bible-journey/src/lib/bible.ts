@@ -10,6 +10,16 @@ export type BookText = {
    * simply does not draw it.
    */
   chapters: (string | null)[][];
+  /**
+   * One string a chapter, one character a verse, saying where paragraphs open
+   * and which lines are poetry. Built by `scripts/build-layout.mjs` from the
+   * WEB's own USFM and decoded by `blocksFor` in `passage.ts`.
+   *
+   * Optional, and an empty string for a chapter is meaningful rather than
+   * missing: it says this chapter has no layout and keeps the setting the
+   * reader had before any of this, one verse a paragraph.
+   */
+  layout?: string[];
 };
 
 export const TRANSLATION_NAME = 'World English Bible';

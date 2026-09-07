@@ -20,7 +20,7 @@
  * esther.json would have kept the ten chapter one and found Esther 11 missing.
  * Any future change to the text needs this bumping for the same reason.
  */
-const CACHE = 'bibley-v3';
+const CACHE = 'bibley-v4';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (event) => {

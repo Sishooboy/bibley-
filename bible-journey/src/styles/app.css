@@ -4161,12 +4161,22 @@ select {
  * Serif, generous leading and a measure around 60 characters. This is the one
  * screen in the app where the job is to disappear.
  */
+/*
+ * A paragraph, not a verse.
+ *
+ * This held exactly one verse until the layout data existed, because the source
+ * the text came from publishes verses and nothing else. One verse a line is not
+ * how a Bible is printed and it is not how prose is read: it turned Mark into a
+ * numbered list and made a paragraph of narrative look like unrelated facts.
+ * The class name stays `.verse` because it is what the highlight code, the
+ * search landing and half the reader already reach for.
+ */
 .verse {
   font-family: var(--font-display);
   font-variation-settings: 'SOFT' 30, 'WONK' 0;
   font-size: 1.12rem;
   line-height: 1.75;
-  margin-bottom: 0.85rem;
+  margin-bottom: 1rem;
   color: var(--ink-700);
   text-wrap: pretty;
 }
@@ -4180,6 +4190,212 @@ select {
   margin-right: 0.35rem;
   font-variant-numeric: tabular-nums;
   user-select: none;
+}
+
+/*
+ * A number in the middle of a paragraph needs air in front of it as well as
+ * behind. The first one in a paragraph does not, since the margin would push
+ * the whole block off the measure everything else is set to.
+ */
+.verse__t + .verse__n {
+  margin-left: 0.3rem;
+}
+
+/*
+ * Poetry, which is a third of the verses in this Bible.
+ *
+ * Set as lines rather than run into a paragraph, because the psalms and the
+ * prophets are lineated in the source and reading them as prose loses the
+ * parallelism that is the whole form. The indents come from the USFM's own
+ * `q1`, `q2` and `q3`.
+ */
+.verse--poetry {
+  margin-bottom: 0.1rem;
+  padding-left: calc(var(--poetry-step, 1.15rem) * var(--indent, 1));
+  /* A line too long for the measure wraps deeper than it started, which is how
+     verse has always been set and the only way to tell a wrap from a new line. */
+  text-indent: -0.85rem;
+}
+
+.verse--poetry[data-indent='1'] {
+  --indent: 1;
+}
+
+.verse--poetry[data-indent='2'] {
+  --indent: 2;
+}
+
+.verse--poetry[data-indent='3'] {
+  --indent: 3;
+}
+
+/* A stanza break. The source marks them and they are most of what gives a psalm
+   its shape on the page. */
+.verse--poetry[data-stanza] {
+  margin-top: 1rem;
+}
+
+/* ── Headings over the paragraphs ──────────────────── */
+/*
+ * Apparatus, and it has to look like it.
+ *
+ * Everything a translator wrote is set in the display face at reading size;
+ * this is not that, so it is the body face, smaller, and in the muted colour
+ * the app uses for things that are about the text rather than the text. A
+ * heading that competed with scripture for the eye would be the app talking
+ * over the thing it exists to show.
+ *
+ * Not scaled by `--verse-scale` either, for the same reason the chapter note is
+ * not: making the words bigger is about reading the Bible, not about reading
+ * the labels on it.
+ */
+.passage {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 1.9rem 0 0.75rem;
+}
+
+/* The first heading in a chapter has the chapter rule above it already. */
+.passage:first-of-type {
+  margin-top: 0.4rem;
+}
+
+/*
+ * A heading with something behind it. The whole row is the control, since a
+ * heading that can be opened and a heading that cannot should not need to be
+ * told apart by aiming at a different part of them.
+ */
+.passage--noted {
+  margin-bottom: 0.6rem;
+}
+
+/*
+ * `text-transform` and `letter-spacing` are named rather than left to inherit
+ * because the browser's own button styles set them, and a UA rule beats
+ * inheritance. Without these two lines a heading with a note is sentence case
+ * and a heading without one is uppercase, which reads as two kinds of heading
+ * rather than one that can be opened.
+ */
+.passage__toggle {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+  width: 100%;
+  padding: 0.35rem 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+.passage__title {
+  font: inherit;
+  color: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  margin: 0;
+}
+
+/*
+ * Red, not gold, and this is exactly the case the house rule was written for.
+ * Gold is the app's reward colour and this is the app's one invitation inside
+ * the text, so gold was the obvious choice and it measured 2.64:1 on paper at
+ * 10.5px, against the 4.5 that size needs. `--yellow-dim` was already the dark
+ * end of the gold; there is no gold that clears it on this ground. The gold
+ * survives where it can be a graphic rather than a word: the note's own edge.
+ */
+.passage__why {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex: none;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: none;
+  color: var(--red-700);
+  white-space: nowrap;
+}
+
+.passage__chev {
+  transform: rotate(90deg);
+  transition: transform 200ms var(--ease-out);
+}
+
+.passage__toggle[aria-expanded='true'] .passage__chev {
+  transform: rotate(-90deg);
+}
+
+@media (hover: hover) {
+  .passage__toggle:not(:disabled):hover .passage__why {
+    color: var(--red-600);
+  }
+}
+
+/*
+ * The same gold edged margin note the chapter card uses, because it is the same
+ * kind of thing: the app saying something about the passage rather than in it.
+ * One visual language for apparatus, learned once.
+ */
+.passage__note {
+  margin: 0.15rem 0 1.1rem;
+  padding: 0.8rem 1rem 0.85rem;
+  border-left: 3px solid var(--yellow);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: rgba(247, 184, 1, 0.1);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text);
+  animation: passageNote 240ms var(--ease-out) both;
+}
+
+@keyframes passageNote {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .passage__note {
+    animation: none;
+  }
+
+  .passage__chev {
+    transition: none;
+  }
+}
+
+/* Coming out of poetry back into prose wants the paragraph gap back. */
+.verse--poetry + .verse:not(.verse--poetry) {
+  margin-top: 1rem;
+}
+
+/*
+ * Three indents is 3.5rem of the 288px a phone actually has for text, which is
+ * an eighth of the line gone before a word is set. The step tightens instead of
+ * the indents being dropped, since losing them entirely would flatten the one
+ * thing the lineation is there to show.
+ */
+@media (max-width: 620px) {
+  .verse--poetry {
+    --poetry-step: 0.7rem;
+  }
 }
 
 .reader__credit {

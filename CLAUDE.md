@@ -18,6 +18,7 @@ npm run build    # tsc -b && vite build, run before pushing anything substantial
 npm run lint     # oxlint
 npm test         # vitest run, covers merge, streaks, plan invariants and the text
 npm run bible    # re-download public/bible/ from the WEB. Output is committed, so rarely needed
+npm run layout   # add paragraph structure to public/bible/ from the WEB's USFM. Also committed
 npm run preview  # serves dist on 4173, the only way to exercise the service worker
 npm run icons    # regenerate public/icon-*.png from brand/logo-source.png
 ```
@@ -57,6 +58,63 @@ redeploy.**
   from does not. The slot stays so later numbering is right, and the reader skips it.
   `bible.test.ts` pins the whole list, so replacing the text trips a test rather than silently
   shifting verse numbers.
+- **The reader sets paragraphs, not one verse a line.** The source the text came from publishes
+  verses and nothing else, so for a long time every verse was its own paragraph, which turns Mark
+  into a numbered list and makes narrative look like unrelated facts. The World English Bible's own
+  USFM carries the real structure, 9,254 paragraph marks and 23,331 poetry lines, and it is public
+  domain like the text, so `scripts/build-layout.mjs` reads it off the source rather than guessing.
+  Run it with `npm run layout` against an unzipped
+  [eng-web_usfm](https://ebible.org/Scriptures/eng-web_usfm.zip).
+- **`build-layout.mjs` never touches `chapters`, and verifies that it did not.** Highlights are
+  `{verse, offset}` character offsets inside a verse string, so changing one character moves every
+  highlight recorded in that verse and there is no way to notice afterwards. It adds a `layout` key
+  and re-reads the verse text to compare before it writes. All 35,415 verse strings were checked
+  against the previous commit as well, outside the script, the first time it ran.
+- **`layout` is one character a verse**, which is what makes it affordable: 38 kB across the whole
+  Bible, 0.8% of the text, small enough to live inside the book files rather than needing a fetch of
+  its own. `p` prose, `P` prose opening a paragraph, `1` to `3` poetry at that indent, `4` to `6`
+  the same after a stanza break. `blocksFor` in `src/lib/passage.ts` decodes it.
+- **A verse belongs to exactly one block and is never split.** That is the constraint the whole
+  design bends around: the reader still draws one `data-verse` span a verse, so a verse that ran on
+  from prose into poetry is set as prose rather than broken across two elements, because a verse in
+  two elements would need offsets that knew where the break was and every highlight already recorded
+  would point at the wrong half. Verified end to end: a selection spanning two verses inside one
+  paragraph still resolves to the right verse and offsets, and those offsets still index the source
+  JSON exactly.
+- **Thirteen chapters have no layout on purpose**, and they keep the old setting rather than a
+  layout one verse out of step with the words. Esther 10 to 16 and Daniel 13 and 14 are the Greek
+  additions, which this app appends as chapters and the USFM publishes as separate books; Sirach 20,
+  23 and 33 and Romans 16 differ from that source by a verse or two. **The check is per chapter, not
+  per book**, since a book that mostly agrees still has chapters that do not.
+- **Section headings are written for this app, because every usable one is copyrighted.** The NIV,
+  the ESV and the NASB all have headings and all of them are editorial work under their own
+  copyright even where the underlying translation is ancient, and the World English Bible, which is
+  the text here precisely because it is public domain, carries none of its own. Where a section
+  begins is nobody's property, so the divisions are the ordinary ones; the wording is ours. They
+  live in `insights.json` under `sections`, keyed by chapter, as `{v, t, n?}`.
+- **A heading and an explained key verse are one shape, not two.** `t` is the heading and `n` is the
+  note that turns it into a moment worth stopping on. Splitting them would have meant authoring the
+  same list of turning points twice and keeping the two in step by hand. About a quarter carry a
+  note: a chapter where every heading demanded attention is a chapter nobody can read, and the note
+  is shut until it is asked for, because a reader who came to read should meet a heading rather than
+  a paragraph of commentary between them and the next sentence.
+- **A heading's verse has to be the first verse of a block**, or it is drawn above the paragraph
+  that contains it and lands several sentences early, attached to the wrong scene. Nothing throws
+  and nothing looks broken. Three of Mark's eighty-one were wrong when they were first written,
+  which is the rate to expect from hand written data, so `sections.test.ts` pins it. **Coverage is
+  Mark so far**; the rest is data against a mechanism that already works, and the validator is the
+  test.
+- **The heading is apparatus and has to look like it.** Body face, small, uppercase, in the muted
+  colour, and deliberately not scaled by `--verse-scale`: making the words bigger is about reading
+  the Bible, not about reading the labels on it. The "Why this matters" control is `--red-700` and
+  **not gold**, which is the case the rationing rule was written for: gold was the obvious choice
+  for the app's one invitation inside the text and `--yellow-dim`, already the dark end of it,
+  measured 2.64:1 on paper at 10.5px against the 4.5 that size needs. The gold survives where it can
+  be a graphic rather than a word, on the note's own edge.
+- **`.passage__toggle` names `text-transform` and `letter-spacing` rather than inheriting them.**
+  The browser's own button styles set both, and a UA rule beats inheritance, so without those two
+  lines a heading with a note was sentence case while a heading without one was uppercase: two kinds
+  of heading rather than one that can be opened.
 - **The canon is Catholic, 73 books.** The seven deuterocanonical books are Tobit, Judith, Wisdom,
   Sirach, Baruch, 1 and 2 Maccabees, and they sit where a Catholic Bible prints them rather than in
   an appendix. Three of them are not separate books at all in that arrangement, and `INSERTS` in
@@ -695,7 +753,8 @@ Working: nine reading tracks behind a two-step chooser and a preparing transitio
 sign-in behind a gate,
 per-account sync with the merge rules above, chapter marking by slider, quick amounts and tap,
 undo, backdating so a chapter counts on the day it was read, an optional time of day, the text
-itself in a reader that opens at any book and any chapter, highlighting with a thought attached,
+itself in a reader that sets it in paragraphs and poetry and opens at any book and any chapter,
+headings over the paragraphs with a note on the turning points, highlighting with a thought attached,
 notes, stats, streaks, an offline app shell, full text search over all 73 books, five synthesised sounds with a synced mute switch, a card introducing every book and a
 note on the chapters that matter, a streak that celebrates itself when it grows and can be
 protected by rest days it earns, a knock and a dip on every press in the app, a six panel welcome guide that

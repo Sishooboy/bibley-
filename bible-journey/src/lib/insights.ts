@@ -13,6 +13,21 @@
 
 export type ChapterNote = { title: string; note: string };
 
+/**
+ * A heading over a paragraph, and sometimes a word about why it is there.
+ *
+ * One shape does both jobs on purpose. A section heading and an explained key
+ * verse are the same thing structurally, "at verse N of this chapter, say
+ * something", and splitting them into two files would have meant authoring the
+ * same list of turning points twice and keeping the two in step by hand.
+ *
+ * `v` is the verse the heading sits above, `t` the heading, and `n` the note
+ * that turns a heading into a moment worth stopping on. Most have no note: a
+ * heading every few paragraphs is what makes a chapter navigable, and a chapter
+ * where every heading demanded attention would be a chapter nobody could read.
+ */
+export type Section = { v: number; t: string; n?: string };
+
 export type BookInsight = {
   /** One line under the name: what this book is. */
   eyebrow: string;
@@ -20,6 +35,8 @@ export type BookInsight = {
   facts: string[];
   /** Keyed by chapter number as a string, since JSON keys are. */
   chapters?: Record<string, ChapterNote>;
+  /** Headings over the paragraphs, keyed by chapter number as a string. */
+  sections?: Record<string, Section[]>;
 };
 
 export type Insights = { version: number; books: Record<string, BookInsight> };
@@ -57,6 +74,21 @@ export function loadInsights(): Promise<Insights> {
 
 export function bookInsight(ins: Insights | undefined, book: string): BookInsight | undefined {
   return ins?.books[book];
+}
+
+/**
+ * The headings for one chapter, in verse order.
+ *
+ * Sorted here rather than trusted from the file, because a heading out of order
+ * would attach itself to the wrong paragraph and the data is hand written.
+ */
+export function sectionsFor(
+  ins: Insights | undefined,
+  book: string,
+  chapter: number,
+): Section[] {
+  const list = ins?.books[book]?.sections?.[String(chapter)];
+  return list ? [...list].sort((a, b) => a.v - b.v) : [];
 }
 
 export function chapterNote(

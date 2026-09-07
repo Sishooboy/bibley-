@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react';
 import { NEW_TESTAMENT, OLD_TESTAMENT } from '../data/canon';
 import { TRANSLATION_NAME, cachedBook, loadBook, type BookText } from '../lib/bible';
 import {
@@ -19,13 +27,16 @@ import {
   markSeen,
   noteSeenKey,
   presentation,
+  sectionsFor,
   seenSet,
   sheetKey,
   type Insights,
   type NoteMode,
+  type Section,
 } from '../lib/insights';
 import { useKeyboardInset } from '../lib/keyboard';
 import { neighbours } from '../lib/navigate';
+import { blocksFor } from '../lib/passage';
 import { DEFAULT_PREFS, TEXT_SIZES, textScale } from '../lib/prefs';
 import { chime } from '../lib/sound';
 import { chapterKey, newId, type Highlight } from '../lib/storage';
@@ -45,6 +56,98 @@ import { Check, Chevron, Search } from './icons';
  * through walks the plan. Anywhere else, and anywhere the reader has wandered off
  * to on their own, printed order takes over.
  */
+/**
+ * A heading over a paragraph, and the note some of them carry.
+ *
+ * Modern Bibles all have these and almost none of them are usable: the headings
+ * in the NIV, the ESV and the NASB are editorial work under their own copyright
+ * even where the translation is old. The World English Bible, which is the text
+ * here precisely because it is public domain, has none of its own. So these are
+ * written for this app, which also means they can say what a heading in a
+ * printed Bible cannot: why the paragraph under it is one people know.
+ *
+ * The note is shut until it is asked for. A reader who came to read should meet
+ * a heading, not a paragraph of commentary between them and the next sentence.
+ */
+function SectionHead({ section }: { section: Section }) {
+  const [open, setOpen] = useState(false);
+
+  if (!section.n) {
+    return <h3 className="passage">{section.t}</h3>;
+  }
+
+  return (
+    <div className="passage passage--noted">
+      <button
+        type="button"
+        className="passage__toggle"
+        aria-expanded={open}
+        onClick={() => setOpen((was) => !was)}
+      >
+        <h3 className="passage__title">{section.t}</h3>
+        <span className="passage__why">
+          {open ? 'Hide' : 'Why this matters'}
+          <Chevron size={12} className="passage__chev" />
+        </span>
+      </button>
+      {open && <p className="passage__note">{section.n}</p>}
+    </div>
+  );
+}
+
+/**
+ * One verse: its number, then its words.
+ *
+ * `data-verse` marks the text span and only the text span. Put it on the
+ * paragraph and the verse number counts as characters, so every highlight lands
+ * one place off, or two past verse nine. That mattered when a paragraph held
+ * one verse and it matters more now that it holds eight.
+ */
+function VerseText({
+  n,
+  text,
+  marks,
+  landed,
+  onOpenNote,
+}: {
+  n: number;
+  text: string;
+  marks: Highlight[];
+  landed: boolean;
+  onOpenNote: (id: string) => void;
+}) {
+  return (
+    <>
+      <span className="verse__n" aria-hidden="true">
+        {n}
+      </span>
+      <span
+        className="verse__t"
+        data-verse={n}
+        // Set from React rather than added to className imperatively, which is
+        // the mistake that once left an opened note invisible.
+        data-landed={landed ? '' : undefined}
+      >
+        {segmentVerse(text, n, marks).map((segment, s) =>
+          segment.id ? (
+            <mark
+              key={s}
+              className={`hl${segment.note ? ' hl--noted' : ''}`}
+              // Reading is the default, so opening a note is a tap rather than
+              // something a stray drag can trigger.
+              onClick={() => onOpenNote(segment.id!)}
+            >
+              {segment.text}
+            </mark>
+          ) : (
+            <span key={s}>{segment.text}</span>
+          ),
+        )}
+      </span>
+    </>
+  );
+}
+
 export function Reader({
   book,
   chapter,
@@ -385,6 +488,20 @@ export function Reader({
 
   const chapterCount = text?.chapters.length ?? 0;
   const verses = text?.chapters[chapter - 1];
+  /*
+   * Where the paragraphs are. Memoised on the chapter rather than worked out
+   * per render, since it walks every verse and the reader re-renders on every
+   * drag while a selection is being made.
+   */
+  const blocks = useMemo(
+    () => (verses ? blocksFor(verses, text?.layout?.[chapter - 1]) : []),
+    [verses, text, chapter],
+  );
+  /** Verse number to the heading that sits above it, for a lookup a block. */
+  const headings = useMemo(
+    () => new Map(sectionsFor(insights, book, chapter).map((sec) => [sec.v, sec])),
+    [insights, book, chapter],
+  );
   const open = marks.find((h) => h.id === editing);
 
   return (
@@ -547,48 +664,60 @@ export function Reader({
                 mode={noteMode}
               />
             )}
-            {verses.map((verse, i) =>
-              // A null verse is a number this translation's source text has
-              // nothing behind. Printed Bibles pass over it in silence too.
-              verse === null ? null : (
-                <p className="verse" key={i}>
-                  <span className="verse__n" aria-hidden="true">
-                    {i + 1}
-                  </span>
-                  {/*
-                    data-verse marks the text and only the text. Put it on the
-                    paragraph and the verse number counts as characters, so every
-                    highlight lands one place off, or two past verse nine.
-                  */}
-                  <span
-                    className="verse__t"
-                    data-verse={i + 1}
-                    // Set from React rather than added to className imperatively,
-                    // which is the mistake that once left an opened note invisible.
-                    data-landed={landedOn === i + 1 ? '' : undefined}
-                  >
-                    {segmentVerse(verse, i + 1, marks).map((segment, s) =>
-                      segment.id ? (
-                        <mark
-                          key={s}
-                          className={`hl${segment.note ? ' hl--noted' : ''}`}
-                          // Reading is the default, so opening a note is a tap
-                          // rather than something a stray drag can trigger.
-                          onClick={() => {
-                            setPending(null);
-                            setEditing(segment.id!);
-                          }}
-                        >
-                          {segment.text}
-                        </mark>
-                      ) : (
-                        <span key={s}>{segment.text}</span>
-                      ),
-                    )}
-                  </span>
+            {/*
+              Blocks, not verses. The verse span inside is unchanged and there
+              is still exactly one of them a verse carrying `data-verse`, which
+              is the whole constraint: highlights are character offsets inside a
+              verse string, so a verse split across two elements would put every
+              highlight already recorded on the wrong half.
+            */}
+            {blocks.map((block, b) => (
+              <Fragment key={b}>
+                {/* Above the paragraph it belongs to, never inside it. The
+                    heading's verse is the first verse of a block, which a test
+                    pins, so this can never cut a paragraph in half. */}
+                {headings.get(block.verses[0]) && (
+                  <SectionHead section={headings.get(block.verses[0])!} />
+                )}
+                {block.kind === 'poetry' ? (
+                <p
+                  className="verse verse--poetry"
+                  data-indent={block.indent}
+                  data-stanza={block.stanza ? '' : undefined}
+                >
+                  {block.verses.map((n) => (
+                    <VerseText
+                      key={n}
+                      n={n}
+                      text={verses[n - 1] as string}
+                      marks={marks}
+                      landed={landedOn === n}
+                      onOpenNote={(id) => {
+                        setPending(null);
+                        setEditing(id);
+                      }}
+                    />
+                  ))}
                 </p>
-              ),
-            )}
+              ) : (
+                <p className="verse">
+                  {block.verses.map((n) => (
+                    <VerseText
+                      key={n}
+                      n={n}
+                      text={verses[n - 1] as string}
+                      marks={marks}
+                      landed={landedOn === n}
+                      onOpenNote={(id) => {
+                        setPending(null);
+                        setEditing(id);
+                      }}
+                    />
+                  ))}
+                </p>
+                )}
+              </Fragment>
+            ))}
             <p className="reader__credit">{TRANSLATION_NAME}, public domain</p>
           </article>
         )}
