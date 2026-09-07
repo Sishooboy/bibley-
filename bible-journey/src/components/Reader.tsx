@@ -493,14 +493,23 @@ export function Reader({
    * per render, since it walks every verse and the reader re-renders on every
    * drag while a selection is being made.
    */
-  const blocks = useMemo(
-    () => (verses ? blocksFor(verses, text?.layout?.[chapter - 1]) : []),
-    [verses, text, chapter],
-  );
   /** Verse number to the heading that sits above it, for a lookup a block. */
   const headings = useMemo(
     () => new Map(sectionsFor(insights, book, chapter).map((sec) => [sec.v, sec])),
     [insights, book, chapter],
+  );
+  /*
+   * Where the paragraphs are. Memoised on the chapter rather than worked out
+   * per render, since it walks every verse and the reader re-renders on every
+   * drag while a selection is being made.
+   *
+   * The headings go in as well as coming out: a heading opens a paragraph, so
+   * the blocks cannot be worked out without knowing where they are.
+   */
+  const blocks = useMemo(
+    () =>
+      verses ? blocksFor(verses, text?.layout?.[chapter - 1], new Set(headings.keys())) : [],
+    [verses, text, chapter, headings],
   );
   const open = marks.find((h) => h.id === editing);
 
@@ -718,7 +727,16 @@ export function Reader({
                 )}
               </Fragment>
             ))}
-            <p className="reader__credit">{TRANSLATION_NAME}, public domain</p>
+            {/*
+              Both are public domain and neither asks for this, but taking three
+              thousand headings from someone else's work and printing them
+              unattributed beside a translation this app does credit would be
+              the wrong way round.
+            */}
+            <p className="reader__credit">
+              {TRANSLATION_NAME}, public domain
+              {headings.size > 0 && <span>Headings from the Berean Standard Bible</span>}
+            </p>
           </article>
         )}
       </div>

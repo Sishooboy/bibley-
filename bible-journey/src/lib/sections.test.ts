@@ -24,26 +24,54 @@ describe('the headings over the paragraphs', () => {
 
   it('never cuts a paragraph in half', () => {
     /*
-     * The pin this file exists for. A heading is drawn above the block that
-     * contains its verse, so a heading pointing at a verse in the middle of a
-     * paragraph appears above the whole paragraph instead, several sentences
-     * early, attached to the wrong scene. Nothing throws and nothing looks
-     * broken; it just quietly says the wrong thing about the text.
-     *
-     * Three of Mark's eighty-one were wrong when they were first written, which
-     * is the rate to expect from hand written data.
+     * The pin this file exists for, and it now checks a contract rather than
+     * the data's discipline. The headings come from the Berean and the
+     * paragraphs from the World English Bible, and nine times in a hundred the
+     * two disagree about where a section starts, so the reader hands the
+     * heading verses to `blocksFor` and a heading opens a paragraph. What has
+     * to hold is that the reader and the builder agree: every heading is the
+     * first verse of a block **when the blocks are built the way the reader
+     * builds them**. Call it without the third argument and this fails, which
+     * is exactly the regression worth catching.
      */
     for (const { book, chapter } of authored) {
       const text = bookText(book);
-      const blocks = blocksFor(text.chapters[chapter - 1], text.layout?.[chapter - 1]);
+      const heads = sectionsFor(insights, book, chapter);
+      const blocks = blocksFor(
+        text.chapters[chapter - 1],
+        text.layout?.[chapter - 1],
+        new Set(heads.map((s) => s.v)),
+      );
       const starts = new Set(blocks.map((b) => b.verses[0]));
-      for (const section of sectionsFor(insights, book, chapter)) {
+      for (const section of heads) {
         expect(
           starts.has(section.v),
           `${book} ${chapter}:${section.v} "${section.t}" is not the start of a paragraph`,
         ).toBe(true);
       }
     }
+  });
+
+  it('covers the whole protestant canon, not a book or two', () => {
+    /*
+     * The feature shipped with Mark and nothing else, which is a mechanism
+     * rather than a feature: open any other book and there was nothing to see.
+     * This is the number that says it is actually there.
+     */
+    const books = new Set(authored.map((a) => a.book));
+    expect(books.size).toBeGreaterThanOrEqual(66);
+    const all = authored.flatMap(({ book, chapter }) => sectionsFor(insights, book, chapter));
+    expect(all.length).toBeGreaterThan(2900);
+  });
+
+  it('credits the Berean, which is the condition of using it', () => {
+    /*
+     * Public domain asks for nothing, but taking three thousand headings from
+     * someone else's work and printing them unattributed beside a translation
+     * this app does credit would be the wrong way round.
+     */
+    const reader = read('src/components/Reader.tsx');
+    expect(reader).toMatch(/Berean/);
   });
 
   it('points at verses the chapter actually has', () => {
@@ -70,12 +98,20 @@ describe('the headings over the paragraphs', () => {
   });
 
   it('keeps a heading short enough to be a heading', () => {
-    // It is set uppercase and letterspaced at 11.5px. Past about forty
-    // characters it wraps to two lines and stops reading as a label.
+    /*
+     * A guard against a paragraph ending up in a title, not against wrapping.
+     * At 11.5px uppercase and letterspaced, a 288px phone line holds about
+     * thirty four characters, so plenty of these take two lines and that is
+     * what a printed Bible does too. The average is 24, the longest is 49, and
+     * anything past sixty would mean the importer had picked up a verse.
+     */
     for (const { book, chapter } of authored) {
       for (const s of sectionsFor(insights, book, chapter)) {
-        expect(s.t.length, `${book} ${chapter}:${s.v} "${s.t}"`).toBeLessThanOrEqual(42);
-        expect(s.t.trim()).toBe(s.t);
+        expect(s.t.length, `${book} ${chapter}:${s.v} "${s.t}"`).toBeLessThanOrEqual(60);
+        expect(s.t.trim(), `${book} ${chapter}:${s.v}`).toBe(s.t);
+        // A heading is a label, so it never ends in a full stop and never
+        // carries a verse's worth of punctuation.
+        expect(s.t, `${book} ${chapter}:${s.v}`).not.toMatch(/\.$/);
       }
     }
   });

@@ -36,7 +36,21 @@ const POETRY = '123456';
  * places, so those keep the old setting rather than a layout one verse out of
  * step with the words.
  */
-export function blocksFor(verses: readonly (string | null)[], layout?: string): Block[] {
+export function blocksFor(
+  verses: readonly (string | null)[],
+  layout?: string,
+  /**
+   * Verses that open a paragraph whatever the layout says.
+   *
+   * The headings come from a different book to the paragraphs: the Berean marks
+   * the sections, the World English Bible marks the paragraphs, and nine times
+   * in a hundred the Berean starts a section somewhere the WEB was still mid
+   * paragraph. A heading has to open a paragraph, which is what every printed
+   * Bible does anyway, so it breaks one rather than being dropped or floated up
+   * to the previous paragraph's start where it would name the wrong scene.
+   */
+  breakAt?: ReadonlySet<number>,
+): Block[] {
   const blocks: Block[] = [];
   let prose: { kind: 'prose'; verses: number[] } | null = null;
 
@@ -60,8 +74,9 @@ export function blocksFor(verses: readonly (string | null)[], layout?: string): 
       continue;
     }
 
-    // No layout at all, or a verse marked as opening one: start a paragraph.
-    if (!code || code === 'P' || !prose) {
+    // No layout at all, a verse marked as opening one, or a heading about to be
+    // drawn above it: start a paragraph.
+    if (!code || code === 'P' || !prose || breakAt?.has(number)) {
       prose = { kind: 'prose', verses: [] };
       blocks.push(prose);
     }

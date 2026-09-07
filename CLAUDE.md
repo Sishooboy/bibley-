@@ -19,6 +19,7 @@ npm run lint     # oxlint
 npm test         # vitest run, covers merge, streaks, plan invariants and the text
 npm run bible    # re-download public/bible/ from the WEB. Output is committed, so rarely needed
 npm run layout   # add paragraph structure to public/bible/ from the WEB's USFM. Also committed
+npm run sections # import section headings into insights.json from the Berean. Also committed
 npm run preview  # serves dist on 4173, the only way to exercise the service worker
 npm run icons    # regenerate public/icon-*.png from brand/logo-source.png
 ```
@@ -86,12 +87,40 @@ redeploy.**
   additions, which this app appends as chapters and the USFM publishes as separate books; Sirach 20,
   23 and 33 and Romans 16 differ from that source by a verse or two. **The check is per chapter, not
   per book**, since a book that mostly agrees still has chapters that do not.
-- **Section headings are written for this app, because every usable one is copyrighted.** The NIV,
-  the ESV and the NASB all have headings and all of them are editorial work under their own
-  copyright even where the underlying translation is ancient, and the World English Bible, which is
-  the text here precisely because it is public domain, carries none of its own. Where a section
-  begins is nobody's property, so the divisions are the ordinary ones; the wording is ours. They
-  live in `insights.json` under `sections`, keyed by chapter, as `{v, t, n?}`.
+- **The section headings come from the Berean Standard Bible, which is public domain.** This was
+  hand written for Mark first and that was the wrong answer: one book of seventy three is a
+  mechanism, not a feature, and open anything else and there was nothing to see. Every heading a
+  reader would recognise is copyrighted, the NIV, the ESV, the NASB and the Good News Translation
+  all included, and the WEB has none of its own, so hand writing three thousand was the only path
+  until the Berean turned up. It carries **3,017 `\s1` headings across all 66 protestant books**
+  and eBible.org publishes it as **Public Domain**, contributed by BSB Publishing, LLC, which is
+  the same footing the WEB text stands on. `copr.htm` in the archive says so twice.
+  `scripts/build-sections.mjs` imports them, `npm run sections`, from an unzipped
+  [engbsb_usfm](https://ebible.org/Scriptures/engbsb_usfm.zip). They live in `insights.json` under
+  `sections`, keyed by chapter, as `{v, t, n?}`. **3,009 headings over 1,186 chapters.**
+- **A heading opens a paragraph, breaking one if it has to.** The headings come from one book and
+  the paragraphs from another: the Berean marks the sections, the WEB marks the paragraphs, and
+  nine times in a hundred the two disagree about where a section starts. 91% land on a paragraph
+  the WEB already opened; the other 9% force a break, which is what every printed Bible does with a
+  heading anyway. `blocksFor` takes the heading verses as its third argument and the reader passes
+  them, so **the builder and the renderer have to agree or the headings drift**, which is what
+  `sections.test.ts` pins.
+- **The 66 are covered and the deuterocanon is not.** The Berean is a protestant canon, so Tobit,
+  Judith, Wisdom, Sirach, Baruch and 1 and 2 Maccabees have no headings, and neither do the eleven
+  chapters where the Berean's versification differs: Esther 10 to 16 and Daniel 13 and 14, which
+  are the Greek additions it does not carry at all, and Romans 14 and 16, where it moves the
+  doxology. Per chapter, not per book, the same rule the layout follows.
+- **The credit is not optional even though the licence says it is.** Both texts are public domain
+  and neither asks for attribution, but taking three thousand headings from someone else's work and
+  printing them unattributed beside a translation this app does credit would be the wrong way
+  round. The reader's footer carries both, and a test keeps it there.
+- **Notes are re-homed, never rewritten.** The 21 hand written "why this matters" notes were
+  attached to hand written headings that no longer exist. `rehome` in the import script moves each
+  onto the Berean heading that covers its verse, meaning the last heading at or before it, so a
+  note written for the baptism stays on the paragraph the baptism is in even though the two books
+  name that section differently. All 21 landed, 14 of them exactly. **The headings are the cheap
+  half and the notes are the expensive half**, so a re-import replaces the headings wholesale and
+  carries the notes across.
 - **A heading and an explained key verse are one shape, not two.** `t` is the heading and `n` is the
   note that turns it into a moment worth stopping on. Splitting them would have meant authoring the
   same list of turning points twice and keeping the two in step by hand. About a quarter carry a
@@ -100,10 +129,11 @@ redeploy.**
   a paragraph of commentary between them and the next sentence.
 - **A heading's verse has to be the first verse of a block**, or it is drawn above the paragraph
   that contains it and lands several sentences early, attached to the wrong scene. Nothing throws
-  and nothing looks broken. Three of Mark's eighty-one were wrong when they were first written,
-  which is the rate to expect from hand written data, so `sections.test.ts` pins it. **Coverage is
-  Mark so far**; the rest is data against a mechanism that already works, and the validator is the
-  test.
+  and nothing looks broken. That used to be a rule the data had to keep, and three of Mark's
+  eighty-one broke it; now it is a contract between `blocksFor` and the reader, since a heading
+  forces the break itself. `sections.test.ts` builds the blocks the way the reader builds them and
+  fails if any heading is not a block start, so **dropping the third argument anywhere is a failing
+  test rather than a page of headings a paragraph early**.
 - **The heading is apparatus and has to look like it.** Body face, small, uppercase, in the muted
   colour, and deliberately not scaled by `--verse-scale`: making the words bigger is about reading
   the Bible, not about reading the labels on it. The "Why this matters" control is `--red-700` and
@@ -754,7 +784,8 @@ sign-in behind a gate,
 per-account sync with the merge rules above, chapter marking by slider, quick amounts and tap,
 undo, backdating so a chapter counts on the day it was read, an optional time of day, the text
 itself in a reader that sets it in paragraphs and poetry and opens at any book and any chapter,
-headings over the paragraphs with a note on the turning points, highlighting with a thought attached,
+headings over every chapter of the 66 with a note on the turning points, highlighting with a
+thought attached,
 notes, stats, streaks, an offline app shell, full text search over all 73 books, five synthesised sounds with a synced mute switch, a card introducing every book and a
 note on the chapters that matter, a streak that celebrates itself when it grows and can be
 protected by rest days it earns, a knock and a dip on every press in the app, a six panel welcome guide that

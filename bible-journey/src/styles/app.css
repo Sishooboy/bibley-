@@ -4398,6 +4398,14 @@ select {
   }
 }
 
+/* The second line only appears in a chapter that actually has headings, so it
+   is a block rather than a comma: two credits on one line reads as one source
+   with a long name. */
+.reader__credit span {
+  display: block;
+  margin-top: 0.2rem;
+}
+
 .reader__credit {
   margin-top: 2.5rem;
   padding-top: 1rem;
