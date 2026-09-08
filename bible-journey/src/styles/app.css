@@ -4244,14 +4244,30 @@ select {
  * not: making the words bigger is about reading the Bible, not about reading
  * the labels on it.
  */
+/*
+ * The heading is red and a size up from where it started.
+ *
+ * It was small, muted and uppercase on the reasoning that a heading is
+ * apparatus and should not compete with scripture. That was one heading in one
+ * book; across three thousand of them it read as a label nobody looks at, and a
+ * reader scanning for where a scene begins had nothing to catch. `--red-700` is
+ * the app's dominant colour and the same one the "Why this matters" control
+ * takes, so the heading and its invitation now belong to each other.
+ *
+ * Still uppercase, still the body face, and still **not scaled by
+ * `--verse-scale`**: making the words bigger is about reading the Bible, not
+ * about reading the labels on it. The tracking comes down as the size goes up,
+ * because 0.12em is a proportion and at the larger size it read as spaced out
+ * rather than as set.
+ */
 .passage {
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: 0.86rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted);
-  margin: 1.9rem 0 0.75rem;
+  color: var(--red-700);
+  margin: 2rem 0 0.8rem;
 }
 
 /* The first heading in a chapter has the chapter rule above it already. */
@@ -4306,6 +4322,17 @@ select {
  * end of the gold; there is no gold that clears it on this ground. The gold
  * survives where it can be a graphic rather than a word: the note's own edge.
  */
+/*
+ * Muted, and it used to be red.
+ *
+ * Red was right while the heading beside it was small and grey: the control was
+ * then the only coloured thing in the row and read as the invitation. The
+ * heading has taken red, so the two were the same colour in the same button and
+ * the invitation stopped being one. The hierarchy is the honest way round now,
+ * since the heading matters more than the toggle: the heading is the loud
+ * thing, and this is the aside beside it with the chevron carrying "opens".
+ * 5.6:1 at this size, against the 4.5 small text needs.
+ */
 .passage__why {
   display: inline-flex;
   align-items: center;
@@ -4315,7 +4342,7 @@ select {
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: none;
-  color: var(--red-700);
+  color: var(--muted);
   white-space: nowrap;
 }
 

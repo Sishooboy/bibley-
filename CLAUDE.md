@@ -134,13 +134,22 @@ redeploy.**
   forces the break itself. `sections.test.ts` builds the blocks the way the reader builds them and
   fails if any heading is not a block start, so **dropping the third argument anywhere is a failing
   test rather than a page of headings a paragraph early**.
-- **The heading is apparatus and has to look like it.** Body face, small, uppercase, in the muted
-  colour, and deliberately not scaled by `--verse-scale`: making the words bigger is about reading
-  the Bible, not about reading the labels on it. The "Why this matters" control is `--red-700` and
-  **not gold**, which is the case the rationing rule was written for: gold was the obvious choice
-  for the app's one invitation inside the text and `--yellow-dim`, already the dark end of it,
-  measured 2.64:1 on paper at 10.5px against the 4.5 that size needs. The gold survives where it can
-  be a graphic rather than a word, on the note's own edge.
+- **The heading is red and a size up, and it used to be apparatus.** It was small, muted and
+  uppercase on the reasoning that a label should not compete with scripture. That was true of one
+  heading in one book; across three thousand of them it read as something nobody looks at, and a
+  reader scanning for where a scene begins had nothing to catch. It takes `--red-700` now, 0.86rem,
+  7.75:1 on paper, and the tracking came down from 0.12em to 0.08em because that is a proportion and
+  it read as spaced out rather than set at the larger size. Still the body face, still uppercase, and
+  still **deliberately not scaled by `--verse-scale`**: making the words bigger is about reading the
+  Bible, not about reading the labels on it.
+- **The "Why this matters" control went muted when the heading went red.** Red was right for it
+  while the heading beside it was grey, since it was then the only coloured thing in the row and read
+  as the invitation. With the heading in the same red inside the same button, the two were
+  indistinguishable and the invitation stopped being one. The hierarchy is the honest way round now:
+  the heading matters more than the toggle, so the heading leads and this is the aside beside it,
+  5.61:1 at 10.5px with the chevron carrying "opens". Gold is still wrong for it either way, which is
+  the case the rationing rule was written for: `--yellow-dim` measured 2.64:1 at that size against
+  the 4.5 it needs, and the gold survives only where it can be a graphic, on the note's own edge.
 - **`.passage__toggle` names `text-transform` and `letter-spacing` rather than inheriting them.**
   The browser's own button styles set both, and a UA rule beats inheritance, so without those two
   lines a heading with a note was sentence case while a heading without one was uppercase: two kinds
@@ -177,6 +186,12 @@ redeploy.**
 - The reader is a real modal: it claims `aria-modal`, so it moves focus in on open, traps Tab, and
   hands focus back to whatever opened it. Reading size lives in `prefs`, so it syncs with the
   account, and scales the whole passage through `--verse-scale` rather than the verses alone.
+- **The header says nothing while sync is working.** `SyncBadge` used to sit there permanently,
+  which on a phone is a dot beside the menu announcing "everything is fine" on every screen of every
+  session, and a status that never changes is one nobody reads. It renders **only on `error`** now.
+  That is not the same as deleting it: it is the only ambient sign that a journal is not reaching the
+  account, since `describeSyncError` explains itself inside Settings and nothing else anywhere would
+  say to go and look.
 - Anything that changes a journal must be visible to `sameJournal` in `merge.ts`. It decides whether
   a change is worth writing to the server, so a field missing from it is a field that silently
   never syncs.
