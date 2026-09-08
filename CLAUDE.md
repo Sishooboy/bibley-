@@ -219,10 +219,10 @@ redeploy.**
   refresh** for the whole module, and the reducer has to be exported so the tests can reach it.
   `src/state/cloud.tsx` mirrors the journal to Supabase.
 - `src/lib/merge.ts` reconciles two copies of a journal. Read it before touching sync.
-- Views are `Journey`, `Notes`, `Stats`, `Settings`. Journey has its own hero and book rows. The
-  other three share one system: `ViewHeader` for the masthead, `.card` for every panel, and the
-  `Notes, Stats and Settings` block at the end of `app.css`. Change `.card` there and all three move
-  together.
+- Views are `Journey`, `Notes`, `Friends`, `Stats`, `Settings`. Journey has its own hero and book
+  rows. The other four share one system: `ViewHeader` for the masthead, `.card` for every panel, and
+  the `Notes, Stats and Settings` block at the end of `app.css`. Change `.card` there and all four
+  move together.
 - **Before adding a class to `app.css`, check the name is not already taken.** This has bitten
   twice: `.panel` (Journey's cards, redefined for the inner views, which repainted the verse of the
   day cream on cream) and `.planCard` (the testament chooser's cards, redefined for the Settings
@@ -770,6 +770,38 @@ DDL is transactional, so production was never left mutated.
   projection growing a field that carries a note, the timezone sign flipping, and `canonicalPair`
   dropping its lowercase.
 
+- **`FriendsView` is never sorted by anything anyone can climb.** That one rule decides most of the
+  file. Sorting by streak, or floating whoever read today to the top, turns reading scripture into
+  standings, which is the thing the app has refused everywhere else. The order is alphabetical and
+  stays that way whatever anybody does. **There is no feed** either, for the same reason: a feed is
+  where this becomes performance, and an engagement loop is a bad thing for a Bible app to grow.
+- **A lapsed friend gets no number at all**, which was the one real design fork and is decided in
+  `presenceOf`. Both other answers are worse. `0 day streak` puts a scoreboard's worst figure on
+  somebody having a hard month, on a screen they can see; their *longest* is crueller still, since
+  it names exactly what they just lost. So the row says when they last read, in words. The app
+  already mourns your own broken streak once and then stops; somebody else's was never yours to
+  mourn.
+- **A published streak is only trusted for a day.** A row is rewritten only when that reader opens
+  the app, so a run of twelve can sit on the server long after it broke, and printing it would be
+  inventing a streak on their behalf. One day of slack covers a friend who read yesterday and has
+  not opened the app yet.
+- **The dot is the only thing on a row given colour**, because it is the only thing always true.
+  Everything else is a sentence, and a sentence cannot be scanned down a column and compared the way
+  a row of numbers can, which is exactly what this screen is trying not to be. Measured like the
+  rest: the dot is 5.6:1 as a graphic, the 12.5px line 6.1:1, the streak numeral 16.1:1 on its gold
+  tint, which is the same tint-with-ink-text treatment the mark button uses since `--yellow` on
+  paper is 1.7:1 and could never carry a numeral itself.
+- **Publishing presence is its own effect in `cloud.tsx`, never a step inside the journal push.**
+  The journal is the thing that matters and a friend's row is a convenience, so one catch there
+  keeps a policy change or a paused project from turning "your reading is saved" into an error
+  banner. Throttled to a minute, since a reading session that marks a dozen chapters deserves one
+  write rather than a dozen.
+- **`publishPresence` re-reads the profile rather than taking it as an argument.** Visibility is the
+  thing being obeyed, so a cached copy is exactly how switching to quiet keeps publishing numbers
+  until the next reload. No profile means no handle means nobody could have added you, so nothing is
+  written at all, which is what makes "nothing is published until you pick a handle" true rather
+  than a claim on a screen.
+
 **`supabase/seed/friends-demo.sql` exists because some states cannot be produced by hand.** A seeded
 friend exercises the list, the card, an incoming request and the inbox without anyone signing in
 twice, which is most of the screen. More to the point, **a lapsed friend needs somebody to stop
@@ -919,15 +951,18 @@ that way, the escalation is **Rive** (around 100 kB of wasm, real state machines
 still vector. A generative video tool earns its keep on an App Store preview clip, which is a
 required asset anyway, not inside the app.
 
-**Friends is half built: the schema exists and no UI does.** The four tables, their policies and
-`supabase/tests/rls.sql` are deployed and passing, and nothing in `src/` knows about any of it yet.
-What is left is the client: a `friends.ts` for the queries, a `FriendsView`, the projection write
-hooked into `cloud.tsx`, and one new action each in the reader and the highlight sheet. The design
-it is being built to is **presence rather than a leaderboard**: the friends list is never sorted by
-anything anyone can climb, notes are never shared, and a verse is handed to one person rather than
-posted to a feed. The unsolved piece is the lapsed friend, who opens a screen where everyone else is
-still reading, and whose broken streak probably should not be shown at all given the app mourns your
-own exactly once.
+**Friends works, except for sending a verse.** The four tables and their policies are deployed,
+`supabase/tests/rls.sql` passes, and the screen is real: the list with presence, incoming requests
+with accept and decline, the inbox, adding somebody by handle, your own handle and the two
+visibility positions. `cloud.tsx` publishes the projection alongside the journal.
+
+**The one piece missing is the half that matters most**, which is handing somebody a verse. The
+inbox renders what arrives and `sendPassage` in `friendsApi.ts` is written and unused: what is left
+is a "send to" control in `HighlightSheet` and a friend picker. Everything under it is done and
+tested, including the RLS rule that a passage can only be inserted between accepted friends.
+
+Also not done: the reader does not yet open at a passage when one is tapped, and nothing tells you a
+verse arrived except opening the screen.
 
 Not built yet, roughly in order:
 

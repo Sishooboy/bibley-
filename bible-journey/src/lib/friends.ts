@@ -12,7 +12,7 @@
  * stuffs a journal with a canary string and fails if it can be found anywhere
  * in the published row.
  */
-import type { DayKey } from './dates';
+import { daysBetween, type DayKey } from './dates';
 import type { OverallProgress, Streak } from './progress';
 import { parseChapterKey, type AppData } from './storage';
 
@@ -151,6 +151,68 @@ export function readToday(
 ): boolean {
   if (!progress.last_read_day) return false;
   return progress.last_read_day === theirToday(progress.tz_offset, now);
+}
+
+/**
+ * A published streak is only worth printing while it is still standing up.
+ *
+ * A row is only rewritten when that reader opens the app, so somebody who read
+ * on Monday with a run of twelve and has not been back still has twelve sitting
+ * on the server on Friday. Printing it would be inventing a streak on their
+ * behalf. One day of slack, so a friend who read yesterday and has not opened
+ * the app yet today still reads correctly.
+ */
+const STREAK_TRUSTED_FOR_DAYS = 1;
+
+export type FriendPresence = {
+  /** Their own day says they read today. */
+  today: boolean;
+  /** Days since they last read, counted in their day. Null if they never have. */
+  daysSince: number | null;
+  /** The streak worth printing, or null for broken, stale, quiet or absent. */
+  streak: number | null;
+  /** "Luke 9", or null when they are quiet or have not started. */
+  where: string | null;
+};
+
+/**
+ * What a friend's card is allowed to say.
+ *
+ * **A streak is shown only while it is alive**, and a lapsed friend gets a
+ * plain "last read on such a day" instead of a nought. This is the one place
+ * the design had a real choice, and both other answers are worse. Printing
+ * `0 day streak` puts a scoreboard's worst number on somebody who is simply
+ * having a hard month, on a screen they can see. Printing their *longest*
+ * instead is crueller, since it names exactly what they have just lost. And
+ * saying nothing at all makes the card lie by omission, because they plainly
+ * have been reading at some point.
+ *
+ * The app already mourns your own broken streak exactly once and then stops
+ * talking about it. Somebody else's was never yours to mourn at all, so the
+ * card states the fact and offers no number to feel bad about.
+ */
+export function presenceOf(
+  progress: Pick<
+    PublishedProgress,
+    'last_read_day' | 'tz_offset' | 'streak_current' | 'current_book' | 'current_chapter'
+  > | null,
+  now: Date = new Date(),
+): FriendPresence {
+  if (!progress?.last_read_day) {
+    return { today: false, daysSince: null, streak: null, where: null };
+  }
+  const daysSince = daysBetween(progress.last_read_day, theirToday(progress.tz_offset, now));
+  const current = progress.streak_current ?? 0;
+  return {
+    // Negative means their day is ahead of the last day they recorded, which a
+    // timezone can produce legitimately, so anything at or under zero is today.
+    today: daysSince <= 0,
+    daysSince: Math.max(0, daysSince),
+    streak: daysSince <= STREAK_TRUSTED_FOR_DAYS && current > 0 ? current : null,
+    where: progress.current_book
+      ? `${progress.current_book}${progress.current_chapter ? ` ${progress.current_chapter}` : ''}`
+      : null,
+  };
 }
 
 /**

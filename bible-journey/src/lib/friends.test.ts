@@ -4,6 +4,7 @@ import {
   canonicalPair,
   isValidHandle,
   normalizeHandle,
+  presenceOf,
   projectProgress,
   readToday,
   theirToday,
@@ -176,6 +177,81 @@ describe('a friend has their own today', () => {
 
   it('never claims a reader who has never read', () => {
     expect(readToday({ last_read_day: null, tz_offset: 0 })).toBe(false);
+  });
+});
+
+describe('a friend card says only what is still true', () => {
+  const now = new Date('2026-09-07T15:00:00Z');
+  const base = { tz_offset: 0, current_book: 'Luke', current_chapter: 9 };
+
+  it('shows a live streak', () => {
+    const p = presenceOf({ ...base, last_read_day: '2026-09-07', streak_current: 23 }, now);
+    expect(p.today).toBe(true);
+    expect(p.streak).toBe(23);
+    expect(p.where).toBe('Luke 9');
+  });
+
+  it('still trusts a streak from yesterday, since they may not have opened the app', () => {
+    const p = presenceOf({ ...base, last_read_day: '2026-09-06', streak_current: 23 }, now);
+    expect(p.today).toBe(false);
+    expect(p.daysSince).toBe(1);
+    expect(p.streak).toBe(23);
+  });
+
+  /*
+   * The decision this whole function exists for. A published row is only
+   * rewritten when that reader opens the app, so a streak of twelve can sit on
+   * the server long after it broke. Printing it invents a streak on somebody's
+   * behalf; printing a nought puts a scoreboard's worst number on a person
+   * having a hard month, on a screen they can see.
+   */
+  it('prints no streak at all for someone who has lapsed', () => {
+    const p = presenceOf({ ...base, last_read_day: '2026-09-03', streak_current: 12 }, now);
+    expect(p.streak).toBeNull();
+    expect(p.daysSince).toBe(4);
+  });
+
+  it('prints no streak for a broken one either, rather than a nought', () => {
+    const p = presenceOf({ ...base, last_read_day: '2026-09-03', streak_current: 0 }, now);
+    expect(p.streak).toBeNull();
+  });
+
+  it('says nothing about someone who has never read', () => {
+    const p = presenceOf({ ...base, last_read_day: null, streak_current: null }, now);
+    expect(p).toEqual({ today: false, daysSince: null, streak: null, where: null });
+  });
+
+  it('handles a quiet friend, who publishes a day and nothing else', () => {
+    const p = presenceOf(
+      { last_read_day: '2026-09-07', tz_offset: 60, streak_current: null, current_book: null, current_chapter: null },
+      now,
+    );
+    expect(p.today).toBe(true);
+    expect(p.streak).toBeNull();
+    expect(p.where).toBeNull();
+  });
+
+  it('counts the days in their timezone, not yours', () => {
+    // 20:00 UTC is already the 8th in Tokyo, so a Tokyo friend whose last day
+    // is the 8th read today, and one whose last day is the 7th read yesterday.
+    const late = new Date('2026-09-07T20:00:00Z');
+    expect(presenceOf({ ...base, tz_offset: 540, last_read_day: '2026-09-08', streak_current: 3 }, late).today).toBe(true);
+    expect(presenceOf({ ...base, tz_offset: 540, last_read_day: '2026-09-07', streak_current: 3 }, late).daysSince).toBe(1);
+  });
+
+  it('never reports a negative gap when their day runs ahead', () => {
+    const p = presenceOf({ ...base, tz_offset: 540, last_read_day: '2026-09-09', streak_current: 3 }, now);
+    expect(p.daysSince).toBe(0);
+    expect(p.today).toBe(true);
+  });
+
+  it('copes with no progress row at all, which is what pending gives back', () => {
+    expect(presenceOf(null, now)).toEqual({
+      today: false,
+      daysSince: null,
+      streak: null,
+      where: null,
+    });
   });
 });
 

@@ -17,6 +17,7 @@ import { ReaderProvider } from './state/reader';
 import { useCloud } from './state/useCloud';
 import { useStore } from './state/useStore';
 import { StoreProvider } from './state/store';
+import { FriendsView } from './views/FriendsView';
 import { JourneyView } from './views/JourneyView';
 import { NotesView } from './views/NotesView';
 import { SettingsView } from './views/SettingsView';
@@ -27,6 +28,7 @@ const StatsView = lazy(() =>
 const VIEWS = [
   { id: 'journey', label: 'Journey' },
   { id: 'notes', label: 'Notes' },
+  { id: 'friends', label: 'Friends' },
   { id: 'stats', label: 'Stats' },
   { id: 'settings', label: 'Settings' },
 ] as const;
@@ -128,12 +130,13 @@ function Shell() {
       <main className="view">
         {/*
           Keyed by view, so switching tabs remounts the boundary and clears the
-          error. One broken screen leaves the other three, and the nav above,
+          error. One broken screen leaves the other four, and the nav above,
           working.
         */}
         <ErrorBoundary key={view} what={`The ${VIEWS.find((v) => v.id === view)?.label} screen`}>
           {view === 'journey' && <JourneyView />}
           {view === 'notes' && <NotesView />}
+          {view === 'friends' && <FriendsView />}
           {/*
             Stats brings the whole charting library with it, which is a third of
             the JavaScript for a screen most opens never reach. It arrives on

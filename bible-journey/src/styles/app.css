@@ -7464,6 +7464,275 @@ select {
 }
 
 /* ── Everything answers to a finger ─────────────────────── */
+/* ── Friends ────────────────────────────────────────────────────────────── */
+
+/*
+ * The rows are hairlines painted by a 1px grid gap over a `--line` background,
+ * the same trick the figure strip uses. No row has to know whether it is the
+ * last one, which is the thing that always breaks when a list can be empty.
+ */
+.friendList {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--line);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--panel-radius);
+  overflow: hidden;
+}
+
+.friendRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  background: var(--surface);
+}
+
+/*
+ * The dot is the only thing on a friend's row that is always true, so it is the
+ * only thing given colour. Everything else is a sentence, because a sentence
+ * cannot be scanned down a column and compared the way a row of numbers can,
+ * which is exactly what this screen is trying not to be.
+ */
+.friendRow__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  background: transparent;
+}
+
+.friendRow__dot--today {
+  border-color: var(--red-600);
+  background: var(--red-600);
+}
+
+.friendRow__who {
+  min-width: 0;
+}
+
+.friendRow__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  font-variation-settings: 'SOFT' 0, 'WONK' 0;
+  color: var(--text);
+  /* A name is a name and does not break in half, the same rule the buttons keep. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.friendRow__line {
+  margin: 0.1rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+/*
+ * A gold tint with ink text, which is the treatment the mark button already
+ * uses for a finished thing. Gold as a fill rather than as a word: `--yellow`
+ * on paper measures 1.7:1 and could not carry a numeral on its own.
+ */
+.friendRow__streak {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.22rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(247, 184, 1, 0.16);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-variation-settings: 'SOFT' 0, 'WONK' 0;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.friendRow__streakUnit {
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.friendRow--request {
+  grid-template-columns: minmax(0, 1fr) auto;
+  flex-wrap: wrap;
+}
+
+.friendRow__actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* ── A verse somebody sent ──────────────────────────────────────────────── */
+
+.friendVerses {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.friendVerse {
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+/* Gold edge for one not yet read, which is the note's own treatment in the reader. */
+.friendVerse--fresh {
+  border-left-color: var(--yellow);
+  background: #fffdf4;
+}
+
+.friendVerse__ref {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  font-variation-settings: 'SOFT' 0, 'WONK' 0;
+  color: var(--red-700);
+}
+
+.friendVerse__thought {
+  margin: 0.3rem 0 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.friendVerse__from {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.45rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.friendVerse__when::before {
+  content: '·';
+  margin-right: 0.4rem;
+}
+
+.friendVerse .btn {
+  margin-top: 0.5rem;
+}
+
+/* ── Adding somebody, and your own handle ───────────────────────────────── */
+
+.friendAdd {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.friendAdd__at {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+.friendAdd__input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.friendAdd__note {
+  margin-top: 0.5rem;
+}
+
+.handleForm {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.handleForm__field {
+  display: grid;
+  gap: 0.3rem;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.handleForm__label {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0;
+}
+
+.handleForm__modes {
+  gap: 0.5rem;
+}
+
+/*
+ * Two positions rather than five toggles. The question only has two answers,
+ * and the sentence beside each is the answer rather than a label needing one.
+ */
+.modeOption {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.55rem;
+  align-items: start;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.modeOption strong {
+  color: var(--text);
+}
+
+.modeOption:has(input:checked) {
+  border-color: var(--red-600);
+  background: #fffdf7;
+}
+
+.modeOption input {
+  margin-top: 0.15rem;
+  accent-color: var(--red-600);
+}
+
+@media (hover: hover) {
+  .modeOption:hover {
+    border-color: var(--line-strong);
+  }
+}
+
+@media (max-width: 460px) {
+  .friendRow {
+    gap: 0.55rem;
+    padding: 0.7rem 0.75rem;
+  }
+
+  /* The actions drop under the name rather than squeezing it to nothing. */
+  .friendRow--request {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .friendRow__actions {
+    grid-column: 1;
+  }
+}
+
 /*
  * `.btn` has pressed since the day it was written and nothing else did, so the
  * app had one control that felt connected and about a hundred that did not:

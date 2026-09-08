@@ -3,11 +3,21 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { mergeJournals, sameJournal } from '../lib/merge';
 import { emptyData, normalize, type AppData } from '../lib/storage';
 import { JOURNALS_TABLE, cloudConfigured, supabase } from '../lib/supabase';
+import { publishPresence } from '../lib/friendsApi';
 import { CloudContext, type Cloud, type CloudStatus } from './cloudContext';
 import { useStore } from './useStore';
 
 /** Local edits settle for this long before a write goes out. */
 const PUSH_DELAY_MS = 1500;
+
+/**
+ * How often the friends projection goes out, at most.
+ *
+ * A friend's card is a glance, not a livestream, and this rides on every edit
+ * the journal makes. A minute keeps a reading session that marks a dozen
+ * chapters to one write rather than a dozen.
+ */
+const PRESENCE_EVERY_MS = 60_000;
 
 /**
  * Sync failures are mostly one of three things, and "sync problem" tells the
@@ -39,7 +49,7 @@ function describeSyncError(err: unknown): string {
 }
 
 export function CloudProvider({ children }: { children: ReactNode }) {
-  const { data, mergeRemote } = useStore();
+  const { data, derived, mergeRemote } = useStore();
   const [session, setSession] = useState<Session | null>(null);
   const [status, setStatus] = useState<CloudStatus>(cloudConfigured ? 'loading' : 'off');
   const [ready, setReady] = useState(!cloudConfigured);
@@ -51,6 +61,12 @@ export function CloudProvider({ children }: { children: ReactNode }) {
   dataRef.current = data;
   /** Local edits not yet written to the server. */
   const dirtyRef = useRef(false);
+  // The friends projection is worked out from derived state, which changes on
+  // every edit, so it is read through a ref for the same reason the journal is.
+  const derivedRef = useRef(derived);
+  derivedRef.current = derived;
+  /** When presence was last published, so the throttle survives a re-render. */
+  const presenceAtRef = useRef(0);
 
   useEffect(() => {
     if (!supabase) return;
@@ -175,6 +191,37 @@ export function CloudProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(timer);
   }, [data, session, push]);
 
+  /*
+   * Publish the friends projection alongside the journal.
+   *
+   * Deliberately its own effect and not a step inside the push above, because
+   * **a friends failure must never break sync**. The journal is the thing that
+   * matters and the row a friend reads is a convenience; one catch here keeps a
+   * policy change or a paused project from turning "your reading is saved" into
+   * an error banner. It also writes nothing at all until there is a profile, so
+   * an account that has never opened Friends publishes nothing.
+   *
+   * Throttled hard, because nobody needs a friend's streak to be accurate to
+   * the second and this rides on every edit the journal makes.
+   */
+  useEffect(() => {
+    const userId = session?.user.id;
+    if (!supabase || !userId) return;
+    const since = Date.now() - presenceAtRef.current;
+    const wait = Math.max(PUSH_DELAY_MS, PRESENCE_EVERY_MS - since);
+    const timer = setTimeout(() => {
+      presenceAtRef.current = Date.now();
+      void publishPresence(userId, {
+        data: dataRef.current,
+        streak: derivedRef.current.streak,
+        overall: derivedRef.current.overall,
+      }).catch((err: unknown) => {
+        console.warn('Could not publish presence to friends', err);
+      });
+    }, wait);
+    return () => clearTimeout(timer);
+  }, [data, session]);
+
   const signInWithGoogle = useCallback(async () => {
     if (!supabase) return;
     setError(null);
@@ -204,6 +251,7 @@ export function CloudProvider({ children }: { children: ReactNode }) {
     () => ({
       status,
       email: session?.user.email ?? null,
+      userId: session?.user.id ?? null,
       lastSyncedAt,
       error,
       signInWithGoogle,

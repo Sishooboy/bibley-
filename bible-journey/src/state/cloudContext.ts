@@ -13,6 +13,13 @@ export type CloudStatus =
 export type Cloud = {
   status: CloudStatus;
   email: string | null;
+  /**
+   * The signed-in account's id, which is what every friends query is written
+   * against. Not derivable from `email`, and asking Supabase for it again in
+   * each caller would mean a different answer during the moment a session is
+   * being restored.
+   */
+  userId: string | null;
   lastSyncedAt: string | null;
   error: string | null;
   signInWithGoogle: () => Promise<void>;
