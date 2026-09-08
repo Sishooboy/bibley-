@@ -347,13 +347,15 @@ redeploy.**
   Every new small text here was measured against the gradient's brightest point, and two tints
   failed and became solid white: a white tint at 0.82 measured 3.86 and at 0.85 measured 4.47,
   against the 4.5 that small text needs.
-- **The marking controls fold away and Back and Next never do.** The footer is the largest thing on
-  the reader that is not scripture, about 155px of a phone somebody is trying to read on: a date, a
-  time of day and a two line button, for something done once a chapter. Folded, it is a 38px pill
-  that **still names the action**, so marking stays one tap and nothing has to be remembered.
-  Paging is how a chapter is read straight through, so putting Back and Next behind a disclosure
-  would make the common case the expensive one. The flag is **device-local in `prefs.ts`, not a
-  `Prefs` field**: `normalize()` is a whitelist and `cloud.tsx` upserts the whole row, so a journal
+- **The whole footer folds, paging included.** It is the largest thing on the reader that is not
+  scripture, 303px of an 812px phone: a date, a time of day, a two line button and two destinations,
+  for something done once a chapter. Shut it is a 53px pill that **still names the action**, so
+  marking stays one tap and nothing has to be remembered, and the text goes from 446px to 696px.
+  **Keeping Back and Next out of the fold was the first attempt and it was wrong.** The reasoning
+  was that paging is the common case and should not cost a tap, which is true, but they are two
+  thirds of the height: hiding only the date and the mark button left the footer nearly as tall and
+  the fold looked broken rather than restrained. Measured both ways before changing it. The flag is
+  **device-local in `prefs.ts`, not a `Prefs` field**: `normalize()` is a whitelist and `cloud.tsx` upserts the whole row, so a journal
   field needs a release that reads it shipped before one writes it, and a view setting is worth
   nothing on a second device. It survives a chapter change and a reload, which is the point, since
   folding it away and having it return on the next chapter would be worse than not having it.
@@ -914,19 +916,31 @@ Progress is never lost, only occasionally resurrected. That direction is deliber
   notes filter bar were declared sticky and had never once stuck. **Use `overflow-x: clip`**, which
   clips identically and creates no scroll container. Nothing in the app overflows sideways at 375px
   anyway, measured with the guard off entirely, so it really is only belt and braces.
-- **Scrolling stops at the ends, and `overscroll-behavior` is the only thing that says so.**
-  `overflow-x: clip` above deliberately creates no scroll container, which is right, but it means
-  nothing was holding the page at its own top: dragging down lifted the whole app off the cream to
-  show the browser's background, and on Android the same gesture arms pull to refresh, which on a
-  reading app loses your place. `overscroll-behavior-y: none` on **`html`**, because the property
-  reaches the viewport from the root and setting it on `body` only propagates when the root has not
-  set it. **`none` and not `contain`**: `contain` stops the chaining and keeps the bounce, and
-  stopping was the whole ask. `.reader__body` is `none` for the same reason, since the text is the
-  surface anybody actually drags on. Every panel that scrolls over the app is `contain` instead,
-  which is the weaker half on purpose: a sheet must never scroll the app behind it, but a sheet
-  reaching its own end is not the page failing to stop. That is `.hlSheet__inner`,
-  `.hlSheet__quote`, `.guide__stage`, `.insightSheet` and `.sendVerse__quote`. **A new scrolling
-  panel needs the same line**, and nothing fails if it is missed: the app behind simply moves.
+- **The document does not scroll. `#root` does, and that is what stops an iPhone bouncing.**
+  `overscroll-behavior-y: none` on `html` is the standards answer and it is set, but **iOS Safari
+  does not apply it to the document**: it honours it on a nested scroller and ignores it on the page
+  itself, so the app still lifted off the cream and sprang back on the one device the app is mostly
+  read on. This was shipped once as html-only and reported as still broken, which is the whole
+  reason the note is here. A document with no scrolling to do cannot rubber-band, so `html` and
+  `body` are `height: 100%` with `body` `overflow: hidden`, and `#root` is `height: 100%` with
+  `overflow-y: auto` and `overscroll-behavior-y: none`, which is the nested case Safari does honour.
+  **`overflow: hidden` on `body` is safe here where it was once fatal**: the old bug was that
+  html/body became scroll boxes while the *viewport* still did the scrolling, orphaning every sticky
+  child. Now `#root` genuinely is the scrolling box and both sticky elements are inside it. Verified
+  rather than assumed: `.topbar` holds at 0 through a 600px scroll, and `.notesBar` falls, pins at
+  exactly its 62px offset across three scroll positions, then leaves with its container.
+  **The cost is that `window.scrollTo` is a no-op and `window.scrollY` is always 0**, and neither
+  warns. `src/lib/scroll.ts` owns which element moves, and the two call sites that scrolled the
+  window go through it. `scrollIntoView` needed no change: it walks up to whatever scroller it
+  finds. The other cost is that mobile Safari's URL bar can no longer collapse on scroll, which is
+  the trade for a stable viewport and is free once the Capacitor shell lands.
+- **Panels that scroll over the app contain their own scrolling.**
+  `.reader__body` is `none`, the same as `#root`, because the text is the other surface anybody
+  actually drags on. The five sheets that open over the app are `contain` instead, which is the
+  weaker half on purpose: a sheet must never scroll the app behind it, but a sheet reaching its own
+  end is not the page failing to stop. That is `.hlSheet__inner`, `.hlSheet__quote`,
+  `.guide__stage`, `.insightSheet` and `.sendVerse__quote`. **A new scrolling panel needs the same
+  line**, and nothing fails if it is missed: the app behind simply moves.
 - `--topbar-h` is the pinned header's height and the offset everything else sticks below. It is one
   number because it was two: the notes filter bar hardcoded 62px and the header shrinks to 56px on a
   phone, which would show a strip of scrolling text between them. `.notesBar` goes `position: static`

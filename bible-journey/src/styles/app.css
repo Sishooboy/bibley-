@@ -80,6 +80,12 @@ html {
   overscroll-behavior-y: none;
 
   /*
+   * The shell is a fixed pane and the scrolling happens inside it, so html and
+   * body need a height for `#root` to fill.
+   */
+  height: 100%;
+
+  /*
    * Takes away double tap to zoom, which is the zoom nobody meant to do and the
    * one that leaves the page stuck at 2x and panned sideways. `manipulation`,
    * not `none`: panning stays, and `none` here would trap scrolling the way it
@@ -97,9 +103,44 @@ body {
   line-height: 1.55;
   font-synthesis-weight: none;
   -webkit-font-smoothing: antialiased;
-  /* Same reason as on html: hidden here would break sticky just as thoroughly. */
-  overflow-x: clip;
+  /*
+   * The document does not scroll. `#root` does.
+   *
+   * This is the only thing that actually stops the page being dragged past its
+   * own top on an iPhone. `overscroll-behavior` is the standards answer and it
+   * is set above, but **iOS Safari does not apply it to the document**: it
+   * honours it on a nested scroller and ignores it on the page itself, so the
+   * whole app still lifted off the cream and sprang back. A document with no
+   * scrolling to do cannot rubber-band, and the scroller inside it is nested,
+   * which is the case Safari does honour.
+   *
+   * `hidden` here is safe where it would once have been fatal. The old bug was
+   * `overflow-x: hidden` making this a scroll box while the *viewport* still
+   * did the scrolling, so a sticky child stuck to a box nobody scrolled. Now
+   * `#root` genuinely is the scrolling box and every sticky element is inside
+   * it, so `.topbar` and `.notesBar` stick to the thing that actually moves.
+   * Both are checked in the browser, not assumed.
+   */
+  height: 100%;
+  overflow: hidden;
   overflow-wrap: break-word;
+}
+
+/*
+ * The app shell, and the one scrolling box in the document.
+ *
+ * `overscroll-behavior-y: none` on a nested scroller is honoured everywhere,
+ * iOS included, so this is where the guarantee actually lives. Sideways is
+ * `hidden` rather than `clip`: this element is already a scroll container, so
+ * there is no sticky to protect and `clip` would compute to `hidden` here
+ * anyway.
+ */
+#root {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 h1,
@@ -4495,6 +4536,17 @@ select {
   background: var(--surface);
   border-top: 1px solid var(--line-strong);
   box-shadow: 0 -8px 24px -20px rgba(46, 24, 12, 0.5);
+}
+
+/*
+ * Shut, the footer is one pill and nothing else, so it gives back the vertical
+ * padding it needed while it held three rows. The bottom safe area inset stays
+ * whatever happens: on a phone with a home indicator the strip has to clear it
+ * even when it is the only thing down there.
+ */
+.reader__foot--shut {
+  padding-top: 0.45rem;
+  padding-bottom: calc(0.45rem + env(safe-area-inset-bottom));
 }
 
 .reader__log {

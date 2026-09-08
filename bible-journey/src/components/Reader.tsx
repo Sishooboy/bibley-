@@ -38,6 +38,7 @@ import { useKeyboardInset } from '../lib/keyboard';
 import { neighbours } from '../lib/navigate';
 import { blocksFor } from '../lib/passage';
 import { DEFAULT_PREFS, TEXT_SIZES, markFolded, setMarkFolded, textScale } from '../lib/prefs';
+import { scrollAppToTop } from '../lib/scroll';
 import { chime } from '../lib/sound';
 import { chapterKey, newId, type Highlight } from '../lib/storage';
 import { useStore } from '../state/useStore';
@@ -351,7 +352,7 @@ export function Reader({
    */
   useEffect(() => {
     if (keyboard === 0) return;
-    window.scrollTo(0, 0);
+    scrollAppToTop();
   }, [keyboard]);
 
   /*
@@ -782,13 +783,14 @@ export function Reader({
         while you are looking at a list of verses from elsewhere.
       */}
       {!searching && (
-      <footer className="reader__foot">
+      <footer className={`reader__foot${folded ? ' reader__foot--shut' : ''}`}>
         {/*
-          Folded away, this is a slim strip that still names the primary action,
-          so marking is one tap rather than two and nothing has to be
-          remembered. Back and Next never fold: paging is how you read straight
-          through, and putting it behind a disclosure would make the common case
-          the expensive one.
+          Folded away, the whole footer is one strip that still names the
+          primary action, so marking stays one tap and nothing has to be
+          remembered. Paging folds with it. Keeping Back and Next out of the
+          fold was the earlier call and it gave back almost nothing: they are
+          two thirds of the height, so hiding the rest left the footer the same
+          size and the fold looked broken.
         */}
         {folded ? (
           <button
@@ -825,6 +827,7 @@ export function Reader({
           button names the consequence: how many are left in the book, or that
           this one finishes it.
         */}
+        {!folded && (
         <div className="reader__actions">
           <button
             type="button"
@@ -850,7 +853,6 @@ export function Reader({
             </span>
           </button>
 
-          {!folded && (
           <button
             type="button"
             className={`btn readerMark${isRead ? ' btn--done' : ' btn--primary'}${
@@ -878,7 +880,6 @@ export function Reader({
               {isRead ? 'Read' : lastOne ? `Finish ${book}` : 'Mark as read'}
             </span>
           </button>
-          )}
 
           <button
             type="button"
@@ -907,6 +908,7 @@ export function Reader({
             <Chevron size={14} />
           </button>
         </div>
+        )}
       </footer>
       )}
     </div>

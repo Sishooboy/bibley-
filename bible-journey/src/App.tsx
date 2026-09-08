@@ -10,6 +10,7 @@ import { SyncBadge } from './components/SyncBadge';
 import { Tour } from './components/Tour';
 import { UndoBar } from './components/UndoBar';
 import { Menu } from './components/icons';
+import { scrollAppToTop } from './lib/scroll';
 import { returnedFromOAuth } from './lib/supabase';
 import { TOUR_EVENT } from './lib/tour';
 import { CloudProvider } from './state/cloud';
@@ -51,7 +52,7 @@ function Shell() {
    * halfway down the notes with the masthead off screen.
    */
   useEffect(() => {
-    window.scrollTo({ top: 0 });
+    scrollAppToTop();
   }, [view]);
 
   // Dismiss the small-screen menu the way a menu should be dismissable.
