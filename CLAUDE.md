@@ -743,6 +743,45 @@ then read 2 rows instead of 1), removing `passages_freeze` (the recipient rewrot
 opening the progress policy to `using (true)` (a stranger read all 3). All three were caught, and
 DDL is transactional, so production was never left mutated.
 
+- **`src/lib/friends.ts` is where the leak would be, so it names every field and spreads nothing.**
+  `projectProgress` builds the published row by writing all ten keys out. One `...rest` anywhere
+  upstream and a note reaches a server, and **that is not a bug anyone would notice from inside the
+  app**: the screen looks right, sync still works, and the only symptom is that somebody else can
+  read your journal. So the test does not check that the right fields are present, it stuffs a
+  journal with a canary string in every field that holds words, serialises the whole row and fails
+  if the canary can be found. `PUBLISHED_KEYS` is written out by hand rather than derived from the
+  type, because a type is gone at runtime and the point is to fail the commit that **adds** a field.
+- **Quiet writes nulls rather than hiding columns.** A quiet reader's numbers are never on the
+  server at all, instead of being on it and one policy mistake away from showing.
+- **`current_book` comes from `markedAt`, and skips a chapter no longer in `read`.** A cleared
+  chapter keeps its stamp, so the newest stamp is not on its own an answer to what somebody is
+  reading.
+- **`tz_offset` is minutes east of UTC, the opposite sign to `getTimezoneOffset()`**, and the flip
+  happens once, in `tzOffsetMinutes`. `theirToday` then computes a friend's day rather than yours:
+  computing the dot against your own midnight is the obvious implementation and it is wrong for most
+  of the day for anyone far enough away, which would make the one honest thing on a friend card
+  quietly untrue.
+- **`canonicalPair` lowercases before comparing, and has to.** Postgres compares uuids by their
+  bytes and a lowercase hyphenated uuid sorts identically as a string, since `0`-`9` precedes
+  `a`-`f` in ASCII exactly as it does in hex. **Uppercase does not**: `A` is 65 and `a` is 97, so a
+  capitalised id sorts to the wrong side of the `user_a < user_b` constraint and tries to write a
+  second row for a pair that already has one.
+- **Eight mutations were run against `friends.ts` and all eight were caught**, including the
+  projection growing a field that carries a note, the timezone sign flipping, and `canonicalPair`
+  dropping its lowercase.
+
+**`supabase/seed/friends-demo.sql` exists because some states cannot be produced by hand.** A seeded
+friend exercises the list, the card, an incoming request and the inbox without anyone signing in
+twice, which is most of the screen. More to the point, **a lapsed friend needs somebody to stop
+reading for four days and a friend in another timezone needs somebody in another timezone**, and
+waiting is not a test plan. So there are four: Hana in Tokyo at +540 whose today is already
+tomorrow, Marc lapsed four days ago with a current streak of zero and a longest of 18, Ruth in quiet
+mode with every number null, and Sam still pending, who is there so that "a pending request reveals
+nothing" is falsifiable on screen and not only in the suite. Verified through the account's own
+identity: 3 friends visible, 4 profiles including Sam so his request can carry a name, **0 rows of
+Sam's progress**, 1 passage, 1 journal. `friends-demo-teardown.sql` removes all of it by deleting
+the four accounts, since every table cascades from `auth.users`.
+
 ### Merge rules, and why they are what they are
 
 1. **Adds union.** Two devices marking different chapters both win.
