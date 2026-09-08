@@ -1039,6 +1039,31 @@ it again.
   the app, only a request declined. A received passage could not be removed. The inbox showed what
   you had sent. The friend row was a three column grid that grew a fourth control and wrapped it
   onto a line of its own, which read as broken rather than as a button.
+- **Friends is three cards and a fold, and it was six panels.** One panel per function is the
+  arrangement Stats already learned its way out of: **merging beats arranging.** Requests, the list
+  and adding somebody are all one question asked three ways, so they are one card with `.friendGroup`
+  as a rule and a line of type where a card head would have been. "How you appear" is a `FoldCard`,
+  shut, because it is set once and then never opened, and it was taking a full panel at the bottom
+  of every visit. The board is one hairline list rather than a stack of bordered blocks, the same
+  1px-gap trick the friend list and the figure strip use.
+- **`HandleCard` takes `bare`.** A card inside the fold's card is a border inside a border with
+  nothing between them, so the fold renders the form alone.
+- **The avatar is pinned square from four directions.** It was reported as an oval on a real phone
+  with a real photograph and **could not be reproduced**: every container in the app measured 56x56
+  and 38x38 at desktop and at 375px, with a deliberately wide image. Rather than guess which
+  container did it, `aspect-ratio: 1` holds the shape if either axis is overridden, `flex: 0 0 auto`
+  and the grid cell stop a parent shrinking it, `object-fit: cover` crops, and the image is
+  `display: block` so no inline baseline gap can stretch the box. If it ever comes back, the thing
+  to check first is the image's own intrinsic size on that device.
+- **The passage leads the send panel and the message follows it.** They used to be the other way
+  round, with the verse under the message box in the muted colour, which put the subject below the
+  annotation and made the two look alike enough that it was not obvious which one somebody else was
+  going to read. The verse now sits at the top in the display face on the paper tint with the gold
+  edge the reader already uses for a highlight; the message is a plain input in the body face under
+  a label that says **"Your words, not the verse"**. Measured: the verse 15.1:1 on its tint and the
+  reference 8.5:1. The gold edge is 1.59:1 and stays, because it is the same edge the reader's
+  highlight and the inbox already carry and **nothing here is said by that colour alone**: the tint,
+  the border, the serif face and the label all say it too.
 
 Still not done: the reader does not open at a passage when one is tapped in the inbox, and nothing
 tells you a verse arrived except opening the screen. **Removing a friend leaves the passages you

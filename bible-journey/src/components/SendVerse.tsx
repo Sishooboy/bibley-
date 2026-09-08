@@ -99,16 +99,35 @@ export function SendVerse({
     );
   }
 
+  /*
+   * The passage, at the top, where the thing being sent belongs.
+   *
+   * It used to sit at the bottom in the muted colour, under the message box,
+   * which put the two halves the wrong way round: the verse is the subject and
+   * the message is the annotation, and they looked alike enough that it was not
+   * obvious which one was going to be read by somebody else. It is set in the
+   * display face on the paper tint with the gold edge the reader already uses
+   * for a highlight, so it reads as scripture; the message below is a plain
+   * input in the body face, so it reads as typing.
+   */
+  const passage = (
+    <div className="sendVerse__passage">
+      <p className="sendVerse__ref">{reference}</p>
+      <blockquote className="sendVerse__quote">{quote}</blockquote>
+    </div>
+  );
+
   if (mode === 'post') {
     return (
       <div className="sendVerse">
-        <p className="sendVerse__label">Put {reference} up for today</p>
+        <p className="sendVerse__label">Putting up for today</p>
+        {passage}
         <p className="sendVerse__aside">
           Everybody you read with sees it, and it replaces whatever you put up earlier today.
         </p>
 
         <label className="sendVerse__label" htmlFor="post-thought">
-          Why this one
+          Your words, not the verse
         </label>
         <textarea
           id="post-thought"
@@ -158,8 +177,6 @@ export function SendVerse({
             Cancel
           </button>
         </div>
-
-        <blockquote className="sendVerse__quote">{quote}</blockquote>
       </div>
     );
   }
@@ -175,7 +192,10 @@ export function SendVerse({
         </p>
       ) : (
         <>
-          <p className="sendVerse__label">Send {reference} to</p>
+          <p className="sendVerse__label">Sending</p>
+          {passage}
+
+          <p className="sendVerse__label">To</p>
           <ul className="sendVerse__people">
             {friends.map((f) => (
               <li key={f.userId}>
@@ -192,7 +212,7 @@ export function SendVerse({
           </ul>
 
           <label className="sendVerse__label" htmlFor="send-thought">
-            A message for them
+            Your words, not the verse
           </label>
           <textarea
             id="send-thought"
@@ -254,14 +274,15 @@ export function SendVerse({
       )}
 
       {friends !== null && friends.length === 0 && (
-        <div className="hlSheet__actions">
-          <button type="button" className="btn btn--sm btn--ghost" onClick={onClose}>
-            Back
-          </button>
-        </div>
+        <>
+          {passage}
+          <div className="hlSheet__actions">
+            <button type="button" className="btn btn--sm btn--ghost" onClick={onClose}>
+              Back
+            </button>
+          </div>
+        </>
       )}
-
-      <blockquote className="sendVerse__quote">{quote}</blockquote>
     </div>
   );
 }

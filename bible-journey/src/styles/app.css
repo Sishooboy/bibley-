@@ -7822,15 +7822,39 @@ select {
  * reminder of what is being sent, and the choice of person is the thing in
  * hand.
  */
-.sendVerse__quote {
-  margin: 0.2rem 0 0;
-  padding-left: 0.8rem;
-  border-left: 3px solid var(--line-strong);
+/*
+ * The verse, and it has to be obvious that it is not the message.
+ *
+ * It used to sit under the message box in the muted colour, which put the two
+ * halves the wrong way round and made them look alike: the passage is the
+ * subject and the message is the annotation. Scripture treatment here, the
+ * paper tint and the gold edge the reader already uses for a highlight, set in
+ * the display face. The message under it is a plain input in the body face, so
+ * one reads as something written down long ago and the other as typing.
+ */
+.sendVerse__passage {
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--yellow);
+  border-radius: var(--radius);
+  background: #fffdf4;
+}
+
+.sendVerse__ref {
+  margin: 0 0 0.25rem;
   font-family: var(--font-display);
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: var(--muted);
-  max-height: 5rem;
+  font-size: 0.84rem;
+  font-variation-settings: 'SOFT' 0, 'WONK' 0;
+  color: var(--red-700);
+}
+
+.sendVerse__quote {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--ink-700);
+  max-height: 7rem;
   overflow-y: auto;
 }
 
@@ -7852,19 +7876,39 @@ select {
  * read as a mark rather than as an image. Initials stand in when there is none,
  * because a generic silhouette is a photograph of nobody.
  */
+/*
+ * A circle that cannot be turned into an oval by whatever it is put inside.
+ *
+ * The size arrives as an inline width and height, which is enough on its own in
+ * every container in this app, and was still reported as an oval on a real
+ * phone with a real photograph. Rather than guess at which container did it,
+ * this pins the shape from four directions: `aspect-ratio` keeps it square if
+ * either axis is ever overridden, `flex` and `min-width` stop a flex or grid
+ * parent shrinking it below its width, and `overflow: hidden` clips the
+ * photograph to the circle rather than trusting the image's own radius.
+ */
 .avatar {
   position: relative;
   display: inline-grid;
   place-items: center;
-  flex: none;
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+  min-width: 0;
   border-radius: 50%;
   background: var(--red-050);
+  /* The dot sits on the rim, so it is drawn outside this box on purpose. */
   overflow: visible;
 }
 
+
+
 .avatar__img {
+  /* Stacked in the single cell, so nothing can push the circle out of shape. */
+  grid-area: 1 / 1;
+  display: block;
   width: 100%;
   height: 100%;
+  aspect-ratio: 1;
   border-radius: 50%;
   object-fit: cover;
   /* A hairline keeps a light photograph from bleeding into the card. */
@@ -7872,6 +7916,7 @@ select {
 }
 
 .avatar__initials {
+  grid-area: 1 / 1;
   font-family: var(--font-display);
   font-size: 0.78em;
   font-variation-settings: 'SOFT' 0, 'WONK' 0;
@@ -7955,18 +8000,25 @@ select {
   color: var(--ink-700);
 }
 
+/*
+ * One list on hairlines rather than a stack of bordered boxes, the same trick
+ * the friend list and the figure strip use: a 1px gap over a `--line`
+ * background paints the rules, and no item has to know whether it is the last.
+ */
 .board {
   display: grid;
-  gap: 0.7rem;
+  gap: 1px;
   margin: 0;
   padding: 0;
   list-style: none;
+  background: var(--line);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--panel-radius);
+  overflow: hidden;
 }
 
 .board__item {
-  padding: 0.75rem 0.85rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  padding: 0.7rem 0.85rem;
   background: var(--surface);
 }
 
@@ -8004,6 +8056,42 @@ select {
   .friendRow__more:hover {
     color: var(--red-700);
   }
+}
+
+
+/*
+ * One card now holds requests, the list and adding somebody, so it needs a way
+ * to say "a different question, same subject" without opening another panel.
+ * A small rule and a line of type, which is what a card head would have been
+ * without the card.
+ */
+.friendGroup {
+  margin: 1rem 0 0.5rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+/*
+ * The card head already draws a rule, so a group heading straight after it drew
+ * a second one a few pixels below, which reads as a mistake rather than as a
+ * divider.
+ */
+.friendGroup:first-child,
+.card__head + .friendGroup {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.friendList--requests {
+  margin-bottom: 0.2rem;
+}
+
+.friendAddRow {
+  margin-top: 0.2rem;
 }
 
 /*

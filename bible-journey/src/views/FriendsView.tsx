@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { FoldCard } from '../components/FoldCard';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
 import { cachedBook, loadBook } from '../lib/bible';
 import { formatDay, today } from '../lib/dates';
@@ -168,26 +169,64 @@ export function FriendsView() {
             reveal={reveal}
           />
         )}
-          <BoardCard
-            userId={userId}
-            board={board}
-            friends={accepted}
-            me={profile}
-            onChanged={refresh}
-            reveal={reveal}
-          />
+        <BoardCard
+          userId={userId}
+          board={board}
+          friends={accepted}
+          me={profile}
+          onChanged={refresh}
+          reveal={reveal}
+        />
+
+        {inbox.length > 0 && (
+          <section ref={reveal} className="card reveal">
+            <div className="card__head">
+              <div>
+                <h3 className="card__title">Verses for you</h3>
+                <p className="card__note">
+                  One you have read leaves after a few days; an unread one stays until you have
+                  seen it.
+                </p>
+              </div>
+            </div>
+            <ul className="friendVerses">
+              {inbox.map((p) => (
+                <VerseCard
+                  key={p.id}
+                  passage={p}
+                  from={friends.find((f) => f.userId === p.from_user)?.displayName ?? 'A friend'}
+                  onDelete={async () => {
+                    await deletePassage(p.id);
+                    await refresh();
+                  }}
+                />
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/*
+          One card for every question about people: who is waiting, who you read
+          with, and how to add somebody. Those were three panels, which is one
+          panel per function rather than one per question, and the screen read as
+          a stack of unrelated boxes.
+        */}
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
+            <div>
+              <h3 className="card__title">Reading together</h3>
+              <p className="card__note">
+                In alphabetical order, and never by whose streak is longest.
+              </p>
+            </div>
+          </div>
 
           {requests.length > 0 && (
-            <section ref={reveal} className="card reveal">
-              <div className="card__head">
-                <div>
-                  <h3 className="card__title">Waiting on you</h3>
-                  <p className="card__note">
-                    They can see nothing at all until you say yes.
-                  </p>
-                </div>
-              </div>
-              <ul className="friendList">
+            <>
+              <p className="friendGroup">
+                Waiting on you. They can see nothing at all until you say yes.
+              </p>
+              <ul className="friendList friendList--requests">
                 {requests.map((f) => (
                   <li key={f.userId} className="friendRow friendRow--request">
                     {/* No dot: a pending request must reveal nothing, and
@@ -222,94 +261,69 @@ export function FriendsView() {
                   </li>
                 ))}
               </ul>
-            </section>
+            </>
           )}
 
-          {inbox.length > 0 && (
-            <section ref={reveal} className="card reveal">
-              <div className="card__head">
-                <div>
-                  <h3 className="card__title">Verses for you</h3>
-                  <p className="card__note">
-                    Passages someone thought of you while reading. One you have read leaves after a
-                    few days; an unread one stays until you have seen it.
-                  </p>
-                </div>
-              </div>
-              <ul className="friendVerses">
-                {inbox.map((p) => (
-                  <VerseCard
-                    key={p.id}
-                    passage={p}
-                    from={friends.find((f) => f.userId === p.from_user)?.displayName ?? 'A friend'}
-                    onDelete={async () => {
-                      await deletePassage(p.id);
-                      await refresh();
-                    }}
-                  />
-                ))}
-              </ul>
-            </section>
+          {loading && accepted.length === 0 ? (
+            <p className="card__note">Looking…</p>
+          ) : accepted.length === 0 ? (
+            <p className="card__note">
+              {profile
+                ? `Nobody yet. Share your handle, @${profile.handle}, with someone who reads.`
+                : 'Nobody yet. Pick a handle above and somebody can add you.'}
+            </p>
+          ) : (
+            <ul className="friendList">
+              {accepted.map((f) => (
+                <FriendRow
+                  key={f.userId}
+                  friend={f}
+                  onRemove={async () => {
+                    await removeFriend(userId, f.userId);
+                    await refresh();
+                  }}
+                />
+              ))}
+            </ul>
           )}
-
-          <section ref={reveal} className="card reveal">
-            <div className="card__head">
-              <div>
-                <h3 className="card__title">Reading too</h3>
-                <p className="card__note">
-                  In alphabetical order, and never by whose streak is longest.
-                </p>
-              </div>
-            </div>
-            {loading && accepted.length === 0 ? (
-              <p className="card__note">Looking…</p>
-            ) : accepted.length === 0 ? (
-              <p className="card__note">
-                {profile
-                  ? `Nobody yet. Share your handle, @${profile.handle}, with someone who reads.`
-                  : 'Nobody yet. Pick a handle above and somebody can add you.'}
-              </p>
-            ) : (
-              <ul className="friendList">
-                {accepted.map((f) => (
-                  <FriendRow
-                    key={f.userId}
-                    friend={f}
-                    onRemove={async () => {
-                      await removeFriend(userId, f.userId);
-                      await refresh();
-                    }}
-                  />
-                ))}
-              </ul>
-            )}
-          </section>
 
           {/*
-            These two are the only things that genuinely need a handle: you
-            cannot ask somebody to add you without one, since a friendship whose
-            profile is missing is skipped on the other side.
+            Adding somebody is the footer of the list rather than a panel of its
+            own: it is the same question the list answers, asked forwards.
+            It needs a handle, since a friendship whose profile is missing is
+            skipped on the other side.
           */}
           {profile && (
-            <AddCard
+            <AddRow
               userId={userId}
               myHandle={profile.handle}
               known={friends.map((f) => f.handle)}
               waiting={waiting}
               onChanged={refresh}
-              reveal={reveal}
             />
           )}
+        </section>
 
-          {profile && (
+        {/*
+          Your own handle, face and visibility. Shut, because it is a thing you
+          set once and then never open again, and it was taking a full panel at
+          the bottom of every visit.
+        */}
+        {profile && (
+          <FoldCard
+            title="How you appear"
+            summary={`@${profile.handle} · ${profile.visibility === 'quiet' ? 'Quiet' : 'Reading'}`}
+            reveal={reveal}
+          >
             <HandleCard
               userId={userId}
               existing={profile}
               suggestedName={displayName}
               onSaved={refresh}
-              reveal={reveal}
+              bare
             />
-          )}
+          </FoldCard>
+        )}
       </div>
     </>
   );
@@ -671,37 +685,35 @@ function BoardItem({
   );
 }
 
-/** Add somebody by their handle, which is the only way anyone is findable. */
-function AddCard({
+/**
+ * Add somebody by their handle, which is the only way anyone is findable.
+ *
+ * The footer of the list rather than a panel of its own: it answers the same
+ * question the list does, asked forwards, and a card to itself made the screen
+ * one box longer for one input.
+ */
+function AddRow({
   userId,
   myHandle,
   known,
   waiting,
   onChanged,
-  reveal,
 }: {
   userId: string;
   myHandle: string;
   known: string[];
   waiting: Friend[];
   onChanged: () => Promise<void>;
-  reveal: (el: Element | null) => void;
 }) {
   const [value, setValue] = useState('');
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   return (
-    <section ref={reveal} className="card reveal">
-      <div className="card__head">
-        <div>
-          <h3 className="card__title">Add someone</h3>
-          <p className="card__note">
-            By handle, so nobody can be found by their email address. Yours is{' '}
-            <strong>@{myHandle}</strong>.
-          </p>
-        </div>
-      </div>
+    <div className="friendAddRow">
+      <p className="friendGroup">
+        Add someone by handle. Yours is <strong>@{myHandle}</strong>.
+      </p>
       <form
         className="friendAdd"
         onSubmit={async (e) => {
@@ -758,11 +770,11 @@ function AddCard({
       </form>
       {note && <p className="card__note friendAdd__note">{note}</p>}
       {waiting.length > 0 && (
-        <p className="card__note">
+        <p className="card__note friendAdd__note">
           Waiting to hear back from {waiting.map((f) => `@${f.handle}`).join(', ')}.
         </p>
       )}
-    </section>
+    </div>
   );
 }
 
@@ -780,13 +792,20 @@ function HandleCard({
   suggestedName,
   onSaved,
   reveal,
+  bare,
 }: {
   userId: string;
   existing?: Profile;
   /** The name Google gave us, so the form arrives answered rather than blank. */
   suggestedName?: string | null;
   onSaved: () => Promise<void>;
-  reveal: (el: Element | null) => void;
+  reveal?: (el: Element | null) => void;
+  /**
+   * Render the form alone, with no card around it. The fold in "How you
+   * appear" is already a card, and a card inside a card is a border inside a
+   * border with nothing between them.
+   */
+  bare?: boolean;
 }) {
   /*
    * Filled in from the account on a first visit. Sign-in asks for nothing, so
@@ -804,18 +823,23 @@ function HandleCard({
   const [busy, setBusy] = useState(false);
   const first = !existing;
 
+  const Wrapper = bare ? Fragment : 'section';
+  const wrapperProps = bare ? {} : { ref: reveal, className: 'card reveal' };
+
   return (
-    <section ref={reveal} className="card reveal">
-      <div className="card__head">
-        <div>
-          <h3 className="card__title">{first ? 'Pick a handle' : 'How you appear'}</h3>
-          <p className="card__note">
-            {first
-              ? 'A handle is how somebody adds you. Nothing about your reading is published until you have one.'
-              : 'What friends see, and how much of it.'}
-          </p>
+    <Wrapper {...wrapperProps}>
+      {!bare && (
+        <div className="card__head">
+          <div>
+            <h3 className="card__title">{first ? 'Pick a handle' : 'How you appear'}</h3>
+            <p className="card__note">
+              {first
+                ? 'A handle is how somebody adds you. Nothing about your reading is published until you have one.'
+                : 'What friends see, and how much of it.'}
+            </p>
+          </div>
         </div>
-      </div>
+      )}
       <form
         className="handleForm"
         onSubmit={async (e) => {
@@ -966,6 +990,6 @@ function HandleCard({
         </div>
       </form>
       {note && <p className="card__note">{note}</p>}
-    </section>
+    </Wrapper>
   );
 }
