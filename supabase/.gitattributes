@@ -1,0 +1,4 @@
+# These files are verified byte for byte against what is deployed, by md5 against
+# supabase_migrations.schema_migrations. A checkout that rewrote the line endings
+# would break that check on a fresh clone while looking identical on screen.
+*.sql text eol=lf

@@ -686,6 +686,63 @@ Chapter keys are `"<Book>|<chapter>"`. Book names are unique across the Bible, w
 plan be a *view* over the journal rather than a container: switching plans never deletes anything,
 chapters outside the new plan simply stop being counted.
 
+**The SQL lives in `supabase/migrations/` now**, and it did not before: the two original migrations
+existed only inside the Supabase project, so the schema had no history anywhere a reader could
+follow. All three files are byte identical to what is deployed, checked by md5 against
+`supabase_migrations.schema_migrations` rather than by eye.
+
+### Friends, and why it is four new tables
+
+**Nothing about friends touches the journal.** The journal is one jsonb blob per account holding
+notes and highlights, and RLS is row level, so there is no version of "let a friend read my row"
+that is not a data leak. What a friend sees is `public.progress`, a **projection the client computes
+and publishes**, never a copy of anything.
+
+- **`progress` is explicit columns, deliberately not another blob.** What leaves a device is then
+  auditable by reading the schema, and there is no field a note could arrive in by accident. Same
+  reasoning that keeps the cue off `AppData`.
+- **The whole feature needs no staged release**, which is the reason handles and visibility live on
+  `profiles` rather than in `prefs`. `normalize()` is a whitelist and `cloud.tsx` upserts the whole
+  row, so a new `prefs` field has to ship read-only first. Touching nothing in the blob sidesteps
+  that entirely.
+- **A pending request must reveal nothing.** `is_friend` requires `status = 'accepted'`, or sending
+  a request to a stranger would by itself be enough to read them. It is the single most important
+  line in the migration and the one the tests lean on hardest.
+- **`is_friend` has to keep `execute` on `authenticated`, and that is not an oversight.** A trigger
+  function is invoked by the trigger system and never privilege checked against the caller, which
+  is why `touch_journal_updated_at` could be revoked from everything. A function named in a
+  **policy** is evaluated as the querying role, so revoking this one would not harden anything, it
+  would make every read it guards fail with a permission error. It is safe to expose because it
+  takes one argument and reads the caller from the session: there is no way to ask it about two
+  other people.
+- **`find_profile` is the one deliberate hole.** The select policies hide any profile you have no
+  friendship with, so nothing could ever start; an exact match lookup on a handle is what lets
+  somebody be added at all. It does no prefix matching, so the table cannot be walked, but a
+  guessable handle is guessable, which is the same exposure every `@name` system has.
+- **The two security advisor warnings about those functions are expected**, and the third is about
+  leaked password protection, which does not apply to a Google-only app.
+- **A passage stores the reference, never the words**, so it renders from the app's own text and the
+  `{verse, offset}` pair a highlight already uses picks out the phrase. `freeze_passage` makes it
+  immutable except for `seen_at`: the update policy that lets a recipient mark it read would
+  otherwise let them rewrite what they were sent.
+
+**`supabase/tests/rls.sql` is the test, and it needs no second Google account.** A policy only cares
+about `auth.uid()`, which reads `request.jwt.claims`, so three rows in `auth.users` and a
+`set_config` are a complete set of identities. 35 checks: what each of three people can read, what
+each cannot write, and positive controls, **which are the point**, since a suite of "this was
+refused" passes just as happily against tables nobody can touch at all.
+
+Everything runs inside a sub-block that ends by raising, so the test data is rolled back whether it
+passes or fails and a live database is never left dirty. Findings survive that rollback because they
+are held in a plpgsql variable, and **variables are memory while table rows are not**: the first
+draft wrote results to a temp table and the rollback took them with it.
+
+**All 35 passing means nothing on its own**, so three mutations were run the same way, each applied
+inside the same rolled-back block: dropping the `accepted` check from `is_friend` (a pending request
+then read 2 rows instead of 1), removing `passages_freeze` (the recipient rewrote the passage), and
+opening the progress policy to `using (true)` (a stranger read all 3). All three were caught, and
+DDL is transactional, so production was never left mutated.
+
 ### Merge rules, and why they are what they are
 
 1. **Adds union.** Two devices marking different chapters both win.
@@ -823,10 +880,21 @@ that way, the escalation is **Rive** (around 100 kB of wasm, real state machines
 still vector. A generative video tool earns its keep on an App Store preview clip, which is a
 required asset anyway, not inside the app.
 
+**Friends is half built: the schema exists and no UI does.** The four tables, their policies and
+`supabase/tests/rls.sql` are deployed and passing, and nothing in `src/` knows about any of it yet.
+What is left is the client: a `friends.ts` for the queries, a `FriendsView`, the projection write
+hooked into `cloud.tsx`, and one new action each in the reader and the highlight sheet. The design
+it is being built to is **presence rather than a leaderboard**: the friends list is never sorted by
+anything anyone can climb, notes are never shared, and a verse is handed to one person rather than
+posted to a feed. The unsolved piece is the lapsed friend, who opens a screen where everyone else is
+still reading, and whose broken streak probably should not be shown at all given the app mourns your
+own exactly once.
+
 Not built yet, roughly in order:
 
 1. **In-app account deletion.** Required by App Store guideline 5.1.1(v). Must clear the Supabase
-   row and the local cache.
+   row and the local cache. Now also four friends tables, though every one of them cascades from
+   `auth.users`, so deleting the account is enough and the ordering does not matter.
 2. **Capacitor shell**, which is what makes notifications fire with the app closed, and what
    unlocks reminders. Needs macOS or GitHub Actions to build, and $99/year for Apple.
 3. **Sign in with Apple**, required by guideline 4.8 because Google sign-in is offered.
