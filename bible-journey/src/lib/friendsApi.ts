@@ -25,12 +25,16 @@ export const PROFILES = 'profiles';
 export const FRIENDSHIPS = 'friendships';
 export const PROGRESS = 'progress';
 export const PASSAGES = 'passages';
+export const BROADCASTS = 'broadcasts';
+export const AVATARS = 'avatars';
 
 export type Profile = {
   user_id: string;
   handle: string;
   display_name: string;
   visibility: Visibility;
+  /** A face beside the name, or null. Lives in storage, not in the row. */
+  avatar_url: string | null;
 };
 
 export type FriendshipRow = {
@@ -45,6 +49,7 @@ export type Friend = {
   userId: string;
   handle: string;
   displayName: string;
+  avatarUrl: string | null;
   status: 'pending' | 'accepted';
   /** True when they asked you, so the card offers an answer rather than a wait. */
   incoming: boolean;
@@ -75,7 +80,7 @@ function client() {
 export async function loadMyProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await client()
     .from(PROFILES)
-    .select('user_id, handle, display_name, visibility')
+    .select('user_id, handle, display_name, visibility, avatar_url')
     .eq('user_id', userId)
     .maybeSingle();
   if (error) throw error;
@@ -109,7 +114,7 @@ export async function loadFriends(userId: string): Promise<Friend[]> {
 
   const [{ data: profiles, error: profileError }, { data: progress, error: progressError }] =
     await Promise.all([
-      db.from(PROFILES).select('user_id, handle, display_name, visibility').in('user_id', others),
+      db.from(PROFILES).select('user_id, handle, display_name, visibility, avatar_url').in('user_id', others),
       db.from(PROGRESS).select('*').in('user_id', others),
     ]);
   if (profileError) throw profileError;
@@ -132,6 +137,7 @@ export async function loadFriends(userId: string): Promise<Friend[]> {
         userId: other,
         handle: profile.handle,
         displayName: profile.display_name,
+        avatarUrl: profile.avatar_url,
         status: row.status,
         incoming: row.requested_by !== userId,
         progress: progressById.get(other) ?? null,
@@ -140,14 +146,29 @@ export async function loadFriends(userId: string): Promise<Friend[]> {
   });
 }
 
-export async function loadInbox(): Promise<Passage[]> {
+/**
+ * What people have sent you.
+ *
+ * Scoped to `to_user` rather than left to the policy, which allows both ends of
+ * a passage. That is right for the policy and wrong for this screen: the card
+ * is headed "Verses for you", and half of it being things you sent somebody
+ * else makes it a sent-items folder wearing the wrong label.
+ */
+export async function loadInbox(userId: string): Promise<Passage[]> {
   const { data, error } = await client()
     .from(PASSAGES)
     .select('*')
+    .eq('to_user', userId)
     .order('created_at', { ascending: false })
     .limit(50);
   if (error) throw error;
   return (data ?? []) as Passage[];
+}
+
+/** Take a passage out of the inbox for good, rather than waiting for it to age. */
+export async function deletePassage(id: string): Promise<void> {
+  const { error } = await client().from(PASSAGES).delete().eq('id', id);
+  if (error) throw error;
 }
 
 /** Look a handle up exactly. The one way anybody becomes addable. */
@@ -156,7 +177,7 @@ export async function findByHandle(handle: string): Promise<Profile | null> {
   if (error) throw error;
   const rows = (data ?? []) as { user_id: string; handle: string; display_name: string }[];
   const first = rows[0];
-  return first ? { ...first, visibility: 'reading' } : null;
+  return first ? { ...first, visibility: 'reading', avatar_url: null } : null;
 }
 
 export async function requestFriend(me: string, them: string): Promise<void> {
@@ -223,6 +244,102 @@ export async function publishPresence(
       visibility: profile.visibility,
     }),
   );
+}
+
+export type Broadcast = {
+  user_id: string;
+  day: string;
+  book: string;
+  chapter: number;
+  from_verse: number;
+  to_verse: number;
+  thought: string | null;
+  created_at: string;
+};
+
+/**
+ * The verse somebody put up for the day, theirs and their friends'.
+ *
+ * Two days rather than one, because a friend nine hours ahead has already
+ * started tomorrow: asking only for your own today would hide what they posted
+ * an hour ago. The screen keeps the newest row per person, so the extra day
+ * costs one row each and buys a board that is right in every timezone.
+ */
+export async function loadBroadcasts(): Promise<Broadcast[]> {
+  const since = new Date(Date.now() - 2 * 86_400_000).toISOString().slice(0, 10);
+  const { data, error } = await client()
+    .from(BROADCASTS)
+    .select('*')
+    .gte('day', since)
+    .order('day', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as Broadcast[];
+}
+
+/**
+ * Put a verse up for the day, replacing whatever was there.
+ *
+ * The primary key is (user_id, day), so changing your mind is an upsert rather
+ * than a second post. Nobody can fill a friend's screen, and there is nothing
+ * to scroll, which is the whole difference between this and a feed.
+ */
+export async function postBroadcast(input: {
+  userId: string;
+  day: string;
+  book: string;
+  chapter: number;
+  fromVerse: number;
+  toVerse: number;
+  thought: string | null;
+}): Promise<void> {
+  const { error } = await client().from(BROADCASTS).upsert(
+    {
+      user_id: input.userId,
+      day: input.day,
+      book: input.book,
+      chapter: input.chapter,
+      from_verse: input.fromVerse,
+      to_verse: input.toVerse,
+      thought: input.thought,
+    },
+    { onConflict: 'user_id,day' },
+  );
+  if (error) throw error;
+}
+
+export async function clearBroadcast(userId: string, day: string): Promise<void> {
+  const { error } = await client()
+    .from(BROADCASTS)
+    .delete()
+    .eq('user_id', userId)
+    .eq('day', day);
+  if (error) throw error;
+}
+
+/**
+ * Put a face on the account.
+ *
+ * One fixed path per reader, `<uuid>/avatar`, overwritten in place rather than
+ * a new file each time. A random name would leave every previous photograph
+ * sitting in the bucket for ever, and nothing would ever collect them. The
+ * trade is that the URL does not change, so a cache buster is stamped on the
+ * end: without it a browser that has the old face keeps showing it.
+ *
+ * The first path segment has to be the reader's own id, which is exactly what
+ * the storage policy checks, so a wrong id here fails at the server rather than
+ * writing over somebody else.
+ */
+export async function uploadAvatar(userId: string, file: File): Promise<string> {
+  const db = client();
+  const path = `${userId}/avatar`;
+  const { error } = await db.storage.from(AVATARS).upload(path, file, {
+    upsert: true,
+    contentType: file.type,
+    cacheControl: '3600',
+  });
+  if (error) throw error;
+  const { data } = db.storage.from(AVATARS).getPublicUrl(path);
+  return `${data.publicUrl}?v=${Date.now()}`;
 }
 
 export async function markPassageSeen(id: string): Promise<void> {

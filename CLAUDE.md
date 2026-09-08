@@ -998,8 +998,52 @@ it again.
   printed for three different shapes now: a saved highlight, a selection being sent, and a passage
   that arrived.
 
+- **The inbox prints the words, which it did not.** A passage stores a reference and never the text,
+  and the card printed the reference and the sender's thought and stopped, so a verse arrived as a
+  citation you had to go and look up. `versesFor` reads it out of the same book files the reader
+  uses, `cachedBook` first so an open book renders on the first frame. It joins **whole verses**
+  rather than slicing on the offsets: an offset is a position inside one verse and the two ends are
+  a highlight's own edges, so slicing would hand somebody a sentence starting mid-word. A null verse
+  is skipped rather than printed as a gap.
+- **An unread passage never ages out, a read one leaves after three days.** `inInbox` decides it. A
+  verse that expired before anybody looked at it is worse than a list that got long: the sender has
+  no way to know it went unseen, so they would think you read it and said nothing. Nothing is
+  deleted by the rule, so leaving the inbox is a change of view rather than a loss.
+- **The inbox is scoped to `to_user` in the query.** The policy allows both ends of a passage, which
+  is right for the policy and wrong for a card headed "Verses for you": half of it being things you
+  sent made it a sent-items folder wearing the wrong label.
+
+### The verse of the day, and the holes that got filled
+
+- **`broadcasts` is one verse per person per day, and the primary key is what enforces it.** Posting
+  again replaces rather than adds, so nobody can fill a friend's screen and there is nothing to
+  scroll. That shape is the whole difference between this and the feed the design refused: a board
+  where everyone gets one line and it resets tomorrow cannot be climbed.
+- **Posting is done from the reader, not from a picker on the friends screen.** That is where you
+  are when a verse strikes you, and `SendVerse` already had the passage, the quote and the layout,
+  so it takes a `mode` rather than growing a second component that would drift.
+- **The board asks for two days, not one.** A friend nine hours ahead has already started tomorrow,
+  so filtering on your own date would hide what they put up an hour ago. The screen keeps the newest
+  row per person, which is why the extra day costs one row each.
+- **A photograph, which the house rule otherwise forbids.** "No photography, anywhere" is about the
+  app's own furniture, where a stock image reads as pasted on. A reader's own face is not furniture:
+  it is how two friends are told apart at a glance, and it is the one image here that carries
+  meaning. It stays small, round, and inside the friends screen. **Initials stand in when there is
+  none**, because a generic silhouette is a photograph of nobody.
+- **The avatar bucket's policy checks the first path segment.** `(storage.foldername(name))[1]` has
+  to equal the caller's own id, or any signed-in reader could write over somebody else's face, which
+  is the one way that bucket could be turned into a weapon. The file is `<uuid>/avatar`, overwritten
+  in place rather than a new name each time, so nothing accumulates; the URL is therefore stable and
+  carries a cache buster.
+- **Holes that were open and are now closed.** An accepted friendship could not be ended from inside
+  the app, only a request declined. A received passage could not be removed. The inbox showed what
+  you had sent. The friend row was a three column grid that grew a fourth control and wrapped it
+  onto a line of its own, which read as broken rather than as a button.
+
 Still not done: the reader does not open at a passage when one is tapped in the inbox, and nothing
-tells you a verse arrived except opening the screen.
+tells you a verse arrived except opening the screen. **Removing a friend leaves the passages you
+already exchanged**, which is deliberate, the same way a message you were sent stays after a
+friendship cools; sending stops, because the insert policy requires an accepted friendship.
 
 Not built yet, roughly in order:
 

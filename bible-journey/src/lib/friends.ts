@@ -249,6 +249,65 @@ export function isValidHandle(input: string): boolean {
 }
 
 /**
+ * How long a passage somebody has already read stays in the inbox.
+ *
+ * Three days rather than two, so a verse sent on Friday is still there on
+ * Monday.
+ */
+export const INBOX_DAYS = 3;
+
+/**
+ * Does this passage still belong in "Verses for you"?
+ *
+ * **An unread one never ages out**, however long it has been. The inbox is
+ * somebody handing you something, and a gift that expired before you looked at
+ * it is worse than a list that got long: the sender has no way to know it went
+ * unseen, so they would think you had read it and said nothing. Once it has
+ * been read it has done its job and can go, which is what keeps the list from
+ * becoming a feed nobody prunes.
+ *
+ * Nothing is deleted by this. The row stays and the policies still allow it, so
+ * a passage leaving the inbox is a change of view rather than a loss.
+ */
+export function inInbox(
+  passage: { created_at: string; seen_at: string | null },
+  now: Date = new Date(),
+): boolean {
+  if (!passage.seen_at) return true;
+  const age = now.getTime() - new Date(passage.created_at).getTime();
+  return age < INBOX_DAYS * 86_400_000;
+}
+
+/**
+ * The words a shared passage points at, pulled out of the book it came from.
+ *
+ * A passage stores the reference and never the text, so this is where a
+ * reference becomes something readable. It joins whole verses rather than
+ * slicing on the offsets: an offset is a character position inside one verse
+ * and the two ends are a highlight's own edges, so slicing would hand somebody
+ * a sentence starting mid-word. The offsets stay on the row for the day the
+ * reader is taken to the passage in the reader and it needs to light the exact
+ * span.
+ *
+ * A null verse is one this translation does not carry, so it is skipped rather
+ * than printed as a gap.
+ */
+export function versesFor(
+  chapters: readonly (readonly (string | null)[])[] | undefined,
+  chapter: number,
+  fromVerse: number,
+  toVerse: number,
+): string {
+  const verses = chapters?.[chapter - 1];
+  if (!verses) return '';
+  return verses
+    .slice(fromVerse - 1, toVerse)
+    .filter((v): v is string => typeof v === 'string' && v.length > 0)
+    .join(' ')
+    .trim();
+}
+
+/**
  * A handle worth offering, from the name Google already gave us.
  *
  * Sign-in asks for nothing, so the first time anybody opens Friends they meet a

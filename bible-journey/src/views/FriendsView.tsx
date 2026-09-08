@@ -1,19 +1,26 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
-import { formatDay } from '../lib/dates';
+import { cachedBook, loadBook } from '../lib/bible';
+import { formatDay, today } from '../lib/dates';
+import { Flame } from '../components/icons';
 import { verseRef } from '../lib/highlight';
 import { plural } from '../lib/format';
 import { useReveal } from '../lib/motion';
 import {
   isValidHandle,
   normalizeHandle,
+  inInbox,
   presenceOf,
   suggestHandle,
+  versesFor,
   type FriendPresence,
 } from '../lib/friends';
 import {
   acceptFriend,
+  clearBroadcast,
+  deletePassage,
   findByHandle,
+  loadBroadcasts,
   loadFriends,
   loadInbox,
   loadMyProfile,
@@ -21,6 +28,8 @@ import {
   removeFriend,
   requestFriend,
   saveMyProfile,
+  uploadAvatar,
+  type Broadcast,
   type Friend,
   type Passage,
   type Profile,
@@ -48,6 +57,7 @@ export function FriendsView() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [inbox, setInbox] = useState<Passage[]>([]);
+  const [board, setBoard] = useState<Broadcast[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,14 +66,18 @@ export function FriendsView() {
     setLoading(true);
     setError(null);
     try {
-      const [mine, list, verses] = await Promise.all([
+      const [mine, list, verses, posts] = await Promise.all([
         loadMyProfile(userId),
         loadFriends(userId),
-        loadInbox(),
+        loadInbox(userId),
+        loadBroadcasts(),
       ]);
       setProfile(mine);
       setFriends(list);
-      setInbox(verses);
+      // An unread passage never ages out, a read one leaves after three days.
+      // `inInbox` is where that is decided and why.
+      setInbox(verses.filter((v) => inInbox(v)));
+      setBoard(posts);
     } catch (err) {
       setError(
         err instanceof Error
@@ -154,6 +168,15 @@ export function FriendsView() {
             reveal={reveal}
           />
         )}
+          <BoardCard
+            userId={userId}
+            board={board}
+            friends={accepted}
+            me={profile}
+            onChanged={refresh}
+            reveal={reveal}
+          />
+
           {requests.length > 0 && (
             <section ref={reveal} className="card reveal">
               <div className="card__head">
@@ -167,6 +190,9 @@ export function FriendsView() {
               <ul className="friendList">
                 {requests.map((f) => (
                   <li key={f.userId} className="friendRow friendRow--request">
+                    {/* No dot: a pending request must reveal nothing, and
+                        whether they read today is something. */}
+                    <Avatar name={f.displayName} url={f.avatarUrl} />
                     <div className="friendRow__who">
                       <p className="friendRow__name">{f.displayName}</p>
                       <p className="friendRow__line">@{f.handle}</p>
@@ -204,7 +230,10 @@ export function FriendsView() {
               <div className="card__head">
                 <div>
                   <h3 className="card__title">Verses for you</h3>
-                  <p className="card__note">Passages someone thought of you while reading.</p>
+                  <p className="card__note">
+                    Passages someone thought of you while reading. One you have read leaves after a
+                    few days; an unread one stays until you have seen it.
+                  </p>
                 </div>
               </div>
               <ul className="friendVerses">
@@ -212,8 +241,11 @@ export function FriendsView() {
                   <VerseCard
                     key={p.id}
                     passage={p}
-                    mine={p.from_user === userId}
                     from={friends.find((f) => f.userId === p.from_user)?.displayName ?? 'A friend'}
+                    onDelete={async () => {
+                      await deletePassage(p.id);
+                      await refresh();
+                    }}
                   />
                 ))}
               </ul>
@@ -240,7 +272,14 @@ export function FriendsView() {
             ) : (
               <ul className="friendList">
                 {accepted.map((f) => (
-                  <FriendRow key={f.userId} friend={f} />
+                  <FriendRow
+                    key={f.userId}
+                    friend={f}
+                    onRemove={async () => {
+                      await removeFriend(userId, f.userId);
+                      await refresh();
+                    }}
+                  />
                 ))}
               </ul>
             )}
@@ -277,29 +316,151 @@ export function FriendsView() {
 }
 
 /**
+ * A face, or the initials that stand in for one.
+ *
+ * Initials rather than a silhouette, because a generic head is a photograph of
+ * nobody and this app does not do photographs of nobody. They are drawn from
+ * the name, so a friend without a picture is still distinguishable at a glance,
+ * which is the entire job.
+ *
+ * The dot rides on the corner rather than sitting beside it: it is a fact about
+ * the person, so it belongs on them, and it keeps the row to three columns
+ * instead of four.
+ */
+function Avatar({
+  name,
+  url,
+  today: read,
+  size = 38,
+}: {
+  name: string;
+  url: string | null;
+  today?: boolean;
+  size?: number;
+}) {
+  const initials = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? '')
+    .join('');
+  return (
+    <span className="avatar" style={{ width: size, height: size }}>
+      {url ? (
+        // Decorative: the name is right beside it, so a screen reader saying it
+        // twice is noise rather than help.
+        <img className="avatar__img" src={url} alt="" width={size} height={size} />
+      ) : (
+        <span className="avatar__initials" aria-hidden="true">
+          {initials || '?'}
+        </span>
+      )}
+      {read !== undefined && (
+        <span className={`avatar__dot${read ? ' avatar__dot--today' : ''}`} aria-hidden="true" />
+      )}
+    </span>
+  );
+}
+
+/**
+ * The words behind a shared reference.
+ *
+ * A passage stores a reference and never the text, so the text is fetched from
+ * the same book files the reader uses. `cachedBook` first, so a book already
+ * open renders on the first frame rather than flashing an empty card, and the
+ * fetch only happens for a book this device has not opened.
+ *
+ * Nothing is drawn while it is loading. A reference with a spinner under it is
+ * worse than a reference on its own, and the reference is already the answer to
+ * "what did they send me".
+ */
+function PassageText({
+  book,
+  chapter,
+  fromVerse,
+  toVerse,
+}: {
+  book: string;
+  chapter: number;
+  fromVerse: number;
+  toVerse: number;
+}) {
+  const [text, setText] = useState(() =>
+    versesFor(cachedBook(book)?.chapters, chapter, fromVerse, toVerse),
+  );
+
+  useEffect(() => {
+    if (text) return;
+    let live = true;
+    loadBook(book)
+      .then((b) => {
+        if (live) setText(versesFor(b.chapters, chapter, fromVerse, toVerse));
+      })
+      // Offline with that book never opened. The reference still reads, which
+      // is why this is a quiet nothing rather than an error.
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [book, chapter, fromVerse, toVerse, text]);
+
+  if (!text) return null;
+  return <blockquote className="friendVerse__text">{text}</blockquote>;
+}
+
+/**
  * One person, and what they are willing to say.
  *
  * The dot is the only thing on here that is always true, so it is the only
  * thing given colour. Everything else is a sentence, because a sentence cannot
  * be compared at a glance the way a row of numbers can.
  */
-function FriendRow({ friend }: { friend: Friend }) {
+function FriendRow({ friend, onRemove }: { friend: Friend; onRemove: () => Promise<void> }) {
   const p = presenceOf(friend.progress);
+  const [confirming, setConfirming] = useState(false);
   return (
     <li className="friendRow">
-      <span
-        className={`friendRow__dot${p.today ? ' friendRow__dot--today' : ''}`}
-        aria-hidden="true"
-      />
+      <Avatar name={friend.displayName} url={friend.avatarUrl} today={p.today} />
       <div className="friendRow__who">
         <p className="friendRow__name">{friend.displayName}</p>
         <p className="friendRow__line">{describe(p, friend)}</p>
       </div>
-      {p.streak !== null && (
-        <span className="friendRow__streak" title="Days in a row">
-          {p.streak}
-          <span className="friendRow__streakUnit">days</span>
-        </span>
+      {confirming ? (
+        <div className="friendRow__actions">
+          <button type="button" className="btn btn--sm btn--danger" onClick={onRemove}>
+            Remove
+          </button>
+          <button
+            type="button"
+            className="btn btn--sm btn--ghost"
+            onClick={() => setConfirming(false)}
+          >
+            Keep
+          </button>
+        </div>
+      ) : (
+        <>
+          {p.streak !== null && (
+            <span className="friendRow__streak" title="Days in a row">
+              <Flame size={13} className="friendRow__flame" />
+              {p.streak}
+              <span className="friendRow__streakUnit">days</span>
+            </span>
+          )}
+          {/*
+            Unfriending was reachable only for a request you had not answered,
+            so an accepted friendship was permanent from inside the app. It sits
+            behind a confirm because it is the one destructive thing on here.
+          */}
+          <button
+            type="button"
+            className="friendRow__more"
+            aria-label={`Remove ${friend.displayName}`}
+            onClick={() => setConfirming(true)}
+          >
+            ×
+          </button>
+        </>
       )}
     </li>
   );
@@ -323,37 +484,187 @@ function describe(p: FriendPresence, friend: Friend): string {
   return day ? `Last read ${formatDay(day)}` : 'Not read in a while';
 }
 
+/**
+ * A passage somebody handed you.
+ *
+ * **The words are the point and they were missing.** The card printed the
+ * reference and the sender's thought and stopped, so a verse arrived as a
+ * citation: you had to go and look it up to find out what you had been sent,
+ * which is most of the way to not bothering. `PassageText` reads it out of the
+ * same book files the reader uses.
+ */
 function VerseCard({
   passage,
   from,
-  mine,
+  onDelete,
 }: {
   passage: Passage;
   from: string;
-  mine: boolean;
+  onDelete: () => Promise<void>;
 }) {
   const [seen, setSeen] = useState(passage.seen_at !== null);
   const ref = verseRef(passage.book, passage.chapter, passage.from_verse, passage.to_verse);
   return (
-    <li className={`friendVerse${seen || mine ? '' : ' friendVerse--fresh'}`}>
+    <li className={`friendVerse${seen ? '' : ' friendVerse--fresh'}`}>
       <p className="friendVerse__ref">{ref}</p>
+      <PassageText
+        book={passage.book}
+        chapter={passage.chapter}
+        fromVerse={passage.from_verse}
+        toVerse={passage.to_verse}
+      />
       {passage.thought && <p className="friendVerse__thought">{passage.thought}</p>}
       <p className="friendVerse__from">
-        {mine ? 'You sent this' : `From ${from}`}
+        From {from}
         <span className="friendVerse__when">{formatDay(passage.created_at.slice(0, 10))}</span>
       </p>
-      {!seen && !mine && (
-        <button
-          type="button"
-          className="btn btn--sm"
-          onClick={async () => {
-            // Optimistic: marking a verse read is not worth a spinner, and the
-            // worst case is it comes back unread on the next load.
-            setSeen(true);
-            await markPassageSeen(passage.id);
-          }}
-        >
-          Mark as read
+      <div className="friendVerse__actions">
+        {!seen && (
+          <button
+            type="button"
+            className="btn btn--sm"
+            onClick={async () => {
+              // Optimistic: marking a verse read is not worth a spinner, and the
+              // worst case is it comes back unread on the next load.
+              setSeen(true);
+              await markPassageSeen(passage.id);
+            }}
+          >
+            Mark as read
+          </button>
+        )}
+        <button type="button" className="btn btn--sm btn--ghost" onClick={onDelete}>
+          Remove
+        </button>
+      </div>
+    </li>
+  );
+}
+
+/**
+ * The verse of the day, yours and everybody's.
+ *
+ * This is the one place the app leans toward a feed, and the shape is what
+ * keeps it from becoming one. **One verse per person per day, enforced by the
+ * primary key**, so there is nothing to scroll, nobody can post six times, and
+ * a board that is empty today simply says so. Posting is done from the reader,
+ * where you are when a verse strikes you, rather than from a picker here.
+ */
+function BoardCard({
+  userId,
+  board,
+  friends,
+  me,
+  onChanged,
+  reveal,
+}: {
+  userId: string;
+  board: Broadcast[];
+  friends: Friend[];
+  me: Profile | null;
+  onChanged: () => Promise<void>;
+  reveal: (el: Element | null) => void;
+}) {
+  /*
+   * The newest day each person posted, which is not the same as "today".
+   * A friend nine hours ahead has already started tomorrow, so filtering on
+   * your own date would hide what they put up an hour ago.
+   */
+  const latest = useMemo(() => {
+    const best = new Map<string, Broadcast>();
+    for (const b of board) {
+      const seen = best.get(b.user_id);
+      if (!seen || b.day > seen.day) best.set(b.user_id, b);
+    }
+    return best;
+  }, [board]);
+
+  const mine = latest.get(userId) ?? null;
+  const theirs = friends
+    .map((f) => ({ friend: f, post: latest.get(f.userId) }))
+    .filter((x): x is { friend: Friend; post: Broadcast } => Boolean(x.post));
+
+  if (!mine && theirs.length === 0) {
+    return (
+      <section ref={reveal} className="card reveal">
+        <div className="card__head">
+          <div>
+            <h3 className="card__title">Verse of the day</h3>
+            <p className="card__note">
+              Nothing up yet. Highlight something while you read and choose "Put it up for today",
+              and everybody you read with sees it until tomorrow.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section ref={reveal} className="card reveal">
+      <div className="card__head">
+        <div>
+          <h3 className="card__title">Verse of the day</h3>
+          <p className="card__note">One each, replaced rather than added to.</p>
+        </div>
+      </div>
+      <ul className="board">
+        {mine && (
+          <BoardItem
+            key="mine"
+            post={mine}
+            name={me?.display_name ?? 'You'}
+            avatar={me?.avatar_url ?? null}
+            onClear={async () => {
+              await clearBroadcast(userId, mine.day);
+              await onChanged();
+            }}
+          />
+        )}
+        {theirs.map(({ friend, post }) => (
+          <BoardItem
+            key={friend.userId}
+            post={post}
+            name={friend.displayName}
+            avatar={friend.avatarUrl}
+          />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function BoardItem({
+  post,
+  name,
+  avatar,
+  onClear,
+}: {
+  post: Broadcast;
+  name: string;
+  avatar: string | null;
+  onClear?: () => Promise<void>;
+}) {
+  const ref = verseRef(post.book, post.chapter, post.from_verse, post.to_verse);
+  const mine = Boolean(onClear);
+  return (
+    <li className={`board__item${mine ? ' board__item--mine' : ''}`}>
+      <div className="board__who">
+        <Avatar name={name} url={avatar} size={28} />
+        <span className="board__name">{mine ? 'You' : name}</span>
+        {post.day !== today() && <span className="board__day">{formatDay(post.day)}</span>}
+      </div>
+      <p className="friendVerse__ref">{ref}</p>
+      <PassageText
+        book={post.book}
+        chapter={post.chapter}
+        fromVerse={post.from_verse}
+        toVerse={post.to_verse}
+      />
+      {post.thought && <p className="friendVerse__thought">{post.thought}</p>}
+      {onClear && (
+        <button type="button" className="btn btn--sm btn--ghost" onClick={onClear}>
+          Take it down
         </button>
       )}
     </li>
@@ -486,6 +797,8 @@ function HandleCard({
     existing?.handle ?? suggestHandle(suggestedName ?? ''),
   );
   const [name, setName] = useState(existing?.display_name ?? suggestedName ?? '');
+  const [avatar, setAvatar] = useState<string | null>(existing?.avatar_url ?? null);
+  const [uploading, setUploading] = useState(false);
   const [visibility, setVisibility] = useState(existing?.visibility ?? 'reading');
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -524,6 +837,7 @@ function HandleCard({
               handle: wanted,
               display_name: name.trim(),
               visibility,
+              avatar_url: avatar,
             });
             await onSaved();
           } catch {
@@ -533,6 +847,64 @@ function HandleCard({
           }
         }}
       >
+        {/*
+          A photograph, which the house rule otherwise forbids. The rule is
+          about the app's own furniture, where a stock image reads as pasted on.
+          A reader's own face is not furniture: it is how you tell two friends
+          apart at a glance, and it is the one image here that means something.
+          Initials stand in until there is one, since a generic silhouette is a
+          photograph of nobody.
+        */}
+        <div className="handleForm__field">
+          <span className="handleForm__label">Picture</span>
+          <div className="avatarPick">
+            <Avatar name={name || 'You'} url={avatar} size={56} />
+            <div className="avatarPick__actions">
+              <label className="btn btn--sm avatarPick__choose">
+                {uploading ? 'Uploading…' : avatar ? 'Change' : 'Add a photo'}
+                <input
+                  type="file"
+                  className="sr-only"
+                  accept="image/jpeg,image/png,image/webp"
+                  disabled={uploading}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    // The input keeps its value, so choosing the same file twice
+                    // would otherwise be a no-op the second time.
+                    e.target.value = '';
+                    if (!file) return;
+                    if (file.size > 2 * 1024 * 1024) {
+                      setNote('That picture is over 2 MB. A smaller one will upload faster too.');
+                      return;
+                    }
+                    setNote(null);
+                    setUploading(true);
+                    try {
+                      setAvatar(await uploadAvatar(userId, file));
+                    } catch {
+                      setNote('That picture could not be uploaded.');
+                    } finally {
+                      setUploading(false);
+                    }
+                  }}
+                />
+              </label>
+              {avatar && (
+                <button
+                  type="button"
+                  className="btn btn--sm btn--ghost"
+                  onClick={() => setAvatar(null)}
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          </div>
+          <p className="sendVerse__aside">
+            Only people you have accepted can see it. Saved when you press {first ? 'Start' : 'Save'}.
+          </p>
+        </div>
+
         <div className="handleForm__field">
           <label className="handleForm__label" htmlFor="my-handle">
             Handle

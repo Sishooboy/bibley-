@@ -267,7 +267,7 @@ const STEPS: Step[] = [
   {
     eyebrow: 'Welcome',
     title: 'This is Bibley',
-    body: 'A reading plan with the whole Bible inside it. Four screens, and everything below is the tour. It takes about twenty seconds.',
+    body: 'A reading plan with the whole Bible inside it. Five screens, and everything below is the tour. It takes about half a minute.',
     art: <ArtWelcome />,
   },
   {

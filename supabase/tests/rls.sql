@@ -69,6 +69,13 @@ begin
     insert into public.journals (user_id, data)
       values (a, '{"read":{},"notes":[]}'::jsonb);
 
+    -- A verse of the day from each, so the board can be checked the same way
+    -- the progress rows are: accepted sees it, pending does not.
+    insert into public.broadcasts (user_id, day, book, chapter, from_verse, to_verse, thought)
+      values
+        (a, current_date, 'Psalms', 23, 1, 3, 'still true'),
+        (c, current_date, 'Micah', 6, 8, 8, null);
+
     perform set_config('role', 'authenticated', true);
 
     -- Reads. Each is a count, so a policy that is too generous shows up as a
@@ -114,7 +121,17 @@ begin
         ('the friends tables did not widen access to journals',
          'select count(*) from public.journals', 0, c),
         ('the owner can still read their own journal',
-         'select count(*) from public.journals', 1, a)
+         'select count(*) from public.journals', 1, a),
+        ('A sees their own verse of the day and their friend has none',
+         'select count(*) from public.broadcasts', 1, a),
+        ('B sees the verse of the day of the friend who posted one',
+         'select count(*) from public.broadcasts', 1, b),
+        ('a pending request reveals no verse of the day either',
+         'select count(*) from public.broadcasts', 1, c),
+        ('C cannot read the board of somebody who has not accepted them',
+         format('select count(*) from public.broadcasts where user_id = %L', a), 0, c),
+        ('a profile now carries a picture, and a friend can see it',
+         format('select count(*) from public.profiles where user_id = %L and avatar_url is null', b), 1, a)
       ) as t(label, q, expected, who)
     loop
       ord := ord + 1;
@@ -158,7 +175,15 @@ begin
         ('an accepted friend cannot write to the journal behind the progress',
          format('update public.journals set data = ''{}''::jsonb where user_id = %L', a), b),
         ('a stranger cannot write to a journal either',
-         format('update public.journals set data = ''{}''::jsonb where user_id = %L', a), c)
+         format('update public.journals set data = ''{}''::jsonb where user_id = %L', a), c),
+        ('nobody can post a verse of the day in somebody else name',
+         format('insert into public.broadcasts (user_id, day, book, chapter, from_verse, to_verse) values (%L, current_date - 1, ''Mark'', 1, 1, 1)', a), c),
+        ('nobody can take down somebody else verse of the day',
+         format('delete from public.broadcasts where user_id = %L', a), b),
+        ('nobody can rewrite somebody else verse of the day',
+         format('update public.broadcasts set thought = ''not mine to say'' where user_id = %L', a), b),
+        ('a second verse the same day replaces rather than adding',
+         format('insert into public.broadcasts (user_id, day, book, chapter, from_verse, to_verse) values (%L, current_date, ''Mark'', 1, 1, 1)', a), a)
       ) as t(label, q, who)
     loop
       ord := ord + 1;
@@ -189,7 +214,11 @@ begin
         ('A can publish their own progress',
          format('update public.progress set streak_current = 5 where user_id = %L', a), a),
         ('A can send a passage to an accepted friend',
-         format('insert into public.passages (from_user, to_user, book, chapter, from_verse, from_offset, to_verse, to_offset) values (%L, %L, ''Psalms'', 23, 1, 0, 1, 20)', a, b), a)
+         format('insert into public.passages (from_user, to_user, book, chapter, from_verse, from_offset, to_verse, to_offset) values (%L, %L, ''Psalms'', 23, 1, 0, 1, 20)', a, b), a),
+        ('A can change their own verse of the day',
+         format('update public.broadcasts set thought = ''said better'' where user_id = %L', a), a),
+        ('A can take their own verse of the day down',
+         format('delete from public.broadcasts where user_id = %L and day = current_date', a), a)
       ) as t(label, q, who)
     loop
       ord := ord + 1;

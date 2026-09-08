@@ -33,13 +33,13 @@ export function HighlightSheet({
   const { noteHighlight, removeHighlight } = useStore();
   const [draft, setDraft] = useState(highlight?.note ?? '');
   const [confirming, setConfirming] = useState(false);
-  const [sending, setSending] = useState(false);
+  const [sending, setSending] = useState<'send' | 'post' | null>(null);
   const boxRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     setDraft(highlight?.note ?? '');
     setConfirming(false);
-    setSending(false);
+    setSending(null);
   }, [highlight]);
 
   const quote = highlight?.text ?? pendingText;
@@ -62,7 +62,12 @@ export function HighlightSheet({
               ✕
             </button>
           </div>
-          <SendVerse sendable={sendable} quote={quote} onClose={() => setSending(false)} />
+          <SendVerse
+            sendable={sendable}
+            quote={quote}
+            mode={sending}
+            onClose={() => setSending(null)}
+          />
         </div>
       </div>
     );
@@ -163,13 +168,28 @@ export function HighlightSheet({
             </>
           )}
           {sendable && (
-            <button
-              type="button"
-              className="btn btn--sm btn--ghost"
-              onClick={() => setSending(true)}
-            >
-              Send to a friend
-            </button>
+            <>
+              <button
+                type="button"
+                className="btn btn--sm btn--ghost"
+                onClick={() => setSending('send')}
+              >
+                Send to a friend
+              </button>
+              {/*
+                Posting is deliberately next to sending rather than on the
+                friends screen. This is where you are when a verse strikes you,
+                and a picker on another screen would mean remembering the
+                reference and going to look it up again.
+              */}
+              <button
+                type="button"
+                className="btn btn--sm btn--ghost"
+                onClick={() => setSending('post')}
+              >
+                Put it up for today
+              </button>
+            </>
           )}
         </div>
       </div>

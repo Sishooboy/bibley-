@@ -109,6 +109,21 @@ begin
      'Read this on the train and thought of you.')
   on conflict (id) do nothing;
 
+  -- Two on the board, so the verse of the day is not an empty card. Hana's is
+  -- dated to her own day, which is already tomorrow at +540, and that is the
+  -- case the board has to survive: filtering on your own date would hide it.
+  insert into public.broadcasts (user_id, day, book, chapter, from_verse, to_verse, thought)
+  values
+    (hana, ((now() at time zone 'UTC') + interval '540 minutes')::date,
+     'Isaiah', 40, 31, 31, 'Carried me through this week.'),
+    (marc, current_date, 'Lamentations', 3, 22, 23, null)
+  on conflict (user_id, day) do update
+    set book = excluded.book,
+        chapter = excluded.chapter,
+        from_verse = excluded.from_verse,
+        to_verse = excluded.to_verse,
+        thought = excluded.thought;
+
   raise notice 'seeded four demo friends';
 end $$;
 

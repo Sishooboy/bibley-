@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { verseRef } from '../lib/highlight';
-import { loadFriends, sendPassage, type Friend } from '../lib/friendsApi';
+import { loadFriends, postBroadcast, sendPassage, type Friend } from '../lib/friendsApi';
+import { today } from '../lib/dates';
 import { chime } from '../lib/sound';
 import type { Spot } from '../lib/storage';
 import { useCloud } from '../state/useCloud';
@@ -29,10 +30,18 @@ export type Sendable = {
 export function SendVerse({
   sendable,
   quote,
+  mode = 'send',
   onClose,
 }: {
   sendable: Sendable;
   quote: string;
+  /**
+   * 'send' hands it to one person, 'post' puts it up for everybody you read
+   * with. One component because the two differ by a recipient and a verb:
+   * the passage, the quote, the message box and the whole layout are the same,
+   * and two files would drift the first time either was touched.
+   */
+  mode?: 'send' | 'post';
   onClose: () => void;
 }) {
   const { userId } = useCloud();
@@ -44,7 +53,9 @@ export function SendVerse({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!userId) {
+    // Posting goes to everybody at once, so there is nobody to choose and no
+    // reason to fetch the list.
+    if (!userId || mode === 'post') {
       setFriends([]);
       return;
     }
@@ -66,7 +77,7 @@ export function SendVerse({
     return () => {
       live = false;
     };
-  }, [userId]);
+  }, [userId, mode]);
 
   const reference = verseRef(
     sendable.book,
@@ -79,11 +90,76 @@ export function SendVerse({
     return (
       <div className="sendVerse sendVerse--done">
         <p className="sendVerse__done">
-          {reference} is on its way to {sent}.
+          {mode === 'post' ? `${reference} is up for today.` : `${reference} is on its way to ${sent}.`}
         </p>
         <button type="button" className="btn btn--sm" onClick={onClose}>
           Done
         </button>
+      </div>
+    );
+  }
+
+  if (mode === 'post') {
+    return (
+      <div className="sendVerse">
+        <p className="sendVerse__label">Put {reference} up for today</p>
+        <p className="sendVerse__aside">
+          Everybody you read with sees it, and it replaces whatever you put up earlier today.
+        </p>
+
+        <label className="sendVerse__label" htmlFor="post-thought">
+          Why this one
+        </label>
+        <textarea
+          id="post-thought"
+          className="field sendVerse__thought"
+          rows={2}
+          maxLength={280}
+          value={thought}
+          onChange={(e) => setThought(e.target.value)}
+          placeholder="Optional."
+        />
+
+        {error && <p className="sendVerse__note">{error}</p>}
+
+        <div className="hlSheet__actions">
+          <button
+            type="button"
+            className="btn btn--sm btn--primary"
+            disabled={busy || !userId}
+            onClick={async () => {
+              if (!userId) return;
+              setBusy(true);
+              setError(null);
+              try {
+                await postBroadcast({
+                  userId,
+                  // The poster's own day, so "today" means their today wherever
+                  // they are reading from.
+                  day: today(),
+                  book: sendable.book,
+                  chapter: sendable.chapter,
+                  fromVerse: sendable.from.verse,
+                  toVerse: sendable.to.verse,
+                  thought: thought.trim() || null,
+                });
+                chime('note');
+                setSent('everyone');
+              } catch {
+                setError('That could not be posted. Your highlight is safe either way.');
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            Put it up
+          </button>
+          <button type="button" className="btn btn--sm btn--ghost" onClick={onClose}>
+            Cancel
+          </button>
+        </div>
+
+        <blockquote className="sendVerse__quote">{quote}</blockquote>
       </div>
     );
   }

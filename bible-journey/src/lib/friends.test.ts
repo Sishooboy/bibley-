@@ -4,8 +4,10 @@ import {
   canonicalPair,
   isValidHandle,
   normalizeHandle,
+  inInbox,
   presenceOf,
   suggestHandle,
+  versesFor,
   projectProgress,
   readToday,
   theirToday,
@@ -341,5 +343,67 @@ describe('suggestHandle fills the form in from what Google already told us', () 
 
   it('never suggests one longer than the column allows', () => {
     expect(suggestHandle('Bartholomew Featherstonehaugh').length).toBeLessThanOrEqual(20);
+  });
+});
+
+
+describe('the inbox keeps what has not been read', () => {
+  const now = new Date('2026-09-08T12:00:00Z');
+  const at = (day: string, seen: string | null) => ({ created_at: day, seen_at: seen });
+
+  /*
+   * The rule worth arguing about. A verse that expired before anybody looked at
+   * it is worse than a list that got long: the sender has no way to know it
+   * went unseen, so they would think you read it and said nothing.
+   */
+  it('never ages out something unread, however old', () => {
+    expect(inInbox(at('2026-01-01T09:00:00Z', null), now)).toBe(true);
+    expect(inInbox(at('2020-01-01T09:00:00Z', null), now)).toBe(true);
+  });
+
+  it('keeps one that was read recently', () => {
+    expect(inInbox(at('2026-09-07T09:00:00Z', '2026-09-07T10:00:00Z'), now)).toBe(true);
+  });
+
+  it('drops one read and older than three days', () => {
+    expect(inInbox(at('2026-09-04T09:00:00Z', '2026-09-04T10:00:00Z'), now)).toBe(false);
+  });
+
+  it('counts from when it was sent, not from when it was read', () => {
+    // Sent a week ago and read a minute ago: it has done its job and goes.
+    expect(inInbox(at('2026-09-01T09:00:00Z', '2026-09-08T11:59:00Z'), now)).toBe(false);
+  });
+});
+
+describe('versesFor turns a reference back into words', () => {
+  const chapters = [
+    ['one one', 'one two', 'one three'],
+    ['two one', null, 'two three', 'two four'],
+  ];
+
+  it('reads a single verse', () => {
+    expect(versesFor(chapters, 1, 2, 2)).toBe('one two');
+  });
+
+  it('joins a span', () => {
+    expect(versesFor(chapters, 1, 1, 3)).toBe('one one one two one three');
+  });
+
+  /*
+   * A null verse is a number the King James tradition carries and this
+   * translation's source does not. Printing a gap for it would put a double
+   * space in the middle of a passage somebody was handed.
+   */
+  it('skips a verse this translation does not carry', () => {
+    expect(versesFor(chapters, 2, 1, 3)).toBe('two one two three');
+  });
+
+  it('gives back nothing rather than throwing on a chapter that is not there', () => {
+    expect(versesFor(chapters, 9, 1, 1)).toBe('');
+    expect(versesFor(undefined, 1, 1, 1)).toBe('');
+  });
+
+  it('does not run off the end of a chapter', () => {
+    expect(versesFor(chapters, 1, 2, 99)).toBe('one two one three');
   });
 });
