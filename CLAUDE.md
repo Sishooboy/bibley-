@@ -347,6 +347,16 @@ redeploy.**
   Every new small text here was measured against the gradient's brightest point, and two tints
   failed and became solid white: a white tint at 0.82 measured 3.86 and at 0.85 measured 4.47,
   against the 4.5 that small text needs.
+- **The marking controls fold away and Back and Next never do.** The footer is the largest thing on
+  the reader that is not scripture, about 155px of a phone somebody is trying to read on: a date, a
+  time of day and a two line button, for something done once a chapter. Folded, it is a 38px pill
+  that **still names the action**, so marking stays one tap and nothing has to be remembered.
+  Paging is how a chapter is read straight through, so putting Back and Next behind a disclosure
+  would make the common case the expensive one. The flag is **device-local in `prefs.ts`, not a
+  `Prefs` field**: `normalize()` is a whitelist and `cloud.tsx` upserts the whole row, so a journal
+  field needs a release that reads it shipped before one writes it, and a view setting is worth
+  nothing on a second device. It survives a chapter change and a reload, which is the point, since
+  folding it away and having it return on the next chapter would be worse than not having it.
 - Back, Mark and Next are a **named-area grid**, mark across the top and the two destinations
   beneath, at every width. They were a flex row that wrapped when it had to, which put the primary
   action wherever the wrap left it. Each is 52 to 61px tall, above the 44 a thumb needs.

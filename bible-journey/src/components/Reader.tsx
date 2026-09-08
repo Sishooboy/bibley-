@@ -37,7 +37,7 @@ import {
 import { useKeyboardInset } from '../lib/keyboard';
 import { neighbours } from '../lib/navigate';
 import { blocksFor } from '../lib/passage';
-import { DEFAULT_PREFS, TEXT_SIZES, textScale } from '../lib/prefs';
+import { DEFAULT_PREFS, TEXT_SIZES, markFolded, setMarkFolded, textScale } from '../lib/prefs';
 import { chime } from '../lib/sound';
 import { chapterKey, newId, type Highlight } from '../lib/storage';
 import { useStore } from '../state/useStore';
@@ -177,6 +177,16 @@ export function Reader({
    * plays on a chapter it was not for.
    */
   const [justMarked, setJustMarked] = useState(false);
+  /*
+   * Whether the marking controls are folded away. Device-local rather than a
+   * journal field, so it survives a chapter change and a reload without
+   * needing a release that reads it shipped before one writes it.
+   */
+  const [folded, setFoldedState] = useState(markFolded);
+  const setFolded = useCallback((next: boolean) => {
+    setFoldedState(next);
+    setMarkFolded(next);
+  }, []);
   /** The book cards and chapter notes, fetched once like the text. */
   const [insights, setInsights] = useState<Insights | undefined>(cachedInsights);
   /** Whether the book's card is up, and whether it was asked for rather than arriving. */
@@ -773,9 +783,40 @@ export function Reader({
       */}
       {!searching && (
       <footer className="reader__foot">
-        <div className="reader__log">
-          <LogDayPicker id={`reader-log-${chapterKey(book, chapter)}`} />
-        </div>
+        {/*
+          Folded away, this is a slim strip that still names the primary action,
+          so marking is one tap rather than two and nothing has to be
+          remembered. Back and Next never fold: paging is how you read straight
+          through, and putting it behind a disclosure would make the common case
+          the expensive one.
+        */}
+        {folded ? (
+          <button
+            type="button"
+            className="markFold markFold--shut"
+            aria-expanded={false}
+            onClick={() => setFolded(false)}
+          >
+            <Check size={13} />
+            <span>{isRead ? 'Read, tap to change' : 'Mark as read'}</span>
+            <Chevron size={13} className="markFold__chev" />
+          </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              className="markFold"
+              aria-expanded
+              onClick={() => setFolded(true)}
+            >
+              <Chevron size={13} className="markFold__chev markFold__chev--open" />
+              <span>Hide this while I read</span>
+            </button>
+            <div className="reader__log">
+              <LogDayPicker id={`reader-log-${chapterKey(book, chapter)}`} />
+            </div>
+          </>
+        )}
 
         {/*
           Three controls that each say what pressing them does. Back and Next
@@ -809,6 +850,7 @@ export function Reader({
             </span>
           </button>
 
+          {!folded && (
           <button
             type="button"
             className={`btn readerMark${isRead ? ' btn--done' : ' btn--primary'}${
@@ -836,6 +878,7 @@ export function Reader({
               {isRead ? 'Read' : lastOne ? `Finish ${book}` : 'Mark as read'}
             </span>
           </button>
+          )}
 
           <button
             type="button"

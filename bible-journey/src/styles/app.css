@@ -8351,6 +8351,68 @@ select {
   }
 }
 
+
+/* ── Folding the marking controls away ──────────────────────────────────── */
+
+/*
+ * The reader's footer is the largest thing on the screen that is not scripture:
+ * a date, a time of day and a two line button, about a hundred and thirty
+ * pixels of a phone that somebody is trying to read on. It folds to this.
+ *
+ * **Back and Next never fold.** Paging is how a chapter is read straight
+ * through, and putting it behind a disclosure would make the common case the
+ * expensive one. What folds is the marking, which happens once a chapter.
+ */
+.markFold {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  border: 0;
+  background: none;
+  padding: 0.2rem 0;
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+/*
+ * Shut, it still names the action, so marking stays one tap and nothing has to
+ * be remembered. It takes the paper and hairline a button has, because here it
+ * is the control rather than a label above one.
+ */
+.markFold--shut {
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fffdf8, #f3ebdb);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 1px 2px rgba(74, 45, 20, 0.13);
+  padding: 0.5rem 0.9rem;
+  min-height: 38px;
+  color: var(--ink-700);
+}
+
+.markFold__chev {
+  transform: rotate(-90deg);
+  transition: transform 200ms var(--ease-out);
+}
+
+.markFold__chev--open {
+  transform: rotate(90deg);
+}
+
+@media (hover: hover) {
+  .markFold:hover {
+    color: var(--red-700);
+  }
+}
+
 /*
  * `.btn` has pressed since the day it was written and nothing else did, so the
  * app had one control that felt connected and about a hundred that did not:

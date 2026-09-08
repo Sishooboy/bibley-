@@ -109,3 +109,38 @@ export function formatTime(value: string): string {
   date.setHours(h, m, 0, 0);
   return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 }
+
+/*
+ * Whether the reader's marking controls are folded away.
+ *
+ * **Device-local on purpose, and not a `Prefs` field.** `normalize()` is a
+ * whitelist and `cloud.tsx` upserts the whole row, so anything added to the
+ * journal has to ship in a release that only reads it before any release writes
+ * it. This is a view setting worth nothing on a second device, so it is not
+ * worth a staged release: the same reasoning that keeps the insight cards and
+ * the mourned-streak key out of the blob.
+ *
+ * It survives a chapter change and a reload, which is the whole point. Folding
+ * it away once and having it come back on the next chapter would be worse than
+ * not having the control at all.
+ */
+const MARK_FOLDED_KEY = 'bible-journey/reader-mark-folded';
+
+export function markFolded(): boolean {
+  try {
+    return localStorage.getItem(MARK_FOLDED_KEY) === '1';
+  } catch {
+    // A private window with storage blocked. Showing the controls is the safe
+    // way to be wrong: the reader can still mark, they just see one more row.
+    return false;
+  }
+}
+
+export function setMarkFolded(folded: boolean): void {
+  try {
+    if (folded) localStorage.setItem(MARK_FOLDED_KEY, '1');
+    else localStorage.removeItem(MARK_FOLDED_KEY);
+  } catch (err) {
+    console.error('Could not remember the reader layout.', err);
+  }
+}
