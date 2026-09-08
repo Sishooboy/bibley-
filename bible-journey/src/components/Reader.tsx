@@ -745,6 +745,19 @@ export function Reader({
         <HighlightSheet
           highlight={open}
           pendingText={pending ? quoteFor(pending) : ''}
+          /*
+           * A saved highlight already knows where it is; a selection still
+           * being made does not, and the reader is the only thing that does. So
+           * it is worked out here for both, which is what lets a passage be
+           * handed on without first being kept.
+           */
+          sendable={
+            open
+              ? { book: open.book, chapter: open.chapter, from: open.from, to: open.to }
+              : pending
+                ? { book, chapter, from: pending.from, to: pending.to }
+                : undefined
+          }
           onSave={commitPending}
           onClose={() => {
             setPending(null);

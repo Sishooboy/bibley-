@@ -7733,6 +7733,109 @@ select {
   }
 }
 
+/* ── Handing a passage to somebody ──────────────────────────────────────── */
+
+.sendVerse {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.sendVerse__label {
+  margin: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.sendVerse__people {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * Pills rather than a select, because the list is short and a native select on
+ * a phone opens a wheel over the sheet that this one is already fighting for
+ * room with the keyboard.
+ */
+.sendVerse__person {
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  padding: 0.35rem 0.8rem;
+  font-family: var(--font-display);
+  font-size: 0.86rem;
+  font-variation-settings: 'SOFT' 0, 'WONK' 0;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.sendVerse__person--on {
+  border-color: var(--red-600);
+  background: var(--red-600);
+  color: #fff;
+}
+
+.sendVerse__thought {
+  min-height: 3.4rem;
+}
+
+.sendVerse__aside {
+  margin: -0.3rem 0 0;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.sendVerse__note {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.sendVerse__done {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-variation-settings: 'SOFT' 0, 'WONK' 0;
+  color: var(--text);
+}
+
+/*
+ * The passage sits under the controls here, the opposite way round to the
+ * highlight sheet. There the quote is what you are acting on; here it is a
+ * reminder of what is being sent, and the choice of person is the thing in
+ * hand.
+ */
+.sendVerse__quote {
+  margin: 0.2rem 0 0;
+  padding-left: 0.8rem;
+  border-left: 3px solid var(--line-strong);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--muted);
+  max-height: 5rem;
+  overflow-y: auto;
+}
+
+@media (hover: hover) {
+  .sendVerse__person:hover {
+    border-color: var(--ink-500);
+  }
+
+  .sendVerse__person--on:hover {
+    border-color: var(--red-700);
+    background: var(--red-700);
+  }
+}
+
 /*
  * `.btn` has pressed since the day it was written and nothing else did, so the
  * app had one control that felt connected and about a hundred that did not:

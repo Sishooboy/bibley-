@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { SendVerse, type Sendable } from './SendVerse';
 import { highlightRef } from '../lib/highlight';
 import type { Highlight } from '../lib/storage';
 import { useStore } from '../state/useStore';
@@ -13,26 +14,59 @@ import { useStore } from '../state/useStore';
 export function HighlightSheet({
   highlight,
   pendingText,
+  sendable,
   onSave,
   onClose,
 }: {
   /** Set when revisiting a saved highlight, absent when one is being made. */
   highlight?: Highlight;
   pendingText: string;
+  /**
+   * Where this passage sits, for handing it to somebody. Supplied for a
+   * selection being made as well as for a saved one, so passing a verse on does
+   * not mean saving it, closing the sheet and opening it again.
+   */
+  sendable?: Sendable;
   onSave: (note: string) => void;
   onClose: () => void;
 }) {
   const { noteHighlight, removeHighlight } = useStore();
   const [draft, setDraft] = useState(highlight?.note ?? '');
   const [confirming, setConfirming] = useState(false);
+  const [sending, setSending] = useState(false);
   const boxRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     setDraft(highlight?.note ?? '');
     setConfirming(false);
+    setSending(false);
   }, [highlight]);
 
   const quote = highlight?.text ?? pendingText;
+
+  /*
+   * Sending takes over the whole sheet rather than unfolding inside it. The
+   * sheet already lifts itself above the keyboard and a picker plus a second
+   * box underneath the note would put the send button back under the keys on a
+   * phone, which is the exact problem `useKeyboardInset` exists to solve.
+   */
+  if (sending && sendable) {
+    return (
+      <div className="hlSheet" role="dialog" aria-label="Send this passage">
+        <div className="hlSheet__inner">
+          <div className="hlSheet__head">
+            <span className="hlSheet__ref">
+              {highlight ? highlightRef(highlight) : 'New highlight'}
+            </span>
+            <button type="button" className="hlSheet__close" onClick={onClose} aria-label="Close">
+              ✕
+            </button>
+          </div>
+          <SendVerse sendable={sendable} quote={quote} onClose={() => setSending(false)} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="hlSheet" role="dialog" aria-label="Highlight">
@@ -127,6 +161,15 @@ export function HighlightSheet({
                 Cancel
               </button>
             </>
+          )}
+          {sendable && (
+            <button
+              type="button"
+              className="btn btn--sm btn--ghost"
+              onClick={() => setSending(true)}
+            >
+              Send to a friend
+            </button>
           )}
         </div>
       </div>

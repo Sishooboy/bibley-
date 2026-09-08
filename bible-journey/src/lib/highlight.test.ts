@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CANON, NEW_TESTAMENT, OLD_TESTAMENT } from '../data/canon';
 import { getTrack, type PhasedTrack } from '../data/tracks';
-import { highlightRef, isEmptyRange, order, segmentVerse } from './highlight';
+import { highlightRef, isEmptyRange, order, segmentVerse, verseRef } from './highlight';
 import { chapterCount, neighbours, readChapter } from './navigate';
 import type { Highlight } from './storage';
 
@@ -108,6 +108,16 @@ describe('order and empties', () => {
   it('treats a click with no drag as empty', () => {
     expect(isEmptyRange(order({ verse: 3, offset: 5 }, { verse: 3, offset: 5 }))).toBe(true);
     expect(isEmptyRange(order({ verse: 3, offset: 5 }, { verse: 3, offset: 6 }))).toBe(false);
+  });
+});
+
+describe('verseRef', () => {
+  it('spells one reference for a highlight, a passage sent and one received', () => {
+    // Three different shapes print the same string, which is the whole reason
+    // it moved out of highlightRef.
+    expect(verseRef('John', 3, 16, 16)).toBe('John 3:16');
+    expect(verseRef('John', 3, 16, 18)).toBe('John 3:16-18');
+    expect(verseRef('1 Samuel', 17, 45, 47)).toBe('1 Samuel 17:45-47');
   });
 });
 

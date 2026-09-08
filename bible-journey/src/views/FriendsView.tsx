@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
 import { formatDay } from '../lib/dates';
+import { verseRef } from '../lib/highlight';
 import { plural } from '../lib/format';
 import { useReveal } from '../lib/motion';
 import { isValidHandle, normalizeHandle, presenceOf, type FriendPresence } from '../lib/friends';
@@ -301,10 +302,7 @@ function VerseCard({
   mine: boolean;
 }) {
   const [seen, setSeen] = useState(passage.seen_at !== null);
-  const ref =
-    passage.from_verse === passage.to_verse
-      ? `${passage.book} ${passage.chapter}:${passage.from_verse}`
-      : `${passage.book} ${passage.chapter}:${passage.from_verse}-${passage.to_verse}`;
+  const ref = verseRef(passage.book, passage.chapter, passage.from_verse, passage.to_verse);
   return (
     <li className={`friendVerse${seen || mine ? '' : ' friendVerse--fresh'}`}>
       <p className="friendVerse__ref">{ref}</p>

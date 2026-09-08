@@ -956,13 +956,26 @@ required asset anyway, not inside the app.
 with accept and decline, the inbox, adding somebody by handle, your own handle and the two
 visibility positions. `cloud.tsx` publishes the projection alongside the journal.
 
-**The one piece missing is the half that matters most**, which is handing somebody a verse. The
-inbox renders what arrives and `sendPassage` in `friendsApi.ts` is written and unused: what is left
-is a "send to" control in `HighlightSheet` and a friend picker. Everything under it is done and
-tested, including the RLS rule that a passage can only be inserted between accepted friends.
+**Handing somebody a verse works too.** `SendVerse` opens over the highlight sheet from a "Send to a
+friend" button, and the reader supplies the reference for a selection still being made as well as
+for a saved highlight, so passing a verse on does not mean saving it, closing the sheet and opening
+it again.
 
-Also not done: the reader does not yet open at a passage when one is tapped, and nothing tells you a
-verse arrived except opening the screen.
+- **The message box starts empty and is never the highlight's own note.** The note is the private
+  half of the app, so prefilling it would put one tap between a private thought and somebody else
+  reading it. Two boxes that look alike doing opposite things is the quiet mistake worth designing
+  out, so the label names who it is going to and a line under it says the note stays here.
+- **Sending takes over the sheet rather than unfolding inside it.** A picker plus a second box under
+  the note would put the send button back under the keyboard on a phone, which is the exact problem
+  `useKeyboardInset` exists to solve.
+- **The confirmation is `chime('note')`, not a `Cue`.** Nothing in the journal changed, the same
+  reasoning that keeps the two insight chimes off the ladder.
+- **`verseRef` in `highlight.ts` is the one spelling of a reference**, because the same string is
+  printed for three different shapes now: a saved highlight, a selection being sent, and a passage
+  that arrived.
+
+Still not done: the reader does not open at a passage when one is tapped in the inbox, and nothing
+tells you a verse arrived except opening the screen.
 
 Not built yet, roughly in order:
 

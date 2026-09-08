@@ -119,8 +119,24 @@ export function highlightsFor(
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
 
+/**
+ * "John 3:16", or "John 3:16-18" across verses.
+ *
+ * Takes the four numbers rather than a `Highlight`, because the same reference
+ * is printed for three different objects now: a saved highlight, a selection
+ * being handed to a friend, and a passage that arrived from one. Those have
+ * three different shapes and one spelling of a Bible reference.
+ */
+export function verseRef(
+  book: string,
+  chapter: number,
+  fromVerse: number,
+  toVerse: number,
+): string {
+  const verses = fromVerse === toVerse ? `${fromVerse}` : `${fromVerse}-${toVerse}`;
+  return `${book} ${chapter}:${verses}`;
+}
+
 export function highlightRef(highlight: Highlight): string {
-  const { from, to } = highlight;
-  const verses = from.verse === to.verse ? `${from.verse}` : `${from.verse}-${to.verse}`;
-  return `${highlight.book} ${highlight.chapter}:${verses}`;
+  return verseRef(highlight.book, highlight.chapter, highlight.from.verse, highlight.to.verse);
 }
