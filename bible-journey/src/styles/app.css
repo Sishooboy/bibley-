@@ -8094,6 +8094,292 @@ select {
   margin-top: 0.2rem;
 }
 
+/* ── Framing a photograph ───────────────────────────────────────────────── */
+
+.crop {
+  display: grid;
+  gap: 0.6rem;
+  justify-items: start;
+}
+
+/*
+ * `touch-action: none` is what makes a drag a drag. Without it the browser
+ * claims the gesture as a scroll and the photograph never moves on a phone,
+ * which is the same class of problem the reader's own selection had.
+ */
+.crop__window {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--ink);
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.crop__window:active {
+  cursor: grabbing;
+}
+
+.crop__img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  max-width: none;
+  pointer-events: none;
+}
+
+/*
+ * The circle drawn over the square, so the reader frames what they will
+ * actually see rather than a rectangle they have to imagine a circle inside.
+ * An enormous spread shadow cuts the hole, the same trick the tour's spotlight
+ * uses, so there is one element and nothing to keep in step.
+ */
+.crop__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 9999px rgba(26, 21, 18, 0.55);
+  pointer-events: none;
+}
+
+.crop__zoom {
+  width: 100%;
+  max-width: 260px;
+  accent-color: var(--red-600);
+}
+
+/* ── The verse of the day, which is the one loud thing on the screen ─────── */
+
+/*
+ * Night, and it is the only card in the app that is.
+ *
+ * The screen was pale: eight cream panels on a cream page, every one the same
+ * weight, so nothing on it looked like the reason to visit. The verse of the
+ * day *is* that reason, so it gets the app's own dark surface, the one the
+ * header and the guide already use. It also lets gold be a word rather than an
+ * edge for once: `--yellow` is 1.7:1 on paper and could never carry text there,
+ * and it is over 12:1 here.
+ */
+.card--night {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--cream);
+}
+
+.card--night .card__title {
+  color: var(--cream);
+}
+
+.card--night .card__note {
+  color: var(--muted-dark);
+}
+
+.card--night .card__head {
+  border-bottom-color: rgba(247, 242, 233, 0.14);
+}
+
+.card--night .board {
+  background: rgba(247, 242, 233, 0.12);
+  border-color: rgba(247, 242, 233, 0.16);
+}
+
+.card--night .board__item {
+  background: #221c18;
+}
+
+.card--night .board__name {
+  color: var(--cream);
+}
+
+.card--night .board__day,
+.card--night .friendVerse__thought {
+  color: var(--muted-dark);
+}
+
+.card--night .friendVerse__ref {
+  color: var(--yellow);
+}
+
+.card--night .friendVerse__text {
+  color: var(--cream);
+}
+
+.card--night .avatar {
+  background: rgba(247, 242, 233, 0.14);
+}
+
+.card--night .avatar__initials {
+  color: var(--yellow-soft);
+}
+
+.card--night .avatar__dot {
+  box-shadow: 0 0 0 2px #221c18;
+}
+
+.card--night .btn {
+  background: rgba(247, 242, 233, 0.1);
+  border-color: rgba(247, 242, 233, 0.2);
+  color: var(--cream);
+  box-shadow: none;
+}
+
+/* ── The exchanges ──────────────────────────────────────────────────────── */
+
+.threadList {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--line);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--panel-radius);
+  overflow: hidden;
+}
+
+.thread {
+  background: var(--surface);
+}
+
+.thread__head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  border: 0;
+  background: none;
+  padding: 0.7rem 0.85rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.thread__who {
+  min-width: 0;
+}
+
+.thread__name {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.96rem;
+  font-variation-settings: 'SOFT' 0, 'WONK' 0;
+  color: var(--text);
+}
+
+.thread__last {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A count rather than a dot, because "three waiting" is worth more than "some". */
+.thread__unread {
+  min-width: 1.35rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 999px;
+  background: var(--red-600);
+  font-family: var(--font-display);
+  font-size: 0.76rem;
+  color: #fff;
+  text-align: center;
+}
+
+.thread__chev {
+  color: var(--muted-dark);
+  transition: transform 160ms ease;
+}
+
+.thread__chev--open {
+  transform: rotate(90deg);
+}
+
+.thread__messages {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0 0.85rem 0.85rem;
+  list-style: none;
+}
+
+/*
+ * Yours and theirs lean to opposite sides, which is the one convention every
+ * reader already knows and costs nothing but a margin. Theirs keeps the gold
+ * edge a passage has everywhere else in the app; yours takes red, so the two
+ * are told apart by the side *and* by the colour and neither has to carry it
+ * alone.
+ */
+.bubble {
+  max-width: 88%;
+  margin-right: auto;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--yellow);
+  border-radius: var(--radius);
+  background: #fffdf4;
+}
+
+.bubble--mine {
+  margin-left: auto;
+  margin-right: 0;
+  /* The gold edge has to go, not just get thinner: left in, one bubble carried
+     both colours and read as belonging to both sides at once. */
+  border-left: 1px solid var(--line);
+  border-right: 3px solid var(--red-600);
+  background: var(--surface);
+}
+
+.bubble__ref {
+  margin: 0 0 0.2rem;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-variation-settings: 'SOFT' 0, 'WONK' 0;
+  color: var(--red-700);
+}
+
+.bubble__thought {
+  margin: 0.35rem 0 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.bubble__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.45rem 0 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.bubble__remove {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .thread__head:hover {
+    background: var(--cream);
+  }
+
+  .bubble__remove:hover {
+    color: var(--red-700);
+  }
+}
+
 /*
  * `.btn` has pressed since the day it was written and nothing else did, so the
  * app had one control that felt connected and about a hundred that did not:

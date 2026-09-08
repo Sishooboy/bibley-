@@ -7,6 +7,7 @@ import {
   inInbox,
   presenceOf,
   suggestHandle,
+  threadsFrom,
   versesFor,
   projectProgress,
   readToday,
@@ -405,5 +406,77 @@ describe('versesFor turns a reference back into words', () => {
 
   it('does not run off the end of a chapter', () => {
     expect(versesFor(chapters, 1, 2, 99)).toBe('one two one three');
+  });
+});
+
+
+describe('threadsFrom turns passages into conversations', () => {
+  const me = 'me';
+  const msg = (from: string, to: string, at: string, seen: string | null = null) => ({
+    from_user: from,
+    to_user: to,
+    created_at: at,
+    seen_at: seen,
+  });
+
+  it('puts both directions in one thread', () => {
+    const t = threadsFrom(
+      [msg('hana', me, '2026-09-01T10:00:00Z'), msg(me, 'hana', '2026-09-02T10:00:00Z')],
+      me,
+    );
+    expect(t).toHaveLength(1);
+    expect(t[0].withUser).toBe('hana');
+    expect(t[0].messages).toHaveLength(2);
+  });
+
+  it('keeps separate people apart', () => {
+    const t = threadsFrom([msg('hana', me, '2026-09-01T10:00:00Z'), msg('marc', me, '2026-09-02T10:00:00Z')], me);
+    expect(t.map((x) => x.withUser)).toEqual(['marc', 'hana']);
+  });
+
+  /*
+   * The two orderings run opposite ways on purpose. The list answers "who
+   * wrote last" and wants the newest first; the thread answers "what was said"
+   * and has to be read forwards or it is nonsense.
+   */
+  it('orders threads newest first and messages oldest first', () => {
+    const t = threadsFrom(
+      [
+        msg('hana', me, '2026-09-01T10:00:00Z'),
+        msg(me, 'hana', '2026-09-05T10:00:00Z'),
+        msg('marc', me, '2026-09-03T10:00:00Z'),
+      ],
+      me,
+    );
+    expect(t.map((x) => x.withUser)).toEqual(['hana', 'marc']);
+    expect(t[0].messages.map((m) => m.created_at)).toEqual([
+      '2026-09-01T10:00:00Z',
+      '2026-09-05T10:00:00Z',
+    ]);
+  });
+
+  it('counts only what they sent you and you have not opened', () => {
+    const t = threadsFrom(
+      [
+        msg('hana', me, '2026-09-01T10:00:00Z'),
+        msg('hana', me, '2026-09-02T10:00:00Z', '2026-09-02T11:00:00Z'),
+        // Your own unread is not a thing: you wrote it.
+        msg(me, 'hana', '2026-09-03T10:00:00Z'),
+      ],
+      me,
+    );
+    expect(t[0].unread).toBe(1);
+  });
+
+  it('reports the newest message as the thread time', () => {
+    const t = threadsFrom(
+      [msg('hana', me, '2026-09-01T10:00:00Z'), msg(me, 'hana', '2026-09-09T10:00:00Z')],
+      me,
+    );
+    expect(t[0].latest).toBe('2026-09-09T10:00:00Z');
+  });
+
+  it('has nothing to say about an empty inbox', () => {
+    expect(threadsFrom([], me)).toEqual([]);
   });
 });

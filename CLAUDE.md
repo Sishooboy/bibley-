@@ -1048,13 +1048,31 @@ it again.
   1px-gap trick the friend list and the figure strip use.
 - **`HandleCard` takes `bare`.** A card inside the fold's card is a border inside a border with
   nothing between them, so the fold renders the form alone.
-- **The avatar is pinned square from four directions.** It was reported as an oval on a real phone
-  with a real photograph and **could not be reproduced**: every container in the app measured 56x56
-  and 38x38 at desktop and at 375px, with a deliberately wide image. Rather than guess which
-  container did it, `aspect-ratio: 1` holds the shape if either axis is overridden, `flex: 0 0 auto`
-  and the grid cell stop a parent shrinking it, `object-fit: cover` crops, and the image is
-  `display: block` so no inline baseline gap can stretch the box. If it ever comes back, the thing
-  to check first is the image's own intrinsic size on that device.
+- **The avatar is square before it is uploaded, which is the actual fix.** It was reported as an
+  oval and could not be reproduced in any container at any width, so the CSS was pinned from four
+  directions and that was still only making a wrong box look right: a 400 by 150 photograph stays
+  400 by 150 on the server, and every consumer has to remember to crop it. `PhotoCrop` cuts the
+  square first, so **what reaches storage cannot be anything else**. It is also what a reader wants
+  anyway, since `object-fit: cover` takes the middle of a photograph and the middle is rarely the
+  face.
+- **The crop maths is in `src/lib/crop.ts` so it can be tested without a canvas.** `coverScale`
+  takes the larger ratio so no corner is ever empty, `clampOffset` stops a drag at the image's own
+  edge, and `cropRect` returns the square in the original's pixels that `drawImage` copies. The
+  property worth pinning is that **the rect is square and inside the image at every zoom, offset and
+  aspect**, which is what makes the upload square by construction. 512 square as a JPEG, the same
+  reasoning the share card uses: a phone camera's photograph is an order of magnitude smaller that
+  way and this one is going over a phone connection.
+- **`touch-action: none` on the crop window is what makes a drag a drag.** Without it the browser
+  claims the gesture as a scroll and the photograph never moves on a phone, which is the same class
+  of failure the reader's own selection had.
+- **A circle is drawn over the square window** with a 9999px spread shadow, the tour's spotlight
+  trick, so the reader frames what they will actually see rather than a rectangle they have to
+  imagine a circle inside.
+- **One clamp in `cropRect` is unreachable and labelled as such.** `Math.min(viewport / scale,
+  naturalWidth, naturalHeight)` can never pick the last two, because `coverScale` takes the larger
+  ratio. Mutation testing found it, and it is kept as belt and braces against a future change to
+  `coverScale` rather than removed, with a comment saying it is not load bearing so nobody reads it
+  as one.
 - **The passage leads the send panel and the message follows it.** They used to be the other way
   round, with the verse under the message box in the muted colour, which put the subject below the
   annotation and made the two look alike enough that it was not obvious which one somebody else was
@@ -1065,10 +1083,30 @@ it again.
   highlight and the inbox already carry and **nothing here is said by that colour alone**: the tint,
   the border, the serif face and the label all say it too.
 
-Still not done: the reader does not open at a passage when one is tapped in the inbox, and nothing
-tells you a verse arrived except opening the screen. **Removing a friend leaves the passages you
-already exchanged**, which is deliberate, the same way a message you were sent stays after a
-friendship cools; sending stops, because the insert policy requires an accepted friendship.
+### The exchanges, and the one loud card
+
+- **A one way inbox was half a conversation.** You could be handed a verse and had nowhere to
+  answer, so the app had a letterbox rather than a correspondence. `threadsFrom` groups the passages
+  that already carried both ends, so **a thread is a grouping and not a new table**. Threads are
+  ordered newest first and the messages inside them oldest first, which is the one ordering a
+  conversation can have: the list answers "who wrote last" and the thread answers "what was said".
+- **`inInbox` prunes what they sent you and never what you sent them.** A conversation you can see
+  half of is worse than a long one, because your own lines vanishing under you reads as the app
+  losing them.
+- **Yours and theirs lean to opposite sides and carry different colours.** The side is the
+  convention every reader knows and the colour is the backup, so neither has to carry it alone.
+  Yours took a red right edge and **had to lose the gold left one**: kept, one bubble wore both and
+  read as belonging to both sides.
+- **The verse of the day is the only dark card in the app, and that is the point.** The screen was
+  eight cream panels on a cream page, every one the same weight, so nothing on it looked like the
+  reason to visit. The board is that reason, so it takes the app's own night surface, the one the
+  header and the guide already use. It also lets **gold be a word rather than an edge for once**:
+  `--yellow` is 1.7:1 on paper and could never carry text there, and it is over 12:1 on ink.
+
+Still not done: the reader does not open at a passage when one is tapped, and nothing tells you a
+verse arrived except opening the screen. **Removing a friend leaves the passages you already
+exchanged**, which is deliberate, the same way a message you were sent stays after a friendship
+cools; sending stops, because the insert policy requires an accepted friendship.
 
 Not built yet, roughly in order:
 

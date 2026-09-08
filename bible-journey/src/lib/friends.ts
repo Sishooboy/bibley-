@@ -307,6 +307,56 @@ export function versesFor(
     .trim();
 }
 
+/** One exchange, newest last, the way a conversation is read. */
+export type Thread<T> = {
+  /** The other person. */
+  withUser: string;
+  messages: T[];
+  /** When the newest message in it landed, for ordering the list of threads. */
+  latest: string;
+  /** How many of theirs you have not opened. */
+  unread: number;
+};
+
+/**
+ * Group passages into one exchange per person.
+ *
+ * A passage already carries both ends, so a conversation is a grouping rather
+ * than a new table: the same rows that made a one way inbox make a thread the
+ * moment you stop throwing away the ones you sent.
+ *
+ * **Threads are ordered by their newest message and the messages inside them
+ * oldest first.** That is the one ordering a conversation can have: the list
+ * answers "who wrote last" and the thread answers "what was said", and those
+ * two questions want opposite directions.
+ */
+export function threadsFrom<
+  T extends { from_user: string; to_user: string; created_at: string; seen_at: string | null },
+>(passages: readonly T[], userId: string): Thread<T>[] {
+  const byPerson = new Map<string, T[]>();
+  for (const p of passages) {
+    const other = p.from_user === userId ? p.to_user : p.from_user;
+    // A passage to yourself is impossible at the database, so this is only
+    // defensive about a row that should not exist.
+    if (other === userId) continue;
+    const list = byPerson.get(other);
+    if (list) list.push(p);
+    else byPerson.set(other, [p]);
+  }
+
+  return [...byPerson.entries()]
+    .map(([withUser, messages]) => {
+      const ordered = [...messages].sort((a, b) => a.created_at.localeCompare(b.created_at));
+      return {
+        withUser,
+        messages: ordered,
+        latest: ordered[ordered.length - 1]?.created_at ?? '',
+        unread: ordered.filter((m) => m.to_user === userId && !m.seen_at).length,
+      };
+    })
+    .sort((a, b) => b.latest.localeCompare(a.latest));
+}
+
 /**
  * A handle worth offering, from the name Google already gave us.
  *

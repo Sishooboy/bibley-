@@ -1,9 +1,10 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { FoldCard } from '../components/FoldCard';
+import { PhotoCrop } from '../components/PhotoCrop';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
 import { cachedBook, loadBook } from '../lib/bible';
 import { formatDay, today } from '../lib/dates';
-import { Flame } from '../components/icons';
+import { Chevron, Flame } from '../components/icons';
 import { verseRef } from '../lib/highlight';
 import { plural } from '../lib/format';
 import { useReveal } from '../lib/motion';
@@ -13,6 +14,7 @@ import {
   inInbox,
   presenceOf,
   suggestHandle,
+  threadsFrom,
   versesFor,
   type FriendPresence,
 } from '../lib/friends';
@@ -23,7 +25,7 @@ import {
   findByHandle,
   loadBroadcasts,
   loadFriends,
-  loadInbox,
+  loadThreads,
   loadMyProfile,
   markPassageSeen,
   removeFriend,
@@ -57,7 +59,7 @@ export function FriendsView() {
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [friends, setFriends] = useState<Friend[]>([]);
-  const [inbox, setInbox] = useState<Passage[]>([]);
+  const [mail, setMail] = useState<Passage[]>([]);
   const [board, setBoard] = useState<Broadcast[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,14 +72,17 @@ export function FriendsView() {
       const [mine, list, verses, posts] = await Promise.all([
         loadMyProfile(userId),
         loadFriends(userId),
-        loadInbox(userId),
+        loadThreads(),
         loadBroadcasts(),
       ]);
       setProfile(mine);
       setFriends(list);
-      // An unread passage never ages out, a read one leaves after three days.
-      // `inInbox` is where that is decided and why.
-      setInbox(verses.filter((v) => inInbox(v)));
+      /*
+       * `inInbox` prunes what they sent you, never what you sent them. A
+       * conversation you can see half of is worse than a long one: your own
+       * lines vanishing under you would read as the app losing them.
+       */
+      setMail(verses.filter((v) => v.from_user === userId || inInbox(v)));
       setBoard(posts);
     } catch (err) {
       setError(
@@ -178,32 +183,13 @@ export function FriendsView() {
           reveal={reveal}
         />
 
-        {inbox.length > 0 && (
-          <section ref={reveal} className="card reveal">
-            <div className="card__head">
-              <div>
-                <h3 className="card__title">Verses for you</h3>
-                <p className="card__note">
-                  One you have read leaves after a few days; an unread one stays until you have
-                  seen it.
-                </p>
-              </div>
-            </div>
-            <ul className="friendVerses">
-              {inbox.map((p) => (
-                <VerseCard
-                  key={p.id}
-                  passage={p}
-                  from={friends.find((f) => f.userId === p.from_user)?.displayName ?? 'A friend'}
-                  onDelete={async () => {
-                    await deletePassage(p.id);
-                    await refresh();
-                  }}
-                />
-              ))}
-            </ul>
-          </section>
-        )}
+        <MailCard
+          userId={userId}
+          mail={mail}
+          friends={accepted}
+          onChanged={refresh}
+          reveal={reveal}
+        />
 
         {/*
           One card for every question about people: who is waiting, who you read
@@ -507,50 +493,166 @@ function describe(p: FriendPresence, friend: Friend): string {
  * which is most of the way to not bothering. `PassageText` reads it out of the
  * same book files the reader uses.
  */
-function VerseCard({
+/**
+ * The exchanges, one per person.
+ *
+ * A one way inbox was half a conversation: you could be handed a verse and had
+ * nowhere to answer, so the app had a letterbox rather than a correspondence.
+ * The rows already carried both ends, so this is a grouping rather than a
+ * table: `threadsFrom` does it, and it is pure so the ordering is tested.
+ *
+ * Shut by default and one open at a time, which is the same shape Notes
+ * settled on. A screen of every message anybody ever sent is a feed, and this
+ * app has refused one everywhere else.
+ */
+function MailCard({
+  userId,
+  mail,
+  friends,
+  onChanged,
+  reveal,
+}: {
+  userId: string;
+  mail: Passage[];
+  friends: Friend[];
+  onChanged: () => Promise<void>;
+  reveal: (el: Element | null) => void;
+}) {
+  const [open, setOpen] = useState<string | null>(null);
+  const threads = useMemo(() => threadsFrom(mail, userId), [mail, userId]);
+  const unread = threads.reduce((n, t) => n + t.unread, 0);
+
+  if (threads.length === 0) {
+    return (
+      <section ref={reveal} className="card reveal">
+        <div className="card__head">
+          <div>
+            <h3 className="card__title">Between you</h3>
+            <p className="card__note">
+              Nothing yet. Highlight a verse while you read and choose "Send to a friend", and the
+              back and forth lands here.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section ref={reveal} className="card reveal">
+      <div className="card__head">
+        <div>
+          <h3 className="card__title">Between you</h3>
+          <p className="card__note">
+            {unread > 0
+              ? `${plural(unread, 'verse')} waiting to be read.`
+              : 'Verses passed back and forth, newest name first.'}
+          </p>
+        </div>
+      </div>
+
+      <ul className="threadList">
+        {threads.map((t) => {
+          const friend = friends.find((f) => f.userId === t.withUser);
+          const name = friend?.displayName ?? 'A friend';
+          const last = t.messages[t.messages.length - 1];
+          const isOpen = open === t.withUser;
+          return (
+            <li key={t.withUser} className="thread">
+              <button
+                type="button"
+                className="thread__head"
+                aria-expanded={isOpen}
+                onClick={() => setOpen(isOpen ? null : t.withUser)}
+              >
+                <Avatar name={name} url={friend?.avatarUrl ?? null} size={34} />
+                <span className="thread__who">
+                  <span className="thread__name">{name}</span>
+                  <span className="thread__last">
+                    {last.from_user === userId ? 'You sent ' : ''}
+                    {verseRef(last.book, last.chapter, last.from_verse, last.to_verse)}
+                  </span>
+                </span>
+                {t.unread > 0 && (
+                  <span className="thread__unread" aria-label={`${t.unread} unread`}>
+                    {t.unread}
+                  </span>
+                )}
+                <Chevron size={14} className={`thread__chev${isOpen ? ' thread__chev--open' : ''}`} />
+              </button>
+
+              {isOpen && (
+                <ol className="thread__messages">
+                  {t.messages.map((m) => (
+                    <Bubble
+                      key={m.id}
+                      passage={m}
+                      mine={m.from_user === userId}
+                      onSeen={async () => {
+                        await markPassageSeen(m.id);
+                        await onChanged();
+                      }}
+                      onDelete={async () => {
+                        await deletePassage(m.id);
+                        await onChanged();
+                      }}
+                    />
+                  ))}
+                </ol>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+/**
+ * One verse in an exchange.
+ *
+ * Yours and theirs lean to opposite sides, which is the one convention every
+ * reader already knows and costs nothing but a margin. The verse keeps the
+ * scripture treatment it has everywhere else, and the message under it stays a
+ * plain sentence, so the two never blur into each other.
+ */
+function Bubble({
   passage,
-  from,
+  mine,
+  onSeen,
   onDelete,
 }: {
   passage: Passage;
-  from: string;
+  mine: boolean;
+  onSeen: () => Promise<void>;
   onDelete: () => Promise<void>;
 }) {
-  const [seen, setSeen] = useState(passage.seen_at !== null);
   const ref = verseRef(passage.book, passage.chapter, passage.from_verse, passage.to_verse);
+
+  /* Opening the thread is reading it, so theirs are marked once they are drawn. */
+  useEffect(() => {
+    if (mine || passage.seen_at) return;
+    void onSeen();
+    // Deliberately once per message: onSeen changes identity every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [passage.id]);
+
   return (
-    <li className={`friendVerse${seen ? '' : ' friendVerse--fresh'}`}>
-      <p className="friendVerse__ref">{ref}</p>
+    <li className={`bubble${mine ? ' bubble--mine' : ''}`}>
+      <p className="bubble__ref">{ref}</p>
       <PassageText
         book={passage.book}
         chapter={passage.chapter}
         fromVerse={passage.from_verse}
         toVerse={passage.to_verse}
       />
-      {passage.thought && <p className="friendVerse__thought">{passage.thought}</p>}
-      <p className="friendVerse__from">
-        From {from}
-        <span className="friendVerse__when">{formatDay(passage.created_at.slice(0, 10))}</span>
-      </p>
-      <div className="friendVerse__actions">
-        {!seen && (
-          <button
-            type="button"
-            className="btn btn--sm"
-            onClick={async () => {
-              // Optimistic: marking a verse read is not worth a spinner, and the
-              // worst case is it comes back unread on the next load.
-              setSeen(true);
-              await markPassageSeen(passage.id);
-            }}
-          >
-            Mark as read
-          </button>
-        )}
-        <button type="button" className="btn btn--sm btn--ghost" onClick={onDelete}>
+      {passage.thought && <p className="bubble__thought">{passage.thought}</p>}
+      <p className="bubble__foot">
+        <span>{formatDay(passage.created_at.slice(0, 10))}</span>
+        <button type="button" className="bubble__remove" onClick={onDelete}>
           Remove
         </button>
-      </div>
+      </p>
     </li>
   );
 }
@@ -600,7 +702,7 @@ function BoardCard({
 
   if (!mine && theirs.length === 0) {
     return (
-      <section ref={reveal} className="card reveal">
+      <section ref={reveal} className="card card--night reveal">
         <div className="card__head">
           <div>
             <h3 className="card__title">Verse of the day</h3>
@@ -615,7 +717,7 @@ function BoardCard({
   }
 
   return (
-    <section ref={reveal} className="card reveal">
+    <section ref={reveal} className="card card--night reveal">
       <div className="card__head">
         <div>
           <h3 className="card__title">Verse of the day</h3>
@@ -818,6 +920,8 @@ function HandleCard({
   const [name, setName] = useState(existing?.display_name ?? suggestedName ?? '');
   const [avatar, setAvatar] = useState<string | null>(existing?.avatar_url ?? null);
   const [uploading, setUploading] = useState(false);
+  /** The photograph waiting to be framed. Nothing is uploaded until it is. */
+  const [picking, setPicking] = useState<File | null>(null);
   const [visibility, setVisibility] = useState(existing?.visibility ?? 'reading');
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -881,6 +985,23 @@ function HandleCard({
         */}
         <div className="handleForm__field">
           <span className="handleForm__label">Picture</span>
+          {picking ? (
+            <PhotoCrop
+              file={picking}
+              onCancel={() => setPicking(null)}
+              onCropped={async (square) => {
+                setPicking(null);
+                setUploading(true);
+                try {
+                  setAvatar(await uploadAvatar(userId, square));
+                } catch {
+                  setNote('That picture could not be uploaded.');
+                } finally {
+                  setUploading(false);
+                }
+              }}
+            />
+          ) : (
           <div className="avatarPick">
             <Avatar name={name || 'You'} url={avatar} size={56} />
             <div className="avatarPick__actions">
@@ -891,25 +1012,20 @@ function HandleCard({
                   className="sr-only"
                   accept="image/jpeg,image/png,image/webp"
                   disabled={uploading}
-                  onChange={async (e) => {
+                  onChange={(e) => {
                     const file = e.target.files?.[0];
                     // The input keeps its value, so choosing the same file twice
                     // would otherwise be a no-op the second time.
                     e.target.value = '';
                     if (!file) return;
-                    if (file.size > 2 * 1024 * 1024) {
-                      setNote('That picture is over 2 MB. A smaller one will upload faster too.');
-                      return;
-                    }
                     setNote(null);
-                    setUploading(true);
-                    try {
-                      setAvatar(await uploadAvatar(userId, file));
-                    } catch {
-                      setNote('That picture could not be uploaded.');
-                    } finally {
-                      setUploading(false);
-                    }
+                    /*
+                     * Framed before it is uploaded, never after. The size is not
+                     * checked here because the crop re-encodes at 512 square,
+                     * so a twelve megapixel photograph arrives as a file the
+                     * bucket's own limit would have accepted anyway.
+                     */
+                    setPicking(file);
                   }}
                 />
               </label>
@@ -924,6 +1040,7 @@ function HandleCard({
               )}
             </div>
           </div>
+          )}
           <p className="sendVerse__aside">
             Only people you have accepted can see it. Saved when you press {first ? 'Start' : 'Save'}.
           </p>

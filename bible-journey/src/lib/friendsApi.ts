@@ -165,6 +165,24 @@ export async function loadInbox(userId: string): Promise<Passage[]> {
   return (data ?? []) as Passage[];
 }
 
+/**
+ * Every passage between you and anybody, both directions.
+ *
+ * The policy already allows both ends, so a conversation is a grouping rather
+ * than a new table: the same rows that made a one way inbox make a thread the
+ * moment the ones you sent stop being thrown away. `threadsFrom` does the
+ * grouping, and it is pure so it is tested.
+ */
+export async function loadThreads(): Promise<Passage[]> {
+  const { data, error } = await client()
+    .from(PASSAGES)
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  if (error) throw error;
+  return (data ?? []) as Passage[];
+}
+
 /** Take a passage out of the inbox for good, rather than waiting for it to age. */
 export async function deletePassage(id: string): Promise<void> {
   const { error } = await client().from(PASSAGES).delete().eq('id', id);
