@@ -2518,7 +2518,8 @@ select {
 
 /* ── Panels ─────────────────────────────────────────────────────────────── */
 .statsView,
-.notesView {
+.notesView,
+.friendsView {
   padding-top: clamp(1.75rem, 4vw, 2.5rem);
   padding-bottom: clamp(3rem, 6vw, 4.5rem);
   display: grid;
@@ -2940,12 +2941,6 @@ select {
   .ring__arc {
     transition: none;
   }
-}
-
-@media (hover: hover) {
-}
-
-@media (hover: hover) {
 }
 
 /* ── Stats, packed ──────────────────────────────────────────────────────── */
@@ -7503,19 +7498,6 @@ select {
  * cannot be scanned down a column and compared the way a row of numbers can,
  * which is exactly what this screen is trying not to be.
  */
-.friendRow__dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  border: 1.5px solid var(--line-strong);
-  background: transparent;
-}
-
-.friendRow__dot--today {
-  border-color: var(--red-600);
-  background: var(--red-600);
-}
-
 .friendRow__who {
   min-width: 0;
 }
@@ -7577,63 +7559,7 @@ select {
 
 /* ── A verse somebody sent ──────────────────────────────────────────────── */
 
-.friendVerses {
-  display: grid;
-  gap: 0.6rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.friendVerse {
-  padding: 0.7rem 0.85rem;
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--line-strong);
-  border-radius: var(--radius);
-  background: var(--surface);
-}
-
 /* Gold edge for one not yet read, which is the note's own treatment in the reader. */
-.friendVerse--fresh {
-  border-left-color: var(--yellow);
-  background: #fffdf4;
-}
-
-.friendVerse__ref {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 0.92rem;
-  font-variation-settings: 'SOFT' 0, 'WONK' 0;
-  color: var(--red-700);
-}
-
-.friendVerse__thought {
-  margin: 0.3rem 0 0;
-  font-size: 0.86rem;
-  line-height: 1.5;
-  color: var(--text);
-}
-
-.friendVerse__from {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0.45rem 0 0;
-  font-size: 0.72rem;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.friendVerse__when::before {
-  content: '·';
-  margin-right: 0.4rem;
-}
-
-.friendVerse .btn {
-  margin-top: 0.5rem;
-}
-
 /* ── Adding somebody, and your own handle ───────────────────────────────── */
 
 .friendAdd {
@@ -7970,23 +7896,6 @@ select {
  * Removing a friend is the one destructive thing on this screen, so it is a
  * quiet mark that opens a confirm rather than a button competing with the name.
  */
-.friendRow__more {
-  border: 0;
-  background: none;
-  padding: 0 0.15rem;
-  font-size: 1.1rem;
-  line-height: 1;
-  color: var(--muted-dark);
-  cursor: pointer;
-}
-
-.friendVerse__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 0.5rem;
-}
-
 /*
  * The words, which were the thing missing. Display face and a size above the
  * furniture around it, because this is the only part of the card anybody came
@@ -8005,59 +7914,7 @@ select {
  * the friend list and the figure strip use: a 1px gap over a `--line`
  * background paints the rules, and no item has to know whether it is the last.
  */
-.board {
-  display: grid;
-  gap: 1px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  background: var(--line);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--panel-radius);
-  overflow: hidden;
-}
-
-.board__item {
-  padding: 0.7rem 0.85rem;
-  background: var(--surface);
-}
-
 /* Your own, marked by the gold edge the app uses for a thing that is yours. */
-.board__item--mine {
-  border-left: 3px solid var(--yellow);
-}
-
-.board__who {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  margin-bottom: 0.4rem;
-}
-
-.board__name {
-  font-family: var(--font-display);
-  font-size: 0.88rem;
-  font-variation-settings: 'SOFT' 0, 'WONK' 0;
-  color: var(--text);
-}
-
-.board__day {
-  font-size: 0.7rem;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.board__item .btn {
-  margin-top: 0.5rem;
-}
-
-@media (hover: hover) {
-  .friendRow__more:hover {
-    color: var(--red-700);
-  }
-}
-
 
 /*
  * One card now holds requests, the list and adding somebody, so it needs a way
@@ -8150,162 +8007,9 @@ select {
   accent-color: var(--red-600);
 }
 
-/* ── The verse of the day, which is the one loud thing on the screen ─────── */
-
-/*
- * Night, and it is the only card in the app that is.
- *
- * The screen was pale: eight cream panels on a cream page, every one the same
- * weight, so nothing on it looked like the reason to visit. The verse of the
- * day *is* that reason, so it gets the app's own dark surface, the one the
- * header and the guide already use. It also lets gold be a word rather than an
- * edge for once: `--yellow` is 1.7:1 on paper and could never carry text there,
- * and it is over 12:1 here.
- */
-.card--night {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--cream);
-}
-
-.card--night .card__title {
-  color: var(--cream);
-}
-
-.card--night .card__note {
-  color: var(--muted-dark);
-}
-
-.card--night .card__head {
-  border-bottom-color: rgba(247, 242, 233, 0.14);
-}
-
-.card--night .board {
-  background: rgba(247, 242, 233, 0.12);
-  border-color: rgba(247, 242, 233, 0.16);
-}
-
-.card--night .board__item {
-  background: #221c18;
-}
-
-.card--night .board__name {
-  color: var(--cream);
-}
-
-.card--night .board__day,
-.card--night .friendVerse__thought {
-  color: var(--muted-dark);
-}
-
-.card--night .friendVerse__ref {
-  color: var(--yellow);
-}
-
-.card--night .friendVerse__text {
-  color: var(--cream);
-}
-
-.card--night .avatar {
-  background: rgba(247, 242, 233, 0.14);
-}
-
-.card--night .avatar__initials {
-  color: var(--yellow-soft);
-}
-
-.card--night .avatar__dot {
-  box-shadow: 0 0 0 2px #221c18;
-}
-
-.card--night .btn {
-  background: rgba(247, 242, 233, 0.1);
-  border-color: rgba(247, 242, 233, 0.2);
-  color: var(--cream);
-  box-shadow: none;
-}
-
 /* ── The exchanges ──────────────────────────────────────────────────────── */
 
-.threadList {
-  display: grid;
-  gap: 1px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  background: var(--line);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--panel-radius);
-  overflow: hidden;
-}
-
-.thread {
-  background: var(--surface);
-}
-
-.thread__head {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
-  align-items: center;
-  gap: 0.7rem;
-  width: 100%;
-  border: 0;
-  background: none;
-  padding: 0.7rem 0.85rem;
-  text-align: left;
-  cursor: pointer;
-}
-
-.thread__who {
-  min-width: 0;
-}
-
-.thread__name {
-  display: block;
-  font-family: var(--font-display);
-  font-size: 0.96rem;
-  font-variation-settings: 'SOFT' 0, 'WONK' 0;
-  color: var(--text);
-}
-
-.thread__last {
-  display: block;
-  font-size: 0.78rem;
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* A count rather than a dot, because "three waiting" is worth more than "some". */
-.thread__unread {
-  min-width: 1.35rem;
-  padding: 0.1rem 0.35rem;
-  border-radius: 999px;
-  background: var(--red-600);
-  font-family: var(--font-display);
-  font-size: 0.76rem;
-  color: #fff;
-  text-align: center;
-}
-
-.thread__chev {
-  color: var(--muted-dark);
-  transition: transform 160ms ease;
-}
-
-.thread__chev--open {
-  transform: rotate(90deg);
-}
-
-.thread__messages {
-  display: grid;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0 0.85rem 0.85rem;
-  list-style: none;
-}
-
 /*
  * Yours and theirs lean to opposite sides, which is the one convention every
  * reader already knows and costs nothing but a margin. Theirs keeps the gold
@@ -8371,12 +8075,252 @@ select {
 }
 
 @media (hover: hover) {
-  .thread__head:hover {
-    background: var(--cream);
-  }
-
   .bubble__remove:hover {
     color: var(--red-700);
+  }
+}
+
+/* ── Your verse today, attached to the masthead ─────────────────────────── */
+
+/*
+ * Flush under the masthead's gold rule, with no radius and no gap, so the red
+ * band, the gold hairline and this read as one masthead rather than as a header
+ * and then a card. It is the only dark surface on the screen and the only thing
+ * outside the roster, which is what makes it read as the one line about you.
+ */
+.yours {
+  background: var(--ink);
+  color: var(--cream);
+}
+
+.yours__inner {
+  padding-block: clamp(1rem, 3vw, 1.4rem);
+}
+
+.yours__label {
+  margin: 0 0 0.35rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--yellow-soft);
+}
+
+/*
+ * Gold gets to be a word here, which it cannot be anywhere on paper: `--yellow`
+ * measures 1.7:1 on cream and over 12:1 on ink.
+ */
+.yours__ref {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-variation-settings: 'SOFT' 0, 'WONK' 0;
+  color: var(--yellow);
+}
+
+.yours__text {
+  margin: 0;
+  max-width: 58ch;
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--cream);
+}
+
+.yours__thought {
+  margin: 0.4rem 0 0;
+  max-width: 58ch;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--muted-dark);
+}
+
+.yours__empty {
+  margin: 0;
+  max-width: 58ch;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--muted-dark);
+}
+
+.yours__clear {
+  margin-top: 0.6rem;
+  border: 0;
+  background: none;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted-dark);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ── The roster ─────────────────────────────────────────────────────────── */
+
+/*
+ * One person a row, and the row holds everything about them: where they are,
+ * what they put up today, and the exchange between you. Hairlines rather than
+ * cards, because a person is a line in a list and not a panel.
+ */
+.roster__list {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--line);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--panel-radius);
+  overflow: hidden;
+}
+
+.person {
+  background: var(--surface);
+  padding: 0.75rem 0.85rem;
+}
+
+.person--open {
+  background: var(--cream);
+}
+
+.person__head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.person__who {
+  min-width: 0;
+}
+
+.person__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  font-variation-settings: 'SOFT' 0, 'WONK' 0;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.person__line {
+  margin: 0.1rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.person__confirm {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.person__more {
+  border: 0;
+  background: none;
+  padding: 0 0.15rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--muted-dark);
+  cursor: pointer;
+}
+
+/*
+ * What they put up today, indented under their name so it reads as theirs
+ * rather than as a separate item. The gold edge is the one the reader already
+ * uses for a highlight, so a verse looks like a verse everywhere in the app.
+ */
+.person__posted {
+  margin: 0.55rem 0 0 calc(38px + 0.7rem);
+  padding-left: 0.7rem;
+  border-left: 3px solid var(--yellow);
+}
+
+.person__postedRef {
+  margin: 0 0 0.15rem;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-variation-settings: 'SOFT' 0, 'WONK' 0;
+  color: var(--red-700);
+}
+
+.person__postedText {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ink-700);
+}
+
+.person__postedThought {
+  margin: 0.3rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.person__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.55rem 0 0 calc(38px + 0.7rem);
+  border: 0;
+  background: none;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  letter-spacing: 0.03em;
+  color: var(--red-700);
+  cursor: pointer;
+}
+
+.person__chev {
+  transition: transform 160ms ease;
+}
+
+.person__chev--open {
+  transform: rotate(90deg);
+}
+
+.person__unread {
+  min-width: 1.15rem;
+  padding: 0.05rem 0.3rem;
+  border-radius: 999px;
+  background: var(--red-600);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  color: #fff;
+  text-align: center;
+}
+
+.person__messages {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.6rem 0 0 calc(38px + 0.7rem);
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 460px) {
+  /* The indent is most of a phone's width, so the nesting is dropped and the
+     gold edge alone says whose it is. */
+  .person__posted,
+  .person__open,
+  .person__messages {
+    margin-left: 0;
+  }
+}
+
+@media (hover: hover) {
+  .person__more:hover {
+    color: var(--red-700);
+  }
+
+  .person__open:hover {
+    text-decoration: underline;
   }
 }
 

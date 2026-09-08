@@ -3,7 +3,7 @@ import { FoldCard } from '../components/FoldCard';
 import { PhotoCrop } from '../components/PhotoCrop';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
 import { cachedBook, loadBook } from '../lib/bible';
-import { formatDay, today } from '../lib/dates';
+import { formatDay } from '../lib/dates';
 import { Chevron, Flame } from '../components/icons';
 import { verseRef } from '../lib/highlight';
 import { plural } from '../lib/format';
@@ -17,6 +17,7 @@ import {
   threadsFrom,
   versesFor,
   type FriendPresence,
+  type Thread,
 } from '../lib/friends';
 import {
   acceptFriend,
@@ -116,6 +117,33 @@ export function FriendsView() {
     [friends],
   );
 
+  /*
+   * The newest day each person posted, which is not the same as "today". A
+   * friend nine hours ahead has already started tomorrow, so filtering on your
+   * own date would hide what they put up an hour ago.
+   */
+  const latest = useMemo(() => {
+    const best = new Map<string, Broadcast>();
+    for (const b of board) {
+      const seen = best.get(b.user_id);
+      if (!seen || b.day > seen.day) best.set(b.user_id, b);
+    }
+    return best;
+  }, [board]);
+  const mine = latest.get(userId ?? '') ?? null;
+
+  const threads = useMemo(() => threadsFrom(mail, userId ?? ''), [mail, userId]);
+  const unread = threads.reduce((n, t) => n + t.unread, 0);
+
+  /** Which person's exchange is open. One at a time, the way Notes settled on. */
+  const [open, setOpen] = useState<string | null>(null);
+
+  const clearMine = useCallback(async () => {
+    if (!userId || !mine) return;
+    await clearBroadcast(userId, mine.day);
+    await refresh();
+  }, [userId, mine, refresh]);
+
   // No id covers every reason there is no account yet: signed out, a session
   // still being restored, and a build with no cloud project at all.
   if (!userId) {
@@ -147,10 +175,18 @@ export function FriendsView() {
         meta={
           <>
             <HeadChip>{plural(accepted.length, 'friend')}</HeadChip>
-            {requests.length > 0 && <HeadChip gold>{requests.length} waiting on you</HeadChip>}
+            {unread > 0 && <HeadChip gold>{plural(unread, 'verse')} to read</HeadChip>}
           </>
         }
       />
+
+      {/*
+        Yours, flush under the masthead's gold rule so the two read as one piece
+        rather than as a band and then a card with a gap between them. It is the
+        only dark thing on the screen and the only thing outside the roster,
+        because it is the one line here that is about you.
+      */}
+      <TodayBand mine={mine} onClear={clearMine} />
 
       <div className="container friendsView">
         {error && (
@@ -160,11 +196,8 @@ export function FriendsView() {
         )}
 
         {/*
-          The handle sits on top as a prompt, never as a gate. It used to be
-          the entire screen until it was filled in, which meant an account
-          with friends already waiting saw a form and nothing else. A handle
-          is what lets somebody add *you*; it was never what lets you see
-          them.
+          The handle sits on top as a prompt, never as a gate. A handle is what
+          lets somebody add *you*; it was never what lets you see them.
         */}
         {!profile && (
           <HandleCard
@@ -174,30 +207,18 @@ export function FriendsView() {
             reveal={reveal}
           />
         )}
-        <BoardCard
-          userId={userId}
-          board={board}
-          friends={accepted}
-          me={profile}
-          onChanged={refresh}
-          reveal={reveal}
-        />
-
-        <MailCard
-          userId={userId}
-          mail={mail}
-          friends={accepted}
-          onChanged={refresh}
-          reveal={reveal}
-        />
 
         {/*
-          One card for every question about people: who is waiting, who you read
-          with, and how to add somebody. Those were three panels, which is one
-          panel per function rather than one per question, and the screen read as
-          a stack of unrelated boxes.
+          One roster, and every person appears in it exactly once.
+
+          This was three cards: a board, a list of exchanges and a list of
+          people. Each held the same friends in a different order, so somebody
+          who had posted a verse and sent you one was on screen three times and
+          joined to none of themselves. **The person is the unit, not the
+          function.** What they put up, what passed between you and where they
+          are all belong to their row.
         */}
-        <section ref={reveal} className="card reveal">
+        <section ref={reveal} className="card roster reveal">
           <div className="card__head">
             <div>
               <h3 className="card__title">Reading together</h3>
@@ -259,25 +280,25 @@ export function FriendsView() {
                 : 'Nobody yet. Pick a handle above and somebody can add you.'}
             </p>
           ) : (
-            <ul className="friendList">
+            <ul className="roster__list">
               {accepted.map((f) => (
-                <FriendRow
+                <PersonRow
                   key={f.userId}
+                  userId={userId}
                   friend={f}
-                  onRemove={async () => {
-                    await removeFriend(userId, f.userId);
-                    await refresh();
-                  }}
+                  posted={latest.get(f.userId) ?? null}
+                  thread={threads.find((t) => t.withUser === f.userId) ?? null}
+                  open={open === f.userId}
+                  onToggle={() => setOpen(open === f.userId ? null : f.userId)}
+                  onChanged={refresh}
                 />
               ))}
             </ul>
           )}
 
           {/*
-            Adding somebody is the footer of the list rather than a panel of its
-            own: it is the same question the list answers, asked forwards.
-            It needs a handle, since a friendship whose profile is missing is
-            skipped on the other side.
+            Adding somebody is the footer of the roster rather than a panel of
+            its own: it is the same question the roster answers, asked forwards.
           */}
           {profile && (
             <AddRow
@@ -290,11 +311,6 @@ export function FriendsView() {
           )}
         </section>
 
-        {/*
-          Your own handle, face and visibility. Shut, because it is a thing you
-          set once and then never open again, and it was taking a full panel at
-          the bottom of every visit.
-        */}
         {profile && (
           <FoldCard
             title="How you appear"
@@ -324,8 +340,7 @@ export function FriendsView() {
  * which is the entire job.
  *
  * The dot rides on the corner rather than sitting beside it: it is a fact about
- * the person, so it belongs on them, and it keeps the row to three columns
- * instead of four.
+ * the person, so it belongs on them, and it keeps the row a column narrower.
  */
 function Avatar({
   name,
@@ -379,11 +394,13 @@ function PassageText({
   chapter,
   fromVerse,
   toVerse,
+  className = 'friendVerse__text',
 }: {
   book: string;
   chapter: number;
   fromVerse: number;
   toVerse: number;
+  className?: string;
 }) {
   const [text, setText] = useState(() =>
     versesFor(cachedBook(book)?.chapters, chapter, fromVerse, toVerse),
@@ -405,206 +422,177 @@ function PassageText({
   }, [book, chapter, fromVerse, toVerse, text]);
 
   if (!text) return null;
-  return <blockquote className="friendVerse__text">{text}</blockquote>;
+  return <blockquote className={className}>{text}</blockquote>;
 }
 
 /**
- * One person, and what they are willing to say.
+ * Your own verse of the day, attached to the masthead.
  *
- * The dot is the only thing on here that is always true, so it is the only
- * thing given colour. Everything else is a sentence, because a sentence cannot
- * be compared at a glance the way a row of numbers can.
+ * The one dark thing on the screen and the one thing outside the roster,
+ * because it is the only line here that is about you rather than about somebody
+ * else. Flush against the masthead's gold rule, so the two read as a masthead
+ * and its standfirst rather than as two boxes with a gap.
  */
-function FriendRow({ friend, onRemove }: { friend: Friend; onRemove: () => Promise<void> }) {
+function TodayBand({ mine, onClear }: { mine: Broadcast | null; onClear: () => Promise<void> }) {
+  return (
+    <div className="yours">
+      <div className="container yours__inner">
+        <p className="yours__label">Your verse today</p>
+        {mine ? (
+          <>
+            <p className="yours__ref">
+              {verseRef(mine.book, mine.chapter, mine.from_verse, mine.to_verse)}
+            </p>
+            <PassageText
+              book={mine.book}
+              chapter={mine.chapter}
+              fromVerse={mine.from_verse}
+              toVerse={mine.to_verse}
+              className="yours__text"
+            />
+            {mine.thought && <p className="yours__thought">{mine.thought}</p>}
+            <button type="button" className="yours__clear" onClick={onClear}>
+              Take it down
+            </button>
+          </>
+        ) : (
+          <p className="yours__empty">
+            Nothing up yet. Highlight something while you read and choose Put it up for today, and
+            everybody you read with sees it until tomorrow.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * One person, and everything about them in one place.
+ *
+ * Their presence, the verse they put up today and the exchange between you were
+ * three separate cards, which meant a friend was on screen three times and
+ * joined to none of themselves. Here the row is the person: the line says where
+ * they are, the quote is what they chose today, and opening it is the
+ * conversation.
+ */
+function PersonRow({
+  userId,
+  friend,
+  posted,
+  thread,
+  open,
+  onToggle,
+  onChanged,
+}: {
+  userId: string;
+  friend: Friend;
+  posted: Broadcast | null;
+  thread: Thread<Passage> | null;
+  open: boolean;
+  onToggle: () => void;
+  onChanged: () => Promise<void>;
+}) {
   const p = presenceOf(friend.progress);
   const [confirming, setConfirming] = useState(false);
+  const unread = thread?.unread ?? 0;
+  const count = thread?.messages.length ?? 0;
+
   return (
-    <li className="friendRow">
-      <Avatar name={friend.displayName} url={friend.avatarUrl} today={p.today} />
-      <div className="friendRow__who">
-        <p className="friendRow__name">{friend.displayName}</p>
-        <p className="friendRow__line">{describe(p, friend)}</p>
-      </div>
-      {confirming ? (
-        <div className="friendRow__actions">
-          <button type="button" className="btn btn--sm btn--danger" onClick={onRemove}>
-            Remove
-          </button>
-          <button
-            type="button"
-            className="btn btn--sm btn--ghost"
-            onClick={() => setConfirming(false)}
-          >
-            Keep
-          </button>
+    <li className={`person${open ? ' person--open' : ''}`}>
+      <div className="person__head">
+        <Avatar name={friend.displayName} url={friend.avatarUrl} today={p.today} />
+        <div className="person__who">
+          <p className="person__name">{friend.displayName}</p>
+          <p className="person__line">{describe(p, friend)}</p>
         </div>
-      ) : (
-        <>
-          {p.streak !== null && (
-            <span className="friendRow__streak" title="Days in a row">
-              <Flame size={13} className="friendRow__flame" />
-              {p.streak}
-              <span className="friendRow__streakUnit">days</span>
-            </span>
-          )}
-          {/*
-            Unfriending was reachable only for a request you had not answered,
-            so an accepted friendship was permanent from inside the app. It sits
-            behind a confirm because it is the one destructive thing on here.
-          */}
+        {p.streak !== null && (
+          <span className="friendRow__streak" title="Days in a row">
+            <Flame size={13} className="friendRow__flame" />
+            {p.streak}
+          </span>
+        )}
+        {/*
+          Unfriending is the one destructive thing on the row, so it is a quiet
+          mark that opens a confirm rather than a button beside the name.
+        */}
+        {confirming ? (
+          <span className="person__confirm">
+            <button
+              type="button"
+              className="btn btn--sm btn--danger"
+              onClick={async () => {
+                await removeFriend(userId, friend.userId);
+                await onChanged();
+              }}
+            >
+              Remove
+            </button>
+            <button
+              type="button"
+              className="btn btn--sm btn--ghost"
+              onClick={() => setConfirming(false)}
+            >
+              Keep
+            </button>
+          </span>
+        ) : (
           <button
             type="button"
-            className="friendRow__more"
+            className="person__more"
             aria-label={`Remove ${friend.displayName}`}
             onClick={() => setConfirming(true)}
           >
             ×
           </button>
-        </>
-      )}
-    </li>
-  );
-}
-
-/**
- * The words on a friend's row.
- *
- * A lapsed friend gets a plain statement of when they last read and no number
- * at all. `presenceOf` is where that is decided and why.
- */
-function describe(p: FriendPresence, friend: Friend): string {
-  if (p.daysSince === null) return 'Not started yet';
-  const percent = friend.progress?.plan_percent ?? null;
-  const place = p.where ? ` in ${p.where}` : '';
-  const along = percent !== null && percent > 0 ? `, ${percent}% along` : '';
-  if (p.today) return `Read today${place}${along}`;
-  if (p.daysSince === 1) return `Read yesterday${place}${along}`;
-  if (p.daysSince < 7) return `Last read ${p.daysSince} days ago${place}`;
-  const day = friend.progress?.last_read_day;
-  return day ? `Last read ${formatDay(day)}` : 'Not read in a while';
-}
-
-/**
- * A passage somebody handed you.
- *
- * **The words are the point and they were missing.** The card printed the
- * reference and the sender's thought and stopped, so a verse arrived as a
- * citation: you had to go and look it up to find out what you had been sent,
- * which is most of the way to not bothering. `PassageText` reads it out of the
- * same book files the reader uses.
- */
-/**
- * The exchanges, one per person.
- *
- * A one way inbox was half a conversation: you could be handed a verse and had
- * nowhere to answer, so the app had a letterbox rather than a correspondence.
- * The rows already carried both ends, so this is a grouping rather than a
- * table: `threadsFrom` does it, and it is pure so the ordering is tested.
- *
- * Shut by default and one open at a time, which is the same shape Notes
- * settled on. A screen of every message anybody ever sent is a feed, and this
- * app has refused one everywhere else.
- */
-function MailCard({
-  userId,
-  mail,
-  friends,
-  onChanged,
-  reveal,
-}: {
-  userId: string;
-  mail: Passage[];
-  friends: Friend[];
-  onChanged: () => Promise<void>;
-  reveal: (el: Element | null) => void;
-}) {
-  const [open, setOpen] = useState<string | null>(null);
-  const threads = useMemo(() => threadsFrom(mail, userId), [mail, userId]);
-  const unread = threads.reduce((n, t) => n + t.unread, 0);
-
-  if (threads.length === 0) {
-    return (
-      <section ref={reveal} className="card reveal">
-        <div className="card__head">
-          <div>
-            <h3 className="card__title">Between you</h3>
-            <p className="card__note">
-              Nothing yet. Highlight a verse while you read and choose "Send to a friend", and the
-              back and forth lands here.
-            </p>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  return (
-    <section ref={reveal} className="card reveal">
-      <div className="card__head">
-        <div>
-          <h3 className="card__title">Between you</h3>
-          <p className="card__note">
-            {unread > 0
-              ? `${plural(unread, 'verse')} waiting to be read.`
-              : 'Verses passed back and forth, newest name first.'}
-          </p>
-        </div>
+        )}
       </div>
 
-      <ul className="threadList">
-        {threads.map((t) => {
-          const friend = friends.find((f) => f.userId === t.withUser);
-          const name = friend?.displayName ?? 'A friend';
-          const last = t.messages[t.messages.length - 1];
-          const isOpen = open === t.withUser;
-          return (
-            <li key={t.withUser} className="thread">
-              <button
-                type="button"
-                className="thread__head"
-                aria-expanded={isOpen}
-                onClick={() => setOpen(isOpen ? null : t.withUser)}
-              >
-                <Avatar name={name} url={friend?.avatarUrl ?? null} size={34} />
-                <span className="thread__who">
-                  <span className="thread__name">{name}</span>
-                  <span className="thread__last">
-                    {last.from_user === userId ? 'You sent ' : ''}
-                    {verseRef(last.book, last.chapter, last.from_verse, last.to_verse)}
-                  </span>
-                </span>
-                {t.unread > 0 && (
-                  <span className="thread__unread" aria-label={`${t.unread} unread`}>
-                    {t.unread}
-                  </span>
-                )}
-                <Chevron size={14} className={`thread__chev${isOpen ? ' thread__chev--open' : ''}`} />
-              </button>
+      {/* What they put up today, in their own row rather than on a board of its
+          own, so the person and what they chose are one thing. */}
+      {posted && (
+        <div className="person__posted">
+          <p className="person__postedRef">
+            {verseRef(posted.book, posted.chapter, posted.from_verse, posted.to_verse)}
+          </p>
+          <PassageText
+            book={posted.book}
+            chapter={posted.chapter}
+            fromVerse={posted.from_verse}
+            toVerse={posted.to_verse}
+            className="person__postedText"
+          />
+          {posted.thought && <p className="person__postedThought">{posted.thought}</p>}
+        </div>
+      )}
 
-              {isOpen && (
-                <ol className="thread__messages">
-                  {t.messages.map((m) => (
-                    <Bubble
-                      key={m.id}
-                      passage={m}
-                      mine={m.from_user === userId}
-                      onSeen={async () => {
-                        await markPassageSeen(m.id);
-                        await onChanged();
-                      }}
-                      onDelete={async () => {
-                        await deletePassage(m.id);
-                        await onChanged();
-                      }}
-                    />
-                  ))}
-                </ol>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-    </section>
+      {count > 0 && (
+        <button type="button" className="person__open" aria-expanded={open} onClick={onToggle}>
+          <Chevron size={13} className={`person__chev${open ? ' person__chev--open' : ''}`} />
+          {open ? 'Hide the exchange' : `${plural(count, 'verse')} between you`}
+          {unread > 0 && !open && <span className="person__unread">{unread}</span>}
+        </button>
+      )}
+
+      {open && thread && (
+        <ol className="person__messages">
+          {thread.messages.map((m) => (
+            <Bubble
+              key={m.id}
+              passage={m}
+              mine={m.from_user === userId}
+              onSeen={async () => {
+                await markPassageSeen(m.id);
+                await onChanged();
+              }}
+              onDelete={async () => {
+                await deletePassage(m.id);
+                await onChanged();
+              }}
+            />
+          ))}
+        </ol>
+      )}
+    </li>
   );
 }
 
@@ -629,7 +617,7 @@ function Bubble({
 }) {
   const ref = verseRef(passage.book, passage.chapter, passage.from_verse, passage.to_verse);
 
-  /* Opening the thread is reading it, so theirs are marked once they are drawn. */
+  /* Opening the exchange is reading it, so theirs are marked once they are drawn. */
   useEffect(() => {
     if (mine || passage.seen_at) return;
     void onSeen();
@@ -658,133 +646,21 @@ function Bubble({
 }
 
 /**
- * The verse of the day, yours and everybody's.
+ * The words on a person's row.
  *
- * This is the one place the app leans toward a feed, and the shape is what
- * keeps it from becoming one. **One verse per person per day, enforced by the
- * primary key**, so there is nothing to scroll, nobody can post six times, and
- * a board that is empty today simply says so. Posting is done from the reader,
- * where you are when a verse strikes you, rather than from a picker here.
+ * A lapsed friend gets a plain statement of when they last read and no number
+ * at all. `presenceOf` is where that is decided and why.
  */
-function BoardCard({
-  userId,
-  board,
-  friends,
-  me,
-  onChanged,
-  reveal,
-}: {
-  userId: string;
-  board: Broadcast[];
-  friends: Friend[];
-  me: Profile | null;
-  onChanged: () => Promise<void>;
-  reveal: (el: Element | null) => void;
-}) {
-  /*
-   * The newest day each person posted, which is not the same as "today".
-   * A friend nine hours ahead has already started tomorrow, so filtering on
-   * your own date would hide what they put up an hour ago.
-   */
-  const latest = useMemo(() => {
-    const best = new Map<string, Broadcast>();
-    for (const b of board) {
-      const seen = best.get(b.user_id);
-      if (!seen || b.day > seen.day) best.set(b.user_id, b);
-    }
-    return best;
-  }, [board]);
-
-  const mine = latest.get(userId) ?? null;
-  const theirs = friends
-    .map((f) => ({ friend: f, post: latest.get(f.userId) }))
-    .filter((x): x is { friend: Friend; post: Broadcast } => Boolean(x.post));
-
-  if (!mine && theirs.length === 0) {
-    return (
-      <section ref={reveal} className="card card--night reveal">
-        <div className="card__head">
-          <div>
-            <h3 className="card__title">Verse of the day</h3>
-            <p className="card__note">
-              Nothing up yet. Highlight something while you read and choose "Put it up for today",
-              and everybody you read with sees it until tomorrow.
-            </p>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  return (
-    <section ref={reveal} className="card card--night reveal">
-      <div className="card__head">
-        <div>
-          <h3 className="card__title">Verse of the day</h3>
-          <p className="card__note">One each, replaced rather than added to.</p>
-        </div>
-      </div>
-      <ul className="board">
-        {mine && (
-          <BoardItem
-            key="mine"
-            post={mine}
-            name={me?.display_name ?? 'You'}
-            avatar={me?.avatar_url ?? null}
-            onClear={async () => {
-              await clearBroadcast(userId, mine.day);
-              await onChanged();
-            }}
-          />
-        )}
-        {theirs.map(({ friend, post }) => (
-          <BoardItem
-            key={friend.userId}
-            post={post}
-            name={friend.displayName}
-            avatar={friend.avatarUrl}
-          />
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-function BoardItem({
-  post,
-  name,
-  avatar,
-  onClear,
-}: {
-  post: Broadcast;
-  name: string;
-  avatar: string | null;
-  onClear?: () => Promise<void>;
-}) {
-  const ref = verseRef(post.book, post.chapter, post.from_verse, post.to_verse);
-  const mine = Boolean(onClear);
-  return (
-    <li className={`board__item${mine ? ' board__item--mine' : ''}`}>
-      <div className="board__who">
-        <Avatar name={name} url={avatar} size={28} />
-        <span className="board__name">{mine ? 'You' : name}</span>
-        {post.day !== today() && <span className="board__day">{formatDay(post.day)}</span>}
-      </div>
-      <p className="friendVerse__ref">{ref}</p>
-      <PassageText
-        book={post.book}
-        chapter={post.chapter}
-        fromVerse={post.from_verse}
-        toVerse={post.to_verse}
-      />
-      {post.thought && <p className="friendVerse__thought">{post.thought}</p>}
-      {onClear && (
-        <button type="button" className="btn btn--sm btn--ghost" onClick={onClear}>
-          Take it down
-        </button>
-      )}
-    </li>
-  );
+function describe(p: FriendPresence, friend: Friend): string {
+  if (p.daysSince === null) return 'Not started yet';
+  const percent = friend.progress?.plan_percent ?? null;
+  const place = p.where ? ` in ${p.where}` : '';
+  const along = percent !== null && percent > 0 ? `, ${percent}% along` : '';
+  if (p.today) return `Read today${place}${along}`;
+  if (p.daysSince === 1) return `Read yesterday${place}${along}`;
+  if (p.daysSince < 7) return `Last read ${p.daysSince} days ago${place}`;
+  const day = friend.progress?.last_read_day;
+  return day ? `Last read ${formatDay(day)}` : 'Not read in a while';
 }
 
 /**

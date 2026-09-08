@@ -1039,13 +1039,23 @@ it again.
   the app, only a request declined. A received passage could not be removed. The inbox showed what
   you had sent. The friend row was a three column grid that grew a fourth control and wrapped it
   onto a line of its own, which read as broken rather than as a button.
-- **Friends is three cards and a fold, and it was six panels.** One panel per function is the
-  arrangement Stats already learned its way out of: **merging beats arranging.** Requests, the list
-  and adding somebody are all one question asked three ways, so they are one card with `.friendGroup`
-  as a rule and a line of type where a card head would have been. "How you appear" is a `FoldCard`,
-  shut, because it is set once and then never opened, and it was taking a full panel at the bottom
-  of every visit. The board is one hairline list rather than a stack of bordered blocks, the same
-  1px-gap trick the friend list and the figure strip use.
+- **Friends is a masthead, one roster and a fold. It was six panels, then four.** Merging the cards
+  was only half the lesson: the screen was still sliced by **function**, so the same person appeared
+  on the board, in the messages and in the list, three times and joined to none of themselves.
+  **The person is the unit, not the function.** A `PersonRow` carries where they are, the verse they
+  put up today and the exchange between you, and every friend appears exactly once.
+- **Your own verse is the one thing outside the roster**, because it is the one line on the screen
+  about you rather than about somebody else. `.yours` sits flush under the masthead's gold rule with
+  no radius and no gap, so the red band, the hairline and the dark strip read as a masthead and its
+  standfirst rather than as a header and then a card. It is the only dark surface here, and it is
+  where **gold gets to be a word**: `--yellow` measures 1.7:1 on paper and 10.2:1 there.
+- **It is `.yours`, not `.today`, and that is not a naming whim.** `.today__ref` already belongs to
+  Journey's today card in `TodayCard.tsx`, so the first draft would have repainted it. The
+  duplicate-selector one-liner caught it, which is the third time that check has earned its place.
+- **Removing a card means removing its CSS.** The restructure orphaned 45 rules, `.card--night`,
+  `.board*`, `.thread*` and `.friendVerse*` among them. Dead rules are not free: they still win by
+  file order, and a stylesheet full of names that render nothing is how the next person loses an
+  hour.
 - **`HandleCard` takes `bare`.** A card inside the fold's card is a border inside a border with
   nothing between them, so the fold renders the form alone.
 - **The avatar is square before it is uploaded, which is the actual fix.** It was reported as an
@@ -1097,11 +1107,9 @@ it again.
   convention every reader knows and the colour is the backup, so neither has to carry it alone.
   Yours took a red right edge and **had to lose the gold left one**: kept, one bubble wore both and
   read as belonging to both sides.
-- **The verse of the day is the only dark card in the app, and that is the point.** The screen was
-  eight cream panels on a cream page, every one the same weight, so nothing on it looked like the
-  reason to visit. The board is that reason, so it takes the app's own night surface, the one the
-  header and the guide already use. It also lets **gold be a word rather than an edge for once**:
-  `--yellow` is 1.7:1 on paper and could never carry text there, and it is over 12:1 on ink.
+- **The exchange lives inside the person's row**, not in a card of its own, and opens one at a time.
+  A friend's verse of the day sits directly above it, so what they chose and what passed between you
+  are read together.
 
 Still not done: the reader does not open at a passage when one is tapped, and nothing tells you a
 verse arrived except opening the screen. **Removing a friend leaves the passages you already
