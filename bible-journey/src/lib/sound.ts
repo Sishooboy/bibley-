@@ -560,6 +560,31 @@ export function scheduleTap(c: BaseAudioContext, out: AudioNode, at: number): vo
  */
 const TOUR_LADDER = [A3, E4, A4, E5, A5];
 
+/**
+ * Which rung a climbing stop rings.
+ *
+ * The five rungs are stretched over the stops rather than handed out one each
+ * with the top one clamped. Clamping was right at six stops and wrong at seven:
+ * it repeated A5 on the stop immediately before the arrival, which is the worst
+ * place a repeat can land, since the arrival is built on A and the ear had just
+ * heard the top of the climb stall.
+ *
+ * Stretching is over the gaps rather than the stops, which is what guarantees
+ * the two ends: the first stop is always the bottom rung and the last stop
+ * before the arrival is always the top one, at any length. With more stops than
+ * rungs a rung repeats somewhere in the middle, where a plateau passes for
+ * pacing, and never against the arrival.
+ *
+ * **Six stops still ring exactly what they rang before**, one rung each, which
+ * is what makes this safe to change under a tour nobody wanted to re-score.
+ * Exported so that is a test rather than a claim.
+ */
+export function tourRung(index: number, total: number): number {
+  const gaps = Math.max(1, total - 2);
+  const rung = Math.round((index * (TOUR_LADDER.length - 1)) / gaps);
+  return TOUR_LADDER[Math.max(0, Math.min(TOUR_LADDER.length - 1, rung))];
+}
+
 export function tourStep(index: number, total: number): void {
   if (!enabled) return;
   const c = context();
@@ -593,11 +618,7 @@ export function scheduleTourStep(
     return;
   }
 
-  // Clamped rather than wrapped: a seventh stop would repeat the top rung
-  // instead of dropping back to the bottom one, which would read as going
-  // backwards through a tour that is still going forwards.
-  const freq = TOUR_LADDER[Math.min(index, TOUR_LADDER.length - 1)];
-  bell(c, out, at, freq, 0.8, 0.14);
+  bell(c, out, at, tourRung(index, total), 0.8, 0.14);
 }
 
 /** Mirrors the reader's preference, so a muted app never even builds a voice. */

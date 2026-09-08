@@ -425,7 +425,7 @@ redeploy.**
   works, and `readyLogo()` resolves to null rather than rejecting if it cannot be fetched: a card
   with no mark beats no card. Everything in that header is measured off the thing before it, so a
   missing mark closes the gap instead of leaving a hole.
-- **The welcome guide** is `src/components/Guide.tsx`, six stepped panels shown once. Each drawing is
+- **The welcome guide** is `src/components/Guide.tsx`, seven stepped panels shown once. Each drawing is
   an inline SVG diagram of the screen it describes, so the shape you are shown is the shape you meet
   a minute later. Whether it has been seen is `prefs.guideSeenAt`, **synced on purpose**: being
   walked round the app again on the second device you sign into is an obstacle, not a welcome.
@@ -451,6 +451,11 @@ redeploy.**
   an inner view that is there whether or not the account has read anything. A new reader's Stats
   screen is `NothingYet`, so a spotlight expecting the figure strip would have found nothing on the
   exact account the tour exists for.
+- **A screen the nav offers and the tour skips is a screen nobody is told about.** Friends was added
+  to the nav and the tour did not mention it, which is the same silent failure as a renamed anchor:
+  nothing throws, nothing warns, and a new reader is simply never shown that part of the app.
+  `tour.test.ts` now fails if any view in `VIEWS` has no stop, and the old pin, "visits more than one
+  screen", was true the whole time it was wrong.
 - **The tour climbs a ladder rather than ringing one note six times.** It borrowed the insight bell
   first, which meant the same A5 on every stop, and that is the difference between a sound and a
   score: an identical chime says something happened and nothing else, so by the third one you have
@@ -460,6 +465,14 @@ redeploy.**
   rest of the set, every rung inside the 220 to 880 a phone speaker can reproduce, and **measured**:
   about -15.7 dBFS a rung against the arrival's -12.8, which is what makes the end feel like an end.
   `E4` was added for this and is the only note in the palette that had no user before.
+- **The five rungs are stretched over the stops, not handed out one each.** Clamping the top rung was
+  right at six stops and wrong at seven: it rang A5 on the stop immediately before the arrival, which
+  is the worst place a repeat can land, since the arrival is built on A and the ear had just heard
+  the climb stall. There is no sixth rung available, because octaves and fifths on A inside the 220
+  to 880 a phone can reproduce is exactly five notes. `tourRung` stretches over the gaps rather than
+  the stops, which is what guarantees both ends: the first stop is always the bottom rung and the
+  last one before the arrival is always the top, at any length. **Six stops still ring exactly what
+  they rang before**, which `sound.test.ts` pins so the tour can grow without being re-scored.
 - **The tour's effects are the app's own, borrowed rather than invented.** Light crosses the lit
   control once as it lands, which is the move the today button already makes on arrival; a second
   flourish would make the tour feel like a different product. It travels by `background-position`
@@ -770,6 +783,17 @@ DDL is transactional, so production was never left mutated.
   projection growing a field that carries a note, the timezone sign flipping, and `canonicalPair`
   dropping its lowercase.
 
+- **The handle is a prompt, never a gate.** The form used to be the entire screen until it was
+  filled in, so an account with a friend request already waiting saw a form and nothing else. **A
+  handle is what lets somebody add you; it was never what lets you see them.** Everything renders
+  now, with the form on top when there is no profile, and only the two cards that genuinely need one,
+  Add someone and How you appear, are guarded.
+- **The form arrives answered.** Sign-in asks for nothing, so this is the only form in the app, and
+  a form is where people leave. Google supplies `full_name` on every account, so the name is filled
+  in and `suggestHandle` proposes a handle from it: the first name where that is long enough, since
+  `charbel` is a better thing to be found by than `charbeljohndagher`. Accents are folded rather than
+  stripped, or `José` would suggest `jos`, and a hyphenated first name stays whole, so Mary-Anne is
+  `maryanne` and not `mary`. It returns an empty string rather than inventing a name nobody chose.
 - **`FriendsView` is never sorted by anything anyone can climb.** That one rule decides most of the
   file. Sorting by streak, or floating whoever read today to the top, turns reading scripture into
   standings, which is the thing the app has refused everywhere else. The order is alphabetical and

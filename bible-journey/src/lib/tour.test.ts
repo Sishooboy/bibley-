@@ -55,6 +55,21 @@ describe('the tour', () => {
     for (const view of views) expect(ids, `no such view: ${view}`).toContain(view);
   });
 
+  /*
+   * The gap this is here to catch. A whole screen was added to the nav and the
+   * tour did not mention it, which is the same silent failure as a renamed
+   * anchor: nothing throws, nothing warns, and a new reader is simply never
+   * told that part of the app exists. "More than one screen" was true the
+   * entire time it was wrong.
+   */
+  it('stops on every screen the nav offers', () => {
+    const ids = [...app.matchAll(/\{ id: '([\w-]+)', label:/g)].map((m) => m[1]);
+    const visited = new Set(views);
+    for (const id of ids) {
+      expect(visited.has(id), `the tour never stops on ${id}`).toBe(true);
+    }
+  });
+
   it('visits more than one screen, which is the whole point', () => {
     // A tour that cannot leave the journey is a tour that cannot describe the
     // other three quarters of the app, which was the second objection to coach

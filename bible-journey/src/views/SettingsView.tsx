@@ -145,7 +145,7 @@ export function SettingsView() {
             <div>
               <h3 className="card__title">The guide</h3>
               <p className="card__note">
-                The six panels you saw the first time, on where everything is and what it does.
+                The seven panels you saw the first time, on where everything is and what it does.
               </p>
             </div>
           </div>

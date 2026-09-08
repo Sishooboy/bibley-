@@ -20,6 +20,12 @@ export type Cloud = {
    * being restored.
    */
   userId: string | null;
+  /**
+   * The name Google gave us, which is the only thing about a reader the app
+   * knows without asking. Friends uses it to arrive with its form filled in
+   * rather than making somebody compose a profile before they can see anybody.
+   */
+  displayName: string | null;
   lastSyncedAt: string | null;
   error: string | null;
   signInWithGoogle: () => Promise<void>;

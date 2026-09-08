@@ -252,6 +252,10 @@ export function CloudProvider({ children }: { children: ReactNode }) {
       status,
       email: session?.user.email ?? null,
       userId: session?.user.id ?? null,
+      displayName:
+        (session?.user.user_metadata?.full_name as string | undefined) ??
+        (session?.user.user_metadata?.name as string | undefined) ??
+        null,
       lastSyncedAt,
       error,
       signInWithGoogle,

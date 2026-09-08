@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chooseCue, play, primeSound, setSoundEnabled, type CueSignal } from './sound';
+import { chooseCue, play, primeSound, setSoundEnabled, tourRung, type CueSignal } from './sound';
 
 function signal(over: Partial<CueSignal> = {}): CueSignal {
   return {
@@ -94,5 +94,58 @@ describe('the synth without an audio context', () => {
     expect(() => setSoundEnabled(false)).not.toThrow();
     expect(() => play('plan')).not.toThrow();
     setSoundEnabled(true);
+  });
+});
+
+
+describe('the tour ladder', () => {
+  const climb = (total: number) =>
+    Array.from({ length: total - 1 }, (_, i) => tourRung(i, total));
+
+  /*
+   * The pin that lets a stop be added at all. Six stops rang one rung each and
+   * that scoring was measured, so a change to the spread has to leave it
+   * untouched or the tour quietly sounds different for everybody who already
+   * knows it.
+   */
+  it('leaves the six stop tour ringing exactly what it always rang', () => {
+    expect(climb(6)).toEqual([220, 329.63, 440, 659.25, 880]);
+  });
+
+  it('climbs without ever going backwards', () => {
+    for (const total of [4, 5, 6, 7, 8, 9]) {
+      const rungs = climb(total);
+      for (let i = 1; i < rungs.length; i += 1) {
+        expect(rungs[i], `total ${total}, stop ${i}`).toBeGreaterThanOrEqual(rungs[i - 1]);
+      }
+    }
+  });
+
+  /*
+   * The reason this exists. Clamping repeated the top rung on the stop right
+   * before the arrival, and the arrival is built on A: the climb stalled
+   * exactly where it should have been tightest.
+   */
+  it('never repeats the rung immediately before the arrival', () => {
+    for (const total of [6, 7, 8, 9]) {
+      const rungs = climb(total);
+      expect(rungs.at(-1), `total ${total}`).not.toBe(rungs.at(-2));
+    }
+  });
+
+  it('puts a seven stop tour repeat in the middle, where a plateau passes for pacing', () => {
+    expect(climb(7)).toEqual([220, 329.63, 440, 440, 659.25, 880]);
+  });
+
+  it('always starts the climb on the bottom rung, whatever the length', () => {
+    for (const total of [4, 5, 6, 7, 8, 9]) {
+      expect(climb(total)[0], `total ${total}`).toBe(220);
+    }
+  });
+
+  it('always ends the climb on the top rung, whatever the length', () => {
+    for (const total of [4, 5, 6, 7, 8, 9]) {
+      expect(climb(total).at(-1), `total ${total}`).toBe(880);
+    }
   });
 });

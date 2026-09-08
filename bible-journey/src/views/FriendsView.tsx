@@ -4,7 +4,13 @@ import { formatDay } from '../lib/dates';
 import { verseRef } from '../lib/highlight';
 import { plural } from '../lib/format';
 import { useReveal } from '../lib/motion';
-import { isValidHandle, normalizeHandle, presenceOf, type FriendPresence } from '../lib/friends';
+import {
+  isValidHandle,
+  normalizeHandle,
+  presenceOf,
+  suggestHandle,
+  type FriendPresence,
+} from '../lib/friends';
 import {
   acceptFriend,
   findByHandle,
@@ -36,7 +42,7 @@ import { useCloud } from '../state/useCloud';
  * engagement loop is a bad thing for a Bible app to grow.
  */
 export function FriendsView() {
-  const { userId } = useCloud();
+  const { userId, displayName } = useCloud();
   const reveal = useReveal();
 
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -133,101 +139,119 @@ export function FriendsView() {
           </section>
         )}
 
-        {!profile ? (
-          <HandleCard userId={userId} onSaved={refresh} reveal={reveal} />
-        ) : (
-          <>
-            {requests.length > 0 && (
-              <section ref={reveal} className="card reveal">
-                <div className="card__head">
-                  <div>
-                    <h3 className="card__title">Waiting on you</h3>
-                    <p className="card__note">
-                      They can see nothing at all until you say yes.
-                    </p>
-                  </div>
-                </div>
-                <ul className="friendList">
-                  {requests.map((f) => (
-                    <li key={f.userId} className="friendRow friendRow--request">
-                      <div className="friendRow__who">
-                        <p className="friendRow__name">{f.displayName}</p>
-                        <p className="friendRow__line">@{f.handle}</p>
-                      </div>
-                      <div className="friendRow__actions">
-                        <button
-                          type="button"
-                          className="btn btn--sm btn--primary"
-                          onClick={async () => {
-                            await acceptFriend(userId, f.userId);
-                            await refresh();
-                          }}
-                        >
-                          Accept
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn--sm"
-                          onClick={async () => {
-                            await removeFriend(userId, f.userId);
-                            await refresh();
-                          }}
-                        >
-                          Not now
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            {inbox.length > 0 && (
-              <section ref={reveal} className="card reveal">
-                <div className="card__head">
-                  <div>
-                    <h3 className="card__title">Verses for you</h3>
-                    <p className="card__note">Passages someone thought of you while reading.</p>
-                  </div>
-                </div>
-                <ul className="friendVerses">
-                  {inbox.map((p) => (
-                    <VerseCard
-                      key={p.id}
-                      passage={p}
-                      mine={p.from_user === userId}
-                      from={friends.find((f) => f.userId === p.from_user)?.displayName ?? 'A friend'}
-                    />
-                  ))}
-                </ul>
-              </section>
-            )}
-
+        {/*
+          The handle sits on top as a prompt, never as a gate. It used to be
+          the entire screen until it was filled in, which meant an account
+          with friends already waiting saw a form and nothing else. A handle
+          is what lets somebody add *you*; it was never what lets you see
+          them.
+        */}
+        {!profile && (
+          <HandleCard
+            userId={userId}
+            suggestedName={displayName}
+            onSaved={refresh}
+            reveal={reveal}
+          />
+        )}
+          {requests.length > 0 && (
             <section ref={reveal} className="card reveal">
               <div className="card__head">
                 <div>
-                  <h3 className="card__title">Reading too</h3>
+                  <h3 className="card__title">Waiting on you</h3>
                   <p className="card__note">
-                    In alphabetical order, and never by whose streak is longest.
+                    They can see nothing at all until you say yes.
                   </p>
                 </div>
               </div>
-              {loading && accepted.length === 0 ? (
-                <p className="card__note">Looking…</p>
-              ) : accepted.length === 0 ? (
-                <p className="card__note">
-                  Nobody yet. Share your handle, <strong>@{profile.handle}</strong>, with someone
-                  who reads.
-                </p>
-              ) : (
-                <ul className="friendList">
-                  {accepted.map((f) => (
-                    <FriendRow key={f.userId} friend={f} />
-                  ))}
-                </ul>
-              )}
+              <ul className="friendList">
+                {requests.map((f) => (
+                  <li key={f.userId} className="friendRow friendRow--request">
+                    <div className="friendRow__who">
+                      <p className="friendRow__name">{f.displayName}</p>
+                      <p className="friendRow__line">@{f.handle}</p>
+                    </div>
+                    <div className="friendRow__actions">
+                      <button
+                        type="button"
+                        className="btn btn--sm btn--primary"
+                        onClick={async () => {
+                          await acceptFriend(userId, f.userId);
+                          await refresh();
+                        }}
+                      >
+                        Accept
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--sm"
+                        onClick={async () => {
+                          await removeFriend(userId, f.userId);
+                          await refresh();
+                        }}
+                      >
+                        Not now
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </section>
+          )}
 
+          {inbox.length > 0 && (
+            <section ref={reveal} className="card reveal">
+              <div className="card__head">
+                <div>
+                  <h3 className="card__title">Verses for you</h3>
+                  <p className="card__note">Passages someone thought of you while reading.</p>
+                </div>
+              </div>
+              <ul className="friendVerses">
+                {inbox.map((p) => (
+                  <VerseCard
+                    key={p.id}
+                    passage={p}
+                    mine={p.from_user === userId}
+                    from={friends.find((f) => f.userId === p.from_user)?.displayName ?? 'A friend'}
+                  />
+                ))}
+              </ul>
+            </section>
+          )}
+
+          <section ref={reveal} className="card reveal">
+            <div className="card__head">
+              <div>
+                <h3 className="card__title">Reading too</h3>
+                <p className="card__note">
+                  In alphabetical order, and never by whose streak is longest.
+                </p>
+              </div>
+            </div>
+            {loading && accepted.length === 0 ? (
+              <p className="card__note">Looking…</p>
+            ) : accepted.length === 0 ? (
+              <p className="card__note">
+                {profile
+                  ? `Nobody yet. Share your handle, @${profile.handle}, with someone who reads.`
+                  : 'Nobody yet. Pick a handle above and somebody can add you.'}
+              </p>
+            ) : (
+              <ul className="friendList">
+                {accepted.map((f) => (
+                  <FriendRow key={f.userId} friend={f} />
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {/*
+            These two are the only things that genuinely need a handle: you
+            cannot ask somebody to add you without one, since a friendship whose
+            profile is missing is skipped on the other side.
+          */}
+          {profile && (
             <AddCard
               userId={userId}
               myHandle={profile.handle}
@@ -236,10 +260,17 @@ export function FriendsView() {
               onChanged={refresh}
               reveal={reveal}
             />
+          )}
 
-            <HandleCard userId={userId} existing={profile} onSaved={refresh} reveal={reveal} />
-          </>
-        )}
+          {profile && (
+            <HandleCard
+              userId={userId}
+              existing={profile}
+              suggestedName={displayName}
+              onSaved={refresh}
+              reveal={reveal}
+            />
+          )}
       </div>
     </>
   );
@@ -435,16 +466,26 @@ function AddCard({
 function HandleCard({
   userId,
   existing,
+  suggestedName,
   onSaved,
   reveal,
 }: {
   userId: string;
   existing?: Profile;
+  /** The name Google gave us, so the form arrives answered rather than blank. */
+  suggestedName?: string | null;
   onSaved: () => Promise<void>;
   reveal: (el: Element | null) => void;
 }) {
-  const [handle, setHandle] = useState(existing?.handle ?? '');
-  const [name, setName] = useState(existing?.display_name ?? '');
+  /*
+   * Filled in from the account on a first visit. Sign-in asks for nothing, so
+   * this is the only form in the app, and a form is where people leave. Two of
+   * its three answers are already known.
+   */
+  const [handle, setHandle] = useState(
+    existing?.handle ?? suggestHandle(suggestedName ?? ''),
+  );
+  const [name, setName] = useState(existing?.display_name ?? suggestedName ?? '');
   const [visibility, setVisibility] = useState(existing?.visibility ?? 'reading');
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);

@@ -155,6 +155,46 @@ function ArtNotes() {
   );
 }
 
+function ArtFriends() {
+  return (
+    <svg viewBox="0 0 240 132" className="guide__art" aria-hidden="true">
+      <rect x="18" y="10" width="204" height="20" rx="7" fill="rgba(0,0,0,0.4)" />
+      <rect x="30" y="16" width="54" height="8" rx="4" fill={CREAM} opacity="0.3" />
+      {[0, 1, 2].map((i) => (
+        <g key={i}>
+          <rect
+            x="18"
+            y={40 + i * 30}
+            width="204"
+            height="24"
+            rx="6"
+            fill="rgba(255,255,255,0.07)"
+          />
+          {/* Filled for whoever read today, hollow for whoever has not. */}
+          <circle
+            cx="34"
+            cy={52 + i * 30}
+            r="4.5"
+            fill={i === 0 ? RED : 'none'}
+            stroke={i === 0 ? RED : CREAM}
+            strokeOpacity={i === 0 ? 1 : 0.35}
+            strokeWidth="1.6"
+          />
+          <rect x="48" y={46 + i * 30} width={[38, 30, 34][i]} height="7" rx="3.5" fill={CREAM} opacity="0.55" />
+          <rect x="48" y={57 + i * 30} width={[86, 72, 60][i]} height="5" rx="2.5" fill={CREAM} opacity="0.25" />
+          {/* Only the one still going carries a number. */}
+          {i === 0 && (
+            <>
+              <rect x="176" y={46 + i * 30} width="34" height="14" rx="7" fill={GOLD} opacity="0.28" />
+              <rect x="183" y={50 + i * 30} width="20" height="6" rx="3" fill={CREAM} opacity="0.75" />
+            </>
+          )}
+        </g>
+      ))}
+    </svg>
+  );
+}
+
 function ArtStats() {
   return (
     <svg viewBox="0 0 240 132" className="guide__art" aria-hidden="true">
@@ -253,6 +293,12 @@ const STEPS: Step[] = [
     title: 'How it is actually going',
     body: 'Your streak, your pace, and the date the last chapter lands if you keep this up. There is a card at the bottom of it worth sending to someone.',
     art: <ArtStats />,
+  },
+  {
+    eyebrow: 'Friends',
+    title: 'Somebody to read alongside',
+    body: 'Add a friend by handle and you can see whether they read today and which book they are in. Never their notes, and the list is never ordered by whose streak is longest. Highlight a verse and you can hand it to one of them.',
+    art: <ArtFriends />,
   },
   {
     eyebrow: 'One more thing',

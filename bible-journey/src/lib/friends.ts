@@ -247,3 +247,40 @@ export function normalizeHandle(input: string): string {
 export function isValidHandle(input: string): boolean {
   return HANDLE_SHAPE.test(normalizeHandle(input));
 }
+
+/**
+ * A handle worth offering, from the name Google already gave us.
+ *
+ * Sign-in asks for nothing, so the first time anybody opens Friends they meet a
+ * form, and a form is where people leave. Two of its three fields are already
+ * answerable: Google supplies `full_name` on every account here, and a handle
+ * follows from it. So the form arrives filled in and the reader is agreeing to
+ * something rather than composing it.
+ *
+ * The first name alone where that is long enough, since `charbel` is a better
+ * name to be found by than `charbeljohndagher`, and more of the name only when
+ * it has to be. Accents are folded rather than dropped, or `José` would suggest
+ * `jos`.
+ */
+export function suggestHandle(name: string): string {
+  const words = name
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase()
+    // Split on spaces and clean inside a word, rather than splitting on
+    // everything a handle cannot hold: Mary-Anne is one name and should suggest
+    // `maryanne`, not `mary`.
+    .split(/\s+/)
+    .map((word) => word.replace(/[^a-z0-9]/g, ''))
+    .filter(Boolean);
+
+  let handle = '';
+  for (const word of words) {
+    handle += word;
+    if (handle.length >= 3) break;
+  }
+  handle = handle.slice(0, 20);
+  // Too short to be legal, and padding it with anything invents a name nobody
+  // chose, so it is better to hand back nothing and let the field stay empty.
+  return handle.length >= 3 ? handle : '';
+}

@@ -5,6 +5,7 @@ import {
   isValidHandle,
   normalizeHandle,
   presenceOf,
+  suggestHandle,
   projectProgress,
   readToday,
   theirToday,
@@ -299,5 +300,46 @@ describe('handles', () => {
 
   it('stores lowercase rather than merely accepting it', () => {
     expect(normalizeHandle('  Charbel  ')).toBe('charbel');
+  });
+});
+
+describe('suggestHandle fills the form in from what Google already told us', () => {
+  it('offers the first name where that is enough', () => {
+    expect(suggestHandle('Charbel John Dagher')).toBe('charbel');
+    expect(suggestHandle('Ruth')).toBe('ruth');
+  });
+
+  it('takes more of the name only when it has to', () => {
+    // "Jo" alone is two characters and the constraint wants three.
+    expect(suggestHandle('Jo Nguyen')).toBe('jonguyen');
+    expect(suggestHandle('Al B Carter')).toBe('alb');
+  });
+
+  it('folds accents rather than dropping them', () => {
+    // Stripping the mark outright would suggest "jos", which is somebody else.
+    expect(suggestHandle('José Álvarez')).toBe('jose');
+    expect(suggestHandle('Zoë')).toBe('zoe');
+  });
+
+  it('drops anything a handle cannot contain', () => {
+    expect(suggestHandle("O'Brien")).toBe('obrien');
+    // A hyphenated first name is one name, so it is not cut at the hyphen.
+    expect(suggestHandle('Mary-Anne Smith')).toBe('maryanne');
+  });
+
+  it('never suggests something the constraint would reject', () => {
+    for (const name of ['Charbel John Dagher', 'José Álvarez', 'Jo Nguyen', "O'Brien", 'Zoë']) {
+      expect(isValidHandle(suggestHandle(name)), name).toBe(true);
+    }
+  });
+
+  it('gives back nothing rather than inventing a name nobody chose', () => {
+    expect(suggestHandle('')).toBe('');
+    expect(suggestHandle('Al')).toBe('');
+    expect(suggestHandle('...')).toBe('');
+  });
+
+  it('never suggests one longer than the column allows', () => {
+    expect(suggestHandle('Bartholomew Featherstonehaugh').length).toBeLessThanOrEqual(20);
   });
 });

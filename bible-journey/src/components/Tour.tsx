@@ -3,7 +3,7 @@ import { reducedMotion } from '../lib/motion';
 import { tourStep } from '../lib/sound';
 import { Chevron } from './icons';
 
-export type TourView = 'journey' | 'notes' | 'stats' | 'settings';
+export type TourView = 'journey' | 'notes' | 'friends' | 'stats' | 'settings';
 
 type Step = {
   /** The screen this step is about. The tour switches to it before pointing. */
@@ -15,7 +15,7 @@ type Step = {
 };
 
 /*
- * Six stops, four screens.
+ * Seven stops, five screens.
  *
  * The screens are targeted by their masthead rather than by their nav button
  * for two reasons: the nav collapses behind a menu on a phone, so those buttons
@@ -48,6 +48,12 @@ const STEPS: Step[] = [
     target: 'masthead',
     title: 'Notes keeps what you thought',
     body: 'Highlight a passage while you read and attach a thought, or write a note on a whole chapter. Both land here, searchable and filed by book.',
+  },
+  {
+    view: 'friends',
+    target: 'masthead',
+    title: 'Read alongside somebody',
+    body: 'A short list of people, alphabetical and never ranked by whose streak is longest. You see whether they read today and the book they are in, never anything you wrote. Highlight a verse and you can hand it to one of them.',
   },
   {
     view: 'stats',
