@@ -914,6 +914,19 @@ Progress is never lost, only occasionally resurrected. That direction is deliber
   notes filter bar were declared sticky and had never once stuck. **Use `overflow-x: clip`**, which
   clips identically and creates no scroll container. Nothing in the app overflows sideways at 375px
   anyway, measured with the guard off entirely, so it really is only belt and braces.
+- **Scrolling stops at the ends, and `overscroll-behavior` is the only thing that says so.**
+  `overflow-x: clip` above deliberately creates no scroll container, which is right, but it means
+  nothing was holding the page at its own top: dragging down lifted the whole app off the cream to
+  show the browser's background, and on Android the same gesture arms pull to refresh, which on a
+  reading app loses your place. `overscroll-behavior-y: none` on **`html`**, because the property
+  reaches the viewport from the root and setting it on `body` only propagates when the root has not
+  set it. **`none` and not `contain`**: `contain` stops the chaining and keeps the bounce, and
+  stopping was the whole ask. `.reader__body` is `none` for the same reason, since the text is the
+  surface anybody actually drags on. Every panel that scrolls over the app is `contain` instead,
+  which is the weaker half on purpose: a sheet must never scroll the app behind it, but a sheet
+  reaching its own end is not the page failing to stop. That is `.hlSheet__inner`,
+  `.hlSheet__quote`, `.guide__stage`, `.insightSheet` and `.sendVerse__quote`. **A new scrolling
+  panel needs the same line**, and nothing fails if it is missed: the app behind simply moves.
 - `--topbar-h` is the pinned header's height and the offset everything else sticks below. It is one
   number because it was two: the notes filter bar hardcoded 62px and the header shrinks to 56px on a
   phone, which would show a strip of scrolling text between them. `.notesBar` goes `position: static`

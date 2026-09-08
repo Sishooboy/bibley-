@@ -62,6 +62,24 @@ html {
   overflow-x: clip;
 
   /*
+   * Scrolling stops at the ends of the page instead of carrying on past them.
+   *
+   * Without this the top of every screen rubber-bands on a phone: you drag and
+   * the whole app lifts off the cream to show the browser's own background, and
+   * on Android the same gesture arms pull to refresh, which on a reading app is
+   * a way to lose your place by accident. `none` rather than `contain`, because
+   * the ask is that it stops and `contain` only prevents the chaining while
+   * keeping the bounce.
+   *
+   * The y axis only. Sideways is already handled by `overflow-x: clip` above,
+   * and naming the axis keeps this clear of the browser's own edge gestures.
+   *
+   * It belongs on `html`: `overscroll-behavior` reaches the viewport from the
+   * root, and setting it on `body` only propagates when the root has not.
+   */
+  overscroll-behavior-y: none;
+
+  /*
    * Takes away double tap to zoom, which is the zoom nobody meant to do and the
    * one that leaves the page stuck at 2x and panned sideways. `manipulation`,
    * not `none`: panning stays, and `none` here would trap scrolling the way it
@@ -4123,7 +4141,14 @@ select {
 
 .reader__body {
   overflow-y: auto;
-  overscroll-behavior: contain;
+  /*
+   * The text stops at its ends rather than bouncing past them. This was
+   * `contain`, which stops the page behind from moving but keeps the rubber
+   * band, so the first line of a chapter still lifted away from the top of the
+   * screen and sprang back. `none` is `contain` plus that, and the reader is
+   * the surface somebody actually drags on.
+   */
+  overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -4892,6 +4917,8 @@ select {
      Save button being pushed off the bottom of a capped sheet. */
   min-height: 0;
   overflow-y: auto;
+  /* A panel over the app scrolls itself and never the app behind it. */
+  overscroll-behavior: contain;
 }
 
 .hlSheet__head {
@@ -4939,6 +4966,8 @@ select {
   color: var(--ink-700);
   max-height: 7.5rem;
   overflow-y: auto;
+  /* A panel over the app scrolls itself and never the app behind it. */
+  overscroll-behavior: contain;
 }
 
 .hlSheet__note {
@@ -5752,6 +5781,8 @@ select {
 .guide__stage {
   min-height: 0;
   overflow-y: auto;
+  /* A panel over the app scrolls itself and never the app behind it. */
+  overscroll-behavior: contain;
   text-align: center;
   animation: guideStep 340ms var(--ease-out) both;
 }
@@ -7022,6 +7053,8 @@ select {
   display: grid;
   align-items: center;
   overflow-y: auto;
+  /* A panel over the app scrolls itself and never the app behind it. */
+  overscroll-behavior: contain;
   padding: 1.5rem var(--gutter) calc(1.5rem + var(--keyboard, 0px));
   background:
     radial-gradient(80% 60% at 90% -10%, rgba(200, 29, 37, 0.3), transparent 62%),
@@ -7809,6 +7842,8 @@ select {
   color: var(--ink-700);
   max-height: 7rem;
   overflow-y: auto;
+  /* A panel over the app scrolls itself and never the app behind it. */
+  overscroll-behavior: contain;
 }
 
 @media (hover: hover) {
