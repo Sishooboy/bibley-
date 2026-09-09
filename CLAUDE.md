@@ -759,8 +759,10 @@ and publishes**, never a copy of anything.
   friendship with, so nothing could ever start; an exact match lookup on a handle is what lets
   somebody be added at all. It does no prefix matching, so the table cannot be walked, but a
   guessable handle is guessable, which is the same exposure every `@name` system has.
-- **The two security advisor warnings about those functions are expected**, and the third is about
-  leaked password protection, which does not apply to a Google-only app.
+- **The three security advisor warnings about those functions are expected.** `is_friend`,
+  `find_profile` and now `blocked_with` are all security definer and all callable by `authenticated`,
+  which the linter flags and which is the only way a function named in a policy can work. The
+  remaining warning is leaked password protection, which does not apply to a Google-only app.
 - **A passage stores the reference, never the words**, so it renders from the app's own text and the
   `{verse, offset}` pair a highlight already uses picks out the phrase. `freeze_passage` makes it
   immutable except for `seen_at`: the update policy that lets a recipient mark it read would
