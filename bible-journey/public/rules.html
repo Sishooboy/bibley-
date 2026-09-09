@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bibley community rules</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+    <style>
+      /*
+       * Inline rather than a stylesheet of its own. The service worker serves
+       * anything with a `style` destination cache first with no revalidation, and
+       * a file in public/ is not fingerprinted, so a separate legal.css would be
+       * frozen on every device that had ever loaded it and could only be retired
+       * by bumping CACHE, which throws away everybody's downloaded Bible books.
+       * These pages are navigations, which are network first, so inlining keeps
+       * them correct forever at the cost of repeating sixty lines twice.
+       *
+       * System faces on purpose: Fraunces and Inter are bundled through npm and
+       * fingerprinted by the build, so a static page cannot name them without
+       * pinning a hash that changes on the next deploy.
+       */
+      :root {
+        --cream: #fbf7ee;
+        --ink: #1a1512;
+        --ink-700: #3a302a;
+        --muted: #6b5f57;
+        --red-700: #a3161d;
+        --line: #e5dccb;
+        color-scheme: light;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background: var(--cream);
+        color: var(--ink-700);
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        font-size: 17px;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 2.5rem 1.25rem 4rem;
+      }
+
+      h1, h2 {
+        font-family: Georgia, 'Times New Roman', serif;
+        color: var(--ink);
+        line-height: 1.25;
+      }
+
+      h1 { font-size: 2rem; margin: 0 0 0.35rem; }
+      h2 { font-size: 1.25rem; margin: 2.25rem 0 0.6rem; color: var(--red-700); }
+
+      .sub { margin: 0 0 2rem; color: var(--muted); font-size: 0.95rem; }
+
+      a { color: var(--red-700); }
+
+      ul { padding-left: 1.15rem; }
+      li { margin-bottom: 0.4rem; }
+
+      .note {
+        margin-top: 2.5rem;
+        padding: 1rem 1.1rem;
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--red-700);
+        border-radius: 10px;
+        background: #fff;
+        font-size: 0.95rem;
+      }
+
+      footer {
+        margin-top: 3rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--line);
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root { color-scheme: dark; }
+        body { background: #16120f; color: #ddd3c6; }
+        h1, h2 { color: #f3ece0; }
+        h2 { color: #e8888d; }
+        a { color: #e8888d; }
+        .note { background: #1e1815; border-color: #33291f; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Community rules</h1>
+      <p class="sub">Bibley. Last updated 9 September 2026.</p>
+
+      <p>
+        Bibley lets you pick a handle, a display name and a photograph, send a friend a verse with a
+        message, and post one verse a day. Everything in that list is something another person will
+        see, so it comes with rules.
+      </p>
+
+      <h2>What is not allowed</h2>
+      <ul>
+        <li>Harassment, threats, or targeting anybody.</li>
+        <li>Hateful content, including anything aimed at a person's race, religion, nationality, disability, sex, gender or orientation.</li>
+        <li>Sexually explicit or violent images or text.</li>
+        <li>Impersonating somebody else, in a name, a handle or a photograph.</li>
+        <li>Spam, advertising, scams, or links sent to people who did not ask for them.</li>
+        <li>Anything illegal.</li>
+      </ul>
+      <p>
+        There is no tolerance for abusive users or objectionable content. Accounts that post it are
+        removed.
+      </p>
+
+      <h2>What you can do about somebody</h2>
+      <ul>
+        <li>
+          <strong>Block them.</strong> Tap the mark on their row in Friends, then Block. They are
+          removed from your friends, their verses leave your screen, and they cannot send you
+          anything or ask to be your friend again. They are not told.
+        </li>
+        <li>
+          <strong>Report them.</strong> Same menu, then Report. Tell us what is wrong and it reaches
+          the address below.
+        </li>
+        <li>
+          <strong>Remove them.</strong> Ends the friendship without blocking. They can ask again, so
+          block instead if you would rather they did not.
+        </li>
+      </ul>
+
+      <h2>What happens to a report</h2>
+      <p>
+        Every report is read. We aim to act within 24 hours. Content that breaks these rules is
+        removed and the account that posted it can be suspended or deleted. Blocking takes effect
+        the moment you tap it and does not wait for us.
+      </p>
+
+      <div class="note">
+        If somebody is in danger, contact your local emergency services. This is a reading app and
+        cannot help with an emergency.
+      </div>
+
+      <h2>Contact</h2>
+      <p>
+        <a href="mailto:support@bibley.app">support@bibley.app</a>
+      </p>
+
+      <footer>
+        <a href="/privacy.html">Privacy policy</a> &middot; <a href="/">Bibley</a>
+      </footer>
+    </main>
+  </body>
+</html>

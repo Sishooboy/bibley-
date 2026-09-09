@@ -247,6 +247,43 @@ export function CloudProvider({ children }: { children: ReactNode }) {
     // The local journal stays put: signing out is not deleting anything.
   }, []);
 
+  /*
+   * Delete the account, which App Store guideline 5.1.1(v) requires and which
+   * nothing in the client is allowed to do on its own: removing a row from
+   * auth.users needs the service role key, and this app ships a publishable one
+   * that is public by design. So the work happens in the delete-account edge
+   * function, which reads who is calling from their own token.
+   *
+   * **The local cache is cleared only after the server says it is done.**
+   * Clearing first would, on a failed call, leave somebody signed in to an
+   * account that still exists with their journal wiped off the device, which is
+   * the one outcome worse than the delete not happening.
+   */
+  const deleteAccount = useCallback(async () => {
+    if (!supabase) throw new Error('This build has no account to delete.');
+    const { data, error: fnError } = await supabase.functions.invoke('delete-account', {
+      method: 'POST',
+    });
+    if (fnError) throw new Error(describeSyncError(fnError));
+    if (!(data as { deleted?: boolean } | null)?.deleted) {
+      throw new Error('The account could not be deleted. Nothing was changed.');
+    }
+
+    // Everything this app has ever written on this device, by prefix, so a key
+    // added later cannot be forgotten here.
+    try {
+      const mine = Object.keys(localStorage).filter((k) => k.startsWith('bible-journey/'));
+      for (const key of mine) localStorage.removeItem(key);
+    } catch (err) {
+      console.error('Could not clear the local copy.', err);
+    }
+
+    await supabase.auth.signOut();
+    // A reload rather than a state update: half the app is holding a journal
+    // that no longer exists, and rebuilding from nothing is the honest reset.
+    location.reload();
+  }, []);
+
   const value = useMemo<Cloud>(
     () => ({
       status,
@@ -261,6 +298,7 @@ export function CloudProvider({ children }: { children: ReactNode }) {
       signInWithGoogle,
       signOut,
       syncNow,
+      deleteAccount,
     }),
     [
       status,
@@ -270,6 +308,7 @@ export function CloudProvider({ children }: { children: ReactNode }) {
       signInWithGoogle,
       signOut,
       syncNow,
+      deleteAccount,
     ],
   );
 

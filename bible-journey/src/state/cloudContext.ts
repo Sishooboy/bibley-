@@ -31,6 +31,14 @@ export type Cloud = {
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   syncNow: () => Promise<void>;
+  /**
+   * Delete the account for good, server side and on this device.
+   *
+   * Resolves only once the row is gone. Throws with something printable if it
+   * could not be done, because a delete that silently failed would leave
+   * somebody believing their data was gone when it was not.
+   */
+  deleteAccount: () => Promise<void>;
 };
 
 export const CloudContext = createContext<Cloud | null>(null);

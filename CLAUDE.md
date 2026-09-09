@@ -1163,6 +1163,70 @@ it again.
   A friend's verse of the day sits directly above it, so what they chose and what passed between you
   are read together.
 
+### Blocking, reporting, and closing an account
+
+**Friends turned this into an app with user-generated content and nothing was added to match.**
+That is the largest gap an App Store readiness pass found. What people can now put in front of each
+other is a photograph they uploaded, a display name any signed-in reader can see by guessing a
+handle, a 500 character message and a 280 character thought on a verse. Guideline 1.2 asks for four
+things from anything that shows that: a way to filter what is posted, a way to report it, the
+ability to block, and published contact information.
+
+- **Removing a friend was never a block, and nothing said so.** `removeFriend` deletes the
+  friendship row, and the insert policy happily lets the same person create a new pending one a
+  second later, so the only lever in the app was a door that swung shut and unlocked itself. The row
+  menu now offers Remove, Block and Report, and **carries a line saying how the first two differ**,
+  since otherwise they read as the same word twice.
+- **A block is a row, and the request policy is what makes it real.** `public.blocks` is
+  deliberately directional rather than a canonical pair like friendships: "I blocked you" and "you
+  blocked me" are different facts and lifting one must not lift the other. `blocked_with(other)`
+  takes one argument and reads the caller from the session, exactly like `is_friend` and for the
+  same reason, and the friendships insert policy refuses past it.
+- **Everything else closes on its own, which is why the migration is small.** Progress, the verse of
+  the day, the profile and the ability to send anything are all gated on `is_friend`, and blocking
+  deletes the friendship, so one new check on one policy shuts all of it. The check added to the
+  passages insert policy is unreachable today and is there so a future change cannot quietly reopen
+  it.
+- **A block is not undetectable and no block anywhere ever is.** The select policy stops the list
+  being read or walked, so nobody is handed a notification or a roster of who cut them off, but
+  somebody refused when they try to add you can work out why. The first draft of that comment
+  claimed more than the code delivers and was corrected before it shipped.
+- **Reports are insert and select-your-own, with no update policy at all.** A report is a thing you
+  file, not a thing anybody edits afterwards, and `reported` is `on delete set null` rather than
+  cascade, so a complaint does not vanish when the account it names closes.
+- **The suite grew a fourth identity rather than blocking one of the three.** A block between the
+  existing A, B and C would have left two refusal checks passing for a brand new reason while still
+  reading green, which is the worst thing a test can do. D is a stranger to everybody, so no count
+  already asserted moves. The positive control that matters is **"somebody who has not been blocked
+  can still ask"**: without it every block check would pass just as happily against a request policy
+  that had stopped working for everyone.
+- **Closing an account is an edge function, and it has to be.** Guideline 5.1.1(v) requires in-app
+  deletion that actually deletes. Removing a row from `auth.users` needs the service role key and
+  this app ships a publishable one that is public by design, so `supabase/functions/delete-account`
+  does it and **takes the account from the token, never from the body**. A user id parameter would
+  turn it into a way for any signed-in reader to delete anybody. Everything cascades from
+  `auth.users`, so one delete is the whole job; the avatar is storage and is removed by hand first,
+  and a failure there is logged and stepped over, because an account that would not delete is worse
+  than a leftover file.
+- **The local cache is cleared only after the server says it is done**, by prefix rather than by a
+  list of keys, so one added later cannot be forgotten. Clearing first would, on a failed call,
+  leave somebody signed in to an account that still exists with their journal wiped off the device.
+- **It asks for a word to be typed.** Everything else destructive here is recoverable: unmarking,
+  deleting a note and removing a friend all leave something or can be redone. This cannot, so it is
+  the one place worth making somebody stop, and it sits directly under the export because the
+  reading order is take your copy, then close the account.
+- **`public/privacy.html` and `public/rules.html` inline their own CSS.** A shared `legal.css` was
+  written first and deleted: the service worker serves anything with a `style` destination cache
+  first with no revalidation, nothing in `public/` is fingerprinted, so it would have frozen on every
+  device that ever loaded it and could only be retired by bumping `CACHE`, which throws away
+  everybody's downloaded Bible books. The pages are navigations, which are network first, so
+  inlining keeps them correct forever at the cost of repeating sixty lines twice. They use system
+  faces for the same class of reason: Fraunces and Inter are fingerprinted by the build.
+- **`SUPPORT_EMAIL` in `src/lib/contact.ts` is a placeholder and the rules page makes a promise.**
+  It says reports are acted on within a day. The two static pages carry their own copy of the
+  address, so **all three change together**, and it has to become a mailbox somebody reads before
+  this is submitted anywhere.
+
 Still not done: the reader does not open at a passage when one is tapped, and nothing tells you a
 verse arrived except opening the screen. **Removing a friend leaves the passages you already
 exchanged**, which is deliberate, the same way a message you were sent stays after a friendship
@@ -1170,13 +1234,24 @@ cools; sending stops, because the insert policy requires an accepted friendship.
 
 Not built yet, roughly in order:
 
-1. **In-app account deletion.** Required by App Store guideline 5.1.1(v). Must clear the Supabase
-   row and the local cache. Now also four friends tables, though every one of them cascades from
-   `auth.users`, so deleting the account is enough and the ordering does not matter.
+1. **Sign in with Apple**, required by guideline 4.8 because Google sign-in is offered, and the
+   thing that also solves the reviewer demo account: handing Apple a Google login is awkward and
+   Google often refuses it from an unfamiliar device. Needs the paid Apple account before it can be
+   configured, so it is blocked rather than merely unstarted.
 2. **Capacitor shell**, which is what makes notifications fire with the app closed, and what
    unlocks reminders. Needs macOS or GitHub Actions to build, and $99/year for Apple.
-3. **Sign in with Apple**, required by guideline 4.8 because Google sign-in is offered.
-4. A custom domain, which fixes the consent screen and gives somewhere to host a privacy policy.
+3. A custom domain, which fixes the consent screen and gives the support address somewhere to live.
+4. **A 1024px app icon.** `brand/logo-source.png` is 639x639 and there is no vector anywhere in the
+   repo, so `npm run icons` cannot produce one and upscaling would ship a soft mark. It needs a
+   re-export from whatever drew it.
+5. **`NSPhotoLibraryUsageDescription`**, the moment the iOS project exists. The avatar file input
+   opens the photo picker, and without that key iOS does not prompt, it crashes, which is a
+   rejection for a broken feature rather than a missing string.
+6. **Letting the reader work signed out.** Guideline 5.1.1(i) says an app without significant
+   account-based features must not force a login, and right now `App.tsx` gates everything including
+   simply reading the Bible. Sync and friends are genuine account features so it is arguable, but it
+   is the kind of thing that gets rejected. The plumbing half exists already: `status === 'off'`
+   renders `<Shell />` against local-only storage.
 
 **Export is the only undo there is.** `ExportPanel` in Settings writes the whole blob to a file,
 because the server row is the only copy and a sync that writes the wrong thing cannot be walked

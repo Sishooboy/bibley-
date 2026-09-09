@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 import { AccountPanel } from '../components/AccountPanel';
+import { SUPPORT_EMAIL } from '../lib/contact';
+import { DeleteAccountPanel } from '../components/DeleteAccountPanel';
 import { ExportPanel } from '../components/ExportPanel';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
 import { Check, Compass, Lock, Route } from '../components/icons';
@@ -139,6 +141,8 @@ export function SettingsView() {
         <AccountPanel reveal={reveal} />
 
         <ExportPanel reveal={reveal} />
+
+        <DeleteAccountPanel reveal={reveal} />
 
         <section ref={reveal} className="card reveal">
           <div className="card__head">
@@ -362,6 +366,41 @@ export function SettingsView() {
           <p className="notice notice--gold">
             Nothing is lost while this is off. Bibley still tells you the moment you open it on a day
             you haven't read, and your streak is still counted the same way.
+          </p>
+        </section>
+
+        {/*
+          Reachable from inside the app, not only from a store listing. Friends
+          carries photographs and messages other people wrote, and an app that
+          shows those has to say what is not allowed and give somebody a way to
+          reach a person about it. The links open the same pages the App Store
+          listing points at, so there is one copy of each and they cannot drift.
+        */}
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
+            <div>
+              <h3 className="card__title">Rules and privacy</h3>
+              <p className="card__note">
+                What is stored and who can see it, what is not allowed between friends, and how to
+                reach somebody about either.
+              </p>
+            </div>
+          </div>
+
+          <div className="policyLinks">
+            <a className="btn btn--sm" href="/rules.html" target="_blank" rel="noreferrer">
+              Community rules
+            </a>
+            <a className="btn btn--sm" href="/privacy.html" target="_blank" rel="noreferrer">
+              Privacy policy
+            </a>
+            <a className="btn btn--sm" href={`mailto:${SUPPORT_EMAIL}`}>
+              Email support
+            </a>
+          </div>
+          <p className="card__note policyLinks__note">
+            Reports are read and acted on within a day. You can block somebody from their row in
+            Friends, which takes effect straight away and does not wait for us.
           </p>
         </section>
       </div>

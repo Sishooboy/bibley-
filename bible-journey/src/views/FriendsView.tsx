@@ -21,7 +21,9 @@ import {
 } from '../lib/friends';
 import {
   acceptFriend,
+  blockUser,
   clearBroadcast,
+  fileReport,
   deletePassage,
   findByHandle,
   loadBroadcasts,
@@ -493,7 +495,14 @@ function PersonRow({
   onChanged: () => Promise<void>;
 }) {
   const p = presenceOf(friend.progress);
-  const [confirming, setConfirming] = useState(false);
+  /*
+   * null shut, 'menu' showing what can be done about this person, 'report'
+   * asking what is wrong. One state rather than three booleans, so two panels
+   * can never be open at once.
+   */
+  const [panel, setPanel] = useState<null | 'menu' | 'report'>(null);
+  const [reason, setReason] = useState('');
+  const [reported, setReported] = useState(false);
   const unread = thread?.unread ?? 0;
   const count = thread?.messages.length ?? 0;
 
@@ -512,40 +521,107 @@ function PersonRow({
           </span>
         )}
         {/*
-          Unfriending is the one destructive thing on the row, so it is a quiet
-          mark that opens a confirm rather than a button beside the name.
+          Everything you can do about a person is behind one quiet mark rather
+          than three buttons beside their name, and it opens below the head so
+          the four column grid never has to hold them.
         */}
-        {confirming ? (
-          <span className="person__confirm">
-            <button
-              type="button"
-              className="btn btn--sm btn--danger"
-              onClick={async () => {
-                await removeFriend(userId, friend.userId);
-                await onChanged();
-              }}
-            >
-              Remove
-            </button>
-            <button
-              type="button"
-              className="btn btn--sm btn--ghost"
-              onClick={() => setConfirming(false)}
-            >
-              Keep
-            </button>
-          </span>
-        ) : (
+        <button
+          type="button"
+          className="person__more"
+          aria-expanded={panel !== null}
+          aria-label={`What to do about ${friend.displayName}`}
+          onClick={() => setPanel(panel === null ? 'menu' : null)}
+        >
+          ×
+        </button>
+      </div>
+
+      {panel === 'menu' && (
+        <div className="person__menu">
           <button
             type="button"
-            className="person__more"
-            aria-label={`Remove ${friend.displayName}`}
-            onClick={() => setConfirming(true)}
+            className="btn btn--sm btn--ghost"
+            onClick={async () => {
+              await removeFriend(userId, friend.userId);
+              await onChanged();
+            }}
           >
-            ×
+            Remove
           </button>
-        )}
-      </div>
+          {/*
+            Block is not a louder Remove. Removing deletes the friendship and
+            the insert policy lets them ask again a second later; blocking
+            writes a row that policy refuses to insert past, so they cannot
+            come back. The label says which is which.
+          */}
+          <button
+            type="button"
+            className="btn btn--sm btn--danger"
+            onClick={async () => {
+              await blockUser(userId, friend.userId);
+              await onChanged();
+            }}
+          >
+            Block
+          </button>
+          <button type="button" className="btn btn--sm btn--ghost" onClick={() => setPanel('report')}>
+            Report
+          </button>
+          <button type="button" className="btn btn--sm btn--ghost" onClick={() => setPanel(null)}>
+            Cancel
+          </button>
+          <p className="person__menuNote">
+            Removing lets them ask again. Blocking does not, and takes their verses off this screen.
+          </p>
+        </div>
+      )}
+
+      {panel === 'report' && (
+        <div className="person__menu">
+          {reported ? (
+            <p className="person__menuNote">
+              Sent. We read every report. Block them as well if you would rather not hear from them
+              while we look.
+            </p>
+          ) : (
+            <>
+              <label className="person__reportLabel" htmlFor={`report-${friend.userId}`}>
+                What is wrong? This goes to whoever answers the support address.
+              </label>
+              <textarea
+                id={`report-${friend.userId}`}
+                className="field person__reportBox"
+                rows={3}
+                maxLength={500}
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="Their photograph, their name, something they sent"
+              />
+              <div className="person__menuRow">
+                <button
+                  type="button"
+                  className="btn btn--sm btn--primary"
+                  disabled={reason.trim().length === 0}
+                  onClick={async () => {
+                    await fileReport(userId, friend.userId, reason.trim(), null);
+                    setReported(true);
+                    setReason('');
+                  }}
+                >
+                  Send report
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--sm btn--ghost"
+                  onClick={() => setPanel(null)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       {/* What they put up today, in their own row rather than on a board of its
           own, so the person and what they chose are one thing. */}

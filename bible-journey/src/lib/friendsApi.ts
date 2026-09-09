@@ -27,6 +27,8 @@ export const PROGRESS = 'progress';
 export const PASSAGES = 'passages';
 export const BROADCASTS = 'broadcasts';
 export const AVATARS = 'avatars';
+export const BLOCKS = 'blocks';
+export const REPORTS = 'reports';
 
 export type Profile = {
   user_id: string;
@@ -35,6 +37,12 @@ export type Profile = {
   visibility: Visibility;
   /** A face beside the name, or null. Lives in storage, not in the row. */
   avatar_url: string | null;
+};
+
+export type BlockRow = {
+  blocker: string;
+  blocked: string;
+  created_at: string;
 };
 
 export type FriendshipRow = {
@@ -212,6 +220,68 @@ export async function acceptFriend(me: string, them: string): Promise<void> {
     .update({ status: 'accepted', accepted_at: new Date().toISOString() })
     .eq('user_a', pair.user_a)
     .eq('user_b', pair.user_b);
+  if (error) throw error;
+}
+
+/*
+ * Block somebody, which is not the same as unfriending them and never was.
+ *
+ * removeFriend deletes the friendship row, and the insert policy lets the same
+ * person create a new pending one a second later, so on its own it is a door
+ * that swings shut and unlocks itself. A block writes a row that the request
+ * policy refuses to insert past, so they cannot come back.
+ *
+ * Both halves happen here, in this order. The block goes first: if the second
+ * call fails, somebody who wanted a person gone has a block and a stale
+ * friendship, which the next load tidies, rather than no block and a friendship
+ * they thought they had ended.
+ */
+export async function blockUser(me: string, them: string): Promise<void> {
+  const { error } = await client().from(BLOCKS).insert({ blocker: me, blocked: them });
+  // Already blocked is the state that was wanted, so it is not a failure.
+  if (error && error.code !== '23505') throw error;
+  await removeFriend(me, them);
+}
+
+export async function unblockUser(me: string, them: string): Promise<void> {
+  const { error } = await client()
+    .from(BLOCKS)
+    .delete()
+    .eq('blocker', me)
+    .eq('blocked', them);
+  if (error) throw error;
+}
+
+/** The blocks you made. The policy hides everybody else's, including your own blockers. */
+export async function loadBlocks(): Promise<BlockRow[]> {
+  const { data, error } = await client()
+    .from(BLOCKS)
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as BlockRow[];
+}
+
+/*
+ * File a report for whoever answers the support address.
+ *
+ * `passageId` names one message when that is what the complaint is about, and
+ * is null when it is about the person, their name or their photograph. Nothing
+ * is deleted by reporting: the record has to survive for it to be worth
+ * anything, and the reporter has block for the part that takes effect now.
+ */
+export async function fileReport(
+  me: string,
+  them: string,
+  reason: string,
+  passageId: string | null,
+): Promise<void> {
+  const { error } = await client().from(REPORTS).insert({
+    reporter: me,
+    reported: them,
+    passage_id: passageId,
+    reason,
+  });
   if (error) throw error;
 }
 

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bibley privacy policy</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png" />
+    <style>
+      /*
+       * Inline rather than a stylesheet of its own. The service worker serves
+       * anything with a `style` destination cache first with no revalidation, and
+       * a file in public/ is not fingerprinted, so a separate legal.css would be
+       * frozen on every device that had ever loaded it and could only be retired
+       * by bumping CACHE, which throws away everybody's downloaded Bible books.
+       * These pages are navigations, which are network first, so inlining keeps
+       * them correct forever at the cost of repeating sixty lines twice.
+       *
+       * System faces on purpose: Fraunces and Inter are bundled through npm and
+       * fingerprinted by the build, so a static page cannot name them without
+       * pinning a hash that changes on the next deploy.
+       */
+      :root {
+        --cream: #fbf7ee;
+        --ink: #1a1512;
+        --ink-700: #3a302a;
+        --muted: #6b5f57;
+        --red-700: #a3161d;
+        --line: #e5dccb;
+        color-scheme: light;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background: var(--cream);
+        color: var(--ink-700);
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        font-size: 17px;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 2.5rem 1.25rem 4rem;
+      }
+
+      h1, h2 {
+        font-family: Georgia, 'Times New Roman', serif;
+        color: var(--ink);
+        line-height: 1.25;
+      }
+
+      h1 { font-size: 2rem; margin: 0 0 0.35rem; }
+      h2 { font-size: 1.25rem; margin: 2.25rem 0 0.6rem; color: var(--red-700); }
+
+      .sub { margin: 0 0 2rem; color: var(--muted); font-size: 0.95rem; }
+
+      a { color: var(--red-700); }
+
+      ul { padding-left: 1.15rem; }
+      li { margin-bottom: 0.4rem; }
+
+      .note {
+        margin-top: 2.5rem;
+        padding: 1rem 1.1rem;
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--red-700);
+        border-radius: 10px;
+        background: #fff;
+        font-size: 0.95rem;
+      }
+
+      footer {
+        margin-top: 3rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--line);
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root { color-scheme: dark; }
+        body { background: #16120f; color: #ddd3c6; }
+        h1, h2 { color: #f3ece0; }
+        h2 { color: #e8888d; }
+        a { color: #e8888d; }
+        .note { background: #1e1815; border-color: #33291f; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Privacy policy</h1>
+      <p class="sub">Bibley. Last updated 9 September 2026.</p>
+
+      <p>
+        Bibley is a Bible reading tracker. It keeps what you read, what you write about it, and a
+        small amount of what you choose to share with friends. This page says exactly what is
+        stored, where it goes, and how to get rid of it.
+      </p>
+
+      <h2>What is collected</h2>
+      <ul>
+        <li>
+          <strong>Your email address and name</strong>, from Google when you sign in. Sign-in is the
+          only reason they are held, and the name is used to suggest a handle.
+        </li>
+        <li>
+          <strong>Your reading.</strong> Which chapters you have marked, the day you read each one,
+          an optional time of day, and your reading plan.
+        </li>
+        <li>
+          <strong>Your notes and highlights.</strong> These are private. They are stored so they
+          reach your other devices and are never shown to anybody else.
+        </li>
+        <li>
+          <strong>A profile, only if you choose one.</strong> A handle, a display name and an
+          optional photograph. Nothing is published until you pick a handle.
+        </li>
+        <li>
+          <strong>What you send to friends.</strong> The Bible reference and any message you attach,
+          and a verse you post as your verse of the day.
+        </li>
+      </ul>
+
+      <h2>What is not collected</h2>
+      <p>
+        There is no advertising, no analytics, no tracking, and no third-party beacons of any kind.
+        Nothing you do in the app is measured or profiled, and nothing is sold or shared with anyone
+        for advertising. The Bible text itself is served as plain files and reading it reports
+        nothing back.
+      </p>
+
+      <h2>What friends can see</h2>
+      <p>
+        Only people whose friend request you have accepted, and only a summary the app computes and
+        publishes on purpose: whether you read today, your streak, how far through your plan you
+        are, and the book you are in. <strong>Your notes and highlights are never part of it.</strong>
+        Choosing "Quiet" in the app publishes nothing except whether you read today.
+      </p>
+      <p>
+        Anyone signed in who knows your exact handle can see that handle and your display name, which
+        is how somebody adds you. They cannot see anything else without you accepting them.
+      </p>
+
+      <h2>Who stores it</h2>
+      <ul>
+        <li><strong>Supabase</strong> hosts the database and handles sign-in.</li>
+        <li><strong>Vercel</strong> hosts the app itself.</li>
+        <li><strong>Google</strong> provides sign-in, and receives no reading data.</li>
+      </ul>
+      <p>These are service providers. Nobody else receives your data.</p>
+
+      <h2>Deleting everything</h2>
+      <p>
+        Settings has <strong>Close your account</strong>. It deletes your account and everything
+        attached to it: reading, notes, highlights, profile, photograph, friendships, messages and
+        posts, on the server and on the device. It is immediate and cannot be undone, so export your
+        journal first if you want a copy. Settings has a button for that too.
+      </p>
+      <p>
+        Reports made about another account are kept without your name attached to them, so that a
+        complaint does not disappear when somebody closes their account.
+      </p>
+
+      <h2>Children</h2>
+      <p>
+        Bibley is not directed at children under 13 and does not knowingly collect anything from
+        them.
+      </p>
+
+      <h2>Changes</h2>
+      <p>
+        If this policy changes, the date at the top changes with it.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions, or anything you want removed:
+        <a href="mailto:support@bibley.app">support@bibley.app</a>.
+      </p>
+
+      <footer>
+        <a href="/rules.html">Community rules</a> &middot; <a href="/">Bibley</a>
+      </footer>
+    </main>
+  </body>
+</html>

@@ -6701,6 +6701,73 @@ select {
   }
 }
 
+/* ── Rules and privacy ──────────────────────────────────────────────────── */
+
+/* Three pills that wrap rather than a stack of rows: they are destinations, not
+   settings, and none of them has a state to show. */
+.policyLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.policyLinks__note {
+  margin-top: 0.85rem;
+}
+
+/* ── Closing the account ────────────────────────────────────────────────── */
+
+/*
+ * The one irreversible thing in the app, so it is the one place that asks for a
+ * word to be typed rather than a second button pressed. It reads as a warning
+ * without shouting: a tinted panel and a red edge, no full red fill, since the
+ * panel is open the whole time somebody is reading what they are about to lose.
+ */
+.danger {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.9rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--red-600);
+  border-left-width: 3px;
+  border-radius: var(--panel-radius);
+  background: var(--surface);
+}
+
+.danger__what {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+/* The export is the only copy anybody gets, so this points at it rather than
+   assuming the reading order got there first. */
+.danger__save {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.danger__label {
+  font-size: 0.82rem;
+  color: var(--text);
+}
+
+.danger__failed {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--red-700);
+}
+
+.danger__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 /* ── A copy of the journal, on your device ──────────────────────────────── */
 .exportCounts {
   display: grid;
@@ -8327,9 +8394,51 @@ select {
   color: var(--muted);
 }
 
-.person__confirm {
+/*
+ * Everything you can do about a person, opened from the mark on their row.
+ *
+ * Below the head rather than inside it: the head is a four column grid holding
+ * the face, the name, the streak and the mark, and a previous pass already
+ * learned what happens when a fifth control is pushed into it. This wraps, so
+ * four small buttons fit a 375px screen without deciding in advance how.
+ */
+.person__menu {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 0.4rem;
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--line);
+}
+
+.person__menuRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Says what the two destructive options actually differ by, since "Remove" and
+   "Block" read as the same thing said twice otherwise. */
+.person__menuNote {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.person__reportLabel {
+  flex-basis: 100%;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.person__reportBox {
+  flex-basis: 100%;
+  width: 100%;
+  resize: vertical;
 }
 
 .person__more {

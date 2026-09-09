@@ -30,6 +30,10 @@ declare
   a uuid := gen_random_uuid();
   b uuid := gen_random_uuid();
   c uuid := gen_random_uuid();
+  -- D exists only for blocking and reporting. A block between two of the three
+  -- above would have made two existing refusal checks pass for a new reason
+  -- while still reading green, which is the worst thing a suite can do.
+  d uuid := gen_random_uuid();
   passage_id uuid := gen_random_uuid();
   results text[] := '{}';
   ord int := 0;
@@ -41,12 +45,20 @@ begin
     insert into auth.users (id, email, aud, role) values
       (a, 'rls-a@test.invalid', 'authenticated', 'authenticated'),
       (b, 'rls-b@test.invalid', 'authenticated', 'authenticated'),
-      (c, 'rls-c@test.invalid', 'authenticated', 'authenticated');
+      (c, 'rls-c@test.invalid', 'authenticated', 'authenticated'),
+      (d, 'rls-d@test.invalid', 'authenticated', 'authenticated');
 
     insert into public.profiles (user_id, handle, display_name) values
       (a, 'bibley_test_a', 'Reader A'),
       (b, 'bibley_test_b', 'Reader B'),
-      (c, 'bibley_test_c', 'Reader C');
+      (c, 'bibley_test_c', 'Reader C'),
+      (d, 'bibley_test_d', 'Reader D');
+
+    -- A has blocked D and reported them. D is a stranger to everybody else, so
+    -- the profile and progress counts asserted below do not move.
+    insert into public.blocks (blocker, blocked) values (a, d);
+    insert into public.reports (reporter, reported, reason)
+      values (a, d, 'Sent something they should not have.');
 
     -- Canonical order is a constraint, so the pair has to be sorted going in.
     insert into public.friendships (user_a, user_b, requested_by, status, accepted_at)
@@ -131,7 +143,23 @@ begin
         ('C cannot read the board of somebody who has not accepted them',
          format('select count(*) from public.broadcasts where user_id = %L', a), 0, c),
         ('a profile now carries a picture, and a friend can see it',
-         format('select count(*) from public.profiles where user_id = %L and avatar_url is null', b), 1, a)
+         format('select count(*) from public.profiles where user_id = %L and avatar_url is null', b), 1, a),
+        ('A can see a block they made',
+         'select count(*) from public.blocks', 1, a),
+        ('the blocked account cannot read the block, so the list cannot be walked',
+         'select count(*) from public.blocks', 0, d),
+        ('blocked_with is true about somebody you blocked',
+         format('select (public.blocked_with(%L))::int', d), 1, a),
+        ('blocked_with is false about an ordinary friend',
+         format('select (public.blocked_with(%L))::int', b), 0, a),
+        ('A can see the report they filed',
+         'select count(*) from public.reports', 1, a),
+        ('the reported account cannot see the report',
+         'select count(*) from public.reports', 0, d),
+        ('a report is invisible to everybody else too',
+         'select count(*) from public.reports', 0, b),
+        ('being blocked hides nothing that was already public, the handle still resolves',
+         'select count(*) from public.find_profile(''bibley_test_a'')', 1, d)
       ) as t(label, q, expected, who)
     loop
       ord := ord + 1;
@@ -183,7 +211,20 @@ begin
         ('nobody can rewrite somebody else verse of the day',
          format('update public.broadcasts set thought = ''not mine to say'' where user_id = %L', a), b),
         ('a second verse the same day replaces rather than adding',
-         format('insert into public.broadcasts (user_id, day, book, chapter, from_verse, to_verse) values (%L, current_date, ''Mark'', 1, 1, 1)', a), a)
+         format('insert into public.broadcasts (user_id, day, book, chapter, from_verse, to_verse) values (%L, current_date, ''Mark'', 1, 1, 1)', a), a),
+        -- The whole point of the feature. Unfriending never stopped this.
+        ('a blocked account cannot ask to be a friend again',
+         format('insert into public.friendships (user_a, user_b, requested_by) values (%L, %L, %L)', least(a, d), greatest(a, d), d), d),
+        ('the blocker cannot send a request either, a block cuts both ways',
+         format('insert into public.friendships (user_a, user_b, requested_by) values (%L, %L, %L)', least(a, d), greatest(a, d), a), a),
+        ('nobody can block in somebody else name',
+         format('insert into public.blocks (blocker, blocked) values (%L, %L)', a, b), d),
+        ('nobody can lift a block they did not make',
+         format('delete from public.blocks where blocker = %L', a), d),
+        ('nobody can file a report in somebody else name',
+         format('insert into public.reports (reporter, reported, reason) values (%L, %L, ''not mine to file'')', a, b), d),
+        ('a report cannot be edited once it is filed',
+         format('update public.reports set reason = ''never mind'' where reporter = %L', a), a)
       ) as t(label, q, who)
     loop
       ord := ord + 1;
@@ -218,7 +259,13 @@ begin
         ('A can change their own verse of the day',
          format('update public.broadcasts set thought = ''said better'' where user_id = %L', a), a),
         ('A can take their own verse of the day down',
-         format('delete from public.broadcasts where user_id = %L and day = current_date', a), a)
+         format('delete from public.broadcasts where user_id = %L and day = current_date', a), a),
+        -- Without this the block checks above would pass just as happily
+        -- against a request policy that had stopped working for everybody.
+        ('somebody who has not been blocked can still ask',
+         format('insert into public.friendships (user_a, user_b, requested_by) values (%L, %L, %L)', least(b, d), greatest(b, d), d), d),
+        ('a block can be lifted by whoever made it',
+         format('delete from public.blocks where blocker = %L and blocked = %L', a, d), a)
       ) as t(label, q, who)
     loop
       ord := ord + 1;
