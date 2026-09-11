@@ -84,12 +84,13 @@ describe('presentation', () => {
   });
 
   /*
-   * A reader halfway through Genesis before this existed has not just started
-   * Genesis, and introducing it to them would be an obstacle, not a welcome.
-   * The pill still offers it.
+   * Marking happens from the journey screen more often than from the reader, so
+   * requiring an unread book meant the card usually never appeared at all: by
+   * the time a book was opened here, chapters in it had been ticked off
+   * elsewhere. Seen is now the only thing that closes it.
    */
-  it('does not introduce a book the reader is already inside', () => {
-    expect(presentation({ ...base, readInBook: 7 }).sheet).toBe(false);
+  it('still presents it for a book already marked from the journey screen', () => {
+    expect(presentation({ ...base, readInBook: 7 }).sheet).toBe(true);
   });
 
   it('has nothing to present for a book without an entry', () => {

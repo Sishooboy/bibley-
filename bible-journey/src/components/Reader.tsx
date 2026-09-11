@@ -45,8 +45,9 @@ import { useStore } from '../state/useStore';
 import { BibleSearch } from './BibleSearch';
 import { HighlightSheet } from './HighlightSheet';
 import { AboutPill, BookSheet, ChapterNoteCard } from './Insight';
+import { ListenBar } from './ListenBar';
 import { LogDayPicker } from './LogDayPicker';
-import { Check, Chevron, Search } from './icons';
+import { Check, Chevron, Search, Speaker } from './icons';
 
 /**
  * The reader. Until this existed you tracked your reading in Bibley and did the
@@ -169,6 +170,13 @@ export function Reader({
   const [editing, setEditing] = useState<string | null>(null);
   const [pending, setPending] = useState<Range | null>(null);
   const [searching, setSearching] = useState(false);
+  /*
+   * Listening stays on while you page through chapters, and goes off when the
+   * reader closes. It is deliberately not remembered across opens: sound
+   * starting by itself because of something you did days ago is startling, and
+   * the button is one tap.
+   */
+  const [listening, setListening] = useState(false);
   /** A verse arrived at from a search result, marked until it has been seen. */
   const [landedOn, setLandedOn] = useState<number | null>(null);
   /**
@@ -597,6 +605,17 @@ export function Reader({
 
         <button
           type="button"
+          className={`reader__tool${listening ? ' reader__tool--on' : ''}`}
+          onClick={() => setListening((on) => !on)}
+          aria-pressed={listening}
+          aria-label="Listen to this chapter"
+          title="Listen"
+        >
+          <Speaker size={16} />
+        </button>
+
+        <button
+          type="button"
           className={`reader__tool${searching ? ' reader__tool--on' : ''}`}
           onClick={() => setSearching((on) => !on)}
           aria-pressed={searching}
@@ -633,16 +652,11 @@ export function Reader({
         )}
       </header>
 
+      {listening && (
+        <ListenBar book={book} chapter={chapter} onClose={() => setListening(false)} />
+      )}
+
       <div className="reader__body" ref={bodyRef} data-sheet={sheetOpen ? '' : undefined}>
-        {sheetOpen && bookInsight(insights, book) && (
-          <BookSheet
-            key={`${book}-${sheetReplay ? 'again' : 'first'}`}
-            book={book}
-            insight={bookInsight(insights, book)!}
-            replay={sheetReplay}
-            onBegin={dismissSheet}
-          />
-        )}
         {searching ? (
           <BibleSearch
             onClose={() => setSearching(false)}
@@ -910,6 +924,30 @@ export function Reader({
         </div>
         )}
       </footer>
+      )}
+
+      {/*
+        A child of the reader rather than of its body, which is what makes it
+        cover the whole screen: `.insightSheet` is `position: absolute; inset: 0`
+        and resolves against the nearest positioned ancestor, so living in the
+        body confined it to the text and left the bar and the footer showing.
+        Last in source order, so it paints over both without needing to outrank
+        them.
+
+        This was deliberately the other way round once, so that the book and
+        chapter pickers stayed usable behind it and somebody who opened the
+        wrong book did not have to dismiss an introduction to fix it. That cost
+        one tap and bought a card sitting in a letterbox between two bars, and
+        the introduction to a book is worth the whole screen.
+      */}
+      {sheetOpen && bookInsight(insights, book) && (
+        <BookSheet
+          key={`${book}-${sheetReplay ? 'again' : 'first'}`}
+          book={book}
+          insight={bookInsight(insights, book)!}
+          replay={sheetReplay}
+          onBegin={dismissSheet}
+        />
       )}
     </div>
   );

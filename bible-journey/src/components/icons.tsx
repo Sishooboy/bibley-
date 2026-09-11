@@ -234,3 +234,57 @@ export function Route({ size = 16, className }: IconProps) {
     </svg>
   );
 }
+
+/* A speaker with two waves, for listening to the chapter rather than reading it. */
+export function Speaker({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M7.6 2.6 4.4 5.4H2.2v5.2h2.2l3.2 2.8Z" fill="currentColor" stroke="none" />
+      <path d="M10.4 5.8a3.1 3.1 0 0 1 0 4.4" />
+      <path d="M12.5 3.7a6 6 0 0 1 0 8.6" />
+    </svg>
+  );
+}
+
+/* Play and pause, the two states of one control, so they are drawn to the same weight. */
+export function Play({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M4.6 2.7a.7.7 0 0 1 1-.6l7.2 5.3a.7.7 0 0 1 0 1.2l-7.2 5.3a.7.7 0 0 1-1-.6Z" />
+    </svg>
+  );
+}
+
+export function Pause({ size = 16, className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <rect x="4" y="2.6" width="2.8" height="10.8" rx="0.9" />
+      <rect x="9.2" y="2.6" width="2.8" height="10.8" rx="0.9" />
+    </svg>
+  );
+}

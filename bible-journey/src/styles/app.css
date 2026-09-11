@@ -4059,7 +4059,19 @@ select {
   inset: 0;
   z-index: 60;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  /*
+   * Four rows, and **every child names the one it belongs to** just below.
+   *
+   * They used to be placed by source order against three rows, which worked
+   * only for as long as the reader had exactly three children in exactly that
+   * order. Adding the listen strip between the bar and the body pushed the text
+   * into the third row and left the strip holding the `1fr`, which then
+   * collapsed to 0px and let 18px of controls draw straight over the first
+   * paragraph. Naming the rows means a child that is not rendered, the strip
+   * when it is off or the footer while searching, leaves an empty `auto` row
+   * worth nothing instead of shifting everything after it.
+   */
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   /*
    * Without this the implicit column is `auto`, which means max-content: the
    * header's widest possible layout decides how wide the reader is, and the
@@ -4084,6 +4096,8 @@ select {
 }
 
 .reader__bar {
+  /* Named, not placed by order. See the row list on .reader. */
+  grid-row: 1;
   display: flex;
   align-items: center;
   gap: 0.9rem;
@@ -4175,12 +4189,17 @@ select {
   flex: none;
 }
 
+/*
+ * The text stops scrolling while the card is up. It no longer needs
+ * `position: relative`: the sheet used to be a child here and was confined by
+ * it, and it is a child of `.reader` now so that it covers the whole screen.
+ */
 .reader__body[data-sheet] {
-  position: relative;
   overflow: hidden;
 }
 
 .reader__body {
+  grid-row: 3;
   overflow-y: auto;
   /*
    * The text stops at its ends rather than bouncing past them. This was
@@ -4529,6 +4548,7 @@ select {
 }
 
 .reader__foot {
+  grid-row: 4;
   display: grid;
   gap: 0.7rem;
   padding: 0.85rem max(1rem, env(safe-area-inset-right)) calc(0.85rem + env(safe-area-inset-bottom))
@@ -5112,6 +5132,7 @@ select {
 .reader {
   --verse-scale: 1;
 }
+
 
 .verse {
   font-size: calc(1.12rem * var(--verse-scale));
@@ -6701,6 +6722,130 @@ select {
   }
 }
 
+/* ── Listening to the chapter ───────────────────────────────────────────── */
+
+/*
+ * A strip under the reader's bar, never over the text. The point of it is to
+ * read along, so anything covering the words would be a worse version of just
+ * reading them. It carries the bar's ink so the two read as one piece of
+ * furniture with a rule between them rather than as a panel that arrived.
+ */
+.listen {
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.5rem max(0.9rem, env(safe-area-inset-right)) 0.55rem
+    max(0.9rem, env(safe-area-inset-left));
+  background: var(--ink-700);
+  color: var(--cream);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.listen__play {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--yellow);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+/* The one control that has to be reachable at a glance, so it is the gold. It
+   carries an icon and no word, which is the one place that is safe: play and
+   pause are the two shapes everybody already knows. */
+.listen__middle {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.listen__scrub {
+  display: block;
+  width: 100%;
+  margin: 0;
+  accent-color: var(--yellow);
+  cursor: pointer;
+}
+
+.listen__meta {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  margin: 0.1rem 0 0;
+  font-size: 0.68rem;
+  line-height: 1.3;
+  color: var(--muted-dark);
+}
+
+.listen__time {
+  flex: none;
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--cream);
+}
+
+/*
+ * The narrator is named wherever the recording plays. The licence does not ask
+ * for it, the same as the two texts, and printing somebody's work unattributed
+ * would be the wrong way round for the same reason.
+ */
+.listen__credit {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listen__failed {
+  color: var(--yellow-soft);
+}
+
+.listen__close {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  background: none;
+  color: var(--cream);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Nothing to play, so the strip explains itself rather than offering a dead
+   control. It stays the same shape, so switching to a book that has one does
+   not move the text under the reader's eye. */
+.listen--none {
+  align-items: flex-start;
+}
+
+.listen__note {
+  flex: 1 1 auto;
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: var(--muted-dark);
+}
+
+@media (hover: hover) {
+  .listen__play:hover {
+    background: var(--yellow-soft);
+  }
+
+  .listen__close:hover {
+    border-color: rgba(255, 255, 255, 0.45);
+  }
+}
+
 /* ── Rules and privacy ──────────────────────────────────────────────────── */
 
 /* Three pills that wrap rather than a stack of rows: they are destinations, not
@@ -7174,7 +7319,14 @@ select {
   overflow-y: auto;
   /* A panel over the app scrolls itself and never the app behind it. */
   overscroll-behavior: contain;
-  padding: 1.5rem var(--gutter) calc(1.5rem + var(--keyboard, 0px));
+  /*
+   * It covers the whole reader now, so it owns the notch and the home indicator
+   * rather than sitting in a gap between two bars that already cleared them.
+   */
+  padding:
+    calc(1.5rem + env(safe-area-inset-top)) max(var(--gutter), env(safe-area-inset-right))
+    calc(1.5rem + env(safe-area-inset-bottom) + var(--keyboard, 0px))
+    max(var(--gutter), env(safe-area-inset-left));
   background:
     radial-gradient(80% 60% at 90% -10%, rgba(200, 29, 37, 0.3), transparent 62%),
     var(--ink);

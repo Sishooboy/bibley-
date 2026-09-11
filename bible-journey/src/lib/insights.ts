@@ -134,11 +134,18 @@ export type NoteMode = 'reveal' | 'static' | 'none';
 /**
  * What to show when a chapter opens. Pure, so the rules can be pinned.
  *
- * The book's card presents itself once, on the first open of a book with none
- * of it read. Not "chapter 1", because someone who opens Psalms at 23 is still
- * starting Psalms, and not "never seen" alone, because a reader who was halfway
- * through Genesis before this existed should not be introduced to it. After
- * that it stays a tap away behind the pill, and never presents itself again.
+ * The book's card presents itself once, the first time a book is opened in the
+ * reader, and never again. Not "chapter 1", because someone who opens Psalms at
+ * 23 is still starting Psalms.
+ *
+ * **It used to also require that none of the book had been marked, and that was
+ * wrong in the flow people actually use.** Chapters are marked from the journey
+ * screen far more often than from inside the reader, so by the time somebody
+ * opened a book for the first time it was frequently already "not new" and the
+ * card silently never appeared. The guard was written for readers who were
+ * mid-Genesis when this feature shipped, which is a problem that expired; the
+ * cost of dropping it is that somebody deep into a book they had never opened
+ * here gets introduced to it once, which is a card and a tap.
  *
  * A chapter's note reveals itself once and is simply there after, so a reader
  * returning to a chapter is not made to watch the same lines rise twice.
@@ -150,7 +157,7 @@ export function presentation(input: {
   hasNote: boolean;
   seenNote: boolean;
 }): { sheet: boolean; note: NoteMode } {
-  const sheet = input.hasBook && !input.seenBook && input.readInBook === 0;
+  const sheet = input.hasBook && !input.seenBook;
   const note: NoteMode = !input.hasNote ? 'none' : input.seenNote ? 'static' : 'reveal';
   return { sheet, note };
 }
