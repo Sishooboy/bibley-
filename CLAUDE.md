@@ -689,6 +689,64 @@ redeploy.**
   as `streak`: root and fifth under everything, a quick shimmer up through the octave as the rings
   leave, a chord as the name lands and a higher one as the count does.
 
+### A streak that lands on a number scripture keeps
+
+At 3, 7, 12, 40 and a few others the celebration says so, names three places the number comes from,
+and rings differently. It is for fun, and **it is deliberately not numerology.**
+
+- **Nothing asserts what a number means.** There is a large and bad literature that assigns numbers
+  powers the text does not give them, and none of it is a source that belongs beside a public domain
+  translation and imported Berean headings. So an entry is a short line about the pattern and three
+  references, and the reader goes and looks. "Forty: the long wait before the change. Genesis 7:12,
+  Numbers 14:33, Matthew 4:2."
+- **The test is the whole credibility of it.** `numbers.test.ts` fails if a citation names a verse
+  that does not exist, or one that does not contain the number it is cited for, checked against the
+  shipped text. A line nobody can falsify is how this drifts into superstition. **Three mutations
+  were run and all three were caught**: a reference moved to a neighbouring verse that does not say
+  "forty", a reference to a chapter that does not exist, and a merely round number sneaked into the
+  list.
+- **Round is not the same as biblical.** 100 and 365 are milestones in a calendar, and a test names
+  them specifically, because letting them in would quietly turn this into "every milestone is
+  scriptural", which is the one claim it refuses to make.
+- **`Cue` and `Playable` are two types on purpose.** `chooseCue` still answers with a `Cue` and the
+  ladder is still five rungs: a milestone is not a sixth thing that can happen on a tap, it is the
+  streak rung when the number it landed on is one of these. `play` takes the wider `Playable`, and
+  only the call site in `store.tsx` upgrades. Keeping them apart is what stops the ladder growing a
+  rung nobody scored.
+- **The milestone rides on the streak variant of `Shown`, not a third kind.** Same reels, same
+  arrival, with a name and three references underneath, so `StreakCelebration` gained a field rather
+  than a branch.
+- **The voice is the streak's own score for two seconds, note for note**, with a fifth under the
+  drone borrowed from `book` and a second quieter chord an octave up as the name lands. It resolves
+  rather than climbing, because it is an arrival. **Measured, not judged**, through an
+  `OfflineAudioContext` like the rest: -9.5 dBFS peak against streak's -9.3 and book's -9.3, no
+  clipping, and quarter second windows across it to confirm there is no dead spot like the -44 hole
+  the streak cue once had.
+- **The tail was lengthened to match the hold, not the other way round.** The first version stopped
+  at 3.2 seconds against a 4800ms hold, which would have put a second and a half of silence on the
+  end. The drones and the last chord now ring to about 4 seconds. Holds, reels and voices move
+  together or not at all.
+- **`.celebrate--milestone[data-calm]` exists and has to.** The base variant retimes the scrim's
+  exit to 4480ms for the longer hold, and under reduced motion the card leaves at 3000ms, so without
+  its own rule the fade would be scheduled for a card that had already gone and would never run.
+  **The book variant had exactly that hole** and it was fixed in the same pass: a finished book
+  vanished rather than faded for anyone reading with reduced motion.
+
+**The listen control cost the reader bar a book name, and the fix is two rules.** With six controls
+and the read tick, the book select fell to 66px and Mark rendered as "M..", which is the failure the
+430px gap rule was written for. The tick is hidden on a phone, because it is the only thing on that
+bar said anywhere else (the footer reads "Marked today, tap to undo", and folded it still reads
+"Read, tap to change"), and the two selects lose their side padding, because a native select spends
+about 24px of its content box on the dropdown arrow where padding cannot account for it. Psalms is
+back to reading in full.
+
+**And the media query trap caught this file again.** `.reader__done { display: none }` was written
+inside the 430px block, which sits *above* the base `.reader__done` rule, so it lost on file order
+at equal specificity and the tick simply stayed. Nothing warned. The padding rule in the same block
+works only because both selects are declared before it. **A rule inside a media query has to sit
+below the rule it is meant to beat**, and the only way to know is to look at the computed style in
+the browser rather than at the stylesheet.
+
 ### Listening, and why it is a recording rather than a voice
 
 **Read aloud was removed four times and came back as something else.** Every earlier attempt read

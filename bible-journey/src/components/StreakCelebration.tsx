@@ -3,6 +3,8 @@ import { digitsOf, plural } from '../lib/format';
 import { reducedMotion } from '../lib/motion';
 import { chapterCount } from '../lib/navigate';
 import { useStore } from '../state/useStore';
+import { milestoneFor, refLabel } from '../lib/numbers';
+import type { BibleNumber } from '../data/numbers';
 import { Cross } from './Ornament';
 
 /**
@@ -13,9 +15,9 @@ import { Cross } from './Ornament';
  * has gone, and lengthening it puts silence on the end, so the numbers move
  * together or not at all.
  */
-const HOLD_MS = { streak: 3600, book: 4600 } as const;
+const HOLD_MS = { streak: 3600, book: 4600, milestone: 4800 } as const;
 /** Under reduced motion there is no roll to wait for, so it leaves sooner. */
-const HOLD_CALM_MS = { streak: 2200, book: 2600 } as const;
+const HOLD_CALM_MS = { streak: 2200, book: 2600, milestone: 3000 } as const;
 /** Each reel stops this much after the one to its left, like a slot machine. */
 const REEL_STAGGER_MS = 220;
 /** When the reels start: after the cross for a streak, after the name for a book. */
@@ -62,7 +64,19 @@ function Reels({ value, kind }: { value: number; kind: keyof typeof REEL_START_M
 }
 
 type Shown =
-  | { id: number; kind: 'streak'; current: number; best: number }
+  | {
+      id: number;
+      kind: 'streak';
+      current: number;
+      best: number;
+      /*
+       * Set when the run has landed on a number scripture keeps. It rides on
+       * the streak variant rather than being a third kind, because it is the
+       * same moment: the same reels, the same arrival, with a name and three
+       * places to look underneath.
+       */
+      milestone?: BibleNumber;
+    }
   | {
       id: number;
       kind: 'book';
@@ -108,6 +122,7 @@ export function StreakCelebration() {
         kind: 'streak',
         current: derived.streak.current,
         best: derived.streak.longest,
+        milestone: milestoneFor(derived.streak.current) ?? undefined,
       });
     } else if (cue?.name === 'book' && cue.books && cue.books.length > 0) {
       const book = cue.books[0];
@@ -130,7 +145,8 @@ export function StreakCelebration() {
 
   useEffect(() => {
     if (!shown) return;
-    const hold = reducedMotion() ? HOLD_CALM_MS[shown.kind] : HOLD_MS[shown.kind];
+    const held = shown.kind === 'streak' && shown.milestone ? 'milestone' : shown.kind;
+    const hold = reducedMotion() ? HOLD_CALM_MS[held] : HOLD_MS[held];
     const timer = setTimeout(() => setShown(null), hold);
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setShown(null);
@@ -156,7 +172,7 @@ export function StreakCelebration() {
        */
       <div
         key={shown.id}
-        className="celebrate"
+        className={`celebrate${shown.milestone ? ' celebrate--milestone' : ''}`}
         role="status"
         aria-live="polite"
         data-calm={calm}
@@ -169,9 +185,30 @@ export function StreakCelebration() {
           <p className="celebrate__sub">
             {newBest ? 'Your best yet' : `Best so far ${shown.best}`}
           </p>
+
+          {/*
+            Deliberately short. It names the number, says in one line what the
+            verses below it have in common, and then gets out of the way: this
+            is a moment on the way into a chapter, not a page about numerology.
+            The references are the substance, and the reader can go and look.
+          */}
+          {shown.milestone && (
+            <div className="milestone">
+              <p className="milestone__name">{shown.milestone.name}</p>
+              <p className="milestone__line">{shown.milestone.line}</p>
+              <p className="milestone__refs">
+                {shown.milestone.refs.map((ref) => refLabel(ref)).join('  ·  ')}
+              </p>
+            </div>
+          )}
+
           {/* The reels are decoration to a screen reader; this is the sentence. */}
           <span className="sr-only">
             {shown.current === 1 ? 'Your streak starts today.' : `${shown.current} day streak.`}
+            {shown.milestone &&
+              ` ${shown.milestone.name}. ${shown.milestone.line} ${shown.milestone.refs
+                .map((ref) => refLabel(ref))
+                .join(', ')}.`}
           </span>
         </div>
       </div>

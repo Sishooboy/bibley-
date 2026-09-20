@@ -24,6 +24,16 @@
  */
 export type Cue = 'chapter' | 'streak' | 'book' | 'plan' | 'undo';
 
+/*
+ * Cues, plus the variants a caller may upgrade one to.
+ *
+ * `chooseCue` still answers with a `Cue` and the ladder is still five rungs:
+ * a milestone is not a sixth thing that can happen on a tap, it is the streak
+ * rung when the number it landed on is one scripture keeps. Keeping the two
+ * types apart is what stops the ladder quietly growing a rung nobody scored.
+ */
+export type Playable = Cue | 'milestone';
+
 /** What one marking change did, which is all the cue choice depends on. */
 export type CueSignal = {
   /** Books that went from unfinished to finished on this change. */
@@ -320,7 +330,7 @@ function sweep(
 
 type Voice = (c: BaseAudioContext, out: AudioNode, at: number) => void;
 
-const VOICES: Record<Cue, Voice> = {
+const VOICES: Record<Playable, Voice> = {
   /*
    * The workhorse. It fires more than everything else put together, so it is
    * the least musical thing here on purpose: at three chapters a day for a year,
@@ -401,6 +411,47 @@ const VOICES: Record<Cue, Voice> = {
     bell(c, out, at + 0.2, E5, 2.4, 0.18);
     bell(c, out, at + 0.42, A5, 3, 0.16);
   },
+
+  /**
+   * The streak, and then one thing more.
+   *
+   * It is deliberately the streak's own score for the first two seconds, note
+   * for note, because that is what it is: the same run, the same arrival. What
+   * marks it is the fifth under the drone, borrowed from `book` where the same
+   * trick says "this one is larger", and a second quieter chord an octave up as
+   * the number's name and its verses land.
+   *
+   * It resolves rather than climbing. A ladder would say "keep going", and this
+   * is an arrival, the same reasoning that ends the tour on a chord instead of
+   * a sixth rung.
+   *
+   *   0.00  scrim, drone on the root and its fifth
+   *   0.06  the cross lands
+   *   0.30  the reels turn
+   *   1.88  the count arrives, the streak's own chord
+   *   2.60  the name and the verses, quieter and an octave up
+   *   5.20  the scrim leaves, everything still ringing out
+   */
+  milestone: (c, out, at) => {
+    /*
+     * The drones and the last chord run longer than the streak's because the
+     * card does: there is a name, a line and three references to read. A voice
+     * that stopped at the streak's 3.2 seconds would leave the last third of
+     * the hold in silence, which is the mistake the note on HOLD_MS warns about
+     * from the other direction.
+     */
+    drone(c, out, at, A2, 4.4, 0.1);
+    drone(c, out, at, E3, 4.0, 0.055);
+    bell(c, out, at + 0.06, A3, 1.4, 0.1);
+    sweep(c, out, at + 0.3, 1.62, 0.05);
+    // The streak's arrival, unchanged.
+    bell(c, out, at + 1.88, A4, 1.8, 0.2);
+    bell(c, out, at + 1.94, E5, 1.9, 0.15);
+    bell(c, out, at + 2.06, A5, 1.7, 0.12);
+    // The number naming itself, under the first chord rather than over it.
+    bell(c, out, at + 2.6, A5, 2.0, 0.1);
+    bell(c, out, at + 2.68, E6, 1.8, 0.07);
+  },
 };
 
 /**
@@ -409,7 +460,7 @@ const VOICES: Record<Cue, Voice> = {
  * `OfflineAudioContext` is the only way to check a sound is not silent, not
  * clipping and not three seconds of drone without being able to hear it.
  */
-export function schedule(cue: Cue, c: BaseAudioContext, out: AudioNode, at: number): void {
+export function schedule(cue: Playable, c: BaseAudioContext, out: AudioNode, at: number): void {
   VOICES[cue](c, out, at);
 }
 
@@ -650,7 +701,7 @@ export function primeSound(): void {
 }
 
 /** Plays a cue, or does nothing at all. It must never be able to break a mark. */
-export function play(cue: Cue): void {
+export function play(cue: Playable): void {
   if (!enabled) return;
   const c = context();
   if (!c || !master) return;

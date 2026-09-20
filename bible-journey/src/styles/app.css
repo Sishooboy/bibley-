@@ -4163,7 +4163,7 @@ select {
 }
 
 /*
- * Five controls and two selects on a 375px screen. At the desktop gap the book
+ * Six controls and two selects on a 375px screen. At the desktop gap the book
  * name collapsed to "P.." for Psalms, which is the one thing on this bar that
  * has to stay readable. Tighter gaps buy back about 30px, which is a book name.
  */
@@ -4174,6 +4174,18 @@ select {
 
   .reader__ref {
     gap: 0.35rem;
+  }
+
+  /*
+   * And the select's own side padding, which is the last thing between "Psalms"
+   * and "Psal...". The glyphs need 54px, the box had 76px, and a native select
+   * spends about 24 of that on its dropdown arrow inside the content box where
+   * padding cannot be seen to account for it. Nine pixels back is the whole
+   * difference between a book name and an abbreviation.
+   */
+  .reader__book,
+  .reader__chapter {
+    padding-inline: 0.3rem;
   }
 }
 
@@ -4187,6 +4199,27 @@ select {
   background: var(--yellow);
   color: var(--ink);
   flex: none;
+}
+
+/*
+ * The tick goes on a phone, because the listen control took the slot it was
+ * living on: with both, the select fell to 66px and Mark rendered as "M..",
+ * which is the same failure the gap rule above was written for. It is the right
+ * thing to drop, because it is the only thing on this bar that is said
+ * somewhere else anyway. The footer reads "Marked today, tap to undo", and
+ * folded it still reads "Read, tap to change".
+ *
+ * **Below the rule it has to beat, not in the block above it.** Written inside
+ * that `@media` it lost on file order to the `display: grid` here, same
+ * specificity, no warning, and the tick simply stayed. The padding rule up
+ * there works only because both selects are declared before it. This is the
+ * trap the note on media queries in CLAUDE.md is about, and it caught this file
+ * again.
+ */
+@media (max-width: 430px) {
+  .reader__done {
+    display: none;
+  }
 }
 
 /*
@@ -7148,6 +7181,71 @@ select {
   }
 }
 
+/* ── A streak on a number scripture keeps ──────────────────── */
+/*
+ * The streak celebration with a name and three references under it, so the
+ * scrim's exit is retimed here the way the book variant retimes its own. 4480
+ * against the 4800 hold in `StreakCelebration.tsx`, which is the hold less the
+ * 320ms the fade takes. Those numbers move together or not at all.
+ */
+.celebrate--milestone {
+  animation: celebrateIn 260ms ease-out both, celebrateOut 320ms ease-in 4480ms both;
+}
+
+/*
+ * Reduced motion has its own hold, so it needs its own exit. Without this the
+ * rule above would win on file order and the fade would be scheduled for 4480
+ * on a card that leaves at 3000, so it would simply never play and the screen
+ * would snap away. That is the jolt the fade exists to avoid, arriving at the
+ * other end.
+ */
+.celebrate--milestone[data-calm] {
+  animation: celebrateIn 200ms ease-out both, celebrateOut 260ms ease-in 2740ms both;
+}
+
+/*
+ * Arrives after the count has landed, on the second chord at 2.6s, so the
+ * number is read first and then named. One block, three lines, and no more:
+ * this is a moment on the way into a chapter, not a page about numerology.
+ */
+.milestone {
+  margin-top: 0.9rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(247, 184, 1, 0.3);
+  max-width: 22rem;
+  animation: celebrateFade 460ms ease-out 2600ms both;
+}
+
+/* Gold gets to be a word here. It measures 1.7:1 on paper and over 10:1 on
+   this ground, which is the whole reason the dark surfaces carry it. */
+.milestone__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-variation-settings: 'SOFT' 0, 'WONK' 0;
+  color: var(--yellow);
+}
+
+.milestone__line {
+  margin: 0.2rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--cream);
+}
+
+/* The substance of the card. Quiet, because they are for looking up later, not
+   for reading off a screen that leaves in five seconds. */
+.milestone__refs {
+  margin: 0.45rem 0 0;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--yellow-soft);
+}
+
+.celebrate[data-calm] .milestone {
+  animation: none;
+}
+
 /* ── A finished book, as a moment ──────────────────────────── */
 /*
  * The bigger of the two celebrations. Same scrim, same cross, same reels, and
@@ -7157,6 +7255,21 @@ select {
  */
 .celebrate--book {
   animation: celebrateIn 260ms ease-out both, celebrateOut 320ms ease-in 4280ms both;
+}
+
+/*
+ * The same retiming reduced motion needs, which was missing.
+ *
+ * `.celebrate[data-calm]` schedules the exit for 1940ms and the rule above
+ * overrode it back to 4280 on file order at equal specificity, while
+ * `HOLD_CALM_MS.book` takes the card away at 2600. So the fade was scheduled
+ * for a card that had already gone and simply never ran: under reduced motion a
+ * finished book vanished rather than left. Found while giving the milestone
+ * variant its own calm exit, which needed exactly this and would have had the
+ * same hole.
+ */
+.celebrate--book[data-calm] {
+  animation: celebrateIn 200ms ease-out both, celebrateOut 260ms ease-in 2340ms both;
 }
 
 .celebrate--book .celebrate__inner {

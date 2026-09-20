@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useState, type ReactNode } from 'react';
 import { clampReadingDay, today, type DayKey } from '../lib/dates';
 import { overallProgress, pace, phaseProgressAll, phaseStatuses, streak } from '../lib/progress';
+import { milestoneFor } from '../lib/numbers';
 import { play, primeSound, setSoundEnabled } from '../lib/sound';
 import {
   loadData,
@@ -61,7 +62,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
    * not fire again for it.
    */
   useEffect(() => {
-    if (cue) play(cue.name);
+    if (!cue) return;
+    /*
+     * A streak that lands on a number scripture keeps gets its own voice. The
+     * ladder is untouched: `chooseCue` still answered 'streak', and this only
+     * decides which recording of that rung to play.
+     *
+     * `derived` is read here without being a dependency on purpose. The effect
+     * turns on the cue changing, so this is the streak as it was at the moment
+     * the cue was stamped, which is the same snapshot the celebration takes.
+     */
+    const milestone = cue.name === 'streak' && milestoneFor(derived.streak.current);
+    play(milestone ? 'milestone' : cue.name);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cue]);
 
   const derived = useMemo<Derived>(() => {
