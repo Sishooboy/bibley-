@@ -2,7 +2,8 @@ import { useMemo, useState, type CSSProperties } from 'react';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
 import { Chevron, Search } from '../components/icons';
 import { plural } from '../lib/format';
-import { highlightRef } from '../lib/highlight';
+import { HIGHLIGHT_COLOURS, type HighlightColour } from '../lib/colours';
+import { colourOf, highlightRef } from '../lib/highlight';
 import { useReveal } from '../lib/motion';
 import type { PhasedTrack } from '../data/tracks';
 import type { Highlight, Note } from '../lib/storage';
@@ -88,6 +89,10 @@ function EntryRow({
     <article
       ref={reveal}
       className={`entry reveal${open ? ' entry--open' : ''}${isNote ? '' : ' entry--hl'}`}
+      // The row's edge says which colour, the same way it already said
+      // highlight rather than note. Left as gold it put a gold stripe beside a
+      // green highlight's dot, the row contradicting itself.
+      data-colour={entry.kind === 'highlight' ? colourOf(entry.highlight) : undefined}
       style={{ '--i': index % 8 } as CSSProperties}
     >
       <button
@@ -100,7 +105,16 @@ function EntryRow({
           setConfirming(false);
         }}
       >
-        <span className="entry__ref">{entryRef(entry)}</span>
+        <span className="entry__ref">
+          {entry.kind === 'highlight' && (
+            <span
+              className="entry__dot"
+              data-colour={colourOf(entry.highlight)}
+              aria-label={`${colourOf(entry.highlight)} highlight`}
+            />
+          )}
+          {entryRef(entry)}
+        </span>
         <span className="entry__preview">
           {preview ? <Highlighted text={preview} query={query} /> : <em>No thoughts yet</em>}
         </span>
@@ -118,7 +132,7 @@ function EntryRow({
           <span className="entry__phase">{phaseLabel(entryBook(entry), plan)}</span>
 
           {entry.kind === 'highlight' && (
-            <blockquote className="entry__passage">
+            <blockquote className="entry__passage" data-colour={colourOf(entry.highlight)}>
               <Highlighted text={entry.highlight.text} query={query} />
             </blockquote>
           )}
@@ -228,6 +242,8 @@ export function NotesView() {
   const [phaseFilter, setPhaseFilter] = useState('all');
   const [bookFilter, setBookFilter] = useState('all');
   const [kind, setKind] = useState<'all' | 'notes' | 'highlights'>('all');
+  /** Null is every colour. Choosing one also means highlights only, since a note has none. */
+  const [colourFilter, setColourFilter] = useState<HighlightColour | null>(null);
   const [byBook, setByBook] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -249,6 +265,9 @@ export function NotesView() {
     return entries.filter((entry) => {
       if (kind === 'notes' && entry.kind !== 'note') return false;
       if (kind === 'highlights' && entry.kind !== 'highlight') return false;
+      if (colourFilter) {
+        if (entry.kind !== 'highlight' || colourOf(entry.highlight) !== colourFilter) return false;
+      }
 
       const book = entryBook(entry);
       if (bookFilter !== 'all' && book !== bookFilter) return false;
@@ -265,7 +284,7 @@ export function NotesView() {
       }
       return true;
     });
-  }, [entries, query, phaseFilter, bookFilter, kind, plan]);
+  }, [entries, query, phaseFilter, bookFilter, kind, colourFilter, plan]);
 
   /** Grouped under book headings, or one flat run in the order they were touched. */
   const groups = useMemo(() => {
@@ -283,7 +302,11 @@ export function NotesView() {
   }, [shown, byBook]);
 
   const filtered =
-    query.trim() !== '' || phaseFilter !== 'all' || bookFilter !== 'all' || kind !== 'all';
+    query.trim() !== '' ||
+    phaseFilter !== 'all' ||
+    bookFilter !== 'all' ||
+    kind !== 'all' ||
+    colourFilter !== null;
   const highlightCount = data.highlights?.length ?? 0;
 
   return (
@@ -358,12 +381,42 @@ export function NotesView() {
                 type="button"
                 className={`kindSwitch__item${kind === option ? ' kindSwitch__item--on' : ''}`}
                 aria-pressed={kind === option}
-                onClick={() => setKind(option)}
+                onClick={() => {
+                  setKind(option);
+                  // The colour filter hides itself for notes only, so it has to
+                  // let go too, or the list empties behind a control nobody
+                  // can see any more.
+                  if (option === 'notes') setColourFilter(null);
+                }}
               >
                 {option === 'all' ? 'All' : option === 'notes' ? 'Notes' : 'Highlights'}
               </button>
             ))}
           </div>
+
+          {/*
+            Hidden while only notes are shown, because a note has no colour and a
+            filter that can only ever empty the list is a trap, not a control.
+            Each square toggles: tap the lit one again and every colour is back,
+            so there is no separate "all" chip taking up a phone's width.
+          */}
+          {kind !== 'notes' && highlightCount > 0 && (
+            <div className="colourFilter" role="group" aria-label="Filter by colour">
+              <span className="colourFilter__label">Colour</span>
+              {HIGHLIGHT_COLOURS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  className={`swatch${colourFilter === c ? ' swatch--on' : ''}`}
+                  data-colour={c}
+                  aria-pressed={colourFilter === c}
+                  aria-label={`Only ${c} highlights`}
+                  title={`Only ${c}`}
+                  onClick={() => setColourFilter(colourFilter === c ? null : c)}
+                />
+              ))}
+            </div>
+          )}
 
           <button
             type="button"
@@ -387,6 +440,7 @@ export function NotesView() {
                 setPhaseFilter('all');
                 setBookFilter('all');
                 setKind('all');
+                setColourFilter(null);
               }}
             >
               Clear filters

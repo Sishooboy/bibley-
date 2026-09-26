@@ -1,4 +1,5 @@
 import { today, type DayKey } from './dates';
+import { HIGHLIGHT_COLOURS, type HighlightColour } from './colours';
 
 /** Only a device event log lives here now: the settings themselves are synced. */
 const NOTIFIED_KEY = 'bible-journey/notified';
@@ -142,5 +143,37 @@ export function setMarkFolded(folded: boolean): void {
     else localStorage.removeItem(MARK_FOLDED_KEY);
   } catch (err) {
     console.error('Could not remember the reader layout.', err);
+  }
+}
+
+/*
+ * The colour a new highlight starts as: whichever one was picked last.
+ *
+ * Somebody marking every promise in a chapter blue should not have to tap blue
+ * before every one of them, which is what a fixed default would ask. **Device
+ * local, like the folded footer and for the same reason**: `prefs` is rebuilt
+ * field by field by `normalizePrefs`, so a synced field would need a release
+ * that reads it shipped before one that writes it, and the colour you reached
+ * for last on a phone is not a fact worth carrying to a laptop.
+ */
+const LAST_COLOUR_KEY = 'bible-journey/highlight-colour';
+
+export function lastHighlightColour(): HighlightColour {
+  try {
+    const stored = localStorage.getItem(LAST_COLOUR_KEY);
+    return stored && (HIGHLIGHT_COLOURS as readonly string[]).includes(stored)
+      ? (stored as HighlightColour)
+      : 'gold';
+  } catch {
+    // Storage blocked: gold, which is what every highlight was before colours.
+    return 'gold';
+  }
+}
+
+export function setLastHighlightColour(colour: HighlightColour): void {
+  try {
+    localStorage.setItem(LAST_COLOUR_KEY, colour);
+  } catch (err) {
+    console.error('Could not remember the highlight colour.', err);
   }
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { mergeJournals, sameJournal } from './merge';
-import type { AppData, Note } from './storage';
+import { normalize, type AppData, type Note } from './storage';
 
 function journal(over: Partial<AppData> = {}): AppData {
   return {
@@ -379,6 +379,45 @@ describe('highlights', () => {
 
     expect(sameJournal(before, after)).toBe(false);
     expect(sameJournal(before, journal({ highlights: [hl()] }))).toBe(true);
+  });
+
+  /*
+   * The one worth having. A recolour that did not move the timestamp, and was
+   * not compared on its own, would leave the journal looking identical, so it
+   * would never be written to the server. It looks right on this screen and is
+   * gone on the next device, and nothing anywhere says so.
+   */
+  it('notices a colour change even when nothing else moved', () => {
+    const gold = journal({ highlights: [hl()] });
+    const blue = journal({ highlights: [hl({ colour: 'blue' })] });
+
+    expect(sameJournal(gold, blue)).toBe(false);
+    expect(sameJournal(blue, journal({ highlights: [hl({ colour: 'blue' })] }))).toBe(true);
+  });
+
+  it('keeps the later colour, whichever side it arrives from', () => {
+    const older = journal({ highlights: [hl({ colour: 'gold' })] });
+    const newer = journal({
+      highlights: [hl({ colour: 'green', updatedAt: '2026-03-01T00:00:00.000Z' })],
+    });
+
+    expect(mergeJournals(older, newer).highlights?.[0].colour).toBe('green');
+    expect(mergeJournals(newer, older).highlights?.[0].colour).toBe('green');
+  });
+
+  /*
+   * Why this feature needs no staged release. `normalizeHighlights` filters and
+   * does not rebuild, so the field survives a client that has never heard of
+   * it, and a value this build does not recognise survives too, which is what
+   * lets a later version add a fourth colour without this one eating it.
+   */
+  it('keeps a colour through normalize, including one it does not know', () => {
+    const raw = journal({
+      highlights: [hl({ colour: 'blue' }), hl({ id: 'h2', colour: 'purple' as never })],
+    });
+    const back = normalize(JSON.parse(JSON.stringify(raw)));
+
+    expect(back?.highlights?.map((h) => h.colour)).toEqual(['blue', 'purple']);
   });
 });
 

@@ -1,3 +1,5 @@
+import type { HighlightColour } from './colours';
+export { HIGHLIGHT_COLOURS, type HighlightColour } from './colours';
 import { trackIdFrom } from '../data/tracks';
 import { normalizePrefs, type Prefs } from './prefs';
 import type { DayKey } from './dates';
@@ -59,6 +61,18 @@ export type Highlight = {
   text: string;
   /** Empty or absent when the reader highlighted without writing anything. */
   note?: string;
+  /*
+   * Absent means gold. **No staged release is needed for this field**, unlike
+   * anything added to `prefs`: `normalizeHighlights` filters the array rather
+   * than rebuilding each object, so a client that predates colours passes the
+   * field through untouched instead of stripping it. `prefs` is rebuilt field by
+   * field and would not be so forgiving.
+   *
+   * A value this build does not recognise is kept, not cleaned, and drawn as
+   * gold. A later version with a fourth colour then survives a round trip
+   * through this one.
+   */
+  colour?: HighlightColour;
   createdAt: string;
   updatedAt: string;
 };

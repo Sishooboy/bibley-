@@ -179,6 +179,47 @@ redeploy.**
   from the DOM, so they survive a re-render and a device swap. **`data-verse` goes on the text span,
   not the paragraph**: put it on the paragraph and the verse number counts as characters, so every
   highlight lands one place off, or two past verse nine.
+- **A highlight is gold, blue or green, and what each means is the reader's to decide.** Three small
+  squares in the highlight popup, a radio group, drawn 24px inside a 40px target. **Absent means
+  gold**, which is what every highlight made before colours existed already is, so nothing anybody
+  marked changed the day this shipped. Blue and green rather than red, because red is the app's own
+  voice, the headings and the primary buttons, and a red highlight would read as part of the page.
+- **It needed no staged release, and that is not the usual answer.** `normalizePrefs` rebuilds field
+  by field and strips anything it does not know, but **`normalizeHighlights` filters the array and
+  passes the original objects through**, so an older client carries `colour` untouched. A value this
+  build does not recognise is kept rather than cleaned and drawn as gold by `colourOf`, which is what
+  lets a later version add a fourth colour without this one eating it. A test pins both.
+- **The trap was never stripping, it was silence.** `sameJournal` compared `id`, `updatedAt` and
+  `note`, so a colour-only change looked like no change and was never written to the server, and
+  `mergeHighlights` keeps the later `updatedAt`, so the other device's untouched copy would have won
+  anyway. `colourHighlight` moves the timestamp, and `sameJournal` compares `colour` as well. **Both
+  were mutation tested**: dropping the timestamp bump failed two tests including an end to end merge
+  against the other device's gold copy, and dropping the comparison failed the one that matters.
+- **A saved highlight recolours on the tap, not on Save**, since the mark is visible behind the
+  sheet and closing with the cross should not quietly throw a choice away. A new one starts as
+  whichever colour was picked last, device local beside the folded footer, so marking a run of
+  verses in one colour does not cost a tap each.
+- **The colours are `--hl-gold`, `--hl-blue` and `--hl-green`, bare channels in the tokens**, so each
+  rule chooses its own alpha. Blue and green run 0.14 to 0.32 against gold's 0.18 to 0.42 so the three
+  sit at the same weight on cream. Measured against the painted page: verse text on the darkest point
+  of each tint is 11.2 on gold, 9.8 on blue and 10.0 on green, and on hover 10.6, 8.7 and 9.0.
+- **The squares' ink edge is measured too, and the first one failed.** The gold square is 1.74:1
+  against the sheet, under the 3:1 a graphic needs, so it is the edge that makes it an object. At
+  0.28 alpha the edge measured 1.78:1, which is decoration, and the comment beside it claimed it did
+  the job. At 0.6 it is 4.14:1.
+- **Colour and the note are two signals and stay two.** The note is the red underline, `.hl--noted`,
+  and it shows on every colour, so a category can never hide that something was written there.
+- **Every colour rule is an attribute selector**, `[data-colour='blue']`, never a third class, so it
+  outranks `.hl` and `.entry--hl` on specificity rather than on where it sits in the file. That is
+  the file order trap this stylesheet has fallen into more than once, designed out rather than
+  avoided by care.
+- **`src/lib/colours.ts` imports nothing, on purpose.** `storage.ts` imports `prefs.ts`, and `prefs.ts`
+  needed the colours to remember the last one, so defining them in either made a cycle whose safety
+  depended on evaluation order. `storage.ts` re-exports them so callers need not care.
+- In Notes, a highlight row's left edge and a small square beside its reference take its colour, and
+  three squares in the bar filter by it, each a toggle so tapping the lit one again brings every
+  colour back. **The filter hides itself when only notes are shown and lets go when it does**, or
+  the list empties behind a control nobody can see any more.
 - The shareable card in Stats is **drawn on a canvas**, not styled in the DOM and converted after.
   DOM-to-image loses the webfonts, and the card is almost entirely typography. Canvas text uses the
   document's loaded faces, so `readyFonts()` awaits them before the first stroke. It exports JPEG,

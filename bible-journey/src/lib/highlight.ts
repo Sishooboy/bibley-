@@ -1,7 +1,22 @@
+import { HIGHLIGHT_COLOURS, type HighlightColour } from './colours';
 import type { Highlight, Spot } from './storage';
 
 /** A run of verse text, carrying the highlight it belongs to if any. */
-export type Segment = { text: string; id?: string; note?: boolean };
+export type Segment = { text: string; id?: string; note?: boolean; colour?: HighlightColour };
+
+/**
+ * The colour to draw, never anything but one of the three.
+ *
+ * Absent is gold, which is what every highlight made before colours existed
+ * already is. A value this build does not know, from a later version or a
+ * hand-edited export, is also drawn as gold rather than as nothing: the field
+ * itself is left alone so it survives the round trip, and only the drawing
+ * falls back.
+ */
+export function colourOf(highlight: Pick<Highlight, 'colour'>): HighlightColour {
+  const c = highlight.colour;
+  return c && (HIGHLIGHT_COLOURS as readonly string[]).includes(c) ? c : 'gold';
+}
 
 export type Range = { from: Spot; to: Spot };
 
@@ -65,10 +80,13 @@ export function segmentVerse(
     if (winner) {
       segment.id = winner.h.id;
       segment.note = !!winner.h.note?.trim();
+      segment.colour = colourOf(winner.h);
     }
 
     // Fold neighbouring runs that belong to the same highlight, so a mark is one
-    // element and gets one set of rounded ends.
+    // element and gets one set of rounded ends. Colour needs no check of its
+    // own: one highlight has one colour, so a change of colour is always a
+    // change of id.
     const last = out[out.length - 1];
     if (last && last.id === segment.id && last.note === segment.note) last.text += segment.text;
     else out.push(segment);

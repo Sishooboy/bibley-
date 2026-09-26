@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CANON, NEW_TESTAMENT, OLD_TESTAMENT } from '../data/canon';
 import { getTrack, type PhasedTrack } from '../data/tracks';
-import { highlightRef, isEmptyRange, order, segmentVerse, verseRef } from './highlight';
+import { colourOf, highlightRef, isEmptyRange, order, segmentVerse, verseRef } from './highlight';
 import { chapterCount, neighbours, readChapter } from './navigate';
 import type { Highlight } from './storage';
 
@@ -21,7 +21,35 @@ function mark(over: Partial<Highlight> = {}): Highlight {
 
 const VERSE = 'For God so loved the world, that he gave his one and only Son.';
 
+describe('colourOf', () => {
+  /* Every highlight made before colours existed has none, and must stay gold. */
+  it('draws an uncoloured highlight as gold', () => {
+    expect(colourOf(mark())).toBe('gold');
+  });
+
+  it('draws the colour it was given', () => {
+    expect(colourOf(mark({ colour: 'blue' }))).toBe('blue');
+    expect(colourOf(mark({ colour: 'green' }))).toBe('green');
+  });
+
+  /* Drawn as gold, but not rewritten: the stored value is left for the version that knows it. */
+  it('draws a colour it does not know as gold', () => {
+    expect(colourOf(mark({ colour: 'purple' as never }))).toBe('gold');
+  });
+});
+
 describe('segmentVerse', () => {
+  it('carries the colour of the highlight a run belongs to', () => {
+    const [marked] = segmentVerse(VERSE, 16, [mark({ colour: 'green' })]);
+    expect(marked.id).toBe('h1');
+    expect(marked.colour).toBe('green');
+  });
+
+  it('gives an uncoloured highlight gold, so the page never draws one colourless', () => {
+    const [marked] = segmentVerse(VERSE, 16, [mark()]);
+    expect(marked.colour).toBe('gold');
+  });
+
   it('leaves an unmarked verse in one piece', () => {
     expect(segmentVerse(VERSE, 16, [])).toEqual([{ text: VERSE }]);
   });

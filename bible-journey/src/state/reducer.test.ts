@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AppData } from '../lib/storage';
+import { mergeJournals } from '../lib/merge';
+import type { AppData, Highlight } from '../lib/storage';
 import { reducer, type State } from './reducer';
 
 const TODAY = '2026-02-10';
@@ -186,5 +187,55 @@ describe('repeats', () => {
     expect(first.cue?.name).toBe('chapter');
     expect(second.cue?.name).toBe('chapter');
     expect(second.cue?.id).toBeGreaterThan(first.cue?.id ?? 0);
+  });
+});
+
+describe('colourHighlight', () => {
+  const saved: Highlight = {
+    id: 'h1',
+    book: 'John',
+    chapter: 3,
+    from: { verse: 16, offset: 0 },
+    to: { verse: 16, offset: 10 },
+    text: 'For God so',
+    createdAt: '2026-02-01T00:00:00.000Z',
+    updatedAt: '2026-02-01T00:00:00.000Z',
+  };
+
+  /*
+   * Moving `updatedAt` is not bookkeeping, it is the whole sync story for this
+   * field: the merge keeps the later copy, so a recolour that left the stamp
+   * alone would lose to the other device's untouched copy.
+   */
+  it('sets the colour and moves the timestamp', () => {
+    const next = reducer(state({ highlights: [saved] }), {
+      type: 'colourHighlight',
+      id: 'h1',
+      colour: 'blue',
+    });
+    const h = next.data.highlights![0];
+    expect(h.colour).toBe('blue');
+    expect(h.updatedAt > saved.updatedAt).toBe(true);
+  });
+
+  it('survives a merge against the other device, which still has it gold', () => {
+    const before = state({ highlights: [saved] });
+    const after = reducer(before, { type: 'colourHighlight', id: 'h1', colour: 'green' });
+
+    expect(mergeJournals(after.data, before.data).highlights![0].colour).toBe('green');
+    expect(mergeJournals(before.data, after.data).highlights![0].colour).toBe('green');
+  });
+
+  /* Picking the colour it already is must not stamp a change that did not happen. */
+  it('does nothing when the colour is already that colour', () => {
+    const before = state({ highlights: [{ ...saved, colour: 'blue' }] });
+    const after = reducer(before, { type: 'colourHighlight', id: 'h1', colour: 'blue' });
+    expect(after).toBe(before);
+  });
+
+  it('keeps the note when only the colour changes', () => {
+    const before = state({ highlights: [{ ...saved, note: 'a promise' }] });
+    const after = reducer(before, { type: 'colourHighlight', id: 'h1', colour: 'blue' });
+    expect(after.data.highlights![0].note).toBe('a promise');
   });
 });

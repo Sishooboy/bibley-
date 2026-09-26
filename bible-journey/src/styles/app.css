@@ -15,6 +15,18 @@
   --yellow-dim: #c99400;
   --yellow-soft: #ffe6a3;
 
+  /*
+   * The three highlight colours, as bare channels so a rule can choose its own
+   * alpha. Gold is the brand gold, since it is what every highlight already was.
+   * Blue and green are held a little darker than a highlighter pen so that at
+   * the same alpha they read at the same weight as gold on cream rather than
+   * shouting over it: gold is a light colour and a like for like blue would be
+   * twice as heavy on the page.
+   */
+  --hl-gold: 247 184 1;
+  --hl-blue: 70 136 214;
+  --hl-green: 66 158 92;
+
   --ink: #1a1512;
   --ink-700: #2b2320;
   --ink-500: #4a3f39;
@@ -4938,6 +4950,34 @@ select {
   box-shadow: inset 0 -2px 0 var(--red-600);
 }
 
+/*
+ * Blue and green are lighter at the top of the gradient than gold, 0.14 and
+ * 0.32 against gold's 0.18 and 0.42, so the three sit at the same weight on
+ * cream. Gold needs no rule of its own: it is `.hl`, which is what every
+ * highlight made before colours existed already looks like.
+ *
+ * The note underline stays red on every colour. Colour is the reader's
+ * category and the underline is "I wrote something here", two different facts
+ * that must not be able to hide each other.
+ */
+.hl[data-colour='blue'] {
+  background: linear-gradient(180deg, rgb(var(--hl-blue) / 0.14), rgb(var(--hl-blue) / 0.32));
+}
+
+.hl[data-colour='green'] {
+  background: linear-gradient(180deg, rgb(var(--hl-green) / 0.14), rgb(var(--hl-green) / 0.32));
+}
+
+@media (hover: hover) {
+  .hl[data-colour='blue']:hover {
+    background: rgb(var(--hl-blue) / 0.42);
+  }
+
+  .hl[data-colour='green']:hover {
+    background: rgb(var(--hl-green) / 0.42);
+  }
+}
+
 .reader__book {
   flex: 1 1 auto;
   min-width: 0;
@@ -5064,7 +5104,7 @@ select {
 .hlSheet__quote {
   margin: 0;
   padding-left: 0.8rem;
-  border-left: 3px solid var(--yellow);
+  border-left: 3px solid rgb(var(--hl-gold));
   font-family: var(--font-display);
   font-size: 0.98rem;
   line-height: 1.55;
@@ -5073,6 +5113,75 @@ select {
   overflow-y: auto;
   /* A panel over the app scrolls itself and never the app behind it. */
   overscroll-behavior: contain;
+}
+
+/* The quote's edge takes the chosen colour, so picking a square is seen at once
+   in the sheet as well as on the page behind it. */
+.hlSheet__quote[data-colour='blue'] {
+  border-left-color: rgb(var(--hl-blue));
+}
+
+.hlSheet__quote[data-colour='green'] {
+  border-left-color: rgb(var(--hl-green));
+}
+
+/*
+ * Three squares. Each button is a 40px target holding a 24px swatch, because a
+ * square small enough to look like a swatch is too small to hit with a thumb,
+ * and the 44px rule is about the finger rather than the paint.
+ */
+.swatches {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin: -0.25rem 0 -0.25rem -0.5rem;
+}
+
+.swatch {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.swatch::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 5px;
+  background: rgb(var(--hl-gold));
+  /*
+   * An ink edge around the paint, and its strength is measured, not guessed.
+   * The gold square is 1.74:1 against the sheet, under the 3:1 a graphic needs,
+   * so it is the edge that makes it an object at all. The first edge was ink at
+   * 0.28 and measured 1.78:1, which is decoration rather than a boundary. At
+   * 0.6 it clears 3:1, so all three squares read as squares and the colour only
+   * has to say which. Blue and green are 3.56 and 3.27 on their own.
+   */
+  box-shadow: inset 0 0 0 1px rgb(43 35 32 / 0.6);
+}
+
+.swatch[data-colour='blue']::before {
+  background: rgb(var(--hl-blue));
+}
+
+.swatch[data-colour='green']::before {
+  background: rgb(var(--hl-green));
+}
+
+/*
+ * The chosen one gets the app's focus ring shape, ink around the square with
+ * paper between, so "chosen" looks the same here as it does on every button.
+ * Ink rather than gold because the ring has to show round the gold square too.
+ */
+.swatch--on::before {
+  box-shadow:
+    inset 0 0 0 1px rgb(43 35 32 / 0.6),
+    0 0 0 2px var(--surface),
+    0 0 0 4px var(--ink-700);
 }
 
 .hlSheet__note {
@@ -5697,6 +5806,16 @@ select {
   border-left-color: var(--yellow);
 }
 
+/* Attribute selectors, so they outrank `.entry--hl` on specificity rather than
+   on where they happen to sit in the file. */
+.entry--hl[data-colour='blue'] {
+  border-left-color: rgb(var(--hl-blue));
+}
+
+.entry--hl[data-colour='green'] {
+  border-left-color: rgb(var(--hl-green));
+}
+
 .entry__ref {
   font-family: var(--font-display);
   font-size: 1rem;
@@ -5769,11 +5888,58 @@ select {
 .entry__passage {
   margin: 0;
   padding-left: 0.85rem;
-  border-left: 3px solid rgba(247, 184, 1, 0.75);
+  border-left: 3px solid rgb(var(--hl-gold) / 0.75);
   font-family: var(--font-display);
   font-size: 1rem;
   line-height: 1.6;
   color: var(--ink-700);
+}
+
+.entry__passage[data-colour='blue'] {
+  border-left-color: rgb(var(--hl-blue) / 0.75);
+}
+
+.entry__passage[data-colour='green'] {
+  border-left-color: rgb(var(--hl-green) / 0.75);
+}
+
+/*
+ * The colour on a shut row, so categories can be seen down the list without
+ * opening anything or filtering. A dot rather than a coloured row, because the
+ * row is a line of text and tinting it would put the reader's categories
+ * behind their own words.
+ */
+.entry__dot {
+  display: inline-block;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-right: 0.4rem;
+  border-radius: 2px;
+  vertical-align: 0.08em;
+  background: rgb(var(--hl-gold));
+  box-shadow: inset 0 0 0 1px rgb(43 35 32 / 0.6);
+}
+
+.entry__dot[data-colour='blue'] {
+  background: rgb(var(--hl-blue));
+}
+
+.entry__dot[data-colour='green'] {
+  background: rgb(var(--hl-green));
+}
+
+/* The filter in the notes bar: the same three squares, each one a toggle. */
+.colourFilter {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.colourFilter__label {
+  margin-right: 0.2rem;
+  font-size: 0.78rem;
+  color: var(--muted);
 }
 
 .entry__text {

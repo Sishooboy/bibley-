@@ -40,6 +40,7 @@ import { blocksFor } from '../lib/passage';
 import { DEFAULT_PREFS, TEXT_SIZES, markFolded, setMarkFolded, textScale } from '../lib/prefs';
 import { scrollAppToTop } from '../lib/scroll';
 import { chime } from '../lib/sound';
+import type { HighlightColour } from '../lib/colours';
 import { chapterKey, newId, type Highlight } from '../lib/storage';
 import { useStore } from '../state/useStore';
 import { BibleSearch } from './BibleSearch';
@@ -135,6 +136,11 @@ function VerseText({
             <mark
               key={s}
               className={`hl${segment.note ? ' hl--noted' : ''}`}
+              // An attribute rather than a third class, so the colour rules
+              // outrank `.hl` on specificity instead of depending on where in
+              // the file they sit, which is the trap that has cost this
+              // stylesheet an afternoon more than once.
+              data-colour={segment.colour}
               // Reading is the default, so opening a note is a tap rather than
               // something a stray drag can trigger.
               onClick={() => onOpenNote(segment.id!)}
@@ -484,7 +490,7 @@ export function Reader({
   );
 
   const commitPending = useCallback(
-    (note: string) => {
+    (note: string, colour: HighlightColour) => {
       if (!pending || !text) return;
       const now = new Date().toISOString();
       const highlight: Highlight = {
@@ -495,6 +501,7 @@ export function Reader({
         to: pending.to,
         text: quoteFor(pending),
         note: note.trim() || undefined,
+        colour,
         createdAt: now,
         updatedAt: now,
       };

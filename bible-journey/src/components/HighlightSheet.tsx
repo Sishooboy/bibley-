@@ -1,8 +1,51 @@
 import { useEffect, useRef, useState } from 'react';
 import { SendVerse, type Sendable } from './SendVerse';
-import { highlightRef } from '../lib/highlight';
+import { HIGHLIGHT_COLOURS, type HighlightColour } from '../lib/colours';
+import { colourOf, highlightRef } from '../lib/highlight';
+import { lastHighlightColour, setLastHighlightColour } from '../lib/prefs';
 import type { Highlight } from '../lib/storage';
 import { useStore } from '../state/useStore';
+
+/** What each colour is called, for the one reader who cannot see which is which. */
+const COLOUR_NAMES: Record<HighlightColour, string> = {
+  gold: 'Gold',
+  blue: 'Blue',
+  green: 'Green',
+};
+
+/**
+ * Three small squares, one a colour.
+ *
+ * A radio group, because exactly one is always chosen and a highlight is never
+ * colourless: absent already means gold. Each square is drawn small and hit
+ * large, a 24px swatch inside a 40px button, since "little squares" is right
+ * for the eye and wrong for a thumb.
+ */
+function Swatches({
+  value,
+  onPick,
+}: {
+  value: HighlightColour;
+  onPick: (colour: HighlightColour) => void;
+}) {
+  return (
+    <div className="swatches" role="radiogroup" aria-label="Highlight colour">
+      {HIGHLIGHT_COLOURS.map((colour) => (
+        <button
+          key={colour}
+          type="button"
+          role="radio"
+          aria-checked={value === colour}
+          aria-label={COLOUR_NAMES[colour]}
+          title={COLOUR_NAMES[colour]}
+          className={`swatch${value === colour ? ' swatch--on' : ''}`}
+          data-colour={colour}
+          onClick={() => onPick(colour)}
+        />
+      ))}
+    </div>
+  );
+}
 
 /**
  * The panel that turns a selection into something you keep.
@@ -27,20 +70,42 @@ export function HighlightSheet({
    * not mean saving it, closing the sheet and opening it again.
    */
   sendable?: Sendable;
-  onSave: (note: string) => void;
+  onSave: (note: string, colour: HighlightColour) => void;
   onClose: () => void;
 }) {
-  const { noteHighlight, removeHighlight } = useStore();
+  const { noteHighlight, removeHighlight, colourHighlight } = useStore();
   const [draft, setDraft] = useState(highlight?.note ?? '');
+  /*
+   * A saved highlight shows its own colour. A new one starts as whichever was
+   * picked last on this device, so marking a run of verses in the same colour
+   * does not cost a tap each.
+   */
+  const [colour, setColour] = useState<HighlightColour>(() =>
+    highlight ? colourOf(highlight) : lastHighlightColour(),
+  );
   const [confirming, setConfirming] = useState(false);
   const [sending, setSending] = useState<'send' | 'post' | null>(null);
   const boxRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     setDraft(highlight?.note ?? '');
+    setColour(highlight ? colourOf(highlight) : lastHighlightColour());
     setConfirming(false);
     setSending(null);
   }, [highlight]);
+
+  /*
+   * A saved highlight changes colour the moment a square is tapped, not on
+   * Save. The mark is visible behind the sheet, so the change is seen as it is
+   * made, and closing with the cross should not quietly throw it away the way
+   * it would an unsaved note. A new highlight only remembers the choice, since
+   * there is nothing on the page to recolour until it is made.
+   */
+  const pick = (next: HighlightColour) => {
+    setColour(next);
+    setLastHighlightColour(next);
+    if (highlight) colourHighlight(highlight.id, next);
+  };
 
   const quote = highlight?.text ?? pendingText;
 
@@ -90,7 +155,11 @@ export function HighlightSheet({
           </button>
         </div>
 
-        <blockquote className="hlSheet__quote">{quote}</blockquote>
+        <blockquote className="hlSheet__quote" data-colour={colour}>
+          {quote}
+        </blockquote>
+
+        <Swatches value={colour} onPick={pick} />
 
         <textarea
           ref={boxRef}
@@ -158,7 +227,7 @@ export function HighlightSheet({
               <button
                 type="button"
                 className="btn btn--sm btn--primary"
-                onClick={() => onSave(draft)}
+                onClick={() => onSave(draft, colour)}
               >
                 {draft.trim() ? 'Highlight and save note' : 'Highlight'}
               </button>

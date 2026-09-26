@@ -138,6 +138,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       clearBook: (book, chapters) => dispatch({ type: 'clearBook', book, chapters }),
       addHighlight: (highlight) => dispatch({ type: 'addHighlight', highlight }),
       noteHighlight: (id, note) => dispatch({ type: 'noteHighlight', id, note }),
+      colourHighlight: (id, colour) => dispatch({ type: 'colourHighlight', id, colour }),
       removeHighlight: (id) => dispatch({ type: 'removeHighlight', id }),
       saveNote: (book, chapter, text) => dispatch({ type: 'saveNote', book, chapter, text }),
       deleteNote: (id) => dispatch({ type: 'deleteNote', id }),

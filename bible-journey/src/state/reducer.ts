@@ -19,6 +19,7 @@ import {
   newId,
   type AppData,
   type Highlight,
+  type HighlightColour,
   type Note,
   type ReadMap,
   type Slot,
@@ -32,6 +33,7 @@ export type Action =
   | { type: 'clearBook'; book: string; chapters: number }
   | { type: 'addHighlight'; highlight: Highlight }
   | { type: 'noteHighlight'; id: string; note: string }
+  | { type: 'colourHighlight'; id: string; colour: HighlightColour }
   | { type: 'removeHighlight'; id: string }
   | { type: 'saveNote'; book: string; chapter: number | null; text: string }
   | { type: 'deleteNote'; id: string }
@@ -430,6 +432,28 @@ export function reducer(state: State, action: Action): State {
           ...data,
           highlights: (data.highlights ?? []).map((h) =>
             h.id === action.id ? { ...h, note: note || undefined, updatedAt: now } : h,
+          ),
+        },
+      };
+    }
+    /*
+     * **The timestamp moves with the colour, and that is the whole of the sync
+     * story for this field.** `mergeHighlights` keeps whichever copy has the
+     * later `updatedAt`, so a recolour that left it alone would lose to the
+     * other device's older copy on the next pull, and `sameJournal` would judge
+     * the journal unchanged and never write it. Both failures are silent: the
+     * colour would look right on this screen and be gone on the next one.
+     */
+    case 'colourHighlight': {
+      const current = (data.highlights ?? []).find((h) => h.id === action.id);
+      if (!current || current.colour === action.colour) return state;
+      const now = new Date().toISOString();
+      return {
+        ...state,
+        data: {
+          ...data,
+          highlights: (data.highlights ?? []).map((h) =>
+            h.id === action.id ? { ...h, colour: action.colour, updatedAt: now } : h,
           ),
         },
       };

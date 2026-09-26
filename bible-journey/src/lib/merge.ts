@@ -248,7 +248,15 @@ export function sameJournal(a: AppData, b: AppData): boolean {
   if (aHighlights.length !== bHighlights.length) return false;
   for (const highlight of aHighlights) {
     const match = bHighlights.find((h) => h.id === highlight.id);
-    if (!match || match.updatedAt !== highlight.updatedAt || match.note !== highlight.note) {
+    if (
+      !match ||
+      match.updatedAt !== highlight.updatedAt ||
+      match.note !== highlight.note ||
+      // Belt and braces: the reducer moves `updatedAt` on a recolour, so this
+      // is already caught above. It is here so a future path that forgets to
+      // cannot turn a colour change into one that never reaches the server.
+      match.colour !== highlight.colour
+    ) {
       return false;
     }
   }

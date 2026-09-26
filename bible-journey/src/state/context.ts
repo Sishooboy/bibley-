@@ -10,7 +10,7 @@ import type { PhasedTrack } from '../data/tracks';
 import type { Prefs } from '../lib/prefs';
 import type { Cue } from '../lib/sound';
 import type { DayKey } from '../lib/dates';
-import type { AppData, Highlight, LoadResult, Note, Slot } from '../lib/storage';
+import type { AppData, Highlight, HighlightColour, LoadResult, Note, Slot } from '../lib/storage';
 
 export type Derived = {
   /** The reading track in force, resolved from the stored choice. */
@@ -64,6 +64,8 @@ export type Store = {
   addHighlight: (highlight: Highlight) => void;
   /** Empty text clears the thought but keeps the highlight. */
   noteHighlight: (id: string, note: string) => void;
+  /** Recolouring moves `updatedAt`, which is what lets it sync and win a merge. */
+  colourHighlight: (id: string, colour: HighlightColour) => void;
   removeHighlight: (id: string) => void;
   saveNote: (book: string, chapter: number | null, text: string) => void;
   deleteNote: (id: string) => void;
