@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { chooseCue, play, primeSound, setSoundEnabled, tourRung, type CueSignal } from './sound';
+import { BOOK, MILESTONE, STREAK, reelLand } from './celebration';
+import {
+  chooseCue,
+  play,
+  primeSound,
+  schedule,
+  setSoundEnabled,
+  tourRung,
+  type CueSignal,
+  type Playable,
+} from './sound';
 
 function signal(over: Partial<CueSignal> = {}): CueSignal {
   return {
@@ -147,5 +157,206 @@ describe('the tour ladder', () => {
     for (const total of [4, 5, 6, 7, 8, 9]) {
       expect(climb(total).at(-1), `total ${total}`).toBe(880);
     }
+  });
+});
+
+/* ── The celebrations against their screens ─────────────── */
+
+type Struck = { kind: 'osc' | 'buffer'; at: number; until: number; freq: number };
+
+/**
+ * Just enough of an audio context to record what a voice schedules: when each
+ * oscillator and noise source starts and stops, and the first pitch an
+ * oscillator is given. No sound is made. jsdom has no Web Audio, and the
+ * question here is timing, which this answers exactly where a render would
+ * only answer it to the nearest sample.
+ */
+function recorder() {
+  const struck: Struck[] = [];
+  const param = (onSet?: (v: number) => void) => {
+    let v = 0;
+    return {
+      get value() {
+        return v;
+      },
+      set value(x: number) {
+        v = x;
+        onSet?.(x);
+      },
+      setValueAtTime(x: number) {
+        onSet?.(x);
+        return this;
+      },
+      linearRampToValueAtTime() {
+        return this;
+      },
+      exponentialRampToValueAtTime() {
+        return this;
+      },
+    };
+  };
+  const node = () => ({ connect: <T>(target: T) => target });
+  const source = (kind: Struck['kind'], extra: object) => {
+    const s: Struck = { kind, at: NaN, until: NaN, freq: NaN };
+    struck.push(s);
+    return {
+      ...node(),
+      ...extra,
+      start: (t: number) => {
+        s.at = t;
+      },
+      stop: (t: number) => {
+        s.until = t;
+      },
+      record: s,
+    };
+  };
+  const ctx = {
+    sampleRate: 8000,
+    currentTime: 0,
+    createGain: () => ({ ...node(), gain: param() }),
+    createBiquadFilter: () => ({ ...node(), type: '', frequency: param(), Q: param() }),
+    createStereoPanner: () => ({ ...node(), pan: param() }),
+    createConvolver: () => ({ ...node(), buffer: null }),
+    createBuffer: (channels: number, length: number) => {
+      const data = Array.from({ length: channels }, () => new Float32Array(length));
+      return { getChannelData: (i: number) => data[i] };
+    },
+    createOscillator: () => {
+      const osc = source('osc', { type: '', detune: param() });
+      return {
+        ...osc,
+        frequency: param((x) => {
+          if (Number.isNaN(osc.record.freq)) osc.record.freq = x;
+        }),
+      };
+    },
+    createBufferSource: () => source('buffer', { buffer: null, loop: false }),
+  };
+  const c = ctx as unknown as BaseAudioContext;
+  return { c, out: c.createGain(), struck };
+}
+
+function score(cue: Playable, digits: number) {
+  const r = recorder();
+  schedule(cue, r.c, r.out, 0, digits);
+  return r.struck;
+}
+
+const near = (a: number, b: number) => Math.abs(a - b) < 1e-6;
+const A3 = 220;
+const E4 = 329.63;
+const A4 = 440;
+
+describe('the celebration voices', () => {
+  /*
+   * The whole point of the shared timeline. The screen locks its last reel on
+   * `land` and the voice is handed the same number, so the chord has to begin
+   * on exactly that instant, however many digits are turning.
+   *
+   * It looks for the bell's second partial, 2.01 times the strike, and not for
+   * A4 itself. The last reel's lock click is also an A4 on `land`, so the first
+   * draft of this test passed with the chord moved a beat late: the click was
+   * standing in for it. Only a bell has that partial.
+   */
+  it('strikes the chord on the instant the last reel locks', () => {
+    for (const [cue, t] of [
+      ['streak', STREAK],
+      ['milestone', STREAK],
+      ['book', BOOK],
+    ] as const) {
+      for (let digits = 1; digits <= 3; digits++) {
+        const hit = score(cue, digits).some(
+          (s) => s.kind === 'osc' && near(s.at, t.land / 1000) && near(s.freq, A4 * 2.01),
+        );
+        expect(hit, `${cue} with ${digits} digits`).toBe(true);
+      }
+    }
+  });
+
+  /*
+   * One click per reel on screen, climbing left to right, which is only
+   * possible because `play` is told the digit count. A click where no reel
+   * stopped would be a sound with nothing to belong to.
+   */
+  it('locks once for every reel and never for a reel that is not there', () => {
+    const three = score('streak', 3);
+    [A3, E4, A4].forEach((freq, i) => {
+      const at = reelLand(i, 3, STREAK) / 1000;
+      expect(
+        three.some((s) => s.kind === 'osc' && near(s.at, at) && near(s.freq, freq)),
+        `reel ${i}`,
+      ).toBe(true);
+    });
+
+    const one = score('streak', 1);
+    const early = reelLand(0, 2, STREAK) / 1000;
+    expect(one.some((s) => near(s.at, early))).toBe(false);
+  });
+
+  /*
+   * Holds and voices move together. Anything still sounding after the screen
+   * has gone is a bell ringing over the reader's page for no reason they can
+   * see.
+   */
+  it('schedules nothing past the moment the screen lets go', () => {
+    for (const [cue, hold] of [
+      ['streak', STREAK.hold],
+      ['milestone', MILESTONE.hold],
+      ['book', BOOK.hold],
+    ] as const) {
+      const last = Math.max(...score(cue, 3).map((s) => s.until));
+      expect(last, cue).toBeLessThanOrEqual(hold / 1000);
+    }
+  });
+
+  /*
+   * And from the other end: a voice that finished in the first half of its
+   * hold would leave the rest of the screen in silence, which is the mistake
+   * the milestone's tail was once lengthened to fix.
+   */
+  it('keeps sounding into the last second before the screen leaves', () => {
+    for (const [cue, hold] of [
+      ['streak', STREAK.hold],
+      ['milestone', MILESTONE.hold],
+      ['book', BOOK.hold],
+    ] as const) {
+      const last = Math.max(...score(cue, 1).map((s) => s.until));
+      expect(last, cue).toBeGreaterThan(hold / 1000 - 1);
+    }
+  });
+
+  /*
+   * The bed in particular. The rest of the score reaching the last second is
+   * not enough, because a crackle or a ringing chord can hide a drone that
+   * stopped at two seconds and left everything above it standing on nothing.
+   * The low A under each celebration starts with the scrim and lasts to
+   * within half a second of the hold.
+   */
+  it('keeps the low A under the whole of each celebration', () => {
+    for (const [cue, hold] of [
+      ['streak', STREAK.hold],
+      ['milestone', MILESTONE.hold],
+      ['book', BOOK.hold],
+    ] as const) {
+      const bed = score(cue, 1).filter((s) => s.kind === 'osc' && s.at === 0 && near(s.freq, 110));
+      expect(bed.length, cue).toBeGreaterThan(0);
+      expect(Math.max(...bed.map((s) => s.until)), cue).toBeGreaterThan(hold / 1000 - 0.5);
+    }
+  });
+
+  /* The milestone is the streak with a name added, note for note. */
+  it('plays every note of the streak inside the milestone', () => {
+    const milestone = score('milestone', 2).filter((s) => s.kind === 'osc');
+    for (const note of score('streak', 2).filter((s) => s.kind === 'osc' && s.until < 2.5)) {
+      expect(
+        milestone.some((m) => near(m.at, note.at) && near(m.freq, note.freq)),
+        `${note.freq} at ${note.at}`,
+      ).toBe(true);
+    }
+  });
+
+  it('treats a cue with no reels the same whatever digit count it is given', () => {
+    expect(score('chapter', 3)).toEqual(score('chapter', 1));
   });
 });

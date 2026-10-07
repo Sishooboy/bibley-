@@ -622,16 +622,48 @@ redeploy.**
   shell decides this natively instead, through the audio session category, and needs checking when
   it lands. `MASTER` was **measured, not judged**, the same way contrast is: rendered through an
   `OfflineAudioContext`, 0.5 put the chapter tick at -20 dBFS, which vanishes under a phone speaker.
-  0.9 puts the book bell at -9.6 and the tick at -14.9, which is where interface sound sits, and
-  still leaves 8.7 dB of headroom. `schedule()` is exported so the voices can be rendered offline
-  and measured rather than only listened to.
-- **The `streak` voice is scored against `StreakCelebration`, and is the only one that is.** It runs
-  about 3.4 seconds against the overlay's 3.6, because it used to run 0.7 and the cross landed, the
-  reels turned and the number arrived in silence. `drone` is a filtered pair of triangles a few cents
-  apart, felt under the rest rather than heard, and `sweep` is looped noise climbing a bandpass while
-  the digits turn. Deliberately not a ratchet: a literal slot machine would be the one moment in this
-  app that sounds like a casino. The arrival is root, fifth and octave, since a major third would
-  read as a game rewarding you rather than a bell tower.
+  0.9 puts the tick at -14.9 and the loudest celebration, the finished book, at -8.7, which is where
+  interface sound sits and still leaves 8.7 dB of headroom. `schedule()` is exported so the voices
+  can be rendered offline and measured rather than only listened to.
+- **The three celebration voices are scored against their screens, and the score is not written
+  down twice.** `src/lib/celebration.ts` is one table of milliseconds, `STREAK`, `MILESTONE` and
+  `BOOK`, and both halves read it: `StreakCelebration` hands every entry to the stylesheet as a
+  `--t-*` custom property and the voices schedule off the same numbers divided by a thousand. **No
+  delay in the celebration CSS is a literal.** Before this, the timings lived as delays in the CSS
+  and as a comment above each voice, and "holds, reels and voices move together" was kept by care.
+  It imports nothing, so `sound.ts` can read it without pulling a component in behind it.
+- **The reels are counted back from the landing, not forward from a start.** `reelStart` puts the
+  last reel's lock on `land` whatever the number of digits, so a three digit streak starts earlier
+  rather than ending later, and the chord can sit on `land` without knowing how long the number is.
+  `play(cue, digits)` is still told the count, because there is **one lock click per reel on
+  screen**, climbing A3, E4, A4 left to right, the last one under the chord.
+- **The palette of the celebration voices.** `drone` is a filtered pair of triangles a few cents
+  apart, felt under the rest rather than heard, held to four fifths of its length so the bed is
+  still there when the screen starts to leave. `riser` is looped noise climbing a bandpass while the
+  reels turn and **cut off on the lock**, so the chord arrives into the space it leaves; it replaced
+  `sweep`, which fell back on its own before the reels had stopped, so the release landed after the
+  tension had already gone. `strike` is the match, `kindle` the flame catching, `crackle` the fire
+  while it burns (seeded, and dry, since a crackle with an echo on it is applause), `riffle` the
+  pages of a finished book slowing as they shut, `bloom` low weight under an arrival and `sparkle`
+  small bells placed left and right. Deliberately not a ratchet anywhere: a literal slot machine
+  would be the one moment in this app that sounds like a casino. Every arrival is root, fifth and
+  octave, since a major third would read as a game rewarding you rather than a bell tower.
+- **The celebrations ring in a room, and nothing else does.** `hall` sends a voice dry and into a
+  convolution with a synthesised tail, 2.4 seconds of seeded noise that darkens as it decays, a
+  little different in each ear. It is what makes the bells sound struck somewhere, and it is why the
+  arrivals no longer stop dead when the envelopes do. The chapter tick stays dry, because a reverb on
+  something heard three times a day turns a tap into an event. It added about 2 dB to every peak,
+  so the arrivals were trimmed and **measured again**: streak -9.3, milestone -8.9, book -8.7, no
+  clipping, no dead spot in the active part of any of them, and each audible to within about
+  half a second of its screen's exit.
+- **`sound.test.ts` pins the score against the screen with a recording context**, a fake
+  `BaseAudioContext` that logs every start, stop and first pitch. The chord's 2.01 partial on `land`,
+  one lock per reel at its own `reelLand`, nothing scheduled past the hold, the low A held to within
+  half a second of it, and every note of the streak inside the milestone. **Ten mutations, all
+  caught**, and the first draft missed two of them: the chord test looked for A4 on `land` and the
+  last lock click is also an A4 on `land`, so the chord could move a beat late with the click
+  standing in for it; and "something reaches the last second" passed with the drone cut to two
+  seconds because the crackle was still going. Both tests were tightened until they failed.
 - **Attack envelopes are linear and only the decays are exponential.** An exponential ramp climbing
   from near zero is inaudible for most of its length, roughly 50 dB down a third of the way through a
   one second rise. Two of those overlapping left a hole at -44 dBFS in the streak cue exactly where
@@ -699,36 +731,81 @@ redeploy.**
   rather than three systems independently deciding the same thing happened. It reads `derived.streak`
   once, the instant the cue arrives, and holds that snapshot in its own state: a later mark changing
   `derived` must not renumber or reopen a celebration already on screen.
-  The cross lands first, then a reel per digit rolls in like a slot machine, most significant digit
-  left to right via `digitsOf` in `format.ts`. Each reel is a 30 entry strip, three runs of 0 to 9,
-  with the target sitting in the last run: it is what makes a reel travel a full roll rather than
-  nudge one step, and a single `--reel-end` custom property parameterises the keyframe so one
-  `@keyframes` serves every digit rather than ten. It is keyed on the cue's `id`, not just shown or
-  hidden, so a second streak later in the same session replaces the whole element and every animation
-  restarts, the same reasoning as the flame's burst counter above. Dismisses on a timeout, a tap
-  anywhere, or Escape. **Reduced motion skips the roll and the bounce, not the moment**: the reels sit
-  at their final digits from the first frame and the scrim still fades in and out, because a full
-  screen element snapping straight into existence is a bigger jolt than the fade it is trying to
-  avoid. It lives in `Shell` beside `UndoBar`, never inside anything transformed, since `.celebrate`
-  is `position: fixed` and a transformed ancestor becomes the containing block for that.
-- **A finished book gets the bigger moment, and the cue carries the name.** `fire()` in the reducer
-  attaches `books` to a `book` cue, because "a book finished" is not enough for a screen that wants
-  to put the name on it; the other cues stay two fields. The book variant is the streak's machinery
-  with what a book has that a streak does not: the name rises through a clip like a title card
-  before the reels roll to where that leaves the count, three rings leave the cross, and it holds a
-  second longer. Its chapter count comes from the canon, not the track, since a reader can finish a
-  book their track does not contain by wandering into it from the reader. **This also settles the
-  gap `chooseCue` left**: finishing a book on the day a streak grows used to ring the book bell and
-  show nothing, because only the streak cue had a screen. Now the larger moment wins, which is what
-  the ladder meant all along.
+  It is keyed on the cue's `id`, not just shown or hidden, so a second streak later in the same
+  session replaces the whole element and every animation restarts, the same reasoning as the flame's
+  burst counter above. Dismisses on a timeout, a tap anywhere, or Escape. It lives in `Shell` beside
+  `UndoBar`, never inside anything transformed, since `.celebrate` is `position: fixed` and a
+  transformed ancestor becomes the containing block for that; **`.celebrate` itself only ever
+  animates opacity**, and everything inside it moves freely.
+- **A streak is fire.** A match is struck at the foot of where the flame will be, a three layer SVG
+  flame catches and overshoots into place, and embers start rising off it. The count rolls in on
+  reels, one per digit via `digitsOf`, each a 30 entry strip with the target in the last run of ten
+  so it travels a full roll, blurred while it is fastest. When the last reel locks the flame flares,
+  sparks burst, light blooms behind the figure and a halo leaves it, then the label tracks in from
+  wide and blurred, the week the run belongs to pops in a day at a time, and **the newest day of the
+  run catches last**, from `lastReadDay`, not from today, so a backdated mark that extends the run
+  lights the head of the run rather than a day that was already read. A new best gets light across
+  it once.
+- **The flame's three layers flicker at 1.3s, 0.9s and 0.7s**, which share no common factor, so
+  the fire never visibly repeats. Each scales from its own foot through `transform-box: fill-box`,
+  because a flame is anchored to what is burning. The catch and the flare are on two nested
+  elements so they never fight over one `transform`; the week's catch and the shelf's fill run on
+  the individual `scale` property for the same reason, since their pop-in is already animating
+  `transform`.
+- **A finished book is gold, and the plan is a shelf.** The pages riffle shut in the sound while the
+  cross comes down through slowly turning rays, out of focus and too large, and lands sharp on
+  `close` with rings and twelve short rays thrown out of it. The name rises through a clip with a
+  rule drawn out under it and light crosses it once, gold leaf starts to fall, and the whole plan
+  arrives as a wave of squares in printed order, filled from the bottom the way `BookGrid` fills
+  them. **The book just finished waits as a pulsing outline and fills at the instant the count
+  locks**, so the number and the picture are one event, and the landing sparks come out of that
+  square rather than out of the count. A book outside the plan has no square, so there is no shelf.
+- **A book's cue carries the name.** `fire()` in the reducer attaches `books` to a `book` cue,
+  because "a book finished" is not enough for a screen that wants to put the name on it; the other
+  cues stay two fields. Its chapter count comes from the canon, not the track, since a reader can
+  finish a book their track does not contain by wandering into it from the reader. **This also
+  settles the gap `chooseCue` left**: finishing a book on the day a streak grows used to ring the
+  book bell and show nothing, because only the streak cue had a screen. Now the larger moment wins,
+  which is what the ladder meant all along.
+- **The embers and the leaf are one canvas, not a hundred spans.** A hundred animated elements is a
+  hundred layers for a phone to composite; a canvas is one whatever is on it. `src/lib/particles.ts`
+  is the physics with no canvas in it, so it is tested without a browser, and
+  `CelebrationParticles` only draws. **Velocities are per second and `step` takes the frame's real
+  length**, so a 120Hz iPhone and a 60Hz laptop throw the same embers the same height; a test runs
+  both and compares. Every particle is born with a finite life and the loop stops once nothing is
+  alive, so nothing keeps running after the moment has gone. Seeded through `src/lib/rng.ts`, the
+  same generator the hall's echo and the crackle use. Positions are measured off the live element
+  every frame, the tour's spotlight reasoning, and the warmth and the rays are centred on the flame
+  or the cross from a measurement taken before paint, handed over as `--mark-x` and `--mark-y`. The
+  rays are a child of `.celebrate` and not of the mark, because positioned inside the words they
+  would paint over the name.
+- **The scrim is opaque.** It was 0.94 and then tried at 0.95 and 0.97, and at every one of them
+  the reader's own text read through it clearly enough to compete with the flame. A celebration is a
+  takeover; the fade in and out is what says it sits over the app.
+- **A reel is not there until it starts turning.** Waiting on its delay it sits at the top of its
+  strip, which is a 0, and a 0 under a finished book's name for two seconds read as the count
+  before it was one. Each reel fades in on its own `--reel-delay`.
 - **`.celebrate` reduced-motion rules key on `data-calm`, never on the media query.** The attribute
   is set from `reducedMotion()`, which reads that same query, so they agree in the wild, and keying
   on one switch rather than two is what keeps them from drifting. The book block was first written
   inside `@media (prefers-reduced-motion)` and failed silently: the rings kept expanding and the
-  name kept rising for a reader who had asked for neither, and only the attribute-driven test
-  caught it. The `book` voice runs about 4.2 seconds against a 4.6 second hold, scored the same way
-  as `streak`: root and fifth under everything, a quick shimmer up through the octave as the rings
-  leave, a chord as the name lands and a higher one as the count does.
+  name kept rising for a reader who had asked for neither. **One rule now stops everything,
+  `.celebrate[data-calm] *` with its pseudo-elements, and it has to stay last in the celebration
+  block**: it is 0,2,0, which beats every single class rule above it and ties with the attribute
+  ones, so file order is what makes it win against `[data-fresh]` and `[data-head]`. Every element's
+  own styles are its finished state, so with its animation gone each is simply there. What follows
+  it puts back only what a still frame needs, and hides the lights that only ever flash. No canvas
+  is mounted at all, so no animation frame runs. `.celebrate` itself is not matched by `*`, so the
+  scrim still fades.
+- **The scrim's exit is one rule now, `var(--t-exit)`, set by the component from the hold that
+  applies, calm or not.** There used to be an exit rule per variant and a `[data-calm]` exit per
+  variant, which is how a hole could exist at all.
+- **Contrast was measured against the brightest point of the warmth**, which is the worst case for
+  light text and brighter than anywhere the week strip sits: an unread day letter is 6.0:1, a read
+  one 7.6:1, the lit day 10.2:1 as ink on solid gold. Under the book's rays the eyebrow and sub
+  measure 7.7:1. To check a frame, pause every animation inside `.celebrate` at a chosen
+  `currentTime`, which works because they all start on the same mount, and hold the dismiss timer
+  off while you look. The canvas runs on real time and has to be checked live.
 
 ### A streak that lands on a number scripture keeps
 
@@ -757,21 +834,23 @@ and rings differently. It is for fun, and **it is deliberately not numerology.**
 - **The milestone rides on the streak variant of `Shown`, not a third kind.** Same reels, same
   arrival, with a name and three references underneath, so `StreakCelebration` gained a field rather
   than a branch.
-- **The voice is the streak's own score for two seconds, note for note**, with a fifth under the
-  drone borrowed from `book` and a second quieter chord an octave up as the name lands. It resolves
+- **The voice is the streak's own score, note for note**, which a test now pins: every note of the
+  streak is inside the milestone. What marks it is a fifth under the drone borrowed from `book`, a
+  glint as the rule draws, and a second quieter chord an octave up as the name rises. It resolves
   rather than climbing, because it is an arrival. **Measured, not judged**, through an
-  `OfflineAudioContext` like the rest: -9.5 dBFS peak against streak's -9.3 and book's -9.3, no
-  clipping, and quarter second windows across it to confirm there is no dead spot like the -44 hole
-  the streak cue once had.
+  `OfflineAudioContext` like the rest: -8.9 dBFS peak against the streak's -9.3 and the book's
+  -8.7, no clipping, and quarter second windows across it to confirm there is no dead spot like the
+  -44 hole the streak cue once had.
 - **The tail was lengthened to match the hold, not the other way round.** The first version stopped
   at 3.2 seconds against a 4800ms hold, which would have put a second and a half of silence on the
-  end. The drones and the last chord now ring to about 4 seconds. Holds, reels and voices move
-  together or not at all.
-- **`.celebrate--milestone[data-calm]` exists and has to.** The base variant retimes the scrim's
-  exit to 4480ms for the longer hold, and under reduced motion the card leaves at 3000ms, so without
-  its own rule the fade would be scheduled for a card that had already gone and would never run.
-  **The book variant had exactly that hole** and it was fixed in the same pass: a finished book
-  vanished rather than faded for anyone reading with reduced motion.
+  end. The milestone now holds for 6 seconds, the drones are held to four fifths of that, and the
+  name's chord rings to about 5.8. Holds, reels and voices move together or not at all, which is
+  now a single table in `celebration.ts` rather than a rule.
+- **A correction.** This section used to say the book variant had no reduced-motion exit until the
+  milestone pass found it. That was wrong: `.celebrate--book[data-calm]` had been there since the
+  book celebration shipped, and the pass added a second copy of it. It was missed because the
+  duplicate-selector one-liner only matches class selectors and skips anything with an attribute in
+  it. The rework removed both, along with every per-variant exit, in favour of `--t-exit`.
 
 **The listen control cost the reader bar a book name, and the fix is two rules.** With six controls
 and the read tick, the book select fell to 66px and Mark rendered as "M..", which is the failure the

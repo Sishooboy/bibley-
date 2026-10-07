@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer, useState, type ReactNode } from 'react';
 import { clampReadingDay, today, type DayKey } from '../lib/dates';
+import { digitsOf } from '../lib/format';
 import { overallProgress, pace, phaseProgressAll, phaseStatuses, streak } from '../lib/progress';
 import { milestoneFor } from '../lib/numbers';
 import { play, primeSound, setSoundEnabled } from '../lib/sound';
@@ -73,7 +74,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
      * the cue was stamped, which is the same snapshot the celebration takes.
      */
     const milestone = cue.name === 'streak' && milestoneFor(derived.streak.current);
-    play(milestone ? 'milestone' : cue.name);
+    // One lock per reel on screen, so the voice is told how long the number is.
+    const shown = cue.name === 'book' ? derived.overall.booksDone : derived.streak.current;
+    play(milestone ? 'milestone' : cue.name, digitsOf(shown).length);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cue]);
 

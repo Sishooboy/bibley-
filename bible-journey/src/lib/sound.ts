@@ -15,6 +15,16 @@
  * audio session category, and will need checking when it lands.
  */
 
+import {
+  BOOK,
+  MILESTONE,
+  STREAK,
+  reelLand,
+  reelStart,
+  type ReelTiming,
+} from './celebration';
+import { mulberry32 } from './rng';
+
 /**
  * The five moments worth a sound.
  *
@@ -227,9 +237,10 @@ function tick(
  * The upper notes stay between 220 and 880, because a phone speaker has almost
  * nothing below that and gets shrill above. Two notes break that rule. A2 and
  * E3 are only ever used by `drone`, felt under the rest rather than heard, with
- * the filter keeping them from turning to mud. E6 appears only in the finished
- * book's flourishes, brief and quiet, where a little shimmer at the top is the
- * point and a sustained note there would not be.
+ * the filter keeping them from turning to mud, and by `bloom` for a moment
+ * under an arrival. E6 appears only in the celebrations' flourishes, the
+ * sparkle off a landing and the glints, brief and quiet, where a little shimmer
+ * at the top is the point and a sustained note there would not be.
  */
 const A2 = 110;
 const E3 = 164.81;
@@ -274,7 +285,9 @@ function drone(
   gain.gain.setValueAtTime(0, at);
   gain.gain.linearRampToValueAtTime(level * 0.55, at + dur * 0.13);
   gain.gain.linearRampToValueAtTime(level, at + dur * 0.5);
-  gain.gain.setValueAtTime(level, at + dur * 0.62);
+  // Held to four fifths and only then let go, so the bed is still under the
+  // screen when it starts to leave rather than gone a second before it.
+  gain.gain.setValueAtTime(level, at + dur * 0.8);
   gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
   filter.connect(gain).connect(out);
 
@@ -290,45 +303,375 @@ function drone(
 }
 
 /**
- * Filtered noise climbing through the spectrum, for the stretch where the
- * digits are turning and nothing has landed yet.
+ * Filtered noise climbing through the spectrum while the reels turn, and cut
+ * off the instant the last one locks.
  *
  * Deliberately not a ratchet or a click track. A literal slot machine would be
  * the one moment in this app that sounds like a casino, and everything else
- * here is closer to a bell tower. This is tension without a genre.
+ * here is closer to a bell tower. This is tension without a genre, and the
+ * point of it is the end: it peaks on the lock and drops away in under a tenth
+ * of a second, so the chord arrives into the space it leaves. That is the
+ * difference between a chord that is played and one that is a release.
+ *
+ * It replaced `sweep`, which rose and fell back on its own before the reels
+ * had stopped, so the arrival landed after the tension had already gone.
  *
  * The noise buffer is a tenth of a second, so it has to loop to cover the roll.
  */
-function sweep(
-  c: BaseAudioContext,
-  out: AudioNode,
-  at: number,
-  dur: number,
-  level: number,
-): void {
+function riser(c: BaseAudioContext, out: AudioNode, at: number, dur: number, level: number): void {
   const source = c.createBufferSource();
   source.buffer = noiseBuffer(c);
   source.loop = true;
 
   const band = c.createBiquadFilter();
   band.type = 'bandpass';
-  band.frequency.setValueAtTime(700, at);
-  band.frequency.exponentialRampToValueAtTime(3400, at + dur);
-  band.Q.value = 2.4;
+  band.frequency.setValueAtTime(600, at);
+  band.frequency.exponentialRampToValueAtTime(4200, at + dur);
+  band.Q.value = 3;
 
-  // Linear both ways: this is a swell of air, not something struck, and the
-  // same exponential trap as `drone` applies to the way in.
+  // Linear on the way up, for the same reason as `drone`: an exponential climb
+  // from near nothing is silent for most of its length.
   const gain = c.createGain();
   gain.gain.setValueAtTime(0, at);
-  gain.gain.linearRampToValueAtTime(level, at + dur * 0.58);
-  gain.gain.linearRampToValueAtTime(0, at + dur);
+  gain.gain.linearRampToValueAtTime(level * 0.35, at + dur * 0.35);
+  gain.gain.linearRampToValueAtTime(level, at + dur - 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, at + dur + 0.09);
 
   source.connect(band).connect(gain).connect(out);
   source.start(at);
-  source.stop(at + dur + 0.05);
+  source.stop(at + dur + 0.12);
 }
 
-type Voice = (c: BaseAudioContext, out: AudioNode, at: number) => void;
+/**
+ * A match being struck: a bright scrape of noise that falls in pitch and is
+ * gone in a tenth of a second. The first thing a streak does, with the point
+ * of light it makes on screen.
+ */
+function strike(c: BaseAudioContext, out: AudioNode, at: number, level: number): void {
+  const source = c.createBufferSource();
+  source.buffer = noiseBuffer(c);
+
+  const band = c.createBiquadFilter();
+  band.type = 'bandpass';
+  band.frequency.setValueAtTime(5200, at);
+  band.frequency.exponentialRampToValueAtTime(2200, at + 0.09);
+  band.Q.value = 0.9;
+
+  const gain = c.createGain();
+  gain.gain.setValueAtTime(0, at);
+  gain.gain.linearRampToValueAtTime(level, at + 0.003);
+  gain.gain.exponentialRampToValueAtTime(level * 0.25, at + 0.03);
+  gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.11);
+
+  source.connect(band).connect(gain).connect(out);
+  source.start(at);
+  source.stop(at + 0.12);
+}
+
+/**
+ * The flame catching. Noise through a lowpass that throws itself open and then
+ * settles, which is the shape of the sound gas makes when it lights, with a
+ * low thump of moving air under it.
+ *
+ * The thump falls in pitch for the same reason `tick` does: a flat sine is a
+ * beep, a falling one is a body.
+ */
+function kindle(c: BaseAudioContext, out: AudioNode, at: number, dur: number, level: number): void {
+  const source = c.createBufferSource();
+  source.buffer = noiseBuffer(c);
+  source.loop = true;
+
+  const low = c.createBiquadFilter();
+  low.type = 'lowpass';
+  low.frequency.setValueAtTime(160, at);
+  low.frequency.exponentialRampToValueAtTime(2600, at + 0.28);
+  low.frequency.exponentialRampToValueAtTime(700, at + dur);
+  low.Q.value = 1.2;
+
+  const gain = c.createGain();
+  gain.gain.setValueAtTime(0, at);
+  gain.gain.linearRampToValueAtTime(level, at + 0.16);
+  gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+
+  source.connect(low).connect(gain).connect(out);
+  source.start(at);
+  source.stop(at + dur + 0.05);
+
+  const air = c.createOscillator();
+  air.type = 'sine';
+  air.frequency.setValueAtTime(A2, at);
+  air.frequency.exponentialRampToValueAtTime(70, at + 0.45);
+  const airGain = c.createGain();
+  airGain.gain.setValueAtTime(0, at);
+  airGain.gain.linearRampToValueAtTime(level * 0.9, at + 0.05);
+  airGain.gain.exponentialRampToValueAtTime(0.0001, at + 0.6);
+  air.connect(airGain).connect(out);
+  air.start(at);
+  air.stop(at + 0.65);
+}
+
+/**
+ * The fire, while it burns: small pops of bright noise at uneven intervals,
+ * most of them quiet and the odd one not, which is what wood does.
+ *
+ * Seeded rather than random, so the crackle under a measured peak is the
+ * crackle that ships. Kept dry, out of the hall, because a fire is close and a
+ * crackle with a two second echo on it is applause.
+ */
+function crackle(
+  c: BaseAudioContext,
+  out: AudioNode,
+  at: number,
+  dur: number,
+  level: number,
+  seed: number,
+): void {
+  const rng = mulberry32(seed);
+  const high = c.createBiquadFilter();
+  high.type = 'highpass';
+  high.frequency.value = 1800;
+  high.Q.value = 0.7;
+  high.connect(out);
+
+  for (let t = at + 0.04 + rng() * 0.2; t < at + dur; t += 0.04 + rng() * 0.22) {
+    const pop = c.createBufferSource();
+    pop.buffer = noiseBuffer(c);
+    // Squaring the draw is what makes most pops quiet and a few of them loud.
+    const peak = level * (0.3 + 0.7 * rng() * rng());
+    const len = 0.004 + rng() * 0.012;
+    const gain = c.createGain();
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(peak, t + 0.001);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    pop.connect(gain).connect(high);
+    pop.start(t, rng() * 0.09);
+    pop.stop(t + len + 0.01);
+  }
+}
+
+/**
+ * Pages riffling shut, the first thing a finished book does.
+ *
+ * Each page is a short breath of bandpassed noise, and each comes a little
+ * later than the last by more, so the riffle slows the way a thumb lets the
+ * last few pages go one at a time. That slowing is what reads as a book rather
+ * than as rain. Seeded like the crackle, so it is measured as it ships.
+ */
+function riffle(
+  c: BaseAudioContext,
+  out: AudioNode,
+  at: number,
+  dur: number,
+  pages: number,
+  level: number,
+  seed: number,
+): void {
+  const rng = mulberry32(seed);
+  for (let k = 0; k < pages; k++) {
+    const t = at + dur * Math.pow(k / pages, 1.7);
+    const page = c.createBufferSource();
+    page.buffer = noiseBuffer(c);
+    const band = c.createBiquadFilter();
+    band.type = 'bandpass';
+    band.frequency.value = 2400 + rng() * 1800;
+    band.Q.value = 0.8;
+    const gain = c.createGain();
+    const peak = level * (0.55 + 0.45 * rng()) * (1 - 0.35 * (k / pages));
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(peak, t + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
+    page.connect(band).connect(gain).connect(out);
+    page.start(t, rng() * 0.08);
+    page.stop(t + 0.04);
+  }
+}
+
+/**
+ * Low weight under an arrival: the root and its octave, falling a little as
+ * they fade, felt in the chest more than heard. On a phone speaker it is the
+ * octave that survives; on headphones it is the root that lands.
+ */
+function bloom(c: BaseAudioContext, out: AudioNode, at: number, level: number): void {
+  for (const [freq, share] of [
+    [A2, 1],
+    [A3, 0.35],
+  ] as const) {
+    const osc = c.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, at);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.86, at + 0.8);
+    const gain = c.createGain();
+    gain.gain.setValueAtTime(0, at);
+    gain.gain.linearRampToValueAtTime(level * share, at + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + 1.6);
+    osc.connect(gain).connect(out);
+    osc.start(at);
+    osc.stop(at + 1.65);
+  }
+}
+
+/**
+ * Somewhere left or right of centre. A single bell is better in the middle,
+ * but a run of small high ones placed alternately reads as light scattering
+ * rather than as one instrument playing a scale. Falls back to the centre
+ * wherever a browser has no panner, which costs width and nothing else.
+ */
+function placed(c: BaseAudioContext, out: AudioNode, pan: number): AudioNode {
+  if (typeof c.createStereoPanner !== 'function') return out;
+  const panner = c.createStereoPanner();
+  panner.pan.value = pan;
+  panner.connect(out);
+  return panner;
+}
+
+/** A quick run of small bells, left and right in turn, for light scattering. */
+function sparkle(
+  c: BaseAudioContext,
+  out: AudioNode,
+  at: number,
+  notes: readonly number[],
+  gap: number,
+  level: number,
+): void {
+  notes.forEach((freq, i) => {
+    bell(c, placed(c, out, i % 2 === 0 ? -0.45 : 0.45), at + i * gap, freq, 0.7, level);
+  });
+}
+
+/*
+ * The room the big moments ring in, as a convolution with a tail of noise:
+ * two seconds and a bit, darkening as it decays because stone takes the top
+ * off a sound first, and slightly different in each ear so it has width.
+ * Cached against the sample rate like the noise, and seeded so the room is the
+ * same room every time it is measured.
+ */
+let impulse: { rate: number; buffer: AudioBuffer } | null = null;
+
+function hallImpulse(c: BaseAudioContext): AudioBuffer {
+  if (impulse?.rate === c.sampleRate) return impulse.buffer;
+  const seconds = 2.4;
+  const length = Math.floor(c.sampleRate * seconds);
+  const buffer = c.createBuffer(2, length, c.sampleRate);
+  const rng = mulberry32(1189);
+  // A short gap before the first reflection, which is what says "room" rather
+  // than "blur".
+  const gap = Math.floor(c.sampleRate * 0.014);
+  for (let ch = 0; ch < 2; ch++) {
+    const data = buffer.getChannelData(ch);
+    let low = 0;
+    for (let i = gap; i < length; i++) {
+      const t = (i - gap) / c.sampleRate;
+      // A one pole lowpass closing as the tail goes on.
+      low += (0.55 - 0.4 * (t / seconds)) * (rng() * 2 - 1 - low);
+      data[i] = low * Math.exp(-t * 2.9);
+    }
+  }
+  impulse = { rate: c.sampleRate, buffer };
+  return buffer;
+}
+
+/**
+ * Where a celebration's voices go: straight through, and also into the hall.
+ *
+ * **Only the two celebrations and the milestone ring in it.** The chapter tick
+ * fires three times a day and a reverb on it would turn a tap into an event;
+ * the arrival chimes are an invitation and stay close. The hall is what makes
+ * the bells sound like they were struck somewhere, which is the whole register
+ * this set has been reaching for, and it is the reason the arrivals no longer
+ * stop dead when the envelopes do.
+ *
+ * A failed convolver leaves the dry path standing. A bell with no room is
+ * still a bell.
+ */
+function hall(c: BaseAudioContext, out: AudioNode, wet: number): AudioNode {
+  const input = c.createGain();
+  input.connect(out);
+  try {
+    const verb = c.createConvolver();
+    verb.buffer = hallImpulse(c);
+    const send = c.createGain();
+    send.gain.value = wet;
+    input.connect(verb).connect(send).connect(out);
+  } catch {
+    /* Dry is fine. */
+  }
+  return input;
+}
+
+/** Milliseconds on the shared timeline, as a time in this context. */
+const when = (at: number, ms: number) => at + ms / 1000;
+
+/*
+ * The pitches the reels lock on, left to right, so a long number climbs to its
+ * last digit. Read from the end, so a one digit number locks on A4, the same
+ * note its chord is built on.
+ */
+const LOCKS = [A3, E4, A4];
+
+/**
+ * One small wooden click per reel, as it locks, the last one under the chord.
+ * They are what make the stop feel mechanical rather than faded, and there is
+ * one per digit on screen because `play` is told how many digits there are.
+ */
+function locks(c: BaseAudioContext, out: AudioNode, at: number, digits: number, t: ReelTiming) {
+  for (let i = 0; i < digits; i++) {
+    const freq = LOCKS[Math.max(0, LOCKS.length - digits + i)];
+    tick(c, out, when(at, reelLand(i, digits, t)), freq, 1500, 0.08);
+  }
+}
+
+/** The tension that runs from the first reel turning to the last one locking. */
+function reels(c: BaseAudioContext, out: AudioNode, at: number, digits: number, t: ReelTiming) {
+  const first = reelStart(0, digits, t);
+  riser(c, out, when(at, first), (t.land - first) / 1000, 0.05);
+  locks(c, out, at, digits, t);
+}
+
+/**
+ * The streak, scored against `STREAK` in `celebration.ts`, which the screen
+ * reads too. Shared by the plain streak and the milestone, which is the same
+ * moment with a name added; `hold` is how long the one being played stays up.
+ *
+ *   spark   a match is struck
+ *   ignite  the flame catches, with a bell under it, and starts to crackle
+ *   ...     the reels turn under a riser
+ *   land    the last reel locks: the riser cuts, the chord, weight under it,
+ *           and light scattering off the top
+ *   today   the newest day of the run catches
+ *
+ * The arrival is root, fifth and octave rather than a major chord. A major
+ * third here would read as a game rewarding you; open fifths read as a bell
+ * tower, which is the company this app keeps.
+ */
+function kindled(
+  c: BaseAudioContext,
+  out: AudioNode,
+  at: number,
+  digits: number,
+  hold: number,
+): void {
+  const room = hall(c, out, 0.3);
+  const end = hold / 1000;
+
+  drone(c, room, at, A2, end - 0.1, 0.085);
+  strike(c, room, when(at, STREAK.spark), 0.15);
+  kindle(c, room, when(at, STREAK.ignite), 1.1, 0.16);
+  bell(c, room, when(at, STREAK.ignite) + 0.02, A3, 1.4, 0.1);
+  crackle(c, out, when(at, STREAK.ignite) + 0.25, end - STREAK.ignite / 1000 - 0.6, 0.05, 7);
+
+  reels(c, room, at, digits, STREAK);
+
+  const land = when(at, STREAK.land);
+  bell(c, room, land, A4, 1.8, 0.16);
+  bell(c, room, land + 0.05, E5, 1.9, 0.12);
+  bell(c, room, land + 0.12, A5, 1.7, 0.1);
+  bloom(c, room, land, 0.08);
+  sparkle(c, room, land + 0.16, [E6, A5, E6], 0.07, 0.03);
+
+  bell(c, placed(c, room, 0.2), when(at, STREAK.today), A5, 0.7, 0.06);
+}
+
+type Voice = (c: BaseAudioContext, out: AudioNode, at: number, digits: number) => void;
 
 const VOICES: Record<Playable, Voice> = {
   /*
@@ -341,64 +684,53 @@ const VOICES: Record<Playable, Voice> = {
   /** The chapter tap, lower and softer. Taking something back, not doing it. */
   undo: (c, out, at) => tick(c, out, at, 380, 1150, 0.15),
 
-  /**
-   * The only cue written against something on screen, because it is the only
-   * one with something on screen: `StreakCelebration` holds for 3.6 seconds and
-   * this used to be over in 0.7, so the cross landed, the reels turned and the
-   * number arrived in silence. The timings below are that animation's.
-   *
-   *   0.00  scrim, and the drone begins to swell
-   *   0.08  the cross lands
-   *   0.42  the reels start turning
-   *   1.88  the first reel stops, and the chord arrives
-   *   3.28  the scrim starts to leave, the bells still ringing out
-   *
-   * The arrival is root, fifth and octave rather than a major chord. A major
-   * third here would read as a game rewarding you; open fifths read as a bell
-   * tower, which is the company this app keeps.
-   */
-  streak: (c, out, at) => {
-    drone(c, out, at, A2, 3.2, 0.1);
-    bell(c, out, at + 0.06, A3, 1.4, 0.1);
-    // Begins before the reels do, so the tension is already there when they
-    // start turning rather than fading up after them.
-    sweep(c, out, at + 0.3, 1.62, 0.05);
-    bell(c, out, at + 1.88, A4, 1.8, 0.2);
-    bell(c, out, at + 1.94, E5, 1.9, 0.15);
-    bell(c, out, at + 2.06, A5, 1.7, 0.12);
-  },
+  streak: (c, out, at, digits) => kindled(c, out, at, digits, STREAK.hold),
 
   /**
-   * Scored against the book celebration the way `streak` is scored against its
-   * own, and bigger in every direction that the moment is: a longer hold, a
-   * fifth under the drone, and two arrivals rather than one, the name and then
-   * the count. The timings are that animation's.
+   * Scored against `BOOK` the way the streak is scored against its own, and
+   * bigger in every direction the moment is: a longer hold, a fifth under the
+   * drone, a wetter room, and two arrivals rather than one, the name and then
+   * the count.
    *
-   *   0.00  scrim, drone on the root and its fifth
-   *   0.08  the cross lands
-   *   0.32  rings leave the cross, a quick shimmer up through the octave
-   *   0.62  the name rises, first chord
-   *   1.50  the reels turn
-   *   3.00  the count lands, second chord an octave up
-   *   4.28  the scrim starts to leave, everything still ringing out
+   *   0       the pages riffle shut, slowing
+   *   close   the cross lands and the book closes: a thud, a bell, weight
+   *           under it, and three small strikes as the rings leave, left,
+   *           centre, right
+   *   name    the name rises, first chord
+   *   sheen   one glint as light crosses it
+   *   ...     the reels turn under a riser
+   *   land    the count locks and the book's square catches: second chord an
+   *           octave up, weight, and light scattering off the top
    */
-  book: (c, out, at) => {
-    drone(c, out, at, A2, 4.0, 0.1);
-    drone(c, out, at, E3, 3.7, 0.055);
-    bell(c, out, at + 0.06, A3, 1.5, 0.1);
-    // The rings: three short high strikes climbing, quiet, gone in half a second.
-    bell(c, out, at + 0.32, E5, 0.45, 0.06);
-    bell(c, out, at + 0.46, A5, 0.45, 0.06);
-    bell(c, out, at + 0.6, E6, 0.5, 0.045);
-    // The name.
-    bell(c, out, at + 0.62, A4, 1.6, 0.2);
-    bell(c, out, at + 0.7, E5, 1.7, 0.15);
-    // The reels turning.
-    sweep(c, out, at + 1.4, 1.62, 0.05);
-    // The count landing, an octave above where the name arrived.
-    bell(c, out, at + 3.0, A4, 1.5, 0.14);
-    bell(c, out, at + 3.0, A5, 1.5, 0.17);
-    bell(c, out, at + 3.08, E6, 1.3, 0.09);
+  book: (c, out, at, digits) => {
+    const room = hall(c, out, 0.34);
+    const end = BOOK.hold / 1000;
+    const close = when(at, BOOK.close);
+
+    riffle(c, room, at, BOOK.close / 1000 - 0.12, 16, 0.2, 40);
+    drone(c, room, at, A2, end - 0.1, 0.09);
+    drone(c, room, at, E3, end - 0.4, 0.05);
+
+    tick(c, room, close, 150, 480, 0.24);
+    bloom(c, room, close, 0.1);
+    bell(c, room, close + 0.02, A3, 1.6, 0.11);
+    [E5, A5, E6].forEach((freq, r) => {
+      bell(c, placed(c, room, (r - 1) * 0.4), close + r * 0.15, freq, 0.5, 0.055);
+    });
+
+    const name = when(at, BOOK.name);
+    bell(c, room, name + 0.05, A4, 1.6, 0.18);
+    bell(c, room, name + 0.13, E5, 1.7, 0.14);
+    bell(c, placed(c, room, 0.3), when(at, BOOK.sheen) + 0.3, E6, 0.6, 0.025);
+
+    reels(c, room, at, digits, BOOK);
+
+    const land = when(at, BOOK.land);
+    bell(c, room, land, A4, 1.9, 0.09);
+    bell(c, room, land, A5, 1.9, 0.11);
+    bell(c, room, land + 0.08, E6, 1.6, 0.06);
+    bloom(c, room, land, 0.06);
+    sparkle(c, room, land + 0.14, [A5, E6, A5, E6], 0.065, 0.03);
   },
 
   /**
@@ -415,42 +747,26 @@ const VOICES: Record<Playable, Voice> = {
   /**
    * The streak, and then one thing more.
    *
-   * It is deliberately the streak's own score for the first two seconds, note
-   * for note, because that is what it is: the same run, the same arrival. What
-   * marks it is the fifth under the drone, borrowed from `book` where the same
-   * trick says "this one is larger", and a second quieter chord an octave up as
-   * the number's name and its verses land.
+   * It is the streak's own score note for note, because that is what it is:
+   * the same flame, the same arrival. What marks it is the fifth under the
+   * drone, borrowed from `book` where the same trick says "this one is larger",
+   * a glint as the rule draws, and a second quieter chord an octave up as the
+   * number's name rises.
    *
    * It resolves rather than climbing. A ladder would say "keep going", and this
    * is an arrival, the same reasoning that ends the tour on a chord instead of
-   * a sixth rung.
-   *
-   *   0.00  scrim, drone on the root and its fifth
-   *   0.06  the cross lands
-   *   0.30  the reels turn
-   *   1.88  the count arrives, the streak's own chord
-   *   2.60  the name and the verses, quieter and an octave up
-   *   5.20  the scrim leaves, everything still ringing out
+   * a sixth rung. The streak's drone and crackle are stretched to this hold, so
+   * the last third of a longer card is not left in silence.
    */
-  milestone: (c, out, at) => {
-    /*
-     * The drones and the last chord run longer than the streak's because the
-     * card does: there is a name, a line and three references to read. A voice
-     * that stopped at the streak's 3.2 seconds would leave the last third of
-     * the hold in silence, which is the mistake the note on HOLD_MS warns about
-     * from the other direction.
-     */
-    drone(c, out, at, A2, 4.4, 0.1);
-    drone(c, out, at, E3, 4.0, 0.055);
-    bell(c, out, at + 0.06, A3, 1.4, 0.1);
-    sweep(c, out, at + 0.3, 1.62, 0.05);
-    // The streak's arrival, unchanged.
-    bell(c, out, at + 1.88, A4, 1.8, 0.2);
-    bell(c, out, at + 1.94, E5, 1.9, 0.15);
-    bell(c, out, at + 2.06, A5, 1.7, 0.12);
-    // The number naming itself, under the first chord rather than over it.
-    bell(c, out, at + 2.6, A5, 2.0, 0.1);
-    bell(c, out, at + 2.68, E6, 1.8, 0.07);
+  milestone: (c, out, at, digits) => {
+    kindled(c, out, at, digits, MILESTONE.hold);
+    const room = hall(c, out, 0.3);
+    drone(c, room, at, E3, MILESTONE.hold / 1000 - 0.4, 0.05);
+    bell(c, placed(c, room, -0.3), when(at, MILESTONE.rule), E5, 0.8, 0.05);
+    const name = when(at, MILESTONE.name);
+    bell(c, room, name, A5, 2.6, 0.1);
+    bell(c, room, name + 0.08, E6, 2.2, 0.07);
+    bloom(c, room, name, 0.06);
   },
 };
 
@@ -459,9 +775,18 @@ const VOICES: Record<Playable, Voice> = {
  * rather than only listened to. Rendering the real voices through an
  * `OfflineAudioContext` is the only way to check a sound is not silent, not
  * clipping and not three seconds of drone without being able to hear it.
+ *
+ * `digits` is how many reels the screen is turning, so there is one lock per
+ * reel. The cues with no reels ignore it.
  */
-export function schedule(cue: Playable, c: BaseAudioContext, out: AudioNode, at: number): void {
-  VOICES[cue](c, out, at);
+export function schedule(
+  cue: Playable,
+  c: BaseAudioContext,
+  out: AudioNode,
+  at: number,
+  digits = 1,
+): void {
+  VOICES[cue](c, out, at, digits);
 }
 
 /**
@@ -700,8 +1025,13 @@ export function primeSound(): void {
   window.addEventListener('keydown', open, { capture: true });
 }
 
-/** Plays a cue, or does nothing at all. It must never be able to break a mark. */
-export function play(cue: Playable): void {
+/**
+ * Plays a cue, or does nothing at all. It must never be able to break a mark.
+ *
+ * `digits` is how many reels the celebration is turning, so the voice can put
+ * one lock under each. The cues without reels ignore it.
+ */
+export function play(cue: Playable, digits = 1): void {
   if (!enabled) return;
   const c = context();
   if (!c || !master) return;
@@ -711,7 +1041,7 @@ export function play(cue: Playable): void {
     // A small lead, so every voice is scheduled ahead of the clock rather than
     // exactly on it. Scheduling at currentTime lands a fraction late and the
     // envelope's attack is clipped into a click.
-    VOICES[cue](c, master, c.currentTime + 0.02);
+    VOICES[cue](c, master, c.currentTime + 0.02, digits);
   } catch {
     /* A sound is never worth an exception on the path that records reading. */
   }
