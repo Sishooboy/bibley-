@@ -332,29 +332,39 @@ export function StatsView() {
               <p className="habit__sub">
                 When you read
                 <span>
-                  {taggedTotal === 0
-                    ? 'Optional. Tag a chapter when you mark it.'
-                    : `from ${plural(taggedTotal, 'tagged chapter')}`}
+                  {taggedTotal === 0 ? 'Optional' : `from ${plural(taggedTotal, 'tagged chapter')}`}
                 </span>
               </p>
-              <div className="slotChart">
-                {SLOTS.map((slot) => {
-                  const count = slotCounts[slot];
-                  const pct = taggedTotal === 0 ? 0 : (count / taggedTotal) * 100;
-                  const best = count > 0 && count === topSlot;
-                  return (
-                    <div className={`slotBar${best ? ' slotBar--best' : ''}`} key={slot}>
-                      <span className="slotBar__name">
-                        {SLOT_LABELS[slot].replace(/^in the /, '')}
-                      </span>
-                      <span className="slotBar__track" aria-hidden="true">
-                        <span className="slotBar__fill" style={{ width: `${pct}%` }} />
-                      </span>
-                      <span className="slotBar__count">{count}</span>
-                    </div>
-                  );
-                })}
-              </div>
+              {/*
+                Nothing tagged is not four empty bars reading zero, which looks
+                like a chart that broke. It is one sentence saying what would
+                fill it, the same reasoning as `NothingYet` for the whole page.
+              */}
+              {taggedTotal === 0 ? (
+                <p className="slotEmpty">
+                  When you mark a chapter, say whether it was morning, afternoon, evening or before
+                  bed, and this shows you when you tend to read.
+                </p>
+              ) : (
+                <div className="slotChart">
+                  {SLOTS.map((slot) => {
+                    const count = slotCounts[slot];
+                    const pct = (count / taggedTotal) * 100;
+                    const best = count > 0 && count === topSlot;
+                    return (
+                      <div className={`slotBar${best ? ' slotBar--best' : ''}`} key={slot}>
+                        <span className="slotBar__name">
+                          {SLOT_LABELS[slot].replace(/^in the /, '')}
+                        </span>
+                        <span className="slotBar__track" aria-hidden="true">
+                          <span className="slotBar__fill" style={{ width: `${pct}%` }} />
+                        </span>
+                        <span className="slotBar__count">{count}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         </section>

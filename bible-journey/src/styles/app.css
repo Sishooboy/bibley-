@@ -351,18 +351,72 @@ select {
 
 /* ── Sign-in gate ───────────────────────────────────────────────────────── */
 .gate {
+  position: relative;
+  overflow: hidden;
   min-height: 100vh;
   min-height: 100dvh;
-  background: var(--ink);
+  /* The chooser's ground, so signing in and choosing a plan read as one room. */
+  background:
+    radial-gradient(80% 60% at 90% -10%, rgba(200, 29, 37, 0.26), transparent 62%),
+    var(--ink);
   color: var(--cream);
   display: grid;
   place-items: center;
   padding: var(--gutter);
 }
 
+/*
+ * Isolated, so the light can sit behind everything in the panel on z-index -1
+ * without falling behind the gate's own ground.
+ */
 .gate__panel {
+  position: relative;
+  isolation: isolate;
   width: min(30rem, 100%);
   text-align: left;
+}
+
+/*
+ * Centred on the mark, which is the panel's top left corner plus half of it.
+ * Faint enough that the lede, 7.6:1 on bare ink, is still 5.4:1 at the worst
+ * point it can sit, under a ray where the red wash is strongest; the glow
+ * stops well short of it, behind the mark. Slow enough to be noticed as light
+ * rather than as motion.
+ */
+.gate__light {
+  position: absolute;
+  z-index: -1;
+  left: 36px;
+  top: 36px;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  animation: celShow 1600ms ease-out 300ms forwards;
+}
+
+.gate__light::before {
+  content: '';
+  position: absolute;
+  left: -80vmax;
+  top: -80vmax;
+  width: 160vmax;
+  height: 160vmax;
+  background: repeating-conic-gradient(rgba(247, 184, 1, 0.07) 0deg 4deg, transparent 4deg 15deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0, rgba(0, 0, 0, 0.5) 14%, transparent 40%);
+  mask-image: radial-gradient(circle, #000 0, rgba(0, 0, 0, 0.5) 14%, transparent 40%);
+  animation: celTurn 90s linear infinite;
+}
+
+.gate__light::after {
+  content: '';
+  position: absolute;
+  left: -110px;
+  top: -110px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(247, 184, 1, 0.16), transparent 64%);
 }
 
 .gate__mark {
@@ -371,26 +425,58 @@ select {
   border-radius: 16px;
   display: block;
   margin-bottom: 1.5rem;
+  box-shadow: 0 14px 40px -10px rgba(247, 184, 1, 0.4);
+  animation: gateMark 760ms cubic-bezier(0.2, 0.9, 0.25, 1) 100ms both;
+}
+
+@keyframes gateMark {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.92);
+    box-shadow: 0 0 0 rgba(247, 184, 1, 0);
+  }
 }
 
 .gate__title {
   font-size: clamp(2.2rem, 7vw, 3rem);
   margin-bottom: 0.75rem;
+  animation: gateRise 640ms var(--ease-out) 480ms both;
+}
+
+@keyframes gateRise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
 }
 
 .gate__eyebrow {
   margin-bottom: 0.75rem;
+  animation: celTrack 720ms cubic-bezier(0.2, 0.8, 0.3, 1) 360ms both;
 }
 
 .gate__lede {
   color: var(--muted-dark);
   max-width: 40ch;
   margin-bottom: 2.25rem;
+  animation: celebrateFade 520ms ease-out 640ms both;
 }
 
+/* The rule above the button draws itself out from the left, the way the
+   celebrations draw theirs, rather than being a border that was always there. */
 .gate__signIn {
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  position: relative;
   padding-top: 1.75rem;
+}
+
+.gate__signIn::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  transform-origin: 0 50%;
+  animation: celDraw 700ms cubic-bezier(0.2, 0.8, 0.3, 1) 760ms both;
 }
 
 /*
@@ -413,6 +499,7 @@ select {
   font-weight: 500;
   text-align: left;
   transition: transform 140ms ease, background 140ms ease;
+  animation: gateRise 600ms var(--ease-out) 880ms backwards;
 }
 
 .gate__googleIcon {
@@ -444,6 +531,21 @@ select {
 @media (prefers-reduced-motion: reduce) {
   .gate__google {
     transition: none;
+  }
+
+  .gate__light,
+  .gate__light::before,
+  .gate__mark,
+  .gate__title,
+  .gate__eyebrow,
+  .gate__lede,
+  .gate__signIn::before,
+  .gate__google {
+    animation: none;
+  }
+
+  .gate__light {
+    opacity: 1;
   }
 
   .gate__google:hover:not(:disabled) {
@@ -853,6 +955,15 @@ select {
   font-size: 0.85rem;
   margin-top: 1.1rem;
   max-width: 42ch;
+  animation: celebrateFade 520ms ease-out 1000ms both;
+}
+
+/* Its own guard, below the rule it beats. The gate's reduced motion block sits
+   five hundred lines above this one and would lose to it on file order. */
+@media (prefers-reduced-motion: reduce) {
+  .gate__note {
+    animation: none;
+  }
 }
 
 .gate__error {
@@ -966,6 +1077,29 @@ select {
 .view {
   flex: 1;
   padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+
+/*
+ * A new tab rises into place. Ten pixels and a fade, short enough that it
+ * never stands between a tap and the screen asked for, and only after the
+ * first switch, since the first screen already arrives with the app's own
+ * entrance. A transform is fine here: nothing inside a view is fixed.
+ */
+.viewEnter[data-enter] {
+  animation: viewIn 360ms var(--ease-out);
+}
+
+@keyframes viewIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viewEnter[data-enter] {
+    animation: none;
+  }
 }
 
 .stack {
@@ -1324,6 +1458,28 @@ select {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+}
+
+/*
+ * The plan's bar fills as the journey arrives, on the count's own curve and
+ * over its own 1.1s, ease out cubic in both places, so the number and the
+ * bar move as one thing. A scale and not a width, so it never relayouts.
+ */
+.hero__progress .bar__fill {
+  transform-origin: 0 50%;
+  animation: barIn 1100ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
+}
+
+@keyframes barIn {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__progress .bar__fill {
+    animation: none;
+  }
 }
 
 .hero__progressTop {
@@ -4092,17 +4248,112 @@ select {
    */
   grid-template-columns: minmax(0, 1fr);
   background: var(--cream);
-  animation: readerIn 260ms var(--ease-out);
+  /*
+   * Rises a little as it fades in, so it reads as a sheet being lifted onto
+   * the journey rather than the screen changing underneath. A transform here
+   * is safe where it is not on `.app`: nothing inside the reader is fixed.
+   */
+  animation: readerIn 320ms var(--ease-out);
 }
 
 @keyframes readerIn {
   from {
     opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+/*
+ * And settles back down as it goes. `ReaderProvider` keeps it mounted for the
+ * 220ms this takes, so the two numbers move together; it used to vanish on the
+ * frame Close was pressed, which made the journey seem to jump into place.
+ */
+.reader[data-closing] {
+  pointer-events: none;
+  animation: readerOut 220ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+@keyframes readerOut {
+  to {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+/*
+ * Turning the page. The new chapter arrives from the side it lies on in the
+ * printed Bible, so Next slides in from the right and Back from the left, and
+ * a jump from the book picker does the same by where the book sits. Short and
+ * small: this happens dozens of times a session and has to feel like paper
+ * moving, not like a slideshow.
+ */
+.reader__text[data-turn='next'] {
+  animation: turnNext 340ms var(--ease-out);
+}
+
+.reader__text[data-turn='back'] {
+  animation: turnBack 340ms var(--ease-out);
+}
+
+@keyframes turnNext {
+  from {
+    opacity: 0;
+    transform: translateX(26px);
+  }
+}
+
+@keyframes turnBack {
+  from {
+    opacity: 0;
+    transform: translateX(-26px);
+  }
+}
+
+/*
+ * The page that will be there. Lines in the measure the text uses, at the
+ * height a line of it takes, so nothing moves when the verses land. It waits
+ * a beat before it shows, so a book that arrives quickly never flashes it.
+ */
+.reader__skeleton {
+  animation: celebrateIn 300ms ease-out 180ms backwards;
+}
+
+.reader__skLines {
+  display: grid;
+  gap: 0.95rem;
+  margin-top: 1.6rem;
+}
+
+.reader__skLine {
+  display: block;
+  width: calc(var(--w) * 100%);
+  height: 0.8rem;
+  border-radius: 4px;
+  background: linear-gradient(
+    100deg,
+    rgba(36, 28, 22, 0.07) 30%,
+    rgba(36, 28, 22, 0.13) 50%,
+    rgba(36, 28, 22, 0.07) 70%
+  );
+  background-size: 300% 100%;
+  animation: skShimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes skShimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reader {
+  .reader,
+  .reader[data-closing],
+  .reader__text[data-turn],
+  .reader__skeleton,
+  .reader__skLine {
     animation: none;
   }
 }
@@ -4747,6 +4998,60 @@ select {
 }
 
 /*
+ * Once the chapter is read, Next is the invitation. **One red button at a
+ * time, and it is the next thing to do**: before marking that is the mark
+ * button, after marking the red passes to Next, and the mark settles into its
+ * gold done state. The chevron leans the way it goes twice and rests, the
+ * one-shot beckon the today button's arrow already makes, so it signposts
+ * without nagging. A gold Next was tried first and sat beside the gold done
+ * state looking like its twin.
+ *
+ * White for both lines. Measured on the face: 5.7:1 at its lighter top and
+ * 5.1:1 under hover. Soft gold for the eyebrow measured 4.1:1 under hover,
+ * the same reason solid red carries white and cream everywhere else and never
+ * gold.
+ */
+.reader__actions .readerNav[data-ready] {
+  background: linear-gradient(180deg, var(--red-600), #b21a22);
+  border-color: var(--red-700);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.26),
+    0 2px 7px -2px rgba(150, 22, 31, 0.55);
+}
+
+.reader__actions .readerNav[data-ready] .readerNav__eyebrow {
+  color: #fff;
+}
+
+@media (hover: hover) {
+  .reader__actions .readerNav[data-ready]:not(:disabled):hover {
+    background: linear-gradient(180deg, #d42730, var(--red-600));
+    color: #fff;
+  }
+}
+
+.reader__actions .readerNav[data-ready] svg {
+  animation: readyNudge 900ms var(--ease-out) 250ms 2;
+}
+
+@keyframes readyNudge {
+  0%,
+  100% {
+    transform: none;
+  }
+  40% {
+    transform: translateX(5px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader__actions .readerNav[data-ready] svg {
+    animation: none;
+  }
+}
+
+/*
  * The mark. Two lines again: the consequence above, the action below. When
  * this chapter is the last unread in its book the action becomes "Finish
  * Genesis" with a gold edge, because that press is a milestone and the
@@ -4868,6 +5173,18 @@ select {
 .slotChart {
   display: grid;
   gap: 0.55rem;
+}
+
+/* What the chart would show, in place of four bars at zero. Dashed, so it
+   reads as a space waiting to be filled rather than as a broken panel. */
+.slotEmpty {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--panel-radius);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--muted);
 }
 
 .slotBar {
@@ -8221,6 +8538,122 @@ select {
   animation: celPop 820ms cubic-bezier(0.15, 0.7, 0.3, 1) var(--t-land) forwards;
 }
 
+/* ── The whole plan, read: a dawn ── */
+/*
+ * The light comes from below. A wide ellipse of gold and red waits under the
+ * foot of the screen and rises into view, so this reads as a morning rather
+ * than as one more flash. It is the only celebration lit from anywhere but
+ * its own mark, which is the point: the other two are about one thing, this
+ * one is about everything.
+ */
+.celebrate__dawn {
+  position: absolute;
+  left: -30%;
+  right: -30%;
+  bottom: -38%;
+  height: 90%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 170, 72, 0.55),
+    rgba(232, 96, 34, 0.3) 38%,
+    rgba(200, 29, 37, 0.2) 64%,
+    transparent 100%
+  );
+  /* Added to the ground as light rather than laid over it as paint. Gold at
+     low alpha over near black reads as khaki; screened, it reads as morning. */
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+  animation: celDawn 2600ms cubic-bezier(0.2, 0.7, 0.2, 1) var(--t-dawn) forwards;
+}
+
+@keyframes celDawn {
+  from {
+    opacity: 0;
+    transform: translateY(30%) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+ * The cross rises out of the dawn rather than coming down through rays, and
+ * lands larger and brighter than the book's. Same duration rule as the book:
+ * the gap between `--t-cross` and `--t-close`, so it lands on the strike.
+ */
+.celebrate--plan .celebrate__cross {
+  filter: drop-shadow(0 0 22px rgba(247, 184, 1, 0.7));
+  animation: celRise calc(var(--t-close) - var(--t-cross)) cubic-bezier(0.2, 0.9, 0.25, 1)
+    var(--t-cross) both;
+}
+
+@keyframes celRise {
+  0% {
+    opacity: 0;
+    transform: translateY(90px) scale(0.92);
+    filter: blur(6px) drop-shadow(0 0 0 rgba(247, 184, 1, 0));
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: blur(0) drop-shadow(0 0 22px rgba(247, 184, 1, 0.7));
+  }
+}
+
+/* The rays fan out when the cross lands, not while it is still rising, and
+   there are more of them. */
+.celebrate--plan .celebrate__rays {
+  animation-delay: var(--t-close);
+}
+
+.celebrate--plan .celebrate__rays::before {
+  background: repeating-conic-gradient(rgba(247, 184, 1, 0.16) 0deg 3deg, transparent 3deg 12deg);
+}
+
+.celebrate--plan .celebrate__number {
+  font-size: clamp(3.4rem, 15vw, 5.2rem);
+}
+
+/*
+ * Every book on the shelf catches, one after another in printed order, from
+ * dark to gold with a flash between. `--wave-step` is the wave's length over
+ * the number of books, so every plan finishes catching at the same instant,
+ * and the bells following it in `sound.ts` never need to know the count.
+ *
+ * Three classes deep, which beats `.celebrate[data-calm] *` on specificity, so
+ * the calm block below has to name this one as well. It does.
+ */
+.celebrate__shelf[data-catching] .celebrate__shelfBook {
+  animation:
+    celShelfIn 420ms cubic-bezier(0.2, 1.2, 0.4, 1) calc(var(--t-grid) + var(--w) * 18ms) both,
+    celCatchBook 560ms cubic-bezier(0.2, 1.3, 0.4, 1)
+      calc(var(--t-wave) + var(--i) * var(--wave-step)) both;
+}
+
+@keyframes celCatchBook {
+  0% {
+    scale: 1;
+    border-color: rgba(247, 242, 233, 0.24);
+    background: transparent;
+    box-shadow: 0 0 0 rgba(247, 184, 1, 0);
+  }
+  35% {
+    scale: 1.7;
+    border-color: #fff6d6;
+    background: #fff6d6;
+    box-shadow: 0 0 18px rgba(255, 214, 120, 0.95);
+  }
+  100% {
+    scale: 1;
+  }
+}
+
 /*
  * Reduced motion, keyed on the attribute and not on the media query.
  * `data-calm` is set from `reducedMotion()`, which reads that same query, so
@@ -8254,8 +8687,16 @@ select {
 }
 
 .celebrate[data-calm] .celebrate__warmth,
-.celebrate[data-calm] .celebrate__flameGlow {
+.celebrate[data-calm] .celebrate__flameGlow,
+.celebrate[data-calm] .celebrate__dawn {
   opacity: 1;
+}
+
+/* The one rule above the blanket one on specificity, named here so it still
+   stops. Without it the plan's shelf would go on catching for a reader who had
+   asked for nothing to move. */
+.celebrate[data-calm] .celebrate__shelf[data-catching] .celebrate__shelfBook {
+  animation: none;
 }
 
 .celebrate[data-calm] .celebrate__spark,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BOOK, MILESTONE, STREAK, reelLand } from './celebration';
+import { BOOK, MILESTONE, PLAN, STREAK, reelLand } from './celebration';
 import {
   chooseCue,
   play,
@@ -264,6 +264,7 @@ describe('the celebration voices', () => {
       ['streak', STREAK],
       ['milestone', STREAK],
       ['book', BOOK],
+      ['plan', PLAN],
     ] as const) {
       for (let digits = 1; digits <= 3; digits++) {
         const hit = score(cue, digits).some(
@@ -304,6 +305,7 @@ describe('the celebration voices', () => {
       ['streak', STREAK.hold],
       ['milestone', MILESTONE.hold],
       ['book', BOOK.hold],
+      ['plan', PLAN.hold],
     ] as const) {
       const last = Math.max(...score(cue, 3).map((s) => s.until));
       expect(last, cue).toBeLessThanOrEqual(hold / 1000);
@@ -320,6 +322,7 @@ describe('the celebration voices', () => {
       ['streak', STREAK.hold],
       ['milestone', MILESTONE.hold],
       ['book', BOOK.hold],
+      ['plan', PLAN.hold],
     ] as const) {
       const last = Math.max(...score(cue, 1).map((s) => s.until));
       expect(last, cue).toBeGreaterThan(hold / 1000 - 1);
@@ -338,11 +341,28 @@ describe('the celebration voices', () => {
       ['streak', STREAK.hold],
       ['milestone', MILESTONE.hold],
       ['book', BOOK.hold],
+      ['plan', PLAN.hold],
     ] as const) {
       const bed = score(cue, 1).filter((s) => s.kind === 'osc' && s.at === 0 && near(s.freq, 110));
       expect(bed.length, cue).toBeGreaterThan(0);
       expect(Math.max(...bed.map((s) => s.until)), cue).toBeGreaterThan(hold / 1000 - 0.5);
     }
+  });
+
+  /*
+   * The peal follows the shelf. Sixteen bells while the books catch, every one
+   * of them inside the wave, so none rings over a shelf that has finished or
+   * one that has not started. The step comes from the wave's length and not
+   * the book count, which is the only reason the voice can know it.
+   */
+  it('rings the plan peal while the shelf catches and only then', () => {
+    const rounds = [1318.51, 880, 659.25, 440];
+    const from = PLAN.wave / 1000;
+    const to = (PLAN.wave + PLAN.waveFor) / 1000;
+    const peal = score('plan', 4).filter(
+      (s) => s.kind === 'osc' && s.at >= from - 1e-9 && s.at < to && rounds.some((f) => near(s.freq, f)),
+    );
+    expect(peal.length).toBe(16);
   });
 
   /* The milestone is the streak with a name added, note for note. */

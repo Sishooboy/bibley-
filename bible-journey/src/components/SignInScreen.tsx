@@ -31,6 +31,10 @@ export function SignInScreen() {
   return (
     <div className="gate">
       <div className="gate__panel">
+        {/* Light turning slowly behind the mark, the celebrations' rays at a
+            whisper, so the first screen anybody sees is lit the way the app's
+            best moments are rather than being a flat black page. */}
+        <span className="gate__light" aria-hidden="true" />
         <img className="gate__mark" src="/icon-192.png" width={76} height={76} alt="" />
 
         <p className="eyebrow eyebrow--onDark gate__eyebrow">The whole story, in order</p>

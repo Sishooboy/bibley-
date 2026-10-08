@@ -4,6 +4,7 @@ import {
   CALM_HOLD_MS,
   FADE_OUT_MS,
   MILESTONE,
+  PLAN,
   STREAK,
   exitFor,
   holdFor,
@@ -69,19 +70,50 @@ describe('the celebration timeline', () => {
     expect(BOOK.grid).toBeLessThan(BOOK.land - 600);
   });
 
+  /*
+   * The plan's whole shelf has to have caught before the count lands, or the
+   * last books would still be lighting under a number that says they are all
+   * read. And the name has to have risen before the first book catches, so
+   * the reader knows what the shelf is the shelf of.
+   */
+  it('tells the plan in order, and finishes the shelf before the count lands', () => {
+    expect(
+      rising([
+        PLAN.dawn,
+        PLAN.cross,
+        PLAN.close,
+        PLAN.eyebrow,
+        PLAN.name,
+        PLAN.rule,
+        PLAN.wave,
+        PLAN.land,
+        PLAN.label,
+        PLAN.sub,
+        exitFor('plan', false),
+        PLAN.hold,
+      ]),
+    ).toBe(true);
+    expect(PLAN.grid).toBeLessThan(PLAN.wave);
+    expect(PLAN.wave + PLAN.waveFor).toBeLessThan(PLAN.land - 300);
+  });
+
   it('starts the scrim leaving exactly one fade before the hold ends', () => {
-    for (const kind of ['streak', 'milestone', 'book'] as const) {
+    for (const kind of ['streak', 'milestone', 'book', 'plan'] as const) {
       for (const calm of [false, true]) {
         expect(exitFor(kind, calm) + FADE_OUT_MS).toBe(holdFor(kind, calm));
       }
     }
   });
 
-  it('leaves sooner under reduced motion, and the milestone still holds longest', () => {
-    for (const kind of ['streak', 'milestone', 'book'] as const) {
+  it('leaves sooner under reduced motion, and the plan still holds longest', () => {
+    for (const kind of ['streak', 'milestone', 'book', 'plan'] as const) {
       expect(holdFor(kind, true)).toBeLessThan(holdFor(kind, false));
     }
     expect(CALM_HOLD_MS.milestone).toBeGreaterThan(CALM_HOLD_MS.streak);
+    for (const kind of ['streak', 'milestone', 'book'] as const) {
+      expect(holdFor('plan', false)).toBeGreaterThan(holdFor(kind, false));
+      expect(holdFor('plan', true)).toBeGreaterThan(holdFor(kind, true));
+    }
   });
 
   /*
@@ -93,6 +125,7 @@ describe('the celebration timeline', () => {
     expect(exitFor('streak', false) - STREAK.sub).toBeGreaterThanOrEqual(800);
     expect(exitFor('milestone', false) - MILESTONE.refs).toBeGreaterThanOrEqual(1500);
     expect(exitFor('book', false) - BOOK.sub).toBeGreaterThanOrEqual(1200);
+    expect(exitFor('plan', false) - PLAN.sub).toBeGreaterThanOrEqual(2000);
   });
 });
 
@@ -103,7 +136,7 @@ describe('the reels', () => {
    * there whatever the number is.
    */
   it('locks the last reel on the landing however many digits there are', () => {
-    for (const t of [STREAK, BOOK]) {
+    for (const t of [STREAK, BOOK, PLAN]) {
       for (let count = 1; count <= 4; count++) {
         expect(reelLand(count - 1, count, t)).toBe(t.land);
       }
@@ -111,7 +144,7 @@ describe('the reels', () => {
   });
 
   it('locks left to right, one stagger apart', () => {
-    for (const t of [STREAK, BOOK]) {
+    for (const t of [STREAK, BOOK, PLAN]) {
       const lands = [0, 1, 2].map((i) => reelLand(i, 3, t));
       expect(lands[1] - lands[0]).toBe(t.stagger);
       expect(lands[2] - lands[1]).toBe(t.stagger);
@@ -119,7 +152,7 @@ describe('the reels', () => {
   });
 
   it('never starts a reel before the moment does', () => {
-    for (const t of [STREAK, BOOK]) {
+    for (const t of [STREAK, BOOK, PLAN]) {
       for (let count = 1; count <= 4; count++) {
         expect(reelStart(0, count, t)).toBeGreaterThanOrEqual(0);
       }

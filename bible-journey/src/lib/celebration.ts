@@ -76,10 +76,47 @@ export const BOOK = {
 } as const;
 
 /**
- * Under reduced motion there is nothing to wait for, so each leaves sooner.
- * The milestone still holds longest, because it is the one with words to read.
+ * The whole plan, finished. Once in a reading life, so it is the longest and
+ * the slowest: light comes up from the foot of the screen like a dawn, the
+ * cross rises into it, the plan's name arrives, and then every book on the
+ * shelf catches in printed order, Genesis to Revelation, with a bell for every
+ * few books, before the count of chapters lands.
  */
-export const CALM_HOLD_MS = { streak: 2400, milestone: 3800, book: 3000 } as const;
+export const PLAN = {
+  dawn: 200,
+  cross: 520,
+  /** The cross lands. The rays fan out from it. */
+  close: 1300,
+  eyebrow: 1560,
+  name: 1740,
+  rule: 2240,
+  sheen: 2420,
+  /** The shelf arrives as outlines, every book still dark. */
+  grid: 2300,
+  /** The first book catches. */
+  wave: 2600,
+  /**
+   * How long the whole shelf takes to catch, **whatever the number of books**.
+   * The step between squares is this divided by the count, so 27 books and 73
+   * books both finish the wave at the same moment and the bells, which cannot
+   * know the count, can follow it exactly.
+   */
+  waveFor: 1600,
+  land: 4800,
+  roll: 1500,
+  stagger: 180,
+  label: 5060,
+  sub: 5320,
+  hold: 8200,
+} as const;
+
+/**
+ * Under reduced motion there is nothing to wait for, so each leaves sooner.
+ * The milestone still holds longest of the everyday ones, because it is the
+ * one with words to read; the plan holds longest of all because it is the
+ * plan.
+ */
+export const CALM_HOLD_MS = { streak: 2400, milestone: 3800, book: 3000, plan: 4600 } as const;
 
 export type CelebrationKind = keyof typeof CALM_HOLD_MS;
 
@@ -87,6 +124,7 @@ export type ReelTiming = { land: number; roll: number; stagger: number };
 
 export function holdFor(kind: CelebrationKind, calm: boolean): number {
   if (calm) return CALM_HOLD_MS[kind];
+  if (kind === 'plan') return PLAN.hold;
   if (kind === 'book') return BOOK.hold;
   return kind === 'milestone' ? MILESTONE.hold : STREAK.hold;
 }

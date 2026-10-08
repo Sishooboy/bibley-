@@ -75,7 +75,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
      */
     const milestone = cue.name === 'streak' && milestoneFor(derived.streak.current);
     // One lock per reel on screen, so the voice is told how long the number is.
-    const shown = cue.name === 'book' ? derived.overall.booksDone : derived.streak.current;
+    const shown =
+      cue.name === 'plan'
+        ? derived.overall.planTotal
+        : cue.name === 'book'
+          ? derived.overall.booksDone
+          : derived.streak.current;
     play(milestone ? 'milestone' : cue.name, digitsOf(shown).length);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cue]);

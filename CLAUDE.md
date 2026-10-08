@@ -401,6 +401,27 @@ redeploy.**
   field needs a release that reads it shipped before one writes it, and a view setting is worth
   nothing on a second device. It survives a chapter change and a reload, which is the point, since
   folding it away and having it return on the next chapter would be worse than not having it.
+- **One red button at a time, and it is the next thing to do.** Before marking that is the mark
+  button; once the chapter is read the red passes to Next (`data-ready`), the mark settles into its
+  gold done state, and Next's chevron leans the way it goes twice and rests. A gold Next was tried
+  first and sat beside the gold done state looking like its twin. White on the red face, 5.7:1 and
+  5.1:1 under hover; soft gold measured 4.1 under hover, which is why red never carries gold.
+- **Turning the page moves the page.** The text is keyed on the chapter and arrives from the side
+  it lies on in printed order, so Next slides in from the right, Back from the left, and a jump from
+  the book picker by where the book sits. The direction is worked out **during render**, by the
+  "adjusting state when a prop changes" pattern, because an effect would paint the new text in
+  place for one frame and then start it sliding. Opening the reader is not a page turn, so it has
+  none. The text is a fresh element per chapter now, which is safe because `readSelection` reads
+  `textRef` at call time.
+- **The reader rises in and settles out.** It used to fade in and vanish on the frame Close was
+  pressed, which made the journey seem to jump into place. `ReaderProvider` keeps it mounted for the
+  220ms `readerOut` takes, marked `data-closing`, and **opening again inside that window cancels
+  the pending unmount**, or a reader opened a moment after one was closed would be taken away by
+  the old timer. Under reduced motion it closes at once, since there is nothing to wait for.
+- **A book that has not arrived shows a page shaped like itself**: the heading it already knows and
+  grey lines in the text's measure, faded in after 180ms so a fast network never flashes it. It
+  replaced "Opening Genesis…", which put a sentence in the middle of an empty screen and then
+  replaced it with a page.
 - Back, Mark and Next are a **named-area grid**, mark across the top and the two destinations
   beneath, at every width. They were a flex row that wrapped when it had to, which put the primary
   action wherever the wrap left it. Each is 52 to 61px tall, above the 44 a thumb needs.
@@ -585,6 +606,24 @@ redeploy.**
   rows means a child that is not rendered, the strip when it is off or the footer while searching,
   leaves an empty `auto` row worth nothing instead of shifting everything after it. **Add a child,
   give it a row.**
+- **A new tab rises into place**, ten pixels and a fade, through a `.viewEnter` wrapper keyed by
+  view. Not on the first screen, which already arrives with the app's own entrance, so it waits for
+  the first switch. A transform is safe on that wrapper where it was fatal on `.app`: nothing inside
+  a view is fixed, and the nav and the undo chip live outside it. Every switch goes through `show`
+  in `Shell`, including the sync badge and the tour, and `show` is stable because the tour takes it
+  as a prop.
+- **The journey's headline counts up as it arrives**, `useCountUp` over 1.1s, and the bar under it
+  fills over the same 1.1s on the same ease out cubic, a `scaleX` so it never relayouts. Display
+  only: the bar's aria value stays the real one. In a hidden tab the count waits on animation
+  frames like every other `useCountUp`, and finishes the moment the tab is shown.
+- **Sign-in is lit.** It was the one screen every new reader sees and the flattest in the app: the
+  celebrations' turning rays at a whisper behind the mark, the chooser's red wash in the corner, and
+  a short staggered entrance, mark, eyebrow tracking in, title, lede, a rule drawing itself, then
+  the button. The lede is 7.6:1 on bare ink and 5.4:1 at the worst point it can sit, under a ray
+  where the wash is strongest. **`.gate__note` has its own reduced-motion guard below its rule**,
+  because the gate's main guard sits five hundred lines above it and would lose on file order.
+- **"When you read" with nothing tagged is a sentence, not four bars at zero**, which looked like a
+  chart that broke. Same reasoning as `NothingYet` for the whole Stats page.
 - `ErrorBoundary` wraps the app in `main.tsx` and each view in `App.tsx`, the inner one **keyed by
   view** so switching tabs remounts it and clears the error. A throw in one screen costs a panel
   rather than the white page React otherwise leaves, which looks exactly like lost data. It is the
@@ -625,9 +664,9 @@ redeploy.**
   0.9 puts the tick at -14.9 and the loudest celebration, the finished book, at -8.7, which is where
   interface sound sits and still leaves 8.7 dB of headroom. `schedule()` is exported so the voices
   can be rendered offline and measured rather than only listened to.
-- **The three celebration voices are scored against their screens, and the score is not written
-  down twice.** `src/lib/celebration.ts` is one table of milliseconds, `STREAK`, `MILESTONE` and
-  `BOOK`, and both halves read it: `StreakCelebration` hands every entry to the stylesheet as a
+- **The four celebration voices are scored against their screens, and the score is not written
+  down twice.** `src/lib/celebration.ts` is one table of milliseconds, `STREAK`, `MILESTONE`,
+  `BOOK` and `PLAN`, and both halves read it: `StreakCelebration` hands every entry to the stylesheet as a
   `--t-*` custom property and the voices schedule off the same numbers divided by a thousand. **No
   delay in the celebration CSS is a literal.** Before this, the timings lived as delays in the CSS
   and as a comment above each voice, and "holds, reels and voices move together" was kept by care.
@@ -724,7 +763,7 @@ redeploy.**
   `prefers-reduced-motion` was designed in rather than bolted on: no swell, no bounce and no sparks
   at all, but today's cell still changes colour, because that is the record of having read today and
   not decoration.
-- **`StreakCelebration` is the version of that moment meant to be looked at, not glimpsed**, and it now carries the finished book as well. The
+- **`StreakCelebration` is the version of that moment meant to be looked at, not glimpsed**, and it now carries the finished book and the finished plan as well. The
   hero's flame is an ambient touch for whoever is already looking there; this is a full screen
   takeover, centred, for when growing the streak deserves the reader's whole attention. Same trigger
   as the flame and the bell, `cue.name === 'streak'` on the store, so all three fire off one signal
@@ -767,6 +806,25 @@ redeploy.**
   settles the gap `chooseCue` left**: finishing a book on the day a streak grows used to ring the
   book bell and show nothing, because only the streak cue had a screen. Now the larger moment wins,
   which is what the ladder meant all along.
+- **Finishing the whole plan had no screen at all, and now it is the largest one.** The plan rung
+  outranks the book rung on the ladder, so finishing the last book of a plan rang the plan's four
+  bells over nothing: the biggest moment in the app was the only one without a picture. It is
+  **dawn**: light rises from the foot of the screen (screened onto the ground, because gold at low
+  alpha over near black reads as khaki), the cross rises into it, the testament is the headline
+  and the plan's own name moves into the eyebrow ("Classic, finished" over "The New Testament",
+  since "Classic" alone said nothing), and then **every book on the shelf catches in printed
+  order** before the count of chapters lands. The line under it counts from the first chapter of
+  *this plan* actually read, not from `startedAt`, so somebody who switched plans half way is not
+  credited with the longer span. `PLAN` in `celebration.ts` holds it, 8.2 seconds, 4.6 calm.
+- **The wave's step is its length over the book count**, handed over as `--wave-step`, so 27
+  books and 73 finish catching at the same instant. That is what lets the voice ring a **peal**
+  under it without knowing the count: sixteen bells in rounds, E6 A5 E5 A4, walking left to right
+  across the room as the shelf catches left to right, then the fullest chord in the set on the
+  land. Measured at -8.5 dBFS. Pinned: the peal is exactly sixteen bells inside the wave, the wave
+  finishes before the count lands, and the plan holds longest calm or not. Five mutations, all
+  caught. **`.celebrate__shelf[data-catching] .celebrate__shelfBook` is three classes deep and
+  outranks the blanket calm rule**, so the calm block names it again; anything else written that
+  deep needs the same.
 - **The embers and the leaf are one canvas, not a hundred spans.** A hundred animated elements is a
   hundred layers for a phone to composite; a canvas is one whatever is on it. `src/lib/particles.ts`
   is the physics with no canvas in it, so it is tested without a browser, and
@@ -1235,7 +1293,8 @@ headings over every chapter of the 66 with a note on the turning points, highlig
 thought attached,
 notes, stats, streaks, an offline app shell, full text search over all 73 books, five synthesised sounds with a synced mute switch, a card introducing every book and a
 note on the chapters that matter, a streak that celebrates itself when it grows and can be
-protected by rest days it earns, a knock and a dip on every press in the app, a six panel welcome guide that
+protected by rest days it earns, a finished book and a finished plan that each get their own
+moment, a reader that turns its pages, a knock and a dip on every press in the app, a six panel welcome guide that
 hands over to a tour of the real controls, and a synced settings screen.
 
 Notes and highlights share one feed in the Notes view, sorted by when each was last touched. They

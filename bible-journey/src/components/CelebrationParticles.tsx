@@ -28,6 +28,8 @@ type Props = {
   burstAt: number;
   /** When it stops making anything new. What is already falling finishes. */
   until: number;
+  /** How much leaf falls. The plan gets more than a book. */
+  leaves?: number;
 };
 
 /** Embers a second, which with their lifetimes keeps about forty in the air. */
@@ -71,7 +73,7 @@ function anchor(el: HTMLElement | null, mode: Props['mode']) {
   };
 }
 
-export function CelebrationParticles({ mode, origin, from, burstAt, until }: Props) {
+export function CelebrationParticles({ mode, origin, from, burstAt, until, leaves = LEAVES }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -168,7 +170,7 @@ export function CelebrationParticles({ mode, origin, from, burstAt, until }: Pro
       }
       if (mode === 'leaf' && !fell && t >= from) {
         fell = true;
-        for (let i = 0; i < LEAVES; i++) parts.push(leaf(rng, width, height));
+        for (let i = 0; i < leaves; i++) parts.push(leaf(rng, width, height));
       }
       if (!burst && t >= burstAt && at) {
         burst = true;
@@ -198,7 +200,7 @@ export function CelebrationParticles({ mode, origin, from, burstAt, until }: Pro
       cancelAnimationFrame(frame);
       window.removeEventListener('resize', resize);
     };
-  }, [mode, origin, from, burstAt, until]);
+  }, [mode, origin, from, burstAt, until, leaves]);
 
   return <canvas ref={canvasRef} className="celebrate__sky" aria-hidden="true" />;
 }

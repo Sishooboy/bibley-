@@ -18,6 +18,7 @@
 import {
   BOOK,
   MILESTONE,
+  PLAN,
   STREAK,
   reelLand,
   reelStart,
@@ -734,14 +735,64 @@ const VOICES: Record<Playable, Voice> = {
   },
 
   /**
-   * Once in a lifetime, and the only cue with a low root under it. The octave
-   * at the end is the point of it: it arrives somewhere rather than stopping.
+   * The whole plan, scored against `PLAN` and the longest thing the app ever
+   * plays, because it is once in a reading life.
+   *
+   *   0       a bed on the root and its fifth, swelling as the dawn comes up
+   *   close   the cross lands: a struck octave and weight under it, and three
+   *           small strikes as the rings leave
+   *   name    the plan's name, first chord
+   *   wave    a peal: rounds rung down the octave and fifth, one bell for every
+   *           sixteenth of the wave, walking left to right across the room as
+   *           the shelf catches left to right on screen
+   *   land    the count locks: the fullest chord in the set, every octave and
+   *           fifth on A from A3 up, with light scattering off the top
+   *
+   * Rounds and not a tune. Change ringing is how a tower says something has
+   * happened that the whole town should know about, and rounds descending is
+   * the first thing every peal rings. Still octaves and fifths on A and no
+   * third, so it belongs to the same tower as every other bell here.
    */
-  plan: (c, out, at) => {
-    bell(c, out, at, A3, 3.2, 0.15);
-    bell(c, out, at, A4, 2.2, 0.2);
-    bell(c, out, at + 0.2, E5, 2.4, 0.18);
-    bell(c, out, at + 0.42, A5, 3, 0.16);
+  plan: (c, out, at, digits) => {
+    const room = hall(c, out, 0.4);
+    const end = PLAN.hold / 1000;
+
+    drone(c, room, at, A2, end - 0.1, 0.09);
+    drone(c, room, at, E3, end - 0.4, 0.05);
+    // One toll, far off, as the light starts to come up. Without it the first
+    // second is a drone too low for a phone to play, which is silence.
+    bell(c, room, when(at, PLAN.dawn), A3, 2.4, 0.07);
+
+    const close = when(at, PLAN.close);
+    bell(c, room, close, A3, 2.2, 0.12);
+    bell(c, room, close + 0.02, A4, 1.8, 0.1);
+    bloom(c, room, close, 0.1);
+    [E5, A5, E6].forEach((freq, r) => {
+      bell(c, placed(c, room, (r - 1) * 0.4), close + r * 0.15, freq, 0.5, 0.05);
+    });
+
+    const name = when(at, PLAN.name);
+    bell(c, room, name + 0.05, A4, 1.6, 0.16);
+    bell(c, room, name + 0.13, E5, 1.7, 0.12);
+
+    const ROUNDS = [E6, A5, E5, A4];
+    const BELLS = 16;
+    for (let i = 0; i < BELLS; i++) {
+      const pan = -0.6 + (1.2 * i) / (BELLS - 1);
+      const t = when(at, PLAN.wave) + (PLAN.waveFor / 1000) * (i / BELLS);
+      bell(c, placed(c, room, pan), t, ROUNDS[i % ROUNDS.length], 0.9, 0.04);
+    }
+
+    reels(c, room, at, digits, PLAN);
+
+    const land = when(at, PLAN.land);
+    bell(c, room, land, A3, 2.6, 0.075);
+    bell(c, room, land, A4, 2.4, 0.075);
+    bell(c, room, land + 0.04, E5, 2.3, 0.065);
+    bell(c, room, land + 0.08, A5, 2.2, 0.065);
+    bell(c, room, land + 0.14, E6, 1.8, 0.04);
+    bloom(c, room, land, 0.07);
+    sparkle(c, room, land + 0.2, [A5, E6, A5, E6, A5], 0.07, 0.028);
   },
 
   /**

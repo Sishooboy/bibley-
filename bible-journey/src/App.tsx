@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Guide } from './components/Guide';
 import { PlanChooser } from './components/PlanChooser';
@@ -45,6 +45,12 @@ function Shell() {
    * level rather than beside the thing it points at.
    */
   const [tour, setTour] = useState(false);
+  /*
+   * Whether the reader has switched tabs yet. The first screen arrives with the
+   * app's own entrance, so it does not also rise on its own; every screen after
+   * it does.
+   */
+  const [switched, setSwitched] = useState(false);
 
   /*
    * A new tab starts at its own beginning. Without this the scroll position
@@ -54,6 +60,12 @@ function Shell() {
   useEffect(() => {
     scrollAppToTop();
   }, [view]);
+
+  // Stable, because the tour takes it as a prop and walks between screens with it.
+  const show = useCallback((next: ViewId) => {
+    setSwitched(true);
+    setView(next);
+  }, []);
 
   // Dismiss the small-screen menu the way a menu should be dismissable.
   useEffect(() => {
@@ -91,7 +103,7 @@ function Shell() {
           </div>
 
           <div className="topbar__right">
-            <SyncBadge onOpenSettings={() => setView('settings')} />
+            <SyncBadge onOpenSettings={() => show('settings')} />
 
             <button
               type="button"
@@ -116,7 +128,7 @@ function Shell() {
                   className="nav__item"
                   aria-current={view === v.id ? 'page' : undefined}
                   onClick={() => {
-                    setView(v.id);
+                    show(v.id);
                     setMenuOpen(false);
                   }}
                 >
@@ -134,27 +146,38 @@ function Shell() {
           error. One broken screen leaves the other four, and the nav above,
           working.
         */}
-        <ErrorBoundary key={view} what={`The ${VIEWS.find((v) => v.id === view)?.label} screen`}>
-          {view === 'journey' && <JourneyView />}
-          {view === 'notes' && <NotesView />}
-          {view === 'friends' && <FriendsView />}
-          {/*
-            Stats brings the whole charting library with it, which is a third of
-            the JavaScript for a screen most opens never reach. It arrives on
-            demand instead, so the journey is on screen sooner.
-          */}
-          {view === 'stats' && (
-            <Suspense fallback={<p className="viewLoading">Working out where you are…</p>}>
-              <StatsView />
-            </Suspense>
-          )}
-          {view === 'settings' && <SettingsView />}
-        </ErrorBoundary>
+        {/*
+          Keyed by view as well, so each screen is a new element that rises into
+          place rather than the old one's contents changing under the reader. A
+          transform is safe here where it is not on the app shell: nothing inside a
+          view is fixed, and the nav and the undo chip live outside it.
+        */}
+        <div key={view} className="viewEnter" data-enter={switched ? '' : undefined}>
+          <ErrorBoundary
+            key={view}
+            what={`The ${VIEWS.find((v) => v.id === view)?.label} screen`}
+          >
+            {view === 'journey' && <JourneyView />}
+            {view === 'notes' && <NotesView />}
+            {view === 'friends' && <FriendsView />}
+            {/*
+              Stats brings the whole charting library with it, which is a third of
+              the JavaScript for a screen most opens never reach. It arrives on
+              demand instead, so the journey is on screen sooner.
+            */}
+            {view === 'stats' && (
+              <Suspense fallback={<p className="viewLoading">Working out where you are…</p>}>
+                <StatsView />
+              </Suspense>
+            )}
+            {view === 'settings' && <SettingsView />}
+          </ErrorBoundary>
+        </div>
       </main>
 
       {/* Listens for the same event Settings fires, so "Take the tour" works
           from anywhere without threading a callback through four components. */}
-      <TourHost open={tour} setOpen={setTour} onView={setView} />
+      <TourHost open={tour} setOpen={setTour} onView={show} />
 
       <UndoBar />
       {/* Full screen for a few seconds when the streak grows. Here beside the

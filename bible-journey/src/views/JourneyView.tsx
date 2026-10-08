@@ -7,11 +7,20 @@ import { QuoteCard } from '../components/QuoteCard';
 import { StreakWeek } from '../components/StreakWeek';
 import { TodayCard } from '../components/TodayCard';
 import { formatNumber } from '../lib/format';
+import { useCountUp } from '../lib/motion';
 import { useStore } from '../state/useStore';
 
 export function JourneyView() {
   const { data, derived } = useStore();
   const { plan, overall, streak, phases, statuses, currentPhase } = derived;
+  /*
+   * The headline figure counts up as the journey arrives, over the same 1.1s
+   * the bar under it fills in, so the two read as one movement. Display only:
+   * the bar's aria value stays the real one. `useCountUp` returns the target
+   * at once under reduced motion.
+   */
+  const counted = Math.round(useCountUp(overall.planRead, 1100));
+  const countedPct = overall.planTotal === 0 ? 0 : (counted / overall.planTotal) * 100;
   const [openBook, setOpenBook] = useState<string | null>(null);
   /*
    * Which phase is expanded. Seeded from wherever the reader is, and only once:
@@ -88,10 +97,10 @@ export function JourneyView() {
           <div className="hero__progress">
             <div className="hero__progressTop">
               <div className="hero__count">
-                {formatNumber(overall.planRead)}
+                {formatNumber(counted)}
                 <span> / {formatNumber(overall.planTotal)} ch</span>
               </div>
-              <div className="hero__pct">{overall.percent.toFixed(1)}%</div>
+              <div className="hero__pct">{countedPct.toFixed(1)}%</div>
             </div>
 
             <ProgressBar

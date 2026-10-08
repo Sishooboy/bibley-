@@ -7,7 +7,7 @@ import {
   useState,
   type CSSProperties,
 } from 'react';
-import { NEW_TESTAMENT, OLD_TESTAMENT } from '../data/canon';
+import { CANON, NEW_TESTAMENT, OLD_TESTAMENT } from '../data/canon';
 import { TRANSLATION_NAME, cachedBook, loadBook, type BookText } from '../lib/bible';
 import {
   highlightsFor,
@@ -156,14 +156,54 @@ function VerseText({
   );
 }
 
+type Turn = 'next' | 'back';
+
+/** A chapter's place in the printed Bible, for telling forwards from back. */
+function printedOrder(book: string, chapter: number): number {
+  return CANON.indexOf(book) * 1000 + chapter;
+}
+
+/*
+ * How long each line of the placeholder runs, as a share of the column. Fixed
+ * rather than random so it is the same shape every time and never reflows,
+ * and ragged on the right the way set text is.
+ */
+const SKELETON = [1, 0.96, 1, 0.9, 0.98, 0.62, 1, 0.94, 0.86];
+
+/**
+ * What the reader shows while a book it has never opened is on its way: the
+ * heading it already knows, and grey lines where the paragraph will be, so the
+ * text lands into a page shaped like itself rather than replacing a sentence
+ * in the middle of an empty screen. Faded in after a beat, so a fast network
+ * never flashes it at all.
+ */
+function Opening({ book, chapter }: { book: string; chapter: number }) {
+  return (
+    <div className="reader__text reader__skeleton" role="status">
+      <h2 className="reader__heading">
+        {book} {chapter}
+      </h2>
+      <span className="sr-only">Opening {book}</span>
+      <div className="reader__skLines" aria-hidden="true">
+        {SKELETON.map((w, i) => (
+          <span key={i} className="reader__skLine" style={{ '--w': w } as CSSProperties} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function Reader({
   book,
   chapter,
+  closing = false,
   onNavigate,
   onClose,
 }: {
   book: string;
   chapter: number;
+  /** True for the moment it takes to leave, after Close and before unmount. */
+  closing?: boolean;
   onNavigate: (book: string, chapter: number) => void;
   onClose: () => void;
 }) {
@@ -213,6 +253,26 @@ export function Reader({
   const shellRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const keyboard = useKeyboardInset();
+  /*
+   * Which way the page turned, for the slide the new text arrives on. Worked
+   * out during render, from where the reader was against where it is now in
+   * printed order, so the very first frame of the new chapter already knows
+   * its direction; an effect would paint the text in place for one frame and
+   * then start it sliding, which reads as a flicker. Null on open, because
+   * opening the reader is not turning a page.
+   */
+  const [place, setPlace] = useState<{ book: string; chapter: number; turn: Turn | null }>({
+    book,
+    chapter,
+    turn: null,
+  });
+  if (place.book !== book || place.chapter !== chapter) {
+    setPlace({
+      book,
+      chapter,
+      turn: printedOrder(book, chapter) >= printedOrder(place.book, place.chapter) ? 'next' : 'back',
+    });
+  }
 
   useEffect(() => {
     setJustMarked(false);
@@ -542,6 +602,7 @@ export function Reader({
   return (
     <div
       className="reader"
+      data-closing={closing ? '' : undefined}
       role="dialog"
       aria-modal="true"
       aria-label={`${book} ${chapter}`}
@@ -676,10 +737,15 @@ export function Reader({
         ) : error ? (
           <p className="reader__message">{error}</p>
         ) : !verses ? (
-          <p className="reader__message reader__message--quiet">Opening {book}…</p>
+          <Opening book={book} chapter={chapter} />
         ) : (
           <article
+            /* Keyed on the chapter so a new page is a new element and its
+               arrival animation runs; the same element with new verses in it
+               would simply change under the reader's eyes. */
+            key={`${book}|${chapter}`}
             className="reader__text"
+            data-turn={place.turn ?? undefined}
             ref={textRef}
             onMouseUp={onSelectionEnd}
             onTouchEnd={onSelectionEnd}
@@ -906,6 +972,10 @@ export function Reader({
             type="button"
             className="btn readerNav readerNav--next"
             disabled={!next}
+            // Once this chapter is read, Next is where the reader goes now, so
+            // it is the one that looks like an invitation. An attribute, since
+            // the arrival of the attribute is what starts its one nudge.
+            data-ready={isRead && next ? '' : undefined}
             onClick={() => next && onNavigate(next.book, next.chapter)}
           >
             <span className="readerNav__text">

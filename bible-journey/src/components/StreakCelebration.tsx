@@ -9,10 +9,12 @@ import {
 } from 'react';
 import { CANON } from '../data/canon';
 import type { BibleNumber } from '../data/numbers';
+import type { TestamentId } from '../data/tracks';
 import {
   BOOK,
   FADE_OUT_MS,
   MILESTONE,
+  PLAN,
   STREAK,
   exitFor,
   holdFor,
@@ -20,7 +22,7 @@ import {
   type CelebrationKind,
   type ReelTiming,
 } from '../lib/celebration';
-import { fromDayKey, type DayKey } from '../lib/dates';
+import { daysBetween, formatDay, fromDayKey, today, type DayKey } from '../lib/dates';
 import { digitsOf, plural } from '../lib/format';
 import { reducedMotion } from '../lib/motion';
 import { chapterCount } from '../lib/navigate';
@@ -39,6 +41,17 @@ const STRIP = Array.from({ length: 30 }, (_, i) => i % 10);
 const RUNS_BEFORE_TARGET = 20;
 
 const LETTERS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+/**
+ * What finishing each kind of plan means, as the headline. The track's own name
+ * says in which order it was read, which is the smaller fact, so it moves up
+ * into the eyebrow.
+ */
+const WHOLE: Record<TestamentId, string> = {
+  both: 'The whole Bible',
+  old: 'The Old Testament',
+  new: 'The New Testament',
+};
 
 /** Twelve rays off the cross, one every thirty degrees. */
 const RAYS = Array.from({ length: 12 }, (_, i) => i);
@@ -185,36 +198,71 @@ type ShelfBook = { name: string; part: number; fresh: boolean };
 function Shelf({
   books,
   freshRef,
+  catching = false,
 }: {
   books: ShelfBook[];
-  freshRef: RefObject<HTMLSpanElement | null>;
+  freshRef?: RefObject<HTMLSpanElement | null>;
+  /**
+   * The whole plan finished: every square waits dark and catches in printed
+   * order, one after another, rather than one square catching alone. The step
+   * is the wave's length over the count, so a shelf of 27 and a shelf of 73
+   * finish catching at the same instant, which is what the bells follow.
+   */
+  catching?: boolean;
 }) {
   const cols = Math.ceil(Math.sqrt(books.length * 2.2));
   let first = true;
   return (
     <div
       className="celebrate__shelf"
-      style={{ '--cols': cols } as CSSProperties}
+      data-catching={catching ? '' : undefined}
+      style={
+        {
+          '--cols': cols,
+          '--wave-step': `${PLAN.waveFor / Math.max(1, books.length)}ms`,
+        } as CSSProperties
+      }
       aria-hidden="true"
     >
       {books.map((b, i) => {
-        // The wave runs down the diagonals, top left to bottom right.
+        // The arrival runs down the diagonals, top left to bottom right.
         const wave = (i % cols) + Math.floor(i / cols);
-        const anchor = b.fresh && first;
+        const anchor = !catching && b.fresh && first;
         if (anchor) first = false;
         return (
           <span
             key={b.name}
             ref={anchor ? freshRef : undefined}
             className="celebrate__shelfBook"
-            data-fresh={b.fresh ? '' : undefined}
-            data-done={!b.fresh && b.part >= 1 ? '' : undefined}
-            style={{ '--w': wave, '--part': b.part } as CSSProperties}
+            data-fresh={!catching && b.fresh ? '' : undefined}
+            data-done={catching || (!b.fresh && b.part >= 1) ? '' : undefined}
+            style={{ '--w': wave, '--i': i, '--part': b.part } as CSSProperties}
           />
         );
       })}
     </div>
   );
+}
+
+/**
+ * The plan's books in printed order, with how far into each the reader is. One
+ * function for the book and the plan so the two shelves cannot disagree with
+ * each other or with `BookGrid` on the journey.
+ */
+function shelfOf(
+  phases: { books: { name: string; chapters: number; read: number }[] }[],
+  finished: Set<string>,
+): ShelfBook[] {
+  const byName = new Map<string, { chapters: number; read: number }>();
+  for (const phase of phases) for (const b of phase.books) byName.set(b.name, b);
+  return CANON.filter((name) => byName.has(name)).map((name) => {
+    const b = byName.get(name)!;
+    return {
+      name,
+      part: b.chapters === 0 ? 0 : Math.min(1, b.read / b.chapters),
+      fresh: finished.has(name),
+    };
+  });
 }
 
 type Shown =
@@ -245,12 +293,30 @@ type Shown =
       total: number;
       /** Null when the book is not in the plan, so there is no square to light. */
       shelf: ShelfBook[] | null;
+    }
+  | {
+      id: number;
+      kind: 'plan';
+      /** The track's own name, which is the order they read it in. */
+      name: string;
+      /** What was read, which is the headline: the plan is only the order. */
+      whole: string;
+      chapters: number;
+      shelf: ShelfBook[];
+      startedAt: DayKey;
+      days: number;
     };
 
 /** Every timing as a custom property, so the stylesheet holds no numbers of its own. */
 function timeline(kind: CelebrationKind, calm: boolean): CSSProperties {
   const t: Record<string, number> =
-    kind === 'book' ? { ...BOOK } : kind === 'milestone' ? { ...STREAK, ...MILESTONE } : { ...STREAK };
+    kind === 'plan'
+      ? { ...PLAN }
+      : kind === 'book'
+        ? { ...BOOK }
+        : kind === 'milestone'
+          ? { ...STREAK, ...MILESTONE }
+          : { ...STREAK };
   const vars: Record<string, string> = {};
   for (const [name, ms] of Object.entries(t)) vars[`--t-${name}`] = `${ms}ms`;
   vars['--t-exit'] = `${exitFor(kind, calm)}ms`;
@@ -259,7 +325,7 @@ function timeline(kind: CelebrationKind, calm: boolean): CSSProperties {
 }
 
 /**
- * The two moments worth stopping the app for, made into moments.
+ * The three moments worth stopping the app for, made into moments.
  *
  * Full screen and in the middle, because a small flicker on the hero was not
  * enough to be noticed. Both fire off the cue channel the sounds use, so the
@@ -279,6 +345,11 @@ function timeline(kind: CelebrationKind, calm: boolean): CSSProperties {
  * whole plan arrives as a shelf of squares. The one just finished fills at the
  * instant the count lands. Finishing a book is rarer than a day, and the size
  * of the moment says so: it holds longer and it has two arrivals, not one.
+ *
+ * The whole plan is dawn. Light comes up from the foot of the screen, the
+ * cross rises into it, and every book on the shelf catches in printed order
+ * with a bell for every few before the count of chapters lands. It is the only
+ * one of the three most readers will ever see once, so it is the longest.
  *
  * **Reduced motion keeps the moment and drops the movement.** No canvas is
  * mounted at all, nothing rolls, flickers, rises or falls, and the lights that
@@ -311,19 +382,38 @@ export function StreakCelebration() {
         week: last30Days(data.read, 7),
         head: derived.streak.lastReadDay,
       });
+    } else if (cue?.name === 'plan') {
+      /*
+       * The plan cue outranks the book cue on the ladder, so finishing the last
+       * book of a plan used to ring the plan's bell over a screen that showed
+       * nothing at all: the largest moment in the app was the only one without
+       * a picture. This is that picture.
+       */
+      /*
+       * From the first chapter of this plan actually read, not from the
+       * journal's `startedAt`: somebody who switched plans half way began this
+       * one later than they began the app, and the line must not claim the
+       * longer of the two.
+       */
+      const inPlan = new Set(derived.phases.flatMap((p) => p.books.map((b) => b.name)));
+      let startedAt: DayKey = today();
+      for (const [key, day] of Object.entries(data.read)) {
+        if (!day || !inPlan.has(key.slice(0, key.indexOf('|')))) continue;
+        if (day < startedAt) startedAt = day;
+      }
+      setShown({
+        id: cue.id,
+        kind: 'plan',
+        name: derived.plan.label,
+        whole: WHOLE[derived.plan.testament],
+        chapters: derived.overall.planTotal,
+        shelf: shelfOf(derived.phases, new Set()),
+        startedAt,
+        days: Math.max(1, daysBetween(startedAt, today()) + 1),
+      });
     } else if (cue?.name === 'book' && cue.books && cue.books.length > 0) {
       const book = cue.books[0];
-      const finished = new Set(cue.books);
-      const byName = new Map<string, { chapters: number; read: number }>();
-      for (const phase of derived.phases) for (const b of phase.books) byName.set(b.name, b);
-      const shelf = CANON.filter((name) => byName.has(name)).map((name) => {
-        const b = byName.get(name)!;
-        return {
-          name,
-          part: b.chapters === 0 ? 0 : Math.min(1, b.read / b.chapters),
-          fresh: finished.has(name),
-        };
-      });
+      const shelf = shelfOf(derived.phases, new Set(cue.books));
       setShown({
         id: cue.id,
         kind: 'book',
@@ -357,7 +447,7 @@ export function StreakCelebration() {
    */
   useLayoutEffect(() => {
     const root = rootRef.current;
-    const mark = (shown?.kind === 'book' ? markRef : flameRef).current;
+    const mark = (shown?.kind === 'streak' ? flameRef : markRef).current;
     if (!root || !mark) return;
     const r = mark.getBoundingClientRect();
     root.style.setProperty('--mark-x', `${r.left + r.width / 2}px`);
@@ -446,6 +536,68 @@ export function StreakCelebration() {
               ` ${shown.milestone.name}. ${shown.milestone.line} ${shown.milestone.refs
                 .map((ref) => refLabel(ref))
                 .join(', ')}.`}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (shown.kind === 'plan') {
+    const span =
+      shown.days <= 1
+        ? 'All of it in a day.'
+        : `From ${formatDay(shown.startedAt)} to today, ${plural(shown.days, 'day')}.`;
+    return (
+      <div
+        key={shown.id}
+        ref={rootRef}
+        className="celebrate celebrate--plan"
+        style={timeline(kind, still)}
+        role="status"
+        aria-live="polite"
+        data-calm={calm}
+        onClick={() => setShown(null)}
+      >
+        <span className="celebrate__dawn" aria-hidden="true" />
+        <span className="celebrate__rays" aria-hidden="true" />
+        {!still && (
+          <CelebrationParticles
+            mode="leaf"
+            origin={countRef}
+            from={PLAN.name}
+            burstAt={PLAN.land}
+            until={hold}
+            leaves={90}
+          />
+        )}
+        <div className="celebrate__inner">
+          <span className="celebrate__mark" ref={markRef} aria-hidden="true">
+            <span className="celebrate__rings">
+              <i style={{ '--r': 0 } as CSSProperties} />
+              <i style={{ '--r': 1 } as CSSProperties} />
+              <i style={{ '--r': 2 } as CSSProperties} />
+            </span>
+            <span className="celebrate__burst">
+              {RAYS.map((a) => (
+                <i key={a} style={{ '--a': a } as CSSProperties} />
+              ))}
+            </span>
+            <Cross size={68} className="celebrate__cross" />
+          </span>
+
+          <p className="celebrate__eyebrow">{shown.name}, finished</p>
+          <span className="celebrate__nameClip">
+            <span className="celebrate__name">{shown.whole}</span>
+          </span>
+          <span className="celebrate__rule" aria-hidden="true" />
+
+          <Count value={shown.chapters} timing={PLAN} anchor={countRef} />
+          <p className="celebrate__label">chapters, every one</p>
+          <Shelf books={shown.shelf} catching />
+          <p className="celebrate__sub">{span}</p>
+
+          <span className="sr-only">
+            {`${shown.whole}, read in ${shown.name} order. All ${shown.chapters} chapters. ${span}`}
           </span>
         </div>
       </div>
