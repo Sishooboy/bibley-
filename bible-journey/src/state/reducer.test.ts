@@ -239,3 +239,39 @@ describe('colourHighlight', () => {
     expect(after.data.highlights![0].note).toBe('a promise');
   });
 });
+
+/*
+ * The one write quizzes make. It must keep a best and never lose one, and it
+ * must never ring anything: an answered quiz changes nothing about reading.
+ */
+describe('recording a quiz', () => {
+  const at = '2026-02-10T09:00:00.000Z';
+  const record = (s: State, best: number, of = 8) =>
+    reducer(s, { type: 'recordQuiz', key: 'mark', best, of, at });
+
+  it('keeps the first attempt, and a better one after it', () => {
+    const first = record(state(), 5);
+    expect(first.data.quizzes).toEqual({ mark: { best: 5, of: 8, at } });
+    expect(record(first, 7).data.quizzes!.mark.best).toBe(7);
+  });
+
+  it('never lets a worse or equal retake overwrite the best', () => {
+    const best = record(state(), 7);
+    expect(record(best, 3)).toBe(best);
+    expect(record(best, 7)).toBe(best);
+  });
+
+  it('refuses a result that cannot be one', () => {
+    const s = state();
+    expect(record(s, 9)).toBe(s);
+    expect(record(s, -1)).toBe(s);
+    expect(record(s, 2, 0)).toBe(s);
+    expect(record(s, 1.5)).toBe(s);
+  });
+
+  it('rings nothing and offers no undo', () => {
+    const next = record(state({}, { id: 4, name: 'chapter' }), 6);
+    expect(next.cue).toEqual({ id: 4, name: 'chapter' });
+    expect(next.previous).toBeNull();
+  });
+});

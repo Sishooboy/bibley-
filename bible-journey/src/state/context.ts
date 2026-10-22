@@ -66,6 +66,8 @@ export type Store = {
   noteHighlight: (id: string, note: string) => void;
   /** Recolouring moves `updatedAt`, which is what lets it sync and win a merge. */
   colourHighlight: (id: string, colour: HighlightColour) => void;
+  /** Keeps a finished quiz's score if it beats the best so far. */
+  recordQuiz: (key: string, best: number, of: number) => void;
   removeHighlight: (id: string) => void;
   saveNote: (book: string, chapter: number | null, text: string) => void;
   deleteNote: (id: string) => void;

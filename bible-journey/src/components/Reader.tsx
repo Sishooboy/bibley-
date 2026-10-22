@@ -19,6 +19,7 @@ import {
   type Range,
 } from '../lib/highlight';
 import { relativeDay, today } from '../lib/dates';
+import { plural } from '../lib/format';
 import {
   bookInsight,
   cachedInsights,
@@ -37,11 +38,22 @@ import {
 import { useKeyboardInset } from '../lib/keyboard';
 import { neighbours } from '../lib/navigate';
 import { blocksFor } from '../lib/passage';
-import { DEFAULT_PREFS, TEXT_SIZES, markFolded, setMarkFolded, textScale } from '../lib/prefs';
+import {
+  DEFAULT_PREFS,
+  TEXT_SIZES,
+  dismissQuizOffer,
+  markFolded,
+  quizOfferDismissed,
+  setMarkFolded,
+  textScale,
+} from '../lib/prefs';
+import { bookQuizKey, quizSize } from '../lib/quiz';
+import { hasQuiz } from '../lib/quizData';
 import { scrollAppToTop } from '../lib/scroll';
 import { chime } from '../lib/sound';
 import type { HighlightColour } from '../lib/colours';
 import { chapterKey, newId, type Highlight } from '../lib/storage';
+import { useQuiz } from '../state/useQuiz';
 import { useStore } from '../state/useStore';
 import { BibleSearch } from './BibleSearch';
 import { HighlightSheet } from './HighlightSheet';
@@ -196,12 +208,15 @@ function Opening({ book, chapter }: { book: string; chapter: number }) {
 export function Reader({
   book,
   chapter,
+  landOn,
   closing = false,
   onNavigate,
   onClose,
 }: {
   book: string;
   chapter: number;
+  /** A verse to land on, for a reader opened at a passage rather than a chapter. */
+  landOn?: number;
   /** True for the moment it takes to leave, after Close and before unmount. */
   closing?: boolean;
   onNavigate: (book: string, chapter: number) => void;
@@ -224,7 +239,7 @@ export function Reader({
    */
   const [listening, setListening] = useState(false);
   /** A verse arrived at from a search result, marked until it has been seen. */
-  const [landedOn, setLandedOn] = useState<number | null>(null);
+  const [landedOn, setLandedOn] = useState<number | null>(landOn ?? null);
   /**
    * True for a moment after marking, and only marking: it drives the gold sweep
    * across the button. Unmarking gets no sweep, since taking something back is
@@ -348,6 +363,21 @@ export function Reader({
   let unreadLeft = 0;
   for (let c = 1; c <= bookTotal; c++) if (!(chapterKey(book, c) in data.read)) unreadLeft++;
   const lastOne = !isRead && bookTotal > 0 && unreadLeft === 1;
+  /*
+   * The quiz offer: once a book is finished, if it has a quiz nobody has taken
+   * and the reader has not said no. It appears under the celebration and is
+   * there when that closes, never on top of it. Saying no is remembered on the
+   * device, so it is asked once.
+   */
+  const quiz = useQuiz();
+  const quizKey = bookQuizKey(book);
+  const [, setOfferSeen] = useState(0);
+  const offerQuiz =
+    bookTotal > 0 &&
+    unreadLeft === 0 &&
+    hasQuiz(book) &&
+    !data.quizzes?.[quizKey] &&
+    !quizOfferDismissed(quizKey);
   const readOn = data.read[key];
   const marks = useMemo(
     () => highlightsFor(data.highlights, book, chapter),
@@ -443,6 +473,12 @@ export function Reader({
     const timer = window.setTimeout(() => setLandedOn(null), 2800);
     return () => window.clearTimeout(timer);
   }, [landedOn, text, chapter]);
+
+  // Opened at a passage again while already open, say from a second quiz
+  // answer: land on the new verse the same way.
+  useEffect(() => {
+    if (landOn) setLandedOn(landOn);
+  }, [landOn, book, chapter]);
 
   /*
    * This claims aria-modal, so focus has to actually live inside it. Without
@@ -871,6 +907,27 @@ export function Reader({
       */}
       {!searching && (
       <footer className={`reader__foot${folded ? ' reader__foot--shut' : ''}`}>
+        {offerQuiz && (
+          <div className="quizOffer">
+            <button type="button" className="quizOffer__go" onClick={() => quiz.open(book)}>
+              <span className="quizOffer__eyebrow">{book}, finished</span>
+              <span className="quizOffer__text">
+                Take the quiz, {plural(quizSize(bookTotal), 'question')}
+              </span>
+            </button>
+            <button
+              type="button"
+              className="quizOffer__no"
+              aria-label={`No thanks to the ${book} quiz`}
+              onClick={() => {
+                dismissQuizOffer(quizKey);
+                setOfferSeen((n) => n + 1);
+              }}
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+        )}
         {/*
           Folded away, the whole footer is one strip that still names the
           primary action, so marking stays one tap and nothing has to be

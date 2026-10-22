@@ -3,7 +3,7 @@ import { reducedMotion } from '../lib/motion';
 import { tourStep } from '../lib/sound';
 import { Chevron } from './icons';
 
-export type TourView = 'journey' | 'notes' | 'friends' | 'stats' | 'settings';
+export type TourView = 'journey' | 'notes' | 'quiz' | 'friends' | 'stats' | 'settings';
 
 type Step = {
   /** The screen this step is about. The tour switches to it before pointing. */
@@ -48,6 +48,12 @@ const STEPS: Step[] = [
     target: 'masthead',
     title: 'Notes keeps what you thought',
     body: 'Highlight a passage while you read and attach a thought, or write a note on a whole chapter. Both land here, searchable and filed by book.',
+  },
+  {
+    view: 'quiz',
+    target: 'masthead',
+    title: 'Quizzes, once a book is done',
+    body: 'Finish a book and it offers a few questions on it, every answer shown with the verse it comes from. No timer and no points: it is a reminder of what you read.',
   },
   {
     view: 'friends',

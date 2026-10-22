@@ -13,6 +13,7 @@ import { plural } from '../lib/format';
 import { noteKey } from '../lib/merge';
 import type { Prefs } from '../lib/prefs';
 import { nextUnread, streak } from '../lib/progress';
+import { isBetter } from '../lib/quiz';
 import { chooseCue, type Cue } from '../lib/sound';
 import {
   chapterKey,
@@ -41,6 +42,7 @@ export type Action =
   | { type: 'mergeRemote'; data: AppData }
   | { type: 'choosePlan'; id: string }
   | { type: 'setPrefs'; prefs: Prefs }
+  | { type: 'recordQuiz'; key: string; best: number; of: number; at: string }
   | { type: 'undo' };
 
 export type State = {
@@ -444,6 +446,20 @@ export function reducer(state: State, action: Action): State {
      * the journal unchanged and never write it. Both failures are silent: the
      * colour would look right on this screen and be gone on the next one.
      */
+    case 'recordQuiz': {
+      /*
+       * Kept only when it beats what is there, as a share of the questions,
+       * the same rule the merge keeps, so a worse retake never overwrites a
+       * best. No cue: an answered quiz changes nothing about the reading, and
+       * its sounds are the sheet's own.
+       */
+      const { key, best, of, at } = action;
+      if (!Number.isInteger(best) || !Number.isInteger(of) || of <= 0 || best < 0 || best > of) {
+        return state;
+      }
+      if (!isBetter({ best, of }, data.quizzes?.[key])) return state;
+      return { ...state, data: { ...data, quizzes: { ...data.quizzes, [key]: { best, of, at } } } };
+    }
     case 'colourHighlight': {
       const current = (data.highlights ?? []).find((h) => h.id === action.id);
       if (!current || current.colour === action.colour) return state;

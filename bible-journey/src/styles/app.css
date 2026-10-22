@@ -10202,6 +10202,558 @@ select {
   }
 }
 
+/* ── Quizzes ────────────────────────────────────────────────────────────── */
+/*
+ * The quiz sheet. Paper like the reader with the reader's own dark bar,
+ * because a quiz is about reading and should feel like a page of it, not like
+ * a game show. Above the reader at 60, so "Read it in context" can drop back
+ * into the same reader, and under the guide and the celebrations. Nothing
+ * inside it is fixed, so rising in on a transform is safe.
+ */
+.quiz {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
+  background: var(--cream);
+  animation: readerIn 320ms var(--ease-out);
+}
+
+.quiz__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.7rem max(1rem, env(safe-area-inset-right)) 0.7rem max(0.6rem, env(safe-area-inset-left));
+  padding-top: calc(0.7rem + env(safe-area-inset-top));
+  background: var(--ink);
+  color: var(--cream);
+}
+
+.quiz__close {
+  font-size: 1.35rem;
+}
+
+.quiz__title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  display: grid;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+/* Soft gold on the ink bar, measured at 14.7:1. */
+.quiz__eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--yellow-soft);
+}
+
+.quiz__count {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.quiz__count span {
+  font-size: 0.85rem;
+  color: var(--muted-dark);
+}
+
+/* How far along, a question counted once it is answered. It grows rather than
+   resetting, which is why it sits outside the keyed stage. */
+.quiz__rail {
+  height: 3px;
+  background: rgba(36, 28, 22, 0.08);
+}
+
+.quiz__rail span {
+  display: block;
+  height: 100%;
+  background: var(--yellow);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--done));
+  transition: transform 420ms var(--ease-out);
+}
+
+/* A panel over the app scrolls itself and never the app behind it. */
+.quiz__body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(1.5rem, 5vw, 2.75rem) max(1.25rem, env(safe-area-inset-right))
+    calc(2.5rem + env(safe-area-inset-bottom)) max(1.25rem, env(safe-area-inset-left));
+}
+
+.quiz__stage,
+.quiz__done {
+  width: min(34rem, 100%);
+  margin-inline: auto;
+}
+
+/* Each question arrives the way a page does in the reader: from the right. */
+.quiz__stage {
+  animation: turnNext 340ms var(--ease-out);
+}
+
+.quiz__message {
+  margin: clamp(3rem, 12vh, 6rem) auto;
+  text-align: center;
+  color: var(--muted);
+}
+
+.quiz__message--quiet {
+  animation: quietPulse 1.4s ease-in-out infinite;
+}
+
+.quiz__q {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 5vw, 1.7rem);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  color: var(--ink);
+}
+
+.quiz__options {
+  display: grid;
+  gap: 0.6rem;
+}
+
+/*
+ * An answer is a large, raised card with its letter in a circle, 56px tall at
+ * least so a thumb cannot miss it. Once one is picked they all stop answering,
+ * and the result is said three ways at once, never by colour alone: the tint,
+ * the mark in the circle (a tick or a cross), and a sentence for a screen
+ * reader.
+ */
+.quiz__option {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 56px;
+  padding: 0.7rem 0.9rem;
+  text-align: left;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.35;
+  color: var(--text);
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 1px 2px rgba(46, 24, 12, 0.06);
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    opacity 220ms ease;
+}
+
+.quiz__option:disabled {
+  cursor: default;
+}
+
+@media (hover: hover) {
+  .quiz__option:not(:disabled):hover {
+    border-color: var(--ink-500);
+  }
+}
+
+.quiz__letter {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+/* Ink on a gold tint, the mark button's done treatment, since gold itself on
+   paper is 1.7:1 and could never carry the words. */
+.quiz__option[data-state='right'] {
+  background: rgba(247, 184, 1, 0.2);
+  border-color: var(--yellow-dim);
+  color: var(--ink);
+  animation: quizRight 460ms cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+
+.quiz__option[data-state='right'] .quiz__letter {
+  background: var(--yellow);
+  border-color: var(--yellow);
+  color: var(--ink);
+}
+
+.quiz__option[data-state='wrong'] {
+  background: var(--red-050);
+  border-color: var(--red-600);
+  animation: quizMiss 320ms ease-out;
+}
+
+.quiz__option[data-state='wrong'] .quiz__letter {
+  background: var(--red-600);
+  border-color: var(--red-600);
+  color: #fff;
+}
+
+/* The two that were neither picked nor right step back, so the eye goes to
+   the pair that matters. */
+.quiz__option[data-state='other'] {
+  opacity: 0.5;
+}
+
+/* On `scale` and `translate`, the individual properties, so neither fights the
+   press dip, which runs on `transform`. */
+@keyframes quizRight {
+  40% {
+    scale: 1.025;
+  }
+}
+
+@keyframes quizMiss {
+  20%,
+  60% {
+    translate: -4px 0;
+  }
+  40%,
+  80% {
+    translate: 4px 0;
+  }
+}
+
+/*
+ * The proof: the verse the answer comes from, printed from the shipped text,
+ * with the words that prove it marked like a highlighter. The marked words
+ * measure 11.8:1, the text on the band at its darkest.
+ */
+.quiz__proof {
+  margin-top: 1.4rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line);
+  animation: celebrateFade 380ms ease-out both;
+}
+
+.quiz__proofHead {
+  margin: 0 0 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.quiz__verse {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border-left: 3px solid var(--yellow);
+  border-radius: 0 8px 8px 0;
+  background: rgba(247, 184, 1, 0.08);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.quiz__evidence {
+  padding: 0 0.05em;
+  background: none;
+  color: inherit;
+  box-shadow: inset 0 -0.42em 0 rgba(247, 184, 1, 0.45);
+}
+
+.quiz__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.quiz__next {
+  flex: 1 1 auto;
+  min-height: 48px;
+}
+
+/* ── The end of a quiz ── */
+.quiz__done {
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+  text-align: center;
+  animation: celebrateFade 420ms ease-out both;
+}
+
+.quiz__score {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--red-800);
+}
+
+.quiz__score b {
+  font-size: clamp(4rem, 18vw, 5.5rem);
+  line-height: 1;
+}
+
+.quiz__score span {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.quiz__rule {
+  width: 7rem;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--yellow), transparent);
+  animation: celDraw 640ms cubic-bezier(0.2, 0.8, 0.3, 1) 300ms both;
+}
+
+.quiz__verdict {
+  max-width: 30ch;
+  margin: 0.4rem 0 0.6rem;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.quiz__missed {
+  width: 100%;
+  margin-top: 0.6rem;
+  text-align: left;
+}
+
+.quiz__missed ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quiz__missed li {
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+.quiz__missedQ {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
+.quiz__missedA {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-display);
+  color: var(--red-800);
+}
+
+/* A reference that opens the reader there. Underlined, because a reference
+   that does something should look like it does. */
+.quiz__ref {
+  margin-top: 0.25rem;
+  padding: 0.3rem 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--red-700);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.quiz__done .quiz__actions {
+  width: 100%;
+  justify-content: center;
+  margin-top: 1.2rem;
+}
+
+/* ── The Quiz tab ── */
+.quizView {
+  display: grid;
+  gap: clamp(1.25rem, 3vw, 1.75rem);
+  padding-top: clamp(1.75rem, 4vw, 2.5rem);
+  padding-bottom: clamp(3rem, 6vw, 4.5rem);
+}
+
+.quizView__note {
+  max-width: 60ch;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.quizList {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quizList li + li {
+  border-top: 1px solid var(--line);
+}
+
+.quizList__label {
+  margin: 0.9rem 0 0.2rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.quizRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 56px;
+  padding: 0.6rem 0.25rem;
+  border: 0;
+  background: none;
+  text-align: left;
+  font: inherit;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.quizRow__main {
+  display: grid;
+  min-width: 0;
+}
+
+.quizRow__book {
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-weight: 600;
+}
+
+.quizRow__size,
+.quizRow__best {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.quizRow__best {
+  white-space: nowrap;
+}
+
+/* A perfect score takes the gold tint with ink text, the one place a quiz
+   result is given any colour. */
+.quizRow__best[data-perfect] {
+  padding: 0.15rem 0.6rem;
+  border-radius: 99px;
+  background: rgba(247, 184, 1, 0.24);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.quizRow__chev {
+  color: var(--muted);
+}
+
+@media (hover: hover) {
+  .quizRow:hover .quizRow__book {
+    color: var(--red-700);
+  }
+}
+
+/*
+ * The offer, at the top of the reader's footer once a book is finished. Warm
+ * gold and not red, because it is an invitation and not the next thing to do:
+ * the red stays with Next. The eyebrow is 7.7:1 at the darker end of the face
+ * and the cross 5.6:1.
+ */
+.quizOffer {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--yellow-dim);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #fff8e6, #fff1cf);
+  animation: celebrateFade 420ms ease-out both;
+}
+
+.quizOffer__go {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.55rem 0.85rem;
+  border: 0;
+  background: none;
+  text-align: left;
+  font: inherit;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.quizOffer__eyebrow {
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--red-700);
+}
+
+.quizOffer__text {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.quizOffer__no {
+  flex: none;
+  width: 44px;
+  border: 0;
+  border-left: 1px solid rgba(201, 148, 0, 0.35);
+  background: none;
+  font-size: 1.25rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+/* Below every rule it has to beat, which is the media query trap this file
+   keeps falling into. */
+@media (prefers-reduced-motion: reduce) {
+  .quiz,
+  .quiz__stage,
+  .quiz__proof,
+  .quiz__done,
+  .quiz__rule,
+  .quiz__message--quiet,
+  .quiz__option[data-state],
+  .quizOffer {
+    animation: none;
+  }
+
+  .quiz__rail span {
+    transition: none;
+  }
+}
+
 /*
  * `.btn` has pressed since the day it was written and nothing else did, so the
  * app had one control that felt connected and about a hundred that did not:

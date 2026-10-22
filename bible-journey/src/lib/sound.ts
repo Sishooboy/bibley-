@@ -860,6 +860,29 @@ const ARRIVALS = {
   note: (c: BaseAudioContext, out: AudioNode, at: number) => {
     bell(c, out, at, A5, 0.5, 0.1);
   },
+  /*
+   * A quiz. All three sit under the chapter tick, so answering questions about
+   * a book is never louder than reading it, and none is on the cue ladder: an
+   * answer changes nothing about the journal.
+   *
+   * Right is two small bells a fifth apart, the shortest happy thing in the set.
+   * A miss is a soft low touch, the undo tap's shape quieter still, and pointedly
+   * not a buzzer: the verse appears with it, and the sound's only job is to say
+   * the answer landed, not to grade the reader. The end resolves on root, fifth
+   * and octave like the tour's last stop, smaller.
+   */
+  right: (c: BaseAudioContext, out: AudioNode, at: number) => {
+    bell(c, out, at, A5, 0.55, 0.07);
+    bell(c, out, at + 0.07, E6, 0.5, 0.035);
+  },
+  miss: (c: BaseAudioContext, out: AudioNode, at: number) => {
+    tick(c, out, at, E4, 900, 0.09);
+  },
+  done: (c: BaseAudioContext, out: AudioNode, at: number) => {
+    bell(c, out, at, A4, 1.1, 0.08);
+    bell(c, out, at + 0.06, E5, 1.0, 0.065);
+    bell(c, out, at + 0.12, A5, 0.9, 0.055);
+  },
 } as const;
 
 export type Arrival = keyof typeof ARRIVALS;

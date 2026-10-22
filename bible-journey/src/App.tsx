@@ -14,6 +14,7 @@ import { scrollAppToTop } from './lib/scroll';
 import { returnedFromOAuth } from './lib/supabase';
 import { TOUR_EVENT } from './lib/tour';
 import { CloudProvider } from './state/cloud';
+import { QuizHost, QuizProvider } from './state/quiz';
 import { ReaderProvider } from './state/reader';
 import { useCloud } from './state/useCloud';
 import { useStore } from './state/useStore';
@@ -21,6 +22,7 @@ import { StoreProvider } from './state/store';
 import { FriendsView } from './views/FriendsView';
 import { JourneyView } from './views/JourneyView';
 import { NotesView } from './views/NotesView';
+import { QuizView } from './views/QuizView';
 import { SettingsView } from './views/SettingsView';
 const StatsView = lazy(() =>
   import('./views/StatsView').then((m) => ({ default: m.StatsView })),
@@ -29,6 +31,7 @@ const StatsView = lazy(() =>
 const VIEWS = [
   { id: 'journey', label: 'Journey' },
   { id: 'notes', label: 'Notes' },
+  { id: 'quiz', label: 'Quiz' },
   { id: 'friends', label: 'Friends' },
   { id: 'stats', label: 'Stats' },
   { id: 'settings', label: 'Settings' },
@@ -85,6 +88,10 @@ function Shell() {
   }, [menuOpen]);
 
   return (
+    // The quiz wraps the reader, so the reader's footer can offer a quiz; the
+    // sheet is drawn by QuizHost inside the reader's provider, so a quiz can
+    // send the reader to a verse. See the note in state/quiz.tsx.
+    <QuizProvider>
     <ReaderProvider>
     <div className="app">
       <header className="topbar">
@@ -159,6 +166,7 @@ function Shell() {
           >
             {view === 'journey' && <JourneyView />}
             {view === 'notes' && <NotesView />}
+            {view === 'quiz' && <QuizView />}
             {view === 'friends' && <FriendsView />}
             {/*
               Stats brings the whole charting library with it, which is a third of
@@ -187,8 +195,10 @@ function Shell() {
       {/* Renders nothing once it has been seen, which is a synced pref. The
           last panel hands over to the tour rather than just closing. */}
       <Guide onFinish={() => setTour(true)} />
+      <QuizHost />
     </div>
     </ReaderProvider>
+    </QuizProvider>
   );
 }
 

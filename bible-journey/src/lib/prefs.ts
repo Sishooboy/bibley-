@@ -177,3 +177,37 @@ export function setLastHighlightColour(colour: HighlightColour): void {
     console.error('Could not remember the highlight colour.', err);
   }
 }
+
+/*
+ * Books whose quiz offer has been waved away.
+ *
+ * The offer appears in the reader once a book is finished, and stays until the
+ * quiz is taken or the reader says no. Saying no is remembered here, so it is
+ * never asked twice: an offer that comes back every time is a nag, and this
+ * app does not nag. **Device local**, like the folded footer: whether you
+ * dismissed a prompt on your phone is not worth a staged release to carry to
+ * your laptop. The quiz itself stays one tap away in its own tab regardless.
+ */
+const QUIZ_OFFERS_KEY = 'bible-journey/quiz-offers-dismissed';
+
+function dismissedOffers(): string[] {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(QUIZ_OFFERS_KEY) ?? '[]');
+    return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+export function quizOfferDismissed(key: string): boolean {
+  return dismissedOffers().includes(key);
+}
+
+export function dismissQuizOffer(key: string): void {
+  try {
+    const now = dismissedOffers();
+    if (!now.includes(key)) localStorage.setItem(QUIZ_OFFERS_KEY, JSON.stringify([...now, key]));
+  } catch (err) {
+    console.error('Could not remember the dismissed quiz offer.', err);
+  }
+}

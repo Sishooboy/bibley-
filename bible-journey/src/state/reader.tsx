@@ -19,7 +19,7 @@ const READER_EXIT_MS = 220;
  * journey underneath.
  */
 export function ReaderProvider({ children }: { children: ReactNode }) {
-  const [at, setAt] = useState<{ book: string; chapter: number } | null>(null);
+  const [at, setAt] = useState<{ book: string; chapter: number; verse?: number } | null>(null);
   const [closing, setClosing] = useState(false);
   /*
    * The pending unmount. Opening again inside the exit has to cancel it, or a
@@ -28,7 +28,7 @@ export function ReaderProvider({ children }: { children: ReactNode }) {
    */
   const leaving = useRef<number | null>(null);
 
-  const go = useCallback((book: string, chapter: number) => {
+  const go = useCallback((book: string, chapter: number, verse?: number) => {
     if (leaving.current !== null) {
       window.clearTimeout(leaving.current);
       leaving.current = null;
@@ -37,7 +37,7 @@ export function ReaderProvider({ children }: { children: ReactNode }) {
     // Start the download on the tap rather than on the first render, so the
     // sheet and the text race each other instead of queueing.
     void loadBook(book).catch(() => undefined);
-    setAt({ book, chapter });
+    setAt({ book, chapter, verse });
   }, []);
 
   const close = useCallback(() => {
@@ -71,6 +71,7 @@ export function ReaderProvider({ children }: { children: ReactNode }) {
         <Reader
           book={at.book}
           chapter={at.chapter}
+          landOn={at.verse}
           closing={closing}
           onNavigate={go}
           onClose={close}

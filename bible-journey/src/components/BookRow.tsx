@@ -2,8 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { formatDay, relativeDay, today, type DayKey } from '../lib/dates';
 import { plural } from '../lib/format';
 import { readChapter } from '../lib/navigate';
+import { bookQuizKey } from '../lib/quiz';
+import { hasQuiz } from '../lib/quizData';
 import { bookLog } from '../lib/readingLog';
 import { chapterKey } from '../lib/storage';
+import { useQuiz } from '../state/useQuiz';
 import { useReader } from '../state/useReader';
 import { useStore } from '../state/useStore';
 import { LogDayPicker } from './LogDayPicker';
@@ -43,6 +46,8 @@ function whenPhrase(day: DayKey | null): string {
 export function BookRow({ name, chapters, read, open, onToggle }: Props) {
   const { data, markChapters, clearChapters, clearBook, logDay, setLogDay } = useStore();
   const { open: openReader } = useReader();
+  const quiz = useQuiz();
+  const result = data.quizzes?.[bookQuizKey(name)];
   const ref = useRef<HTMLDivElement>(null);
   const done = read === chapters;
   const notes = data.notes.filter((n) => n.book === name);
@@ -261,6 +266,14 @@ export function BookRow({ name, chapters, read, open, onToggle }: Props) {
             >
               Read
             </button>
+            {/* A finished book's quiz lives in its own panel, one tap away and
+                never pressed on anybody: the panel is only open because the
+                reader opened it. */}
+            {done && hasQuiz(name) && (
+              <button type="button" className="btn btn--sm" onClick={() => quiz.open(name)}>
+                {result ? `Quiz, best ${result.best} of ${result.of}` : 'Take the quiz'}
+              </button>
+            )}
             <span className="bookTools__spacer" />
             {confirmClear ? (
               <>

@@ -147,6 +147,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addHighlight: (highlight) => dispatch({ type: 'addHighlight', highlight }),
       noteHighlight: (id, note) => dispatch({ type: 'noteHighlight', id, note }),
       colourHighlight: (id, colour) => dispatch({ type: 'colourHighlight', id, colour }),
+      recordQuiz: (key, best, of) =>
+        dispatch({ type: 'recordQuiz', key, best, of, at: new Date().toISOString() }),
       removeHighlight: (id) => dispatch({ type: 'removeHighlight', id }),
       saveNote: (book, chapter, text) => dispatch({ type: 'saveNote', book, chapter, text }),
       deleteNote: (id) => dispatch({ type: 'deleteNote', id }),
