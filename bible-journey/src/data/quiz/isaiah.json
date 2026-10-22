@@ -1,0 +1,128 @@
+{
+  "book": "Isaiah",
+  "questions": [
+    {
+      "id": "isaiah-1",
+      "ref": [1, 1, 1],
+      "q": "Whose son was the prophet Isaiah?",
+      "options": ["Amoz", "Hilkiah", "Buzi", "Neriah"],
+      "answer": 0,
+      "evidence": "The vision of Isaiah the son of Amoz, which he saw concerning Judah and Jerusalem, in the days of Uzziah, Jotham, Ahaz, and Hezekiah, kings of Judah"
+    },
+    {
+      "id": "isaiah-2",
+      "ref": [1, 18, 18],
+      "q": "\"Though your sins are as scarlet, they shall be as white as\" what?",
+      "options": ["Milk", "Light", "Snow", "Linen"],
+      "answer": 2,
+      "evidence": "Come now, and let us reason together,” says Yahweh: “Though your sins be as scarlet, they shall be as white as snow"
+    },
+    {
+      "id": "isaiah-3",
+      "ref": [2, 4, 4],
+      "q": "Into what will the nations beat their swords?",
+      "options": ["Shields", "Plowshares", "Crowns", "Chains"],
+      "answer": 1,
+      "evidence": "and they shall beat their swords into plowshares, and their spears into pruning hooks"
+    },
+    {
+      "id": "isaiah-4",
+      "ref": [6, 1, 1],
+      "q": "In the year which king died did Isaiah see the Lord on a throne?",
+      "options": ["Hezekiah", "Ahaz", "Jotham", "Uzziah"],
+      "answer": 3,
+      "evidence": "In the year that king Uzziah died, I saw the Lord sitting on a throne, high and lifted up"
+    },
+    {
+      "id": "isaiah-5",
+      "ref": [6, 8, 8],
+      "q": "When the Lord asked, \"Whom shall I send?\", what did Isaiah answer?",
+      "options": ["Send someone else", "Who am I to go?", "I will go tomorrow", "Here I am. Send me!"],
+      "answer": 3,
+      "evidence": "I heard the Lord’s voice, saying, “Whom shall I send, and who will go for us?” Then I said, “Here I am. Send me",
+      "answerTerms": ["send me"]
+    },
+    {
+      "id": "isaiah-6",
+      "ref": [7, 14, 14],
+      "q": "In the sign given to Ahaz, what would the son be called?",
+      "options": ["Maher Shalal Hash Baz", "Immanuel", "Shear Jashub", "Hezekiah"],
+      "answer": 1,
+      "evidence": "Behold, the virgin will conceive, and bear a son, and shall call his name Immanuel"
+    },
+    {
+      "id": "isaiah-7",
+      "ref": [9, 6, 6],
+      "q": "Which is one of the names given to the child in Isaiah 9?",
+      "options": ["Lion of Judah", "Son of David", "Prince of Peace", "Root of Jesse"],
+      "answer": 2,
+      "evidence": "His name will be called Wonderful, Counselor, Mighty God, Everlasting Father, Prince of Peace"
+    },
+    {
+      "id": "isaiah-8",
+      "ref": [11, 6, 6],
+      "q": "In Isaiah 11, the wolf will live with what?",
+      "options": ["The lamb", "The eagle", "The dove", "The deer"],
+      "answer": 0,
+      "evidence": "The wolf will live with the lamb, and the leopard will lie down with the young goat"
+    },
+    {
+      "id": "isaiah-9",
+      "ref": [40, 3, 3],
+      "q": "Where does the voice call out to prepare the way of Yahweh?",
+      "options": ["In the temple", "In the wilderness", "On the mountains", "By the sea"],
+      "answer": 1,
+      "evidence": "The voice of one who calls out, “Prepare the way of Yahweh in the wilderness",
+      "answerTerms": ["wilderness"]
+    },
+    {
+      "id": "isaiah-10",
+      "ref": [40, 31, 31],
+      "q": "Those who wait for Yahweh will mount up with wings like what?",
+      "options": ["Doves", "Angels", "Sparrows", "Eagles"],
+      "answer": 3,
+      "evidence": "They will mount up with wings like eagles"
+    },
+    {
+      "id": "isaiah-11",
+      "ref": [44, 28, 28],
+      "q": "Which king does Yahweh call \"my shepherd\" in Isaiah 44?",
+      "options": ["Cyrus", "Darius", "David", "Hezekiah"],
+      "answer": 0,
+      "evidence": "Who says of Cyrus, ‘He is my shepherd, and shall perform all my pleasure,’ even saying of Jerusalem, ‘She will be built"
+    },
+    {
+      "id": "isaiah-12",
+      "ref": [53, 6, 6],
+      "q": "\"All we like\" what \"have gone astray\"?",
+      "options": ["Goats", "Children", "Sheep", "Birds"],
+      "answer": 2,
+      "evidence": "All we like sheep have gone astray"
+    },
+    {
+      "id": "isaiah-13",
+      "ref": [53, 7, 7],
+      "q": "He was led like a lamb to what?",
+      "options": ["The fold", "The temple", "The slaughter", "The river"],
+      "answer": 2,
+      "evidence": "As a lamb that is led to the slaughter, and as a sheep that before its shearers is silent, so he didn’t open his mouth"
+    },
+    {
+      "id": "isaiah-14",
+      "ref": [61, 1, 1],
+      "q": "Yahweh has anointed me to preach good news to whom, in Isaiah 61?",
+      "options": ["The humble", "The kings", "The priests", "The rich"],
+      "answer": 0,
+      "evidence": "because Yahweh has anointed me to preach good news to the humble"
+    },
+    {
+      "id": "isaiah-15",
+      "ref": [66, 1, 1],
+      "q": "If heaven is Yahweh's throne, what is the earth?",
+      "options": ["His garden", "His temple", "His field", "His footstool"],
+      "answer": 3,
+      "evidence": "Yahweh says, “Heaven is my throne, and the earth is my footstool",
+      "answerTerms": ["footstool"]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "book": "Lamentations",
+  "questions": [
+    {
+      "id": "lamentations-1",
+      "ref": [1, 1, 1],
+      "q": "How does Lamentations begin?",
+      "options": ["How the city sits solitary", "By the rivers of Babylon", "Out of the depths", "Comfort my people"],
+      "answer": 0,
+      "evidence": "How the city sits solitary, that was full of people",
+      "answerTerms": ["how the city sits solitary"]
+    },
+    {
+      "id": "lamentations-2",
+      "ref": [3, 22, 23],
+      "q": "What does Lamentations say is new every morning?",
+      "options": ["The sun's rays", "Our troubles", "His compassion", "The enemy's armies"],
+      "answer": 2,
+      "evidence": "It is because of Yahweh’s loving kindnesses that we are not consumed, because his compassion doesn’t fail. They are new every morning",
+      "answerTerms": ["compassion"]
+    },
+    {
+      "id": "lamentations-3",
+      "ref": [4, 1, 1],
+      "q": "What has become dim, Lamentations 4 begins?",
+      "options": ["The lamp", "The gold", "The eyes", "The sky"],
+      "answer": 1,
+      "evidence": "How the gold has become dim"
+    },
+    {
+      "id": "lamentations-4",
+      "ref": [5, 21, 21],
+      "q": "\"Renew our days as\" when, the last chapter prays?",
+      "options": ["In Egypt", "In the wilderness", "Of David", "Of old"],
+      "answer": 3,
+      "evidence": "Renew our days as of old",
+      "answerTerms": ["of old"]
+    }
+  ]
+}

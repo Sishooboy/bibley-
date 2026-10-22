@@ -1,0 +1,47 @@
+{
+  "book": "Baruch",
+  "questions": [
+    {
+      "id": "baruch-1",
+      "ref": [1, 1, 1],
+      "q": "Where did Baruch write the words of this book?",
+      "options": ["Babylon", "Jerusalem", "Egypt", "Nineveh"],
+      "answer": 0,
+      "evidence": "AND these are the words of the book, which Baruch the son of Nerias, the son of Maaseas, the son of Sedekias, the son of Asadias, the son of Helkias, wrote in Babylon"
+    },
+    {
+      "id": "baruch-2",
+      "ref": [1, 3, 3],
+      "q": "In whose hearing did Baruch read the words of this book?",
+      "options": ["Zedekiah", "Nebuchadnezzar", "Jechonias", "Hilkiah"],
+      "answer": 2,
+      "evidence": "And Baruch did read the words of this book in the hearing of Jechonias the son of Joakim king of Judah, and in the hearing of all the people that came to hear the book"
+    },
+    {
+      "id": "baruch-3",
+      "ref": [3, 9, 9],
+      "q": "\"Hear, O Israel, the commandments of\" what?",
+      "options": ["Moses", "Life", "Peace", "Kings"],
+      "answer": 1,
+      "evidence": "Hear, O Israel, the commandments of life: give ear to understand wisdom"
+    },
+    {
+      "id": "baruch-4",
+      "ref": [5, 1, 1],
+      "q": "What does Baruch tell Jerusalem to put off?",
+      "options": ["Her crown of gold", "Her walls", "Her name", "The garment of her mourning"],
+      "answer": 3,
+      "evidence": "Put off, O Jerusalem, the garment of your mourning and affliction, and put on the comeliness of the glory that comes from God for ever",
+      "answerTerms": ["garment of your mourning"]
+    },
+    {
+      "id": "baruch-5",
+      "ref": [6, 1, 1],
+      "q": "Who sent the letter to those led captive to Babylon that ends this book?",
+      "options": ["Baruch", "Ezekiel", "Daniel", "Jeremiah"],
+      "answer": 3,
+      "evidence": "A copy of an epistle, which Jeremy sent to them which were to be led captives into Babylon by the king of the Babylonians, to certify them, as it was commanded him of God",
+      "answerTerms": ["jeremy"]
+    }
+  ]
+}

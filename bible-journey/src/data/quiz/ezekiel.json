@@ -1,0 +1,124 @@
+{
+  "book": "Ezekiel",
+  "questions": [
+    {
+      "id": "ezekiel-1",
+      "ref": [1, 1, 1],
+      "q": "By which river was Ezekiel among the captives when the heavens were opened?",
+      "options": ["Chebar", "Jordan", "Euphrates", "Tigris"],
+      "answer": 0,
+      "evidence": "Now in the thirtieth year, in the fourth month, in the fifth of the month, as I was among the captives by the river Chebar, the heavens were opened, and I saw visions of God"
+    },
+    {
+      "id": "ezekiel-2",
+      "ref": [1, 10, 10],
+      "q": "The living creatures had the face of a man, a lion, an ox and what?",
+      "options": ["A dove", "A horse", "An eagle", "A bear"],
+      "answer": 2,
+      "evidence": "the four of them also had the face of an eagle",
+      "answerTerms": ["eagle"]
+    },
+    {
+      "id": "ezekiel-3",
+      "ref": [3, 3, 3],
+      "q": "When Ezekiel ate the scroll, how did it taste in his mouth?",
+      "options": ["As salt", "As honey", "As gall", "As ashes"],
+      "answer": 1,
+      "evidence": "and it was as sweet as honey in my mouth",
+      "answerTerms": ["honey"]
+    },
+    {
+      "id": "ezekiel-4",
+      "ref": [8, 14, 14],
+      "q": "For whom were the women at the temple gate weeping?",
+      "options": ["Baal", "Molech", "Dagon", "Tammuz"],
+      "answer": 3,
+      "evidence": "and I saw the women sit there weeping for Tammuz"
+    },
+    {
+      "id": "ezekiel-5",
+      "ref": [11, 19, 19],
+      "q": "What will God take out of their flesh, giving them a heart of flesh?",
+      "options": ["The old blood", "The evil eye", "The proud spirit", "The stony heart"],
+      "answer": 3,
+      "evidence": "I will take the stony heart out of their flesh, and will give them a heart of flesh",
+      "answerTerms": ["stony heart"]
+    },
+    {
+      "id": "ezekiel-6",
+      "ref": [14, 14, 14],
+      "q": "Which three righteous men does Yahweh name in Ezekiel 14?",
+      "options": ["Abraham, Isaac, and Jacob", "Noah, Daniel, and Job", "Moses, Aaron, and Samuel", "David, Solomon, and Hezekiah"],
+      "answer": 1,
+      "evidence": "though these three men, Noah, Daniel, and Job, were in it, they should deliver only their own souls by their righteousness,” says the Lord Yahweh"
+    },
+    {
+      "id": "ezekiel-7",
+      "ref": [18, 20, 20],
+      "q": "\"The soul who sins,\" Ezekiel says, \"he shall\" what?",
+      "options": ["Repent", "Be exiled", "Die", "Be healed"],
+      "answer": 2,
+      "evidence": "The soul who sins, he shall die"
+    },
+    {
+      "id": "ezekiel-8",
+      "ref": [24, 16, 18],
+      "q": "What did Yahweh take from Ezekiel as a sign to the people?",
+      "options": ["His wife", "His sight", "His home", "His voice"],
+      "answer": 0,
+      "evidence": "and at evening my wife died",
+      "answerTerms": ["my wife died"]
+    },
+    {
+      "id": "ezekiel-9",
+      "ref": [33, 7, 7],
+      "q": "What did Yahweh set Ezekiel to be for the house of Israel?",
+      "options": ["A king", "A watchman", "A judge", "A builder"],
+      "answer": 1,
+      "evidence": "So you, son of man, I have set you a watchman to the house of Israel"
+    },
+    {
+      "id": "ezekiel-10",
+      "ref": [34, 23, 23],
+      "q": "Whom does Yahweh say he will set up as the one shepherd over his people?",
+      "options": ["My servant Moses", "The high priest", "The king of Persia", "My servant David"],
+      "answer": 3,
+      "evidence": "I will set up one shepherd over them, and he shall feed them, even my servant David",
+      "answerTerms": ["my servant david"]
+    },
+    {
+      "id": "ezekiel-11",
+      "ref": [37, 1, 1],
+      "q": "What was the valley Ezekiel was set down in full of?",
+      "options": ["Bones", "Water", "Fire", "Sheep"],
+      "answer": 0,
+      "evidence": "and it was full of bones"
+    },
+    {
+      "id": "ezekiel-12",
+      "ref": [37, 16, 17],
+      "q": "What did Ezekiel join together to show Judah and Israel made one?",
+      "options": ["Two stones", "Two scrolls", "Two sticks", "Two crowns"],
+      "answer": 2,
+      "evidence": "and join them for you to one another into one stick, that they may become one in your hand",
+      "answerTerms": ["stick"]
+    },
+    {
+      "id": "ezekiel-13",
+      "ref": [47, 1, 1],
+      "q": "What flowed out from under the threshold of the temple, eastward?",
+      "options": ["Blood", "Oil", "Waters", "Fire"],
+      "answer": 2,
+      "evidence": "and behold, waters issued out from under the threshold of the house eastward"
+    },
+    {
+      "id": "ezekiel-14",
+      "ref": [48, 35, 35],
+      "q": "What will the city's name be from that day?",
+      "options": ["Yahweh is there", "City of David", "New Jerusalem", "Zion the holy"],
+      "answer": 0,
+      "evidence": "It shall be eighteen thousand reeds around: and the name of the city from that day shall be, Yahweh is there",
+      "answerTerms": ["yahweh is there"]
+    }
+  ]
+}

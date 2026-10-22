@@ -1,0 +1,64 @@
+{
+  "book": "Daniel",
+  "questions": [
+    {
+      "id": "daniel-1",
+      "ref": [1, 7, 7],
+      "q": "What name did the prince of the eunuchs give Daniel?",
+      "options": ["Belteshazzar", "Belshazzar", "Ashpenaz", "Zerubbabel"],
+      "answer": 0,
+      "evidence": "The prince of the eunuchs gave names to them: to Daniel he gave the name Belteshazzar"
+    },
+    {
+      "id": "daniel-2",
+      "ref": [1, 12, 12],
+      "q": "For how many days did Daniel ask to be tested on vegetables and water?",
+      "options": ["Seven", "Forty", "Ten", "Three"],
+      "answer": 2,
+      "evidence": "Test your servants, I beg you, ten days"
+    },
+    {
+      "id": "daniel-3",
+      "ref": [3, 25, 25],
+      "q": "How many men did the king see walking in the middle of the fire?",
+      "options": ["Three", "Four", "Seven", "Two"],
+      "answer": 1,
+      "evidence": "He answered, Look, I see four men loose, walking in the middle of the fire, and they are unharmed"
+    },
+    {
+      "id": "daniel-4",
+      "ref": [5, 25, 25],
+      "q": "What words were written on the wall at Belshazzar's feast?",
+      "options": ["HOLY TO YAHWEH", "BABYLON IS FALLEN", "THE KING OF KINGS", "MENE, MENE, TEKEL, UPHARSIN"],
+      "answer": 3,
+      "evidence": "This is the writing that was inscribed: MENE, MENE, TEKEL, UPHARSIN",
+      "answerTerms": ["mene, mene, tekel, upharsin"]
+    },
+    {
+      "id": "daniel-5",
+      "ref": [6, 16, 16],
+      "q": "Into what was Daniel cast at King Darius' command?",
+      "options": ["A fiery furnace", "A dungeon", "The river", "The den of lions"],
+      "answer": 3,
+      "evidence": "Then the king commanded, and they brought Daniel, and cast him into the den of lions",
+      "answerTerms": ["den of lions"]
+    },
+    {
+      "id": "daniel-6",
+      "ref": [13, 54, 54],
+      "q": "Under what kind of tree did the first elder say he saw Susanna?",
+      "options": ["A holm tree", "A mastick tree", "An oak", "A fig tree"],
+      "answer": 1,
+      "evidence": "Who answered, Under a mastick tree",
+      "answerTerms": ["mastick"]
+    },
+    {
+      "id": "daniel-7",
+      "ref": [14, 14, 14],
+      "q": "What did Daniel have scattered over the floor of Bel's temple?",
+      "options": ["Flour", "Sand", "Ashes", "Salt"],
+      "answer": 2,
+      "evidence": "Now Daniel had commanded his servants to bring ashes, and they strewed all the temple with them in the presence of the king alone"
+    }
+  ]
+}

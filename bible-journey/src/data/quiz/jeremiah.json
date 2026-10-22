@@ -1,0 +1,121 @@
+{
+  "book": "Jeremiah",
+  "questions": [
+    {
+      "id": "jeremiah-1",
+      "ref": [1, 1, 1],
+      "q": "From which town did Jeremiah, of the priests, come?",
+      "options": ["Anathoth", "Tekoa", "Bethlehem", "Shiloh"],
+      "answer": 0,
+      "evidence": "The words of Jeremiah the son of Hilkiah, one of the priests who were in Anathoth in the land of Benjamin"
+    },
+    {
+      "id": "jeremiah-2",
+      "ref": [1, 5, 5],
+      "q": "Where did Yahweh say he knew Jeremiah before he formed him?",
+      "options": ["In Egypt", "In the temple", "In the womb", "In a dream"],
+      "answer": 2,
+      "evidence": "Before I formed you in the womb, I knew you",
+      "answerTerms": ["in the womb"]
+    },
+    {
+      "id": "jeremiah-3",
+      "ref": [1, 6, 6],
+      "q": "Jeremiah protested that he was too young. What did he call himself?",
+      "options": ["A shepherd", "A child", "A sinner", "A stranger"],
+      "answer": 1,
+      "evidence": "Behold, I don’t know how to speak; for I am a child"
+    },
+    {
+      "id": "jeremiah-4",
+      "ref": [13, 1, 1],
+      "q": "What did Yahweh tell Jeremiah to buy and put on his waist?",
+      "options": ["A leather girdle", "A silver chain", "A sackcloth", "A linen belt"],
+      "answer": 3,
+      "evidence": "Yahweh says to me, “Go, and buy yourself a linen belt, and put it on your waist, and don’t put it in water",
+      "answerTerms": ["linen"]
+    },
+    {
+      "id": "jeremiah-5",
+      "ref": [18, 2, 4],
+      "q": "To whose house was Jeremiah sent to watch the clay remade?",
+      "options": ["The king's", "The priest's", "The smith's", "The potter's"],
+      "answer": 3,
+      "evidence": "Arise, and go down to the potter’s house, and there I will cause you to hear my words",
+      "answerTerms": ["potter"]
+    },
+    {
+      "id": "jeremiah-6",
+      "ref": [20, 2, 2],
+      "q": "Who struck Jeremiah and put him in the stocks?",
+      "options": ["Hananiah", "Pashhur", "Baruch", "Gedaliah"],
+      "answer": 1,
+      "evidence": "Then Pashhur struck Jeremiah the prophet, and put him in the stocks that were in the upper gate of Benjamin, which was in Yahweh’s house"
+    },
+    {
+      "id": "jeremiah-7",
+      "ref": [29, 10, 10],
+      "q": "After how many years for Babylon would Yahweh bring his people back?",
+      "options": ["Forty", "Seven", "Seventy", "Four hundred"],
+      "answer": 2,
+      "evidence": "For Yahweh says, “After seventy years are accomplished for Babylon, I will visit you, and perform my good word toward you, in causing you to return to this place"
+    },
+    {
+      "id": "jeremiah-8",
+      "ref": [29, 11, 11],
+      "q": "Yahweh's thoughts toward his people are thoughts of what, to give them hope?",
+      "options": ["Peace", "Judgment", "Silence", "War"],
+      "answer": 0,
+      "evidence": "For I know the thoughts that I think toward you,” says Yahweh, “thoughts of peace, and not of evil, to give you hope and a future"
+    },
+    {
+      "id": "jeremiah-9",
+      "ref": [31, 31, 31],
+      "q": "What did Yahweh say he would make with the house of Israel and Judah?",
+      "options": ["A new temple", "A new covenant", "A new law of kings", "A new city"],
+      "answer": 1,
+      "evidence": "Behold, the days come,” says Yahweh, “that I will make a new covenant with the house of Israel, and with the house of Judah"
+    },
+    {
+      "id": "jeremiah-10",
+      "ref": [32, 9, 9],
+      "q": "Whose field did Jeremiah buy in Anathoth?",
+      "options": ["Baruch", "Pashhur", "Ebedmelech", "Hanamel"],
+      "answer": 3,
+      "evidence": "I bought the field that was in Anathoth of Hanamel my uncle’s son, and weighed him the money, even seventeen shekels of silver"
+    },
+    {
+      "id": "jeremiah-11",
+      "ref": [36, 28, 28],
+      "q": "Which king burned the first scroll of Jeremiah's words?",
+      "options": ["Jehoiakim", "Zedekiah", "Josiah", "Jehoiachin"],
+      "answer": 0,
+      "evidence": "Take again another scroll, and write in it all the former words that were in the first scroll, which Jehoiakim the king of Judah has burned"
+    },
+    {
+      "id": "jeremiah-12",
+      "ref": [38, 6, 6],
+      "q": "Into what was Jeremiah let down with cords?",
+      "options": ["A furnace", "A lions' den", "A dungeon", "A well of water"],
+      "answer": 2,
+      "evidence": "They let down Jeremiah with cords. In the dungeon there was no water, but mire",
+      "answerTerms": ["dungeon"]
+    },
+    {
+      "id": "jeremiah-13",
+      "ref": [38, 10, 10],
+      "q": "Which Ethiopian did the king send to take Jeremiah out of the dungeon?",
+      "options": ["Baruch", "Seraiah", "Ebedmelech", "Gemariah"],
+      "answer": 2,
+      "evidence": "Then the king commanded Ebedmelech the Ethiopian, saying, “Take from here thirty men with you, and take up Jeremiah the prophet out of the dungeon, before he dies"
+    },
+    {
+      "id": "jeremiah-14",
+      "ref": [52, 12, 13],
+      "q": "Who was the captain of the guard who burned Yahweh's house?",
+      "options": ["Nebuzaradan", "Nebuchadnezzar", "Gedaliah", "Zedekiah"],
+      "answer": 0,
+      "evidence": "Nebuzaradan the captain of the guard, who stood before the king of Babylon, came into Jerusalem. He burned Yahweh’s house"
+    }
+  ]
+}
