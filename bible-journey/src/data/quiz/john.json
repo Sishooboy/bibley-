@@ -1,0 +1,84 @@
+{
+  "book": "John",
+  "questions": [
+    {
+      "id": "john-1",
+      "ref": [1, 1, 1],
+      "q": "What does John call the one who was with God in the beginning?",
+      "options": ["The Word", "The Light", "The Lamb", "The Shepherd"],
+      "answer": 0,
+      "evidence": "In the beginning was the Word, and the Word was with God, and the Word was God",
+      "answerTerms": ["word"]
+    },
+    {
+      "id": "john-2",
+      "ref": [2, 11, 11],
+      "q": "Where did Jesus do the first of his signs?",
+      "options": ["Capernaum", "Nazareth", "Cana of Galilee", "Bethany"],
+      "answer": 2,
+      "evidence": "This beginning of his signs Jesus did in Cana of Galilee, and revealed his glory",
+      "answerTerms": ["cana"]
+    },
+    {
+      "id": "john-3",
+      "ref": [3, 16, 16],
+      "q": "God so loved what, that he gave his one and only Son?",
+      "options": ["Israel", "The world", "The righteous", "His angels"],
+      "answer": 1,
+      "evidence": "For God so loved the world, that he gave his one and only Son, that whoever believes in him should not perish, but have eternal life",
+      "answerTerms": ["the world"]
+    },
+    {
+      "id": "john-4",
+      "ref": [4, 7, 7],
+      "q": "What did Jesus ask of the woman of Samaria at the well?",
+      "options": ["Bread", "Her name", "The way", "A drink"],
+      "answer": 3,
+      "evidence": "A woman of Samaria came to draw water. Jesus said to her, “Give me a drink",
+      "answerTerms": ["give me a drink"]
+    },
+    {
+      "id": "john-5",
+      "ref": [6, 35, 35],
+      "q": "What did Jesus call himself in John 6?",
+      "options": ["The good shepherd", "The true vine", "The door", "The bread of life"],
+      "answer": 3,
+      "evidence": "Jesus said to them, “I am the bread of life",
+      "answerTerms": ["bread of life"]
+    },
+    {
+      "id": "john-6",
+      "ref": [11, 43, 43],
+      "q": "Whom did Jesus call out of the tomb?",
+      "options": ["Jairus", "Lazarus", "Bartimaeus", "Zacchaeus"],
+      "answer": 1,
+      "evidence": "When he had said this, he cried with a loud voice, “Lazarus, come out"
+    },
+    {
+      "id": "john-7",
+      "ref": [13, 5, 5],
+      "q": "What did Jesus wash at the supper?",
+      "options": ["The cup", "His hands", "The disciples' feet", "The table"],
+      "answer": 2,
+      "evidence": "Then he poured water into the basin, and began to wash the disciples’ feet, and to wipe them with the towel that was wrapped around him",
+      "answerTerms": ["feet"]
+    },
+    {
+      "id": "john-8",
+      "ref": [20, 28, 28],
+      "q": "Which disciple answered, \"My Lord and my God!\"?",
+      "options": ["Thomas", "Peter", "John", "Philip"],
+      "answer": 0,
+      "evidence": "Thomas answered him, “My Lord and my God"
+    },
+    {
+      "id": "john-9",
+      "ref": [21, 17, 17],
+      "q": "What did Jesus tell Peter after asking him the third time?",
+      "options": ["Follow me", "Feed my sheep", "Put away your sword", "Watch and pray"],
+      "answer": 1,
+      "evidence": "Jesus said to him, “Feed my sheep",
+      "answerTerms": ["feed my sheep"]
+    }
+  ]
+}

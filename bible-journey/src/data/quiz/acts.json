@@ -1,0 +1,98 @@
+{
+  "book": "Acts",
+  "questions": [
+    {
+      "id": "acts-1",
+      "ref": [1, 9, 9],
+      "q": "What received Jesus out of their sight as he was taken up?",
+      "options": ["A cloud", "A chariot of fire", "A whirlwind", "Angels"],
+      "answer": 0,
+      "evidence": "When he had said these things, as they were looking, he was taken up, and a cloud received him out of their sight",
+      "answerTerms": ["cloud"]
+    },
+    {
+      "id": "acts-2",
+      "ref": [2, 3, 3],
+      "q": "What appeared over each of them on the day of Pentecost?",
+      "options": ["Doves", "Stars", "Tongues like fire", "Crowns of light"],
+      "answer": 2,
+      "evidence": "Tongues like fire appeared and were distributed to them, and one sat on each of them",
+      "answerTerms": ["tongues like fire"]
+    },
+    {
+      "id": "acts-3",
+      "ref": [3, 6, 6],
+      "q": "What did Peter tell the lame man at the temple gate he lacked?",
+      "options": ["Faith", "Silver or gold", "Time", "Bread"],
+      "answer": 1,
+      "evidence": "But Peter said, “I have no silver or gold, but what I have, that I give you",
+      "answerTerms": ["silver or gold"]
+    },
+    {
+      "id": "acts-4",
+      "ref": [7, 58, 58],
+      "q": "At whose feet did the witnesses lay their garments when Stephen was stoned?",
+      "options": ["Peter's", "Gamaliel's", "Philip's", "Saul's"],
+      "answer": 3,
+      "evidence": "The witnesses placed their garments at the feet of a young man named Saul",
+      "answerTerms": ["saul"]
+    },
+    {
+      "id": "acts-5",
+      "ref": [9, 3, 3],
+      "q": "Near which city did a light from the sky stop Saul?",
+      "options": ["Jerusalem", "Antioch", "Tarsus", "Damascus"],
+      "answer": 3,
+      "evidence": "As he traveled, he got close to Damascus, and suddenly a light from the sky shone around him"
+    },
+    {
+      "id": "acts-6",
+      "ref": [10, 1, 1],
+      "q": "Who was the centurion of the Italian Regiment at Caesarea?",
+      "options": ["Julius", "Cornelius", "Lysias", "Felix"],
+      "answer": 1,
+      "evidence": "Now there was a certain man in Caesarea, Cornelius by name, a centurion of what was called the Italian Regiment"
+    },
+    {
+      "id": "acts-7",
+      "ref": [11, 26, 26],
+      "q": "Where were the disciples first called Christians?",
+      "options": ["Jerusalem", "Rome", "Antioch", "Ephesus"],
+      "answer": 2,
+      "evidence": "The disciples were first called Christians in Antioch"
+    },
+    {
+      "id": "acts-8",
+      "ref": [16, 25, 25],
+      "q": "Who was praying and singing hymns with Paul in prison at midnight?",
+      "options": ["Silas", "Barnabas", "Timothy", "Luke"],
+      "answer": 0,
+      "evidence": "But about midnight Paul and Silas were praying and singing hymns to God, and the prisoners were listening to them"
+    },
+    {
+      "id": "acts-9",
+      "ref": [17, 23, 23],
+      "q": "What was inscribed on the altar Paul found in Athens?",
+      "options": ["To the god of the sea", "To an unknown god", "To Zeus the father", "To the gods of Rome"],
+      "answer": 1,
+      "evidence": "For as I passed along, and observed the objects of your worship, I found also an altar with this inscription: ‘TO AN UNKNOWN GOD",
+      "answerTerms": ["to an unknown god"]
+    },
+    {
+      "id": "acts-10",
+      "ref": [25, 11, 11],
+      "q": "To whom did Paul appeal when he stood before Festus?",
+      "options": ["The high priest", "Agrippa", "The council", "Caesar"],
+      "answer": 3,
+      "evidence": "I appeal to Caesar"
+    },
+    {
+      "id": "acts-11",
+      "ref": [28, 1, 1],
+      "q": "On which island did they learn they had come ashore after the wreck?",
+      "options": ["Malta", "Cyprus", "Crete", "Rhodes"],
+      "answer": 0,
+      "evidence": "When we had escaped, then they learned that the island was called Malta"
+    }
+  ]
+}

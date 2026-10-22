@@ -1,0 +1,90 @@
+{
+  "book": "Luke",
+  "questions": [
+    {
+      "id": "luke-1",
+      "ref": [1, 3, 3],
+      "q": "To whom does Luke address his account?",
+      "options": ["Theophilus", "Timothy", "Titus", "Philemon"],
+      "answer": 0,
+      "evidence": "it seemed good to me also, having traced the course of all things accurately from the first, to write to you in order, most excellent Theophilus"
+    },
+    {
+      "id": "luke-2",
+      "ref": [1, 26, 27],
+      "q": "Which angel was sent to Mary in Nazareth?",
+      "options": ["Michael", "Raphael", "Gabriel", "Uriel"],
+      "answer": 2,
+      "evidence": "Now in the sixth month, the angel Gabriel was sent from God to a city of Galilee, named Nazareth, to a virgin pledged to be married to a man whose name was Joseph, of David’s house"
+    },
+    {
+      "id": "luke-3",
+      "ref": [2, 7, 7],
+      "q": "Where did Mary lay her newborn son?",
+      "options": ["In a cradle", "In a feeding trough", "In the temple", "In a basket"],
+      "answer": 1,
+      "evidence": "She wrapped him in bands of cloth, and laid him in a feeding trough, because there was no room for them in the inn",
+      "answerTerms": ["feeding trough"]
+    },
+    {
+      "id": "luke-4",
+      "ref": [2, 46, 46],
+      "q": "After how many days did his parents find the boy Jesus in the temple?",
+      "options": ["Seven", "One", "Forty", "Three"],
+      "answer": 3,
+      "evidence": "After three days they found him in the temple, sitting in the middle of the teachers, both listening to them, and asking them questions"
+    },
+    {
+      "id": "luke-5",
+      "ref": [10, 33, 33],
+      "q": "In the parable, who stopped to help the man beaten by robbers?",
+      "options": ["A priest", "A Levite", "A Pharisee", "A Samaritan"],
+      "answer": 3,
+      "evidence": "But a certain Samaritan, as he traveled, came where he was. When he saw him, he was moved with compassion",
+      "answerTerms": ["samaritan"]
+    },
+    {
+      "id": "luke-6",
+      "ref": [15, 13, 13],
+      "q": "In the parable, which son wasted his property in a far country?",
+      "options": ["The elder", "The younger", "The only", "The firstborn"],
+      "answer": 1,
+      "evidence": "Not many days after, the younger son gathered all of this together and traveled into a far country. There he wasted his property with riotous living",
+      "answerTerms": ["younger"]
+    },
+    {
+      "id": "luke-7",
+      "ref": [16, 20, 20],
+      "q": "What was the name of the beggar laid at the rich man's gate?",
+      "options": ["Bartimaeus", "Zacchaeus", "Lazarus", "Simon"],
+      "answer": 2,
+      "evidence": "A certain beggar, named Lazarus, was laid at his gate, full of sores"
+    },
+    {
+      "id": "luke-8",
+      "ref": [19, 4, 4],
+      "q": "What did Zacchaeus climb to see Jesus?",
+      "options": ["A sycamore tree", "A wall", "A rooftop", "An olive tree"],
+      "answer": 0,
+      "evidence": "He ran on ahead, and climbed up into a sycamore tree to see him, for he was going to pass that way",
+      "answerTerms": ["sycamore"]
+    },
+    {
+      "id": "luke-9",
+      "ref": [23, 43, 43],
+      "q": "Where did Jesus tell the criminal he would be with him that day?",
+      "options": ["In Jerusalem", "In Paradise", "In the grave", "In Galilee"],
+      "answer": 1,
+      "evidence": "Jesus said to him, “Assuredly I tell you, today you will be with me in Paradise",
+      "answerTerms": ["paradise"]
+    },
+    {
+      "id": "luke-10",
+      "ref": [24, 13, 13],
+      "q": "To which village were the two walking when the risen Jesus joined them?",
+      "options": ["Bethany", "Jericho", "Nain", "Emmaus"],
+      "answer": 3,
+      "evidence": "Behold, two of them were going that very day to a village named Emmaus, which was sixty stadia from Jerusalem"
+    }
+  ]
+}

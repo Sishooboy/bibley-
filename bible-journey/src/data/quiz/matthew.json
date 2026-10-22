@@ -1,0 +1,101 @@
+{
+  "book": "Matthew",
+  "questions": [
+    {
+      "id": "matthew-1",
+      "ref": [1, 1, 1],
+      "q": "Matthew opens with Jesus as the son of David and the son of whom?",
+      "options": ["Abraham", "Adam", "Moses", "Noah"],
+      "answer": 0,
+      "evidence": "The book of the genealogy of Jesus Christ, the son of David, the son of Abraham"
+    },
+    {
+      "id": "matthew-2",
+      "ref": [2, 11, 11],
+      "q": "What gifts did the wise men offer the child?",
+      "options": ["Silver, oil, and wine", "Bread, fish, and honey", "Gold, frankincense, and myrrh", "Lambs, doves, and grain"],
+      "answer": 2,
+      "evidence": "Opening their treasures, they offered to him gifts: gold, frankincense, and myrrh",
+      "answerTerms": ["gold, frankincense, and myrrh"]
+    },
+    {
+      "id": "matthew-3",
+      "ref": [4, 4, 4],
+      "q": "\"Man shall not live by\" what \"alone\", Jesus answered the tempter?",
+      "options": ["Water", "Bread", "Strength", "Gold"],
+      "answer": 1,
+      "evidence": "But he answered, “It is written, ‘Man shall not live by bread alone, but by every word that proceeds out of the mouth of God"
+    },
+    {
+      "id": "matthew-4",
+      "ref": [5, 3, 3],
+      "q": "Who are blessed, for theirs is the Kingdom of Heaven, as the sermon begins?",
+      "options": ["The rich", "The strong", "The wise", "The poor in spirit"],
+      "answer": 3,
+      "evidence": "Blessed are the poor in spirit, for theirs is the Kingdom of Heaven",
+      "answerTerms": ["poor in spirit"]
+    },
+    {
+      "id": "matthew-5",
+      "ref": [6, 9, 9],
+      "q": "How does the prayer Jesus taught begin?",
+      "options": ["Blessed be the Lord", "Hear, O Israel", "Holy, holy, holy", "Our Father in heaven"],
+      "answer": 3,
+      "evidence": "Pray like this: ‘Our Father in heaven, may your name be kept holy",
+      "answerTerms": ["our father in heaven"]
+    },
+    {
+      "id": "matthew-6",
+      "ref": [14, 29, 29],
+      "q": "Which disciple stepped out of the boat and walked on the water?",
+      "options": ["John", "Peter", "Andrew", "James"],
+      "answer": 1,
+      "evidence": "Peter stepped down from the boat, and walked on the waters to come to Jesus"
+    },
+    {
+      "id": "matthew-7",
+      "ref": [16, 18, 18],
+      "q": "What did Jesus say he would build on this rock?",
+      "options": ["My temple", "My kingdom", "My assembly", "My city"],
+      "answer": 2,
+      "evidence": "I also tell you that you are Peter, and on this rock I will build my assembly, and the gates of Hades will not prevail against it",
+      "answerTerms": ["my assembly"]
+    },
+    {
+      "id": "matthew-8",
+      "ref": [17, 1, 2],
+      "q": "Which three did Jesus take up the high mountain where he was changed?",
+      "options": ["Peter, James, and John", "Peter, Andrew, and Philip", "James, Thomas, and Judas", "John, Matthew, and Mark"],
+      "answer": 0,
+      "evidence": "After six days, Jesus took with him Peter, James, and John his brother, and brought them up into a high mountain by themselves",
+      "answerTerms": ["peter", "james", "john"]
+    },
+    {
+      "id": "matthew-9",
+      "ref": [26, 15, 15],
+      "q": "How much was Judas paid to deliver Jesus?",
+      "options": ["Forty shekels", "Thirty pieces of silver", "Ten talents", "Fifty denarii"],
+      "answer": 1,
+      "evidence": "They weighed out for him thirty pieces of silver",
+      "answerTerms": ["thirty pieces of silver"]
+    },
+    {
+      "id": "matthew-10",
+      "ref": [27, 32, 32],
+      "q": "Who was compelled to carry the cross of Jesus?",
+      "options": ["Joseph of Arimathea", "Nicodemus", "Barabbas", "Simon of Cyrene"],
+      "answer": 3,
+      "evidence": "As they came out, they found a man of Cyrene, Simon by name, and they compelled him to go with them, that he might carry his cross",
+      "answerTerms": ["cyrene", "simon"]
+    },
+    {
+      "id": "matthew-11",
+      "ref": [28, 19, 19],
+      "q": "Of whom did Jesus send the eleven to make disciples?",
+      "options": ["All nations", "Israel alone", "The twelve tribes", "The Romans"],
+      "answer": 0,
+      "evidence": "Go, and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit",
+      "answerTerms": ["all nations"]
+    }
+  ]
+}
