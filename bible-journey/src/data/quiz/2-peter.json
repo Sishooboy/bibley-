@@ -1,0 +1,31 @@
+{
+  "book": "2 Peter",
+  "questions": [
+    {
+      "id": "2-peter-1",
+      "ref": [1, 21, 21],
+      "q": "By whom were the holy men of God moved when they spoke?",
+      "options": ["The Holy Spirit", "Their own will", "The angels", "The elders"],
+      "answer": 0,
+      "evidence": "For no prophecy ever came by the will of man: but holy men of God spoke, being moved by the Holy Spirit",
+      "answerTerms": ["holy spirit"]
+    },
+    {
+      "id": "2-peter-2",
+      "ref": [2, 5, 5],
+      "q": "Whom does Peter call a preacher of righteousness?",
+      "options": ["Lot", "Enoch", "Noah", "Abraham"],
+      "answer": 2,
+      "evidence": "and didn’t spare the ancient world, but preserved Noah with seven others, a preacher of righteousness, when he brought a flood on the world of the ungodly"
+    },
+    {
+      "id": "2-peter-3",
+      "ref": [3, 8, 8],
+      "q": "With the Lord, one day is as how many years?",
+      "options": ["A hundred", "A thousand", "Seven", "Forty"],
+      "answer": 1,
+      "evidence": "But don’t forget this one thing, beloved, that one day is with the Lord as a thousand years, and a thousand years as one day",
+      "answerTerms": ["thousand years"]
+    }
+  ]
+}

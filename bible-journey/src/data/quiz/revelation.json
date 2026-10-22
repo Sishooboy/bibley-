@@ -1,0 +1,82 @@
+{
+  "book": "Revelation",
+  "questions": [
+    {
+      "id": "revelation-1",
+      "ref": [1, 9, 9],
+      "q": "On which island was John when he saw the revelation?",
+      "options": ["Patmos", "Crete", "Cyprus", "Malta"],
+      "answer": 0,
+      "evidence": "I John, your brother and partner with you in the oppression, Kingdom, and perseverance in Christ Jesus, was on the isle that is called Patmos because of God’s Word and the testimony of Jesus Christ"
+    },
+    {
+      "id": "revelation-2",
+      "ref": [3, 16, 16],
+      "q": "Neither hot nor cold, what does Jesus call the assembly in Laodicea?",
+      "options": ["Dead", "Asleep", "Lukewarm", "Proud"],
+      "answer": 2,
+      "evidence": "So, because you are lukewarm, and neither hot nor cold, I will vomit you out of my mouth"
+    },
+    {
+      "id": "revelation-3",
+      "ref": [5, 5, 5],
+      "q": "Who has overcome to open the book, the elder tells John?",
+      "options": ["The archangel Michael", "The Lion of the tribe of Judah", "The first horseman", "A mighty angel"],
+      "answer": 1,
+      "evidence": "Behold, the Lion who is of the tribe of Judah, the Root of David, has overcome",
+      "answerTerms": ["lion who is of the tribe of judah"]
+    },
+    {
+      "id": "revelation-4",
+      "ref": [7, 4, 4],
+      "q": "How many were sealed out of every tribe of the children of Israel?",
+      "options": ["Twelve thousand", "Seven thousand", "Ten thousand", "One hundred forty-four thousand"],
+      "answer": 3,
+      "evidence": "I heard the number of those who were sealed, one hundred forty-four thousand, sealed out of every tribe of the children of Israel",
+      "answerTerms": ["one hundred forty-four thousand"]
+    },
+    {
+      "id": "revelation-5",
+      "ref": [12, 7, 7],
+      "q": "Who made war on the dragon with his angels?",
+      "options": ["Gabriel", "Raphael", "Elijah", "Michael"],
+      "answer": 3,
+      "evidence": "Michael and his angels made war on the dragon"
+    },
+    {
+      "id": "revelation-6",
+      "ref": [13, 18, 18],
+      "q": "What is the number of the beast?",
+      "options": ["Seven hundred seventy-seven", "Six hundred sixty-six", "One hundred forty-four", "Six hundred sixteen"],
+      "answer": 1,
+      "evidence": "His number is six hundred sixty-six",
+      "answerTerms": ["six hundred sixty-six"]
+    },
+    {
+      "id": "revelation-7",
+      "ref": [21, 1, 1],
+      "q": "What did John see when the first heaven and earth had passed away?",
+      "options": ["A great white throne", "A sea of glass", "A new heaven and a new earth", "A rainbow"],
+      "answer": 2,
+      "evidence": "I saw a new heaven and a new earth: for the first heaven and the first earth have passed away, and the sea is no more",
+      "answerTerms": ["new heaven and a new earth"]
+    },
+    {
+      "id": "revelation-8",
+      "ref": [21, 4, 4],
+      "q": "What will God wipe away from their eyes?",
+      "options": ["Every tear", "The dust", "The darkness", "The scales"],
+      "answer": 0,
+      "evidence": "He will wipe away from them every tear from their eyes",
+      "answerTerms": ["every tear"]
+    },
+    {
+      "id": "revelation-9",
+      "ref": [22, 20, 20],
+      "q": "How does the one who testifies say he is coming?",
+      "options": ["In secret", "Quickly", "With the dawn", "On the clouds"],
+      "answer": 1,
+      "evidence": "He who testifies these things says, “Yes, I come quickly"
+    }
+  ]
+}

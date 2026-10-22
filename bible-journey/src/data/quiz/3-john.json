@@ -1,0 +1,29 @@
+{
+  "book": "3 John",
+  "questions": [
+    {
+      "id": "3-john-1",
+      "ref": [1, 1, 1],
+      "q": "To whom does the elder write 3 John?",
+      "options": ["Gaius", "Diotrephes", "Demetrius", "The chosen lady"],
+      "answer": 0,
+      "evidence": "The elder to Gaius the beloved, whom I love in truth"
+    },
+    {
+      "id": "3-john-2",
+      "ref": [1, 9, 9],
+      "q": "Who loves to be first among them?",
+      "options": ["Demetrius", "Gaius", "Diotrephes", "Timothy"],
+      "answer": 2,
+      "evidence": "I wrote to the assembly, but Diotrephes, who loves to be first among them, doesn’t accept what we say"
+    },
+    {
+      "id": "3-john-3",
+      "ref": [1, 12, 12],
+      "q": "Who has the testimony of all, and of the truth itself?",
+      "options": ["Diotrephes", "Demetrius", "Gaius", "Titus"],
+      "answer": 1,
+      "evidence": "Demetrius has the testimony of all, and of the truth itself"
+    }
+  ]
+}

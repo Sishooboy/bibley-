@@ -1,0 +1,41 @@
+{
+  "book": "1 Peter",
+  "questions": [
+    {
+      "id": "1-peter-1",
+      "ref": [1, 16, 16],
+      "q": "Because God is holy, what does Peter say you shall be?",
+      "options": ["Holy", "Rich", "Strong", "Free"],
+      "answer": 0,
+      "evidence": "because it is written, “You shall be holy; for I am holy",
+      "answerTerms": ["you shall be holy"]
+    },
+    {
+      "id": "1-peter-2",
+      "ref": [2, 9, 9],
+      "q": "What kind of priesthood does Peter call believers?",
+      "options": ["A Levite priesthood", "A hidden priesthood", "A royal priesthood", "A temple priesthood"],
+      "answer": 2,
+      "evidence": "But you are a chosen race, a royal priesthood, a holy nation, a people for God’s own possession, that you may proclaim the excellence of him who called you out of darkness into his marvelous light",
+      "answerTerms": ["royal priesthood"]
+    },
+    {
+      "id": "1-peter-3",
+      "ref": [3, 15, 15],
+      "q": "Be ready to give an answer for what, Peter says?",
+      "options": ["The sins of your fathers", "The hope that is in you", "The law of Moses", "Your wealth"],
+      "answer": 1,
+      "evidence": "and always be ready to give an answer to everyone who asks you a reason concerning the hope that is in you, with humility and fear",
+      "answerTerms": ["hope that is in you"]
+    },
+    {
+      "id": "1-peter-4",
+      "ref": [5, 8, 8],
+      "q": "Like what does the devil walk around, seeking whom he may devour?",
+      "options": ["A serpent", "A wolf", "A thief", "A roaring lion"],
+      "answer": 3,
+      "evidence": "Your adversary, the devil, walks around like a roaring lion, seeking whom he may devour",
+      "answerTerms": ["roaring lion"]
+    }
+  ]
+}

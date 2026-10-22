@@ -14,17 +14,6 @@ import {
   type QuizQuestion,
 } from './quiz';
 
-/*
- * The books still waiting for their questions. **It may only shrink**: a book
- * listed here must not have a file, and a book not listed must, so writing a
- * quiz means taking its name off this list in the same commit, and the suite
- * says so if either half is forgotten. When it is empty, every book in the
- * canon has a quiz.
- */
-const PENDING = new Set<string>([
-  'Hebrews', 'James', '1 Peter', '2 Peter', '1 John', '2 John', '3 John', 'Jude', 'Revelation',
-]);
-
 const QUIZ_DIR = join(process.cwd(), 'src/data/quiz');
 const BIBLE_DIR = join(process.cwd(), 'public/bible');
 
@@ -81,12 +70,11 @@ describe('the quiz files', () => {
     }
   });
 
-  it('has a quiz for every book not still listed as pending, and none for a pending one', () => {
+  // A book with no file is a book whose finish offers nothing, and the tab
+  // lists it with no way in, so a missing one fails here rather than there.
+  it('has a quiz for every book in the canon', () => {
     const written = new Set(files.map((f) => f.quiz.book));
-    for (const book of CANON) {
-      if (PENDING.has(book)) expect(written.has(book), `${book} is written, take it off PENDING`).toBe(false);
-      else expect(written.has(book), `${book} has no quiz`).toBe(true);
-    }
+    for (const book of CANON) expect(written.has(book), `${book} has no quiz`).toBe(true);
   });
 
   it('sizes every quiz to its book', () => {

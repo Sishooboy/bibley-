@@ -1,0 +1,63 @@
+{
+  "book": "Hebrews",
+  "questions": [
+    {
+      "id": "hebrews-1",
+      "ref": [1, 4, 4],
+      "q": "Hebrews 1 says the Son became so much better than whom?",
+      "options": ["The angels", "The prophets", "Moses", "The priests"],
+      "answer": 0,
+      "evidence": "having become so much better than the angels, as he has inherited a more excellent name than they have"
+    },
+    {
+      "id": "hebrews-2",
+      "ref": [4, 12, 12],
+      "q": "What is the word of God sharper than, Hebrews 4 says?",
+      "options": ["A thorn", "Fire", "Any two-edged sword", "A shepherd's staff"],
+      "answer": 2,
+      "evidence": "For the word of God is living and active, and sharper than any two-edged sword, piercing even to the dividing of soul and spirit, of both joints and marrow, and is able to discern the thoughts and intentions of the heart",
+      "answerTerms": ["two-edged sword"]
+    },
+    {
+      "id": "hebrews-3",
+      "ref": [7, 1, 1],
+      "q": "Which king of Salem was priest of God Most High?",
+      "options": ["Abimelech", "Melchizedek", "Jethro", "Aaron"],
+      "answer": 1,
+      "evidence": "For this Melchizedek, king of Salem, priest of God Most High, who met Abraham returning from the slaughter of the kings and blessed him"
+    },
+    {
+      "id": "hebrews-4",
+      "ref": [11, 1, 1],
+      "q": "What does Hebrews call the assurance of things hoped for?",
+      "options": ["Hope", "Love", "Patience", "Faith"],
+      "answer": 3,
+      "evidence": "Now faith is assurance of things hoped for, proof of things not seen"
+    },
+    {
+      "id": "hebrews-5",
+      "ref": [12, 2, 2],
+      "q": "To whom are we told to look as we run the race?",
+      "options": ["Moses", "Abraham", "The angels", "Jesus"],
+      "answer": 3,
+      "evidence": "looking to Jesus, the author and perfecter of faith, who for the joy that was set before him endured the cross, despising its shame, and has sat down at the right hand of the throne of God"
+    },
+    {
+      "id": "hebrews-6",
+      "ref": [13, 2, 2],
+      "q": "Showing hospitality to strangers, some have entertained whom unaware?",
+      "options": ["Kings", "Angels", "Prophets", "Apostles"],
+      "answer": 1,
+      "evidence": "Don’t forget to show hospitality to strangers, for in doing so, some have entertained angels without knowing it"
+    },
+    {
+      "id": "hebrews-7",
+      "ref": [13, 8, 8],
+      "q": "Who is the same yesterday, today, and forever?",
+      "options": ["The law", "The temple", "Jesus Christ", "The prophets"],
+      "answer": 2,
+      "evidence": "Jesus Christ is the same yesterday, today, and forever",
+      "answerTerms": ["jesus christ"]
+    }
+  ]
+}

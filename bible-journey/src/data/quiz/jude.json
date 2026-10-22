@@ -1,0 +1,29 @@
+{
+  "book": "Jude",
+  "questions": [
+    {
+      "id": "jude-1",
+      "ref": [1, 1, 1],
+      "q": "Whose brother does Jude call himself?",
+      "options": ["James", "Peter", "John", "Paul"],
+      "answer": 0,
+      "evidence": "Jude, a servant of Jesus Christ, and brother of James, to those who are called, sanctified by God the Father, and kept for Jesus Christ"
+    },
+    {
+      "id": "jude-2",
+      "ref": [1, 9, 9],
+      "q": "About whose body did Michael the archangel dispute with the devil?",
+      "options": ["Elijah", "Enoch", "Moses", "Abraham"],
+      "answer": 2,
+      "evidence": "But Michael, the archangel, when contending with the devil and arguing about the body of Moses, dared not bring against him an abusive condemnation, but said, “May the Lord rebuke you"
+    },
+    {
+      "id": "jude-3",
+      "ref": [1, 14, 14],
+      "q": "Who, the seventh from Adam, prophesied about these men?",
+      "options": ["Noah", "Enoch", "Methuselah", "Lamech"],
+      "answer": 1,
+      "evidence": "About these also Enoch, the seventh from Adam, prophesied, saying, “Behold, the Lord came with ten thousands of his holy ones"
+    }
+  ]
+}

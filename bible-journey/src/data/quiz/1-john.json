@@ -1,0 +1,40 @@
+{
+  "book": "1 John",
+  "questions": [
+    {
+      "id": "1-john-1",
+      "ref": [1, 9, 9],
+      "q": "If we confess our sins, what is God faithful and righteous to do?",
+      "options": ["Forgive us", "Judge us", "Test us", "Remember them"],
+      "answer": 0,
+      "evidence": "If we confess our sins, he is faithful and righteous to forgive us the sins, and to cleanse us from all unrighteousness",
+      "answerTerms": ["forgive us"]
+    },
+    {
+      "id": "1-john-2",
+      "ref": [3, 1, 1],
+      "q": "What has the Father's love given us to be called?",
+      "options": ["Kings and priests", "Friends of God", "Children of God", "Servants of God"],
+      "answer": 2,
+      "evidence": "See how great a love the Father has given to us, that we should be called children of God",
+      "answerTerms": ["children of god"]
+    },
+    {
+      "id": "1-john-3",
+      "ref": [4, 8, 8],
+      "q": "\"He who doesn't love doesn't know God, for God is\" what?",
+      "options": ["Judge", "Love", "King", "Holy"],
+      "answer": 1,
+      "evidence": "He who doesn’t love doesn’t know God, for God is love"
+    },
+    {
+      "id": "1-john-4",
+      "ref": [5, 13, 13],
+      "q": "John writes so that believers may know they have what?",
+      "options": ["Great wealth", "The law", "A new name", "Eternal life"],
+      "answer": 3,
+      "evidence": "These things I have written to you who believe in the name of the Son of God, that you may know that you have eternal life, and that you may continue to believe in the name of the Son of God",
+      "answerTerms": ["eternal life"]
+    }
+  ]
+}

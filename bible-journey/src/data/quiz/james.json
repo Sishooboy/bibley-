@@ -1,0 +1,39 @@
+{
+  "book": "James",
+  "questions": [
+    {
+      "id": "james-1",
+      "ref": [1, 22, 22],
+      "q": "James says to be hearers of the word and also what?",
+      "options": ["Doers", "Teachers", "Writers", "Keepers"],
+      "answer": 0,
+      "evidence": "But be doers of the word, and not only hearers, deluding your own selves"
+    },
+    {
+      "id": "james-2",
+      "ref": [2, 26, 26],
+      "q": "Faith apart from what, James says, is dead?",
+      "options": ["Love", "Hope", "Works", "The law"],
+      "answer": 2,
+      "evidence": "For as the body apart from the spirit is dead, even so faith apart from works is dead",
+      "answerTerms": ["faith apart from works is dead"]
+    },
+    {
+      "id": "james-3",
+      "ref": [3, 5, 5],
+      "q": "Which little member does James compare to a small fire?",
+      "options": ["The eye", "The tongue", "The hand", "The foot"],
+      "answer": 1,
+      "evidence": "So the tongue is also a little member, and boasts great things. See how a small fire can spread to a large forest",
+      "answerTerms": ["tongue"]
+    },
+    {
+      "id": "james-4",
+      "ref": [5, 17, 17],
+      "q": "Which prophet does James say prayed earnestly about the rain?",
+      "options": ["Elisha", "Samuel", "Moses", "Elijah"],
+      "answer": 3,
+      "evidence": "Elijah was a man with a nature like ours, and he prayed earnestly that it might not rain, and it didn’t rain on the earth for three years and six months"
+    }
+  ]
+}
