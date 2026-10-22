@@ -1,0 +1,87 @@
+{
+  "book": "2 Samuel",
+  "questions": [
+    {
+      "id": "2-samuel-1",
+      "ref": [1, 17, 17],
+      "q": "Over whom did David lament with a song of mourning?",
+      "options": ["Saul and Jonathan", "Abner and Joab", "Absalom and Amnon", "Samuel and Eli"],
+      "answer": 0,
+      "evidence": "David lamented with this lamentation over Saul and over Jonathan his son",
+      "answerTerms": ["Saul", "Jonathan"]
+    },
+    {
+      "id": "2-samuel-2",
+      "ref": [5, 4, 4],
+      "q": "How old was David when he began to reign?",
+      "options": ["Twenty", "Twelve", "Thirty", "Fifty"],
+      "answer": 2,
+      "evidence": "David was thirty years old when he began to reign, and he reigned forty years"
+    },
+    {
+      "id": "2-samuel-3",
+      "ref": [5, 7, 7],
+      "q": "Which stronghold did David take, the one that became the city of David?",
+      "options": ["Jericho", "Zion", "Hebron", "Gibeah"],
+      "answer": 1,
+      "evidence": "Nevertheless David took the stronghold of Zion"
+    },
+    {
+      "id": "2-samuel-4",
+      "ref": [6, 14, 14],
+      "q": "How did David dance before Yahweh as the ark was brought up?",
+      "options": ["In silence", "Only once", "In sackcloth", "With all his might"],
+      "answer": 3,
+      "evidence": "David danced before Yahweh with all his might"
+    },
+    {
+      "id": "2-samuel-5",
+      "ref": [11, 3, 3],
+      "q": "Whose wife was Bathsheba?",
+      "options": ["Nathan the prophet", "Joab the commander", "Abner the son of Ner", "Uriah the Hittite"],
+      "answer": 3,
+      "evidence": "One said, “Isn’t this Bathsheba, the daughter of Eliam, Uriah the Hittite’s wife"
+    },
+    {
+      "id": "2-samuel-6",
+      "ref": [12, 7, 7],
+      "q": "Who told David, \"You are the man\"?",
+      "options": ["Gad", "Nathan", "Samuel", "Joab"],
+      "answer": 1,
+      "evidence": "Nathan said to David, “You are the man"
+    },
+    {
+      "id": "2-samuel-7",
+      "ref": [12, 24, 24],
+      "q": "What did David name the son Bathsheba bore, whom Yahweh loved?",
+      "options": ["Absalom", "Adonijah", "Solomon", "Amnon"],
+      "answer": 2,
+      "evidence": "She bore a son, and he called his name Solomon"
+    },
+    {
+      "id": "2-samuel-8",
+      "ref": [18, 9, 9],
+      "q": "As his mule went under a great oak, what did Absalom's head catch in?",
+      "options": ["The oak", "A vine", "A rope", "A gate"],
+      "answer": 0,
+      "evidence": "Absalom was riding on his mule, and the mule went under the thick boughs of a great oak, and his head caught hold of the oak, and he was taken up between the sky and earth",
+      "answerTerms": ["oak"]
+    },
+    {
+      "id": "2-samuel-9",
+      "ref": [18, 33, 33],
+      "q": "For whom did David weep, \"my son, my son\"?",
+      "options": ["Amnon", "Absalom", "Solomon", "Adonijah"],
+      "answer": 1,
+      "evidence": "As he went, he said, “My son Absalom"
+    },
+    {
+      "id": "2-samuel-10",
+      "ref": [24, 24, 24],
+      "q": "What did David pay Araunah for the threshing floor and the oxen?",
+      "options": ["Ten shekels of gold", "A flock of sheep", "A city in Judah", "Fifty shekels of silver"],
+      "answer": 3,
+      "evidence": "So David bought the threshing floor and the oxen for fifty shekels of silver"
+    }
+  ]
+}

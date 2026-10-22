@@ -1,0 +1,56 @@
+{
+  "book": "Ezra",
+  "questions": [
+    {
+      "id": "ezra-1",
+      "ref": [1, 1, 1],
+      "q": "Whose spirit did Yahweh stir up to make a proclamation through all his kingdom?",
+      "options": ["Cyrus", "Darius", "Nebuchadnezzar", "Artaxerxes"],
+      "answer": 0,
+      "evidence": "Yahweh stirred up the spirit of Cyrus king of Persia"
+    },
+    {
+      "id": "ezra-2",
+      "ref": [3, 12, 12],
+      "q": "When the foundation was laid, what did the old men who had seen the first house do?",
+      "options": ["Danced", "Left in anger", "Wept with a loud voice", "Blew trumpets"],
+      "answer": 2,
+      "evidence": "But many of the priests and Levites and heads of fathers’ households, the old men who had seen the first house, when the foundation of this house was laid before their eyes, wept with a loud voice",
+      "answerTerms": ["wept with a loud voice"]
+    },
+    {
+      "id": "ezra-3",
+      "ref": [4, 24, 24],
+      "q": "Until the second year of which king did the work on God's house stop?",
+      "options": ["Cyrus", "Darius", "Artaxerxes", "Ahasuerus"],
+      "answer": 1,
+      "evidence": "It stopped until the second year of the reign of Darius king of Persia"
+    },
+    {
+      "id": "ezra-4",
+      "ref": [6, 15, 15],
+      "q": "In which month was the house finished?",
+      "options": ["Nisan", "Elul", "Chislev", "Adar"],
+      "answer": 3,
+      "evidence": "This house was finished on the third day of the month Adar, which was in the sixth year of the reign of Darius the king"
+    },
+    {
+      "id": "ezra-5",
+      "ref": [7, 6, 6],
+      "q": "What was Ezra, who went up from Babylon?",
+      "options": ["A king's cupbearer", "A governor", "A builder", "A skilled scribe"],
+      "answer": 3,
+      "evidence": "He was a skilled scribe in the law of Moses, which Yahweh, the God of Israel, had given",
+      "answerTerms": ["scribe"]
+    },
+    {
+      "id": "ezra-6",
+      "ref": [10, 3, 3],
+      "q": "What did the people agree to make a covenant to put away?",
+      "options": ["Their idols", "Their foreign wives", "Their gold", "Their weapons"],
+      "answer": 1,
+      "evidence": "Now therefore let us make a covenant with our God to put away all the wives, and those who as are born of them, according to the counsel of my lord, and of those who tremble at the commandment of our God",
+      "answerTerms": ["put away all the wives"]
+    }
+  ]
+}

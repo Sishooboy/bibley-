@@ -1,0 +1,89 @@
+{
+  "book": "2 Kings",
+  "questions": [
+    {
+      "id": "2-kings-1",
+      "ref": [2, 9, 9],
+      "q": "What did Elisha ask of Elijah before he was taken?",
+      "options": ["A double portion of his spirit", "His cloak and staff", "A house in Jericho", "Long life"],
+      "answer": 0,
+      "evidence": "Elisha said, “Please let a double portion of your spirit be on me",
+      "answerTerms": ["double portion"]
+    },
+    {
+      "id": "2-kings-2",
+      "ref": [2, 11, 11],
+      "q": "How did Elijah go up into heaven?",
+      "options": ["On a cloud", "Up a ladder", "By a whirlwind", "On the wings of eagles"],
+      "answer": 2,
+      "evidence": "As they continued on and talked, behold, a chariot of fire and horses of fire separated them, and Elijah went up by a whirlwind into heaven",
+      "answerTerms": ["whirlwind"]
+    },
+    {
+      "id": "2-kings-3",
+      "ref": [4, 6, 6],
+      "q": "What filled the widow's borrowed containers until there were none left?",
+      "options": ["Wine", "Oil", "Water", "Flour"],
+      "answer": 1,
+      "evidence": "Then the oil stopped flowing"
+    },
+    {
+      "id": "2-kings-4",
+      "ref": [5, 14, 14],
+      "q": "How many times did Naaman dip himself in the Jordan?",
+      "options": ["Three", "Twelve", "Once", "Seven"],
+      "answer": 3,
+      "evidence": "Then went he down, and dipped himself seven times in the Jordan, according to the saying of the man of God"
+    },
+    {
+      "id": "2-kings-5",
+      "ref": [6, 6, 6],
+      "q": "When Elisha threw a stick into the water, what floated?",
+      "options": ["A stone", "A golden cup", "A crown", "The iron ax head"],
+      "answer": 3,
+      "evidence": "He cut down a stick, threw it in there, and made the iron float",
+      "answerTerms": ["iron"]
+    },
+    {
+      "id": "2-kings-6",
+      "ref": [9, 30, 30],
+      "q": "Who painted her eyes and looked out of the window when Jehu came to Jezreel?",
+      "options": ["Athaliah", "Jezebel", "Huldah", "Michal"],
+      "answer": 1,
+      "evidence": "When Jehu had come to Jezreel, Jezebel heard of it; and she painted her eyes, and adorned her head, and looked out at the window"
+    },
+    {
+      "id": "2-kings-7",
+      "ref": [17, 6, 6],
+      "q": "Which king took Samaria and carried Israel away?",
+      "options": ["The king of Babylon", "The king of Egypt", "The king of Assyria", "The king of Moab"],
+      "answer": 2,
+      "evidence": "In the ninth year of Hoshea the king of Assyria took Samaria, and carried Israel away to Assyria, and placed them in Halah, and on the Habor, the river of Gozan, and in the cities of the Medes"
+    },
+    {
+      "id": "2-kings-8",
+      "ref": [20, 11, 11],
+      "q": "By how many steps did the shadow go back as a sign to Hezekiah?",
+      "options": ["Ten", "Seven", "Three", "Forty"],
+      "answer": 0,
+      "evidence": "and he brought the shadow ten steps backward, by which it had gone down on the sundial of Ahaz"
+    },
+    {
+      "id": "2-kings-9",
+      "ref": [22, 8, 8],
+      "q": "What did Hilkiah the high priest find in Yahweh's house?",
+      "options": ["The ark of the covenant", "The book of the law", "Goliath's sword", "A jar of manna"],
+      "answer": 1,
+      "evidence": "Hilkiah the high priest said to Shaphan the scribe, “I have found the book of the law in Yahweh’s house"
+    },
+    {
+      "id": "2-kings-10",
+      "ref": [25, 9, 9],
+      "q": "What happened to Yahweh's house when Jerusalem fell?",
+      "options": ["It was sealed shut", "It was given to Egypt", "It was left standing", "It was burned"],
+      "answer": 3,
+      "evidence": "He burned Yahweh’s house, the king’s house, and all the houses of Jerusalem, even every great house, he burned with fire",
+      "answerTerms": ["burned"]
+    }
+  ]
+}

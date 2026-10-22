@@ -1,0 +1,104 @@
+{
+  "book": "2 Chronicles",
+  "questions": [
+    {
+      "id": "2-chronicles-1",
+      "ref": [1, 10, 10],
+      "q": "What did Solomon ask God for at Gibeon?",
+      "options": ["Wisdom and knowledge", "Riches and honor", "Long life", "Victory over his enemies"],
+      "answer": 0,
+      "evidence": "Now give me wisdom and knowledge, that I may go out and come in before this people"
+    },
+    {
+      "id": "2-chronicles-2",
+      "ref": [3, 1, 1],
+      "q": "On which mountain did Solomon build Yahweh's house?",
+      "options": ["Mount Zion", "Mount Carmel", "Mount Moriah", "Mount Gilboa"],
+      "answer": 2,
+      "evidence": "Then Solomon began to build Yahweh’s house at Jerusalem on Mount Moriah, where Yahweh appeared to David his father, which he prepared in the place that David had appointed, on the threshing floor of Ornan the Jebusite"
+    },
+    {
+      "id": "2-chronicles-3",
+      "ref": [7, 1, 1],
+      "q": "When Solomon finished praying, what came down from heaven?",
+      "options": ["Rain", "Fire", "Manna", "Dew"],
+      "answer": 1,
+      "evidence": "Now when Solomon had finished praying, fire came down from heaven and consumed the burnt offering and the sacrifices"
+    },
+    {
+      "id": "2-chronicles-4",
+      "ref": [7, 14, 14],
+      "q": "If his people humble themselves, pray and turn, what will God do for their land?",
+      "options": ["Enlarge it", "Give it rain", "Raise up a king in it", "Heal it"],
+      "answer": 3,
+      "evidence": "then I will hear from heaven, will forgive their sin, and will heal their land",
+      "answerTerms": ["heal their land"]
+    },
+    {
+      "id": "2-chronicles-5",
+      "ref": [10, 1, 1],
+      "q": "Where did all Israel gather to make Rehoboam king?",
+      "options": ["Jerusalem", "Hebron", "Bethel", "Shechem"],
+      "answer": 3,
+      "evidence": "Rehoboam went to Shechem"
+    },
+    {
+      "id": "2-chronicles-6",
+      "ref": [17, 9, 9],
+      "q": "What did the teachers Jehoshaphat sent take with them through Judah?",
+      "options": ["The ark", "The book of Yahweh's law", "Gold for the temple", "Swords for the people"],
+      "answer": 1,
+      "evidence": "They taught in Judah, having the book of Yahweh’s law with them",
+      "answerTerms": ["book of yahweh's law"]
+    },
+    {
+      "id": "2-chronicles-7",
+      "ref": [20, 21, 21],
+      "q": "Whom did Jehoshaphat appoint to go out before the army?",
+      "options": ["Archers", "Spies", "Those who sang to Yahweh", "Horsemen"],
+      "answer": 2,
+      "evidence": "When he had taken counsel with the people, he appointed those who were to sing to Yahweh, and give praise in holy array, as they go out before the army, and say, “Give thanks to Yahweh",
+      "answerTerms": ["sing to yahweh"]
+    },
+    {
+      "id": "2-chronicles-8",
+      "ref": [24, 1, 1],
+      "q": "How old was Joash when he began to reign?",
+      "options": ["Seven", "Eight", "Twelve", "Sixteen"],
+      "answer": 0,
+      "evidence": "Joash was seven years old when he began to reign, and he reigned forty years in Jerusalem"
+    },
+    {
+      "id": "2-chronicles-9",
+      "ref": [26, 19, 19],
+      "q": "Which king was struck with leprosy while he held a censer to burn incense?",
+      "options": ["Hezekiah", "Uzziah", "Ahaz", "Jotham"],
+      "answer": 1,
+      "evidence": "Then Uzziah was angry. He had a censer in his hand to burn incense, and while he was angry with the priests, the leprosy broke out on his forehead before the priests in Yahweh’s house, beside the altar of incense"
+    },
+    {
+      "id": "2-chronicles-10",
+      "ref": [32, 20, 20],
+      "q": "Which prophet prayed with Hezekiah when the king of Assyria came?",
+      "options": ["Jeremiah", "Elisha", "Nathan", "Isaiah"],
+      "answer": 3,
+      "evidence": "Hezekiah the king and Isaiah the prophet the son of Amoz, prayed because of this, and cried to heaven"
+    },
+    {
+      "id": "2-chronicles-11",
+      "ref": [33, 11, 13],
+      "q": "Which king humbled himself and prayed after being carried to Babylon in chains?",
+      "options": ["Manasseh", "Amon", "Ahaz", "Jehoiakim"],
+      "answer": 0,
+      "evidence": "Therefore Yahweh brought on them the captains of the army of the king of Assyria, who took Manasseh in chains, bound him with fetters, and carried him to Babylon"
+    },
+    {
+      "id": "2-chronicles-12",
+      "ref": [36, 22, 23],
+      "q": "Which king of Persia proclaimed that God's house would be built in Jerusalem?",
+      "options": ["Darius", "Artaxerxes", "Cyrus", "Ahasuerus"],
+      "answer": 2,
+      "evidence": "Yahweh stirred up the spirit of Cyrus king of Persia, so that he made a proclamation throughout all his kingdom"
+    }
+  ]
+}

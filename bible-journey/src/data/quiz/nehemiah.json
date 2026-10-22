@@ -1,0 +1,62 @@
+{
+  "book": "Nehemiah",
+  "questions": [
+    {
+      "id": "nehemiah-1",
+      "ref": [1, 11, 11],
+      "q": "What was Nehemiah's work for the king?",
+      "options": ["Cup bearer", "Scribe", "Baker", "Governor"],
+      "answer": 0,
+      "evidence": "Now I was cup bearer to the king"
+    },
+    {
+      "id": "nehemiah-2",
+      "ref": [2, 1, 1],
+      "q": "In the twentieth year of which king did Nehemiah bring him wine?",
+      "options": ["Cyrus", "Darius", "Artaxerxes", "Nebuchadnezzar"],
+      "answer": 2,
+      "evidence": "In the month Nisan, in the twentieth year of Artaxerxes the king, when wine was before him, I picked up the wine, and gave it to the king"
+    },
+    {
+      "id": "nehemiah-3",
+      "ref": [4, 17, 17],
+      "q": "What did the wall builders hold in one hand while they worked with the other?",
+      "options": ["A torch", "A weapon", "A scroll", "A trumpet"],
+      "answer": 1,
+      "evidence": "everyone with one of his hands did the work, and with the other held his weapon",
+      "answerTerms": ["weapon"]
+    },
+    {
+      "id": "nehemiah-4",
+      "ref": [6, 15, 15],
+      "q": "In how many days was the wall finished?",
+      "options": ["Forty", "Seventy", "One hundred", "Fifty-two"],
+      "answer": 3,
+      "evidence": "So the wall was finished in the twenty-fifth day of Elul, in fifty-two days"
+    },
+    {
+      "id": "nehemiah-5",
+      "ref": [8, 2, 3],
+      "q": "Who read the book of the law to the people from early morning until midday?",
+      "options": ["Nehemiah", "Joshua", "Zerubbabel", "Ezra"],
+      "answer": 3,
+      "evidence": "Ezra the priest brought the law before the assembly, both men and women, and all who could hear with understanding, on the first day of the seventh month. He read from it before the wide place that was in front of the water gate from early morning until midday"
+    },
+    {
+      "id": "nehemiah-6",
+      "ref": [8, 10, 10],
+      "q": "\"Don't be grieved,\" Nehemiah said, \"for the joy of Yahweh is your\" what?",
+      "options": ["Crown", "Strength", "Song", "Portion"],
+      "answer": 1,
+      "evidence": "Don’t be grieved, for the joy of Yahweh is your strength"
+    },
+    {
+      "id": "nehemiah-7",
+      "ref": [13, 15, 15],
+      "q": "What did Nehemiah see men in Judah doing on the Sabbath?",
+      "options": ["Building the wall", "Reading the law", "Treading wine presses", "Selling slaves"],
+      "answer": 2,
+      "evidence": "In those days saw I in Judah some men treading wine presses on the Sabbath, bringing in sheaves, and loading donkeys"
+    }
+  ]
+}

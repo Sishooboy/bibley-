@@ -1,0 +1,98 @@
+{
+  "book": "1 Samuel",
+  "questions": [
+    {
+      "id": "1-samuel-1",
+      "ref": [1, 20, 20],
+      "q": "What did Hannah name the son she had asked of Yahweh?",
+      "options": ["Samuel", "Saul", "Jonathan", "Obed"],
+      "answer": 0,
+      "evidence": "and she named him Samuel, saying, “Because I have asked him of Yahweh"
+    },
+    {
+      "id": "1-samuel-2",
+      "ref": [3, 10, 10],
+      "q": "When Yahweh called him again, what did the boy Samuel answer?",
+      "options": ["Here I am, my lord", "I will go at once", "Speak, for your servant hears", "Who are you, Lord?"],
+      "answer": 2,
+      "evidence": "for your servant hears",
+      "answerTerms": ["your servant hears"]
+    },
+    {
+      "id": "1-samuel-3",
+      "ref": [4, 10, 11],
+      "q": "To whom did Israel lose the battle in which God's ark was taken?",
+      "options": ["The Amalekites", "The Philistines", "The Egyptians", "The Moabites"],
+      "answer": 1,
+      "evidence": "The Philistines fought, and Israel was defeated, and each man fled to his tent",
+      "answerTerms": ["Philistines"]
+    },
+    {
+      "id": "1-samuel-4",
+      "ref": [8, 5, 5],
+      "q": "What did Israel's elders ask Samuel to give them, like all the nations?",
+      "options": ["A temple", "A new law", "A prophet", "A king"],
+      "answer": 3,
+      "evidence": "Now make us a king to judge us like all the nations"
+    },
+    {
+      "id": "1-samuel-5",
+      "ref": [9, 17, 17],
+      "q": "Whom did Yahweh point out to Samuel as the man who would rule his people?",
+      "options": ["David", "Jonathan", "Abner", "Saul"],
+      "answer": 3,
+      "evidence": "When Samuel saw Saul, Yahweh said to him, “Behold, the man of whom I spoke to you"
+    },
+    {
+      "id": "1-samuel-6",
+      "ref": [16, 13, 13],
+      "q": "Whom did Samuel anoint in the middle of his brothers?",
+      "options": ["Jonathan", "David", "Saul", "Joab"],
+      "answer": 1,
+      "evidence": "Then Samuel took the horn of oil, and anointed him in the middle of his brothers. Then Yahweh’s Spirit came mightily on David from that day forward"
+    },
+    {
+      "id": "1-samuel-7",
+      "ref": [17, 4, 4],
+      "q": "Where was the Philistine champion Goliath from?",
+      "options": ["Gaza", "Ashdod", "Gath", "Ekron"],
+      "answer": 2,
+      "evidence": "A champion out of the camp of the Philistines named Goliath, of Gath, whose height was six cubits and a span went out"
+    },
+    {
+      "id": "1-samuel-8",
+      "ref": [17, 49, 49],
+      "q": "Where did David's stone strike Goliath?",
+      "options": ["In his forehead", "In his heart", "In his eye", "In his knee"],
+      "answer": 0,
+      "evidence": "David put his hand in his bag, took a stone, and slung it, and struck the Philistine in his forehead",
+      "answerTerms": ["forehead"]
+    },
+    {
+      "id": "1-samuel-9",
+      "ref": [18, 1, 1],
+      "q": "Whose soul was knit with the soul of David?",
+      "options": ["Michal", "Jonathan", "Abner", "Samuel"],
+      "answer": 1,
+      "evidence": "When he had finished speaking to Saul, the soul of Jonathan was knit with the soul of David, and Jonathan loved him as his own soul"
+    },
+    {
+      "id": "1-samuel-10",
+      "ref": [24, 4, 4],
+      "q": "In the cave, what did David secretly cut off from Saul?",
+      "options": ["A lock of his hair", "His crown", "His sandal", "The skirt of his robe"],
+      "answer": 3,
+      "evidence": "Then David arose, and cut off the skirt of Saul’s robe secretly",
+      "answerTerms": ["skirt"]
+    },
+    {
+      "id": "1-samuel-11",
+      "ref": [31, 4, 4],
+      "q": "How did Saul die on Mount Gilboa?",
+      "options": ["He fell on his own sword", "He was struck by lightning", "He died of old age", "He drowned in the Jordan"],
+      "answer": 0,
+      "evidence": "Therefore Saul took his sword, and fell on it",
+      "answerTerms": ["took his sword", "fell on it"]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "book": "1 Kings",
+  "questions": [
+    {
+      "id": "1-kings-1",
+      "ref": [1, 39, 39],
+      "q": "Who took the horn of oil from the Tent and anointed Solomon?",
+      "options": ["Zadok the priest", "Abiathar the priest", "Joab", "Benaiah"],
+      "answer": 0,
+      "evidence": "Zadok the priest took the horn of oil from the Tent, and anointed Solomon"
+    },
+    {
+      "id": "1-kings-2",
+      "ref": [3, 9, 9],
+      "q": "What did Solomon ask God to give him at Gibeon?",
+      "options": ["Long life", "Riches", "An understanding heart", "The lives of his enemies"],
+      "answer": 2,
+      "evidence": "Give your servant therefore an understanding heart to judge your people, that I may discern between good and evil",
+      "answerTerms": ["understanding heart"]
+    },
+    {
+      "id": "1-kings-3",
+      "ref": [3, 25, 25],
+      "q": "When two women claimed the same child, what did Solomon order?",
+      "options": ["Give the child to the elder", "Divide the living child in two", "Send them both away", "Let the child choose"],
+      "answer": 1,
+      "evidence": "The king said, “Divide the living child in two, and give half to the one, and half to the other",
+      "answerTerms": ["Divide the living child in two"]
+    },
+    {
+      "id": "1-kings-4",
+      "ref": [6, 1, 1],
+      "q": "In which year of his reign did Solomon begin to build Yahweh's house?",
+      "options": ["The first", "The seventh", "The twelfth", "The fourth"],
+      "answer": 3,
+      "evidence": "in the fourth year of Solomon’s reign over Israel",
+      "answerTerms": ["fourth year"]
+    },
+    {
+      "id": "1-kings-5",
+      "ref": [10, 1, 1],
+      "q": "Which queen came to test Solomon with hard questions?",
+      "options": ["The queen of Egypt", "The queen of Tyre", "The queen of Moab", "The queen of Sheba"],
+      "answer": 3,
+      "evidence": "When the queen of Sheba heard of the fame of Solomon concerning Yahweh’s name, she came to test him with hard questions",
+      "answerTerms": ["queen of Sheba"]
+    },
+    {
+      "id": "1-kings-6",
+      "ref": [12, 28, 29],
+      "q": "Where did Jeroboam set up his two calves of gold?",
+      "options": ["Jerusalem and Hebron", "Bethel and Dan", "Shiloh and Gilgal", "Samaria and Jezreel"],
+      "answer": 1,
+      "evidence": "He set the one in Bethel, and the other put he in Dan",
+      "answerTerms": ["Bethel", "Dan"]
+    },
+    {
+      "id": "1-kings-7",
+      "ref": [17, 6, 6],
+      "q": "What brought Elijah bread and meat by the brook?",
+      "options": ["Doves", "Eagles", "Ravens", "Angels"],
+      "answer": 2,
+      "evidence": "The ravens brought him bread and meat in the morning, and bread and meat in the evening"
+    },
+    {
+      "id": "1-kings-8",
+      "ref": [18, 38, 38],
+      "q": "On Mount Carmel, what fell and consumed Elijah's offering?",
+      "options": ["Yahweh's fire", "Hail", "Rain", "A great stone"],
+      "answer": 0,
+      "evidence": "Then Yahweh’s fire fell, and consumed the burnt offering, the wood, the stones, and the dust, and licked up the water that was in the trench"
+    },
+    {
+      "id": "1-kings-9",
+      "ref": [19, 12, 12],
+      "q": "After the wind, the earthquake and the fire, what came to Elijah?",
+      "options": ["A pillar of cloud", "A still small voice", "A chariot of fire", "A great light"],
+      "answer": 1,
+      "evidence": "After the fire, there was a still small voice"
+    }
+  ]
+}

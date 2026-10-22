@@ -1,0 +1,96 @@
+{
+  "book": "1 Chronicles",
+  "questions": [
+    {
+      "id": "1-chronicles-1",
+      "ref": [1, 1, 1],
+      "q": "With whose name do the genealogies of Chronicles begin?",
+      "options": ["Adam", "Noah", "Abraham", "Israel"],
+      "answer": 0,
+      "evidence": "Adam, Seth, Enosh"
+    },
+    {
+      "id": "1-chronicles-2",
+      "ref": [4, 10, 10],
+      "q": "Who prayed, \"Oh that you would bless me indeed, and enlarge my border\"?",
+      "options": ["Jabin", "Jair", "Jabez", "Jesse"],
+      "answer": 2,
+      "evidence": "Jabez called on the God of Israel, saying, “Oh that you would bless me indeed, and enlarge my border"
+    },
+    {
+      "id": "1-chronicles-3",
+      "ref": [10, 6, 6],
+      "q": "How many of Saul's sons died with him?",
+      "options": ["Two", "Three", "Seven", "One"],
+      "answer": 1,
+      "evidence": "So Saul died with his three sons"
+    },
+    {
+      "id": "1-chronicles-4",
+      "ref": [11, 3, 3],
+      "q": "Where did the elders of Israel anoint David king over Israel?",
+      "options": ["Jerusalem", "Bethlehem", "Gibeah", "Hebron"],
+      "answer": 3,
+      "evidence": "and David made a covenant with them in Hebron before Yahweh; and they anointed David king over Israel, according to Yahweh’s word by Samuel"
+    },
+    {
+      "id": "1-chronicles-5",
+      "ref": [11, 17, 17],
+      "q": "David longed for water from the well of which town?",
+      "options": ["Hebron", "Jericho", "Shiloh", "Bethlehem"],
+      "answer": 3,
+      "evidence": "David longed, and said, “Oh that one would give me water to drink from the well of Bethlehem, which is by the gate"
+    },
+    {
+      "id": "1-chronicles-6",
+      "ref": [13, 9, 10],
+      "q": "Who put out his hand to hold the ark, and died before God?",
+      "options": ["Ahio", "Uzza", "Obed-Edom", "Eleazar"],
+      "answer": 1,
+      "evidence": "When they came to Chidon’s threshing floor, Uzza put out his hand to hold the ark"
+    },
+    {
+      "id": "1-chronicles-7",
+      "ref": [17, 11, 12],
+      "q": "Nathan told David that who would build a house for God?",
+      "options": ["David himself", "The priests", "One of David's sons", "Hiram of Tyre"],
+      "answer": 2,
+      "evidence": "who will be of your sons; and I will establish his kingdom. He will build me a house",
+      "answerTerms": ["of your sons"]
+    },
+    {
+      "id": "1-chronicles-8",
+      "ref": [21, 1, 1],
+      "q": "What did Satan move David to do?",
+      "options": ["Take a census of Israel", "Build an altar", "Leave Jerusalem", "Make a treaty with Egypt"],
+      "answer": 0,
+      "evidence": "Satan stood up against Israel, and moved David to take a census of Israel",
+      "answerTerms": ["census of Israel"]
+    },
+    {
+      "id": "1-chronicles-9",
+      "ref": [22, 8, 8],
+      "q": "What had David done that kept him from building the house himself?",
+      "options": ["Married foreign wives", "Shed much blood", "Spared Saul", "Left the ark in Gath"],
+      "answer": 1,
+      "evidence": "But Yahweh’s word came to me, saying, ‘You have shed blood abundantly, and have made great wars",
+      "answerTerms": ["shed blood"]
+    },
+    {
+      "id": "1-chronicles-10",
+      "ref": [28, 6, 6],
+      "q": "Which son did David say would build God's house?",
+      "options": ["Absalom", "Adonijah", "Nathan", "Solomon"],
+      "answer": 3,
+      "evidence": "He said to me, ‘Solomon, your son, shall build my house and my courts"
+    },
+    {
+      "id": "1-chronicles-11",
+      "ref": [29, 27, 27],
+      "q": "For how many years did David reign in Hebron?",
+      "options": ["Seven", "Twelve", "Twenty", "Three"],
+      "answer": 0,
+      "evidence": "he reigned seven years in Hebron"
+    }
+  ]
+}
