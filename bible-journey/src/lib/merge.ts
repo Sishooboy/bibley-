@@ -1,4 +1,4 @@
-import type { AppData, Highlight, Note, ReadMap, Slot } from './storage';
+import type { AppData, Highlight, Note, QuizResult, ReadMap, Slot } from './storage';
 
 /**
  * Adds win by union, deletions are explicit.
@@ -34,7 +34,34 @@ export function mergeJournals(a: AppData, b: AppData): AppData {
     backedUpAt: a.backedUpAt,
     ownerId: a.ownerId ?? b.ownerId,
     prefs: newerPrefs(a.prefs, b.prefs),
+    quizzes: mergeQuizzes(a.quizzes, b.quizzes),
   };
+}
+
+/**
+ * Each quiz keeps its better result, compared as a share of the questions so a
+ * quiz that grows later does not make an old perfect score look worse than a
+ * new imperfect one. A tie goes to the later attempt. No tombstones: a score is
+ * never deleted, only bettered, so a union cannot resurrect anything.
+ */
+function mergeQuizzes(
+  a: AppData['quizzes'],
+  b: AppData['quizzes'],
+): AppData['quizzes'] {
+  if (!a) return b;
+  if (!b) return a;
+  const out: Record<string, QuizResult> = { ...a };
+  for (const [key, theirs] of Object.entries(b)) {
+    const ours = out[key];
+    if (!ours) {
+      out[key] = theirs;
+      continue;
+    }
+    const mine = ours.best / ours.of;
+    const other = theirs.best / theirs.of;
+    if (other > mine || (other === mine && theirs.at > ours.at)) out[key] = theirs;
+  }
+  return out;
 }
 
 /**
@@ -270,6 +297,15 @@ export function sameJournal(a: AppData, b: AppData): boolean {
   if (aRemovedNotes.length !== Object.keys(b.removedNotes ?? {}).length) return false;
   for (const key of aRemovedNotes) {
     if (a.removedNotes?.[key] !== b.removedNotes?.[key]) return false;
+  }
+
+  // A better score has to reach the server like any other change, or a quiz
+  // taken on the phone would never show on the laptop.
+  const aQuizzes = Object.entries(a.quizzes ?? {});
+  if (aQuizzes.length !== Object.keys(b.quizzes ?? {}).length) return false;
+  for (const [key, r] of aQuizzes) {
+    const match = b.quizzes?.[key];
+    if (!match || match.best !== r.best || match.of !== r.of || match.at !== r.at) return false;
   }
 
   return true;

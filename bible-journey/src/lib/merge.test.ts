@@ -456,3 +456,67 @@ describe('sameJournal', () => {
     expect(sameJournal(journal(), a)).toBe(false);
   });
 });
+
+/*
+ * Quiz results shipped read-only first: validated, merged and compared before
+ * anything wrote them. These pin the three halves of that release, because a
+ * gap in any of them is a score that silently vanishes between devices.
+ */
+describe('quiz results', () => {
+  const at = (d: string) => `2026-10-${d}T12:00:00.000Z`;
+
+  it('keeps a valid result and drops anything this build does not understand', () => {
+    const data = normalize({
+      read: {},
+      quizzes: {
+        mark: { best: 7, of: 8, at: at('20'), extra: 'dropped' },
+        ruth: { best: 5, of: 4, at: at('20') },
+        john: { best: 3, of: 0, at: at('20') },
+        jude: { best: 2.5, of: 3, at: at('20') },
+        acts: 'nonsense',
+      },
+    });
+    expect(data!.quizzes).toEqual({ mark: { best: 7, of: 8, at: at('20') } });
+  });
+
+  it('keeps the better score from either device, and both devices\u2019 quizzes', () => {
+    const phone = journal({
+      quizzes: { mark: { best: 8, of: 8, at: at('10') }, ruth: { best: 2, of: 4, at: at('12') } },
+    });
+    const laptop = journal({
+      quizzes: { mark: { best: 6, of: 8, at: at('15') }, jude: { best: 3, of: 3, at: at('14') } },
+    });
+    const merged = mergeJournals(phone, laptop).quizzes;
+    expect(merged).toEqual({
+      mark: { best: 8, of: 8, at: at('10') },
+      ruth: { best: 2, of: 4, at: at('12') },
+      jude: { best: 3, of: 3, at: at('14') },
+    });
+    expect(mergeJournals(laptop, phone).quizzes).toEqual(merged);
+  });
+
+  /* A quiz that grows must not make an old perfect score lose to a worse share. */
+  it('compares scores as a share of the questions', () => {
+    const before = journal({ quizzes: { mark: { best: 8, of: 8, at: at('01') } } });
+    const after = journal({ quizzes: { mark: { best: 11, of: 12, at: at('09') } } });
+    expect(mergeJournals(before, after).quizzes!.mark.best).toBe(8);
+  });
+
+  it('settles an equal score by the later attempt', () => {
+    const a = journal({ quizzes: { mark: { best: 6, of: 8, at: at('01') } } });
+    const b = journal({ quizzes: { mark: { best: 6, of: 8, at: at('09') } } });
+    expect(mergeJournals(a, b).quizzes!.mark.at).toBe(at('09'));
+    expect(mergeJournals(b, a).quizzes!.mark.at).toBe(at('09'));
+  });
+
+  /* Without this a better score taken on one device would never be written. */
+  it('counts a changed score as a change worth syncing', () => {
+    const a = journal({ quizzes: { mark: { best: 6, of: 8, at: at('01') } } });
+    const b = journal({ quizzes: { mark: { best: 7, of: 8, at: at('02') } } });
+    expect(sameJournal(a, b)).toBe(false);
+    expect(sameJournal(a, journal())).toBe(false);
+    expect(sameJournal(a, journal({ quizzes: { mark: { best: 6, of: 8, at: at('01') } } }))).toBe(
+      true,
+    );
+  });
+});

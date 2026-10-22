@@ -130,6 +130,24 @@ export type AppData = {
   removedNotes?: Record<string, string>;
   /** Reader settings, synced so they follow the account rather than the device. */
   prefs?: Prefs;
+  /**
+   * The best score on each quiz taken, keyed by the book's slug or by
+   * `phase:<track>:<n>` for a phase. **Read before anything wrote it**: this
+   * field shipped in a release that only validated, merged and compared it,
+   * because `normalize()` is a whitelist and `cloud.tsx` upserts the whole row,
+   * so a client that did not know it would have stripped it from the server on
+   * its next sync. Never published to friends: scores are not something this
+   * app ranks.
+   */
+  quizzes?: Record<string, QuizResult>;
+};
+
+/** One quiz's best attempt. `of` is kept because a quiz's length can change. */
+export type QuizResult = {
+  best: number;
+  of: number;
+  /** When the best was set, ISO. Settles a tie between two devices. */
+  at: string;
 };
 
 export type LoadResult = {
@@ -194,7 +212,33 @@ export function normalize(input: unknown): AppData | null {
     removedHighlights: normalizeRemoved(raw.removedHighlights),
     removedNotes: normalizeRemoved(raw.removedNotes),
     prefs: normalizePrefs(raw.prefs),
+    quizzes: normalizeQuizzes(raw.quizzes),
   };
+}
+
+/*
+ * Rebuilt field by field, like prefs, so nothing but the three values this
+ * build understands reaches the journal. A result claiming more right answers
+ * than questions, or a quiz of no questions, is not a result.
+ */
+function normalizeQuizzes(input: unknown): Record<string, QuizResult> | undefined {
+  if (typeof input !== 'object' || input === null) return undefined;
+  const out: Record<string, QuizResult> = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (!key || typeof value !== 'object' || value === null) continue;
+    const r = value as Partial<QuizResult>;
+    if (
+      Number.isInteger(r.best) &&
+      Number.isInteger(r.of) &&
+      typeof r.at === 'string' &&
+      r.of! > 0 &&
+      r.best! >= 0 &&
+      r.best! <= r.of!
+    ) {
+      out[key] = { best: r.best!, of: r.of!, at: r.at };
+    }
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
 }
 
 function isSpot(value: unknown): value is Spot {
