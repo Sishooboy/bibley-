@@ -1,0 +1,120 @@
+{
+  "book": "Sirach",
+  "questions": [
+    {
+      "id": "sirach-1",
+      "ref": [1, 1, 1],
+      "q": "From whom does all wisdom come, Sirach begins?",
+      "options": ["The Lord", "The elders", "The scribes", "The kings"],
+      "answer": 0,
+      "evidence": "All wisdom comes from the Lord, And is with him forever",
+      "answerTerms": ["lord"]
+    },
+    {
+      "id": "sirach-2",
+      "ref": [1, 14, 14],
+      "q": "\"To fear the Lord is the beginning of\" what, in Sirach 1?",
+      "options": ["Riches", "Peace", "Wisdom", "Strength"],
+      "answer": 2,
+      "evidence": "To fear the Lord is the beginning of wisdom"
+    },
+    {
+      "id": "sirach-3",
+      "ref": [2, 1, 1],
+      "q": "If you come to serve the Lord, Sirach says, prepare your soul for what?",
+      "options": ["Rest", "Temptation", "Riches", "Praise"],
+      "answer": 1,
+      "evidence": "My son, if you come to serve the Lord, Prepare your soul for temptation"
+    },
+    {
+      "id": "sirach-4",
+      "ref": [3, 12, 12],
+      "q": "When does Sirach tell a son to help his father?",
+      "options": ["In time of war", "At harvest", "On the Sabbath", "In his old age"],
+      "answer": 3,
+      "evidence": "My son, help your father in his old age",
+      "answerTerms": ["old age"]
+    },
+    {
+      "id": "sirach-5",
+      "ref": [6, 14, 14],
+      "q": "A faithful friend is a strong defense, and he who has found one has found what?",
+      "options": ["A brother", "A kingdom", "A shield", "A treasure"],
+      "answer": 3,
+      "evidence": "And he that has found him has found a treasure"
+    },
+    {
+      "id": "sirach-6",
+      "ref": [9, 10, 10],
+      "q": "To what does Sirach liken a new friend?",
+      "options": ["A young tree", "New wine", "A new house", "Fresh bread"],
+      "answer": 1,
+      "evidence": "For the new is not comparable to him: As new wine, so is a new friend"
+    },
+    {
+      "id": "sirach-7",
+      "ref": [24, 3, 3],
+      "q": "In Sirach 24, wisdom says she covered the earth like what?",
+      "options": ["A flood", "A cloud of locusts", "A mist", "Snow"],
+      "answer": 2,
+      "evidence": "I came forth from the mouth of the Most High, And covered the earth as a mist"
+    },
+    {
+      "id": "sirach-8",
+      "ref": [24, 8, 8],
+      "q": "In whom did the Creator tell wisdom to make her dwelling?",
+      "options": ["Jacob", "Egypt", "Babylon", "Greece"],
+      "answer": 0,
+      "evidence": "And he that created me made my tabernacle to rest, And said, Let your tabernacle be in Jacob, And your inheritance in Israel"
+    },
+    {
+      "id": "sirach-9",
+      "ref": [28, 18, 18],
+      "q": "What has felled more than the edge of the sword, Sirach says?",
+      "options": ["Hunger", "The tongue", "The plague", "Wine"],
+      "answer": 1,
+      "evidence": "Many have fallen by the edge of the sword: Yet not so many as they that have fallen because of the tongue"
+    },
+    {
+      "id": "sirach-10",
+      "ref": [38, 1, 1],
+      "q": "Whom does Sirach tell you to honor according to your need of him?",
+      "options": ["A judge", "A priest", "A king", "A physician"],
+      "answer": 3,
+      "evidence": "Honor a physician according to your need of him with the honors due to him: For verily the Lord has created him"
+    },
+    {
+      "id": "sirach-11",
+      "ref": [44, 1, 1],
+      "q": "\"Let us now praise\" whom, Sirach 44 begins?",
+      "options": ["Famous men", "The angels", "The prophets", "The kings of Judah"],
+      "answer": 0,
+      "evidence": "Let us now praise famous men, And our fathers that became the father of us"
+    },
+    {
+      "id": "sirach-12",
+      "ref": [45, 1, 1],
+      "q": "Who was beloved of God and men, whose memorial is blessed?",
+      "options": ["Aaron", "Joshua", "Moses", "Samuel"],
+      "answer": 2,
+      "evidence": "A man beloved of God and men, even Moses, Whose memorial is blessed"
+    },
+    {
+      "id": "sirach-13",
+      "ref": [48, 1, 1],
+      "q": "Which prophet stood up as fire, his word burning like a torch?",
+      "options": ["Elisha", "Isaiah", "Elijah", "Jeremiah"],
+      "answer": 2,
+      "evidence": "Also there arose Elijah the prophet as fire, And his word burned like a torch"
+    },
+    {
+      "id": "sirach-14",
+      "ref": [50, 27, 27],
+      "q": "Who wrote the instruction in this book, by its own account?",
+      "options": ["Jesus the son of Sirach", "Solomon the son of David", "Ezra the scribe", "Baruch the son of Neriah"],
+      "answer": 0,
+      "evidence": "I have written in this book the instruction of understanding and knowledge, I Jesus, the son of Sirach Eleazar, of Jerusalem, Who out of his heart poured forth wisdom",
+      "answerTerms": ["jesus, the son of sirach"]
+    }
+  ]
+}

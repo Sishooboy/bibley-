@@ -1,0 +1,97 @@
+{
+  "book": "Proverbs",
+  "questions": [
+    {
+      "id": "proverbs-1",
+      "ref": [1, 1, 1],
+      "q": "Whose son was Solomon, whose proverbs these are?",
+      "options": ["David", "Saul", "Jesse", "Nathan"],
+      "answer": 0,
+      "evidence": "The proverbs of Solomon, the son of David, king of Israel"
+    },
+    {
+      "id": "proverbs-2",
+      "ref": [1, 7, 7],
+      "q": "\"The fear of Yahweh is the beginning of\" what, in Proverbs 1?",
+      "options": ["Riches", "Life", "Knowledge", "Peace"],
+      "answer": 2,
+      "evidence": "The fear of Yahweh is the beginning of knowledge"
+    },
+    {
+      "id": "proverbs-3",
+      "ref": [3, 5, 5],
+      "q": "\"Trust in Yahweh with all your heart, and don't lean on your own\" what?",
+      "options": ["Strength", "Understanding", "Wealth", "Friends"],
+      "answer": 1,
+      "evidence": "Trust in Yahweh with all your heart, and don’t lean on your own understanding"
+    },
+    {
+      "id": "proverbs-4",
+      "ref": [6, 6, 6],
+      "q": "To which creature does Proverbs send the sluggard to learn?",
+      "options": ["The bee", "The eagle", "The lion", "The ant"],
+      "answer": 3,
+      "evidence": "Go to the ant, you sluggard",
+      "answerTerms": ["ant"]
+    },
+    {
+      "id": "proverbs-5",
+      "ref": [15, 1, 1],
+      "q": "According to Proverbs, what turns away wrath?",
+      "options": ["A rich gift", "A long silence", "A strong arm", "A gentle answer"],
+      "answer": 3,
+      "evidence": "A gentle answer turns away wrath, but a harsh word stirs up anger"
+    },
+    {
+      "id": "proverbs-6",
+      "ref": [16, 18, 18],
+      "q": "According to Proverbs, what goes before destruction?",
+      "options": ["Hunger", "Pride", "Laziness", "War"],
+      "answer": 1,
+      "evidence": "Pride goes before destruction, and a haughty spirit before a fall"
+    },
+    {
+      "id": "proverbs-7",
+      "ref": [22, 6, 6],
+      "q": "Proverbs says to train up a child in what?",
+      "options": ["The trade of his father", "The use of the sword", "The way he should go", "The songs of David"],
+      "answer": 2,
+      "evidence": "Train up a child in the way he should go, and when he is old he will not depart from it",
+      "answerTerms": ["in the way he should go"]
+    },
+    {
+      "id": "proverbs-8",
+      "ref": [27, 17, 17],
+      "q": "\"Iron sharpens iron\", and a man sharpens what?",
+      "options": ["His friend's countenance", "His own sword", "The king's heart", "His neighbor's field"],
+      "answer": 0,
+      "evidence": "so a man sharpens his friend’s countenance",
+      "answerTerms": ["countenance"]
+    },
+    {
+      "id": "proverbs-9",
+      "ref": [30, 1, 1],
+      "q": "Whose words, the son of Jakeh, does Proverbs 30 record?",
+      "options": ["Lemuel", "Agur", "Solomon", "Asaph"],
+      "answer": 1,
+      "evidence": "The words of Agur the son of Jakeh"
+    },
+    {
+      "id": "proverbs-10",
+      "ref": [31, 1, 1],
+      "q": "Whose mother taught him the words of Proverbs 31?",
+      "options": ["King Solomon", "King Hezekiah", "King David", "King Lemuel"],
+      "answer": 3,
+      "evidence": "The words of king Lemuel",
+      "answerTerms": ["lemuel"]
+    },
+    {
+      "id": "proverbs-11",
+      "ref": [31, 10, 10],
+      "q": "The worthy woman's price is far above what?",
+      "options": ["Rubies", "Gold", "Silver", "Pearls"],
+      "answer": 0,
+      "evidence": "For her price is far above rubies"
+    }
+  ]
+}

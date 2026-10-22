@@ -1,0 +1,130 @@
+{
+  "book": "Psalms",
+  "questions": [
+    {
+      "id": "psalms-1",
+      "ref": [1, 3, 3],
+      "q": "In Psalm 1, the blessed man is like what, planted by the streams of water?",
+      "options": ["A tree", "A rock", "A lamp", "A tower"],
+      "answer": 0,
+      "evidence": "He will be like a tree planted by the streams of water, that produces its fruit in its season, whose leaf also does not wither",
+      "answerTerms": ["tree"]
+    },
+    {
+      "id": "psalms-2",
+      "ref": [19, 1, 1],
+      "q": "According to Psalm 19, what declares the glory of God?",
+      "options": ["The sea", "The mountains", "The heavens", "The birds"],
+      "answer": 2,
+      "evidence": "The heavens declare the glory of God"
+    },
+    {
+      "id": "psalms-3",
+      "ref": [22, 1, 1],
+      "q": "\"My God, my God,\" Psalm 22 begins. What does it ask next?",
+      "options": ["Where is your dwelling?", "Why have you forsaken me?", "Who can stand before you?", "When will you come?"],
+      "answer": 1,
+      "evidence": "My God, my God, why have you forsaken me",
+      "answerTerms": ["why have you forsaken me"]
+    },
+    {
+      "id": "psalms-4",
+      "ref": [23, 1, 1],
+      "q": "What does Psalm 23 call Yahweh?",
+      "options": ["My fortress", "My king", "My shield", "My shepherd"],
+      "answer": 3,
+      "evidence": "Yahweh is my shepherd: I shall lack nothing"
+    },
+    {
+      "id": "psalms-5",
+      "ref": [23, 4, 4],
+      "q": "In Psalm 23, through which valley will the psalmist fear no evil?",
+      "options": ["The valley of Jezreel", "The valley of tears", "The valley of Kidron", "The shadow of death"],
+      "answer": 3,
+      "evidence": "Even though I walk through the valley of the shadow of death, I will fear no evil, for you are with me",
+      "answerTerms": ["shadow of death"]
+    },
+    {
+      "id": "psalms-6",
+      "ref": [27, 1, 1],
+      "q": "\"Yahweh is my light and my\" what, in Psalm 27?",
+      "options": ["Song", "Salvation", "Portion", "Shield"],
+      "answer": 1,
+      "evidence": "Yahweh is my light and my salvation"
+    },
+    {
+      "id": "psalms-7",
+      "ref": [42, 1, 1],
+      "q": "As the deer pants for the water brooks, for whom does the psalmist's soul pant?",
+      "options": ["His home", "The king", "God", "Jerusalem"],
+      "answer": 2,
+      "evidence": "As the deer pants for the water brooks, so my soul pants after you, God"
+    },
+    {
+      "id": "psalms-8",
+      "ref": [46, 10, 10],
+      "q": "\"Be still, and know that I am\" what, in Psalm 46?",
+      "options": ["God", "Near", "King", "Holy"],
+      "answer": 0,
+      "evidence": "Be still, and know that I am God"
+    },
+    {
+      "id": "psalms-9",
+      "ref": [51, 1, 1],
+      "q": "Psalm 51 was written after which prophet came to David?",
+      "options": ["Gad", "Nathan", "Samuel", "Elijah"],
+      "answer": 1,
+      "evidence": "A Psalm by David, when Nathan the prophet came to him, after he had gone in to Bathsheba"
+    },
+    {
+      "id": "psalms-10",
+      "ref": [90, 1, 1],
+      "q": "Psalm 90 is a prayer by whom?",
+      "options": ["David", "Solomon", "Asaph", "Moses"],
+      "answer": 3,
+      "evidence": "A Prayer by Moses, the man of God"
+    },
+    {
+      "id": "psalms-11",
+      "ref": [103, 1, 1],
+      "q": "How does Psalm 103 begin?",
+      "options": ["Praise Yahweh, my soul!", "Shout for joy, all the earth!", "Out of the depths I have cried", "Have mercy on me, God"],
+      "answer": 0,
+      "evidence": "Praise Yahweh, my soul",
+      "answerTerms": ["praise yahweh, my soul"]
+    },
+    {
+      "id": "psalms-12",
+      "ref": [119, 105, 105],
+      "q": "In Psalm 119, what is God's word to the psalmist's feet?",
+      "options": ["A road", "A staff", "A lamp", "A rock"],
+      "answer": 2,
+      "evidence": "Your word is a lamp to my feet, and a light for my path"
+    },
+    {
+      "id": "psalms-13",
+      "ref": [121, 1, 1],
+      "q": "\"I will lift up my eyes to the\" what, in Psalm 121?",
+      "options": ["Heavens", "Temple", "Hills", "Sea"],
+      "answer": 2,
+      "evidence": "I will lift up my eyes to the hills"
+    },
+    {
+      "id": "psalms-14",
+      "ref": [137, 1, 1],
+      "q": "By the rivers of which city did the captives sit down and weep?",
+      "options": ["Babylon", "Nineveh", "Damascus", "Memphis"],
+      "answer": 0,
+      "evidence": "By the rivers of Babylon, there we sat down"
+    },
+    {
+      "id": "psalms-15",
+      "ref": [150, 6, 6],
+      "q": "In the last psalm, what is called on to praise Yah?",
+      "options": ["The kings of the earth", "The priests alone", "The angels of heaven", "Everything that has breath"],
+      "answer": 3,
+      "evidence": "Let everything that has breath praise Yah",
+      "answerTerms": ["everything that has breath"]
+    }
+  ]
+}

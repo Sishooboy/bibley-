@@ -1,0 +1,83 @@
+{
+  "book": "Wisdom",
+  "questions": [
+    {
+      "id": "wisdom-1",
+      "ref": [1, 1, 1],
+      "q": "Whom does the Wisdom of Solomon first call to love righteousness?",
+      "options": ["The judges of the earth", "The priests of the temple", "The young men of Israel", "The kings of Egypt"],
+      "answer": 0,
+      "evidence": "Love righteousness, you that be judges of the earth, Think you of the Lord with a good mind, And in singleness of heart seek you him",
+      "answerTerms": ["judges of the earth"]
+    },
+    {
+      "id": "wisdom-2",
+      "ref": [2, 24, 24],
+      "q": "By whose envy did death enter the world?",
+      "options": ["Cain's", "Pharaoh's", "The devil's", "Goliath's"],
+      "answer": 2,
+      "evidence": "But by the envy of the devil death entered into the world, And they that are of his portion make trial thereof",
+      "answerTerms": ["devil"]
+    },
+    {
+      "id": "wisdom-3",
+      "ref": [3, 1, 1],
+      "q": "\"The souls of the righteous are in the hand of\" whom?",
+      "options": ["The angels", "God", "The wise", "The fathers"],
+      "answer": 1,
+      "evidence": "But the souls of the righteous are in the hand of God, And no torment shall touch them"
+    },
+    {
+      "id": "wisdom-4",
+      "ref": [7, 26, 26],
+      "q": "Wisdom is called an unspotted mirror of what?",
+      "options": ["The human heart", "The night sky", "The law of Moses", "The working of God"],
+      "answer": 3,
+      "evidence": "For she is an effulgence from everlasting light, And an unspotted mirror of the working of God, And an image of his goodness",
+      "answerTerms": ["working of god"]
+    },
+    {
+      "id": "wisdom-5",
+      "ref": [11, 20, 20],
+      "q": "By measure, number and what did God order all things?",
+      "options": ["Time", "Color", "Sound", "Weight"],
+      "answer": 3,
+      "evidence": "But by measure and number and weight you did order all things"
+    },
+    {
+      "id": "wisdom-6",
+      "ref": [13, 5, 5],
+      "q": "From the beauty of created things, man forms the image of whom?",
+      "options": ["The angels", "Their first maker", "The ancients", "The kings"],
+      "answer": 1,
+      "evidence": "For from the greatness of the beauty even of created things In like proportion does man form the image of their first maker",
+      "answerTerms": ["first maker"]
+    },
+    {
+      "id": "wisdom-7",
+      "ref": [16, 20, 20],
+      "q": "What food did God give his people, according to Wisdom 16?",
+      "options": ["Locusts and honey", "Bread of the Egyptians", "Angels' food", "The firstfruits"],
+      "answer": 2,
+      "evidence": "Instead whereof you gave your people angels’ food to eat",
+      "answerTerms": ["angels"]
+    },
+    {
+      "id": "wisdom-8",
+      "ref": [18, 15, 15],
+      "q": "What leaped down from heaven, out of the royal throne?",
+      "options": ["Your all-powerful word", "A pillar of fire", "A flood of water", "A choir of angels"],
+      "answer": 0,
+      "evidence": "Your all-powerful word leaped from heaven out of the royal throne, A stern warrior, into the midst of the doomed land",
+      "answerTerms": ["all-powerful word"]
+    },
+    {
+      "id": "wisdom-9",
+      "ref": [9, 4, 4],
+      "q": "Whom does Solomon ask God to give him, she who sits by his throne?",
+      "options": ["A queen", "Wisdom", "A prophet", "A judge"],
+      "answer": 1,
+      "evidence": "Give me wisdom, her that sits by you on your throne"
+    }
+  ]
+}

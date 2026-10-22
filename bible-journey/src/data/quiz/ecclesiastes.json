@@ -1,0 +1,64 @@
+{
+  "book": "Ecclesiastes",
+  "questions": [
+    {
+      "id": "ecclesiastes-1",
+      "ref": [1, 1, 1],
+      "q": "What does the book call its writer, the son of David, king in Jerusalem?",
+      "options": ["The Preacher", "The Prophet", "The Seer", "The Scribe"],
+      "answer": 0,
+      "evidence": "The words of the Preacher, the son of David, king in Jerusalem",
+      "answerTerms": ["preacher"]
+    },
+    {
+      "id": "ecclesiastes-2",
+      "ref": [1, 9, 9],
+      "q": "Where does the Preacher say there is nothing new?",
+      "options": ["In the sea", "In heaven", "Under the sun", "In Jerusalem"],
+      "answer": 2,
+      "evidence": "and that which has been done is that which shall be done: and there is no new thing under the sun"
+    },
+    {
+      "id": "ecclesiastes-3",
+      "ref": [3, 1, 1],
+      "q": "For everything there is a season, and a time for every purpose under what?",
+      "options": ["The law", "Heaven", "The stars", "Each king"],
+      "answer": 1,
+      "evidence": "For everything there is a season, and a time for every purpose under heaven"
+    },
+    {
+      "id": "ecclesiastes-4",
+      "ref": [4, 9, 9],
+      "q": "What does the Preacher say are better than one?",
+      "options": ["Three", "Ten", "Many", "Two"],
+      "answer": 3,
+      "evidence": "Two are better than one, because they have a good reward for their labor"
+    },
+    {
+      "id": "ecclesiastes-5",
+      "ref": [11, 1, 1],
+      "q": "Where does the Preacher say to cast your bread?",
+      "options": ["On the ground", "To the birds", "Into the fire", "On the waters"],
+      "answer": 3,
+      "evidence": "Cast your bread on the waters",
+      "answerTerms": ["on the waters"]
+    },
+    {
+      "id": "ecclesiastes-6",
+      "ref": [12, 1, 1],
+      "q": "\"Remember also your Creator in the days of your\" what?",
+      "options": ["Trouble", "Youth", "Wealth", "Old age"],
+      "answer": 1,
+      "evidence": "Remember also your Creator in the days of your youth, before the evil days come, and the years draw near, when you will say, “I have no pleasure in them”"
+    },
+    {
+      "id": "ecclesiastes-7",
+      "ref": [12, 13, 13],
+      "q": "What does the Preacher conclude is the whole duty of man?",
+      "options": ["Eat, drink and be merry", "Gain wisdom above all", "Fear God and keep his commandments", "Build a house and plant a vineyard"],
+      "answer": 2,
+      "evidence": "Fear God, and keep his commandments",
+      "answerTerms": ["fear god", "keep his commandments"]
+    }
+  ]
+}

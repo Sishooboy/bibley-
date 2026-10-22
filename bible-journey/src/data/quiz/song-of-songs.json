@@ -1,0 +1,55 @@
+{
+  "book": "Song of Songs",
+  "questions": [
+    {
+      "id": "song-of-songs-1",
+      "ref": [1, 1, 1],
+      "q": "Whose is the Song of Songs, by its first line?",
+      "options": ["Solomon's", "David's", "Asaph's", "Lemuel's"],
+      "answer": 0,
+      "evidence": "The Song of songs, which is Solomon’s",
+      "answerTerms": ["solomon"]
+    },
+    {
+      "id": "song-of-songs-2",
+      "ref": [1, 5, 5],
+      "q": "Like whose tents does the beloved say she is dark?",
+      "options": ["Edom's", "Midian's", "Kedar's", "Moab's"],
+      "answer": 2,
+      "evidence": "I am dark, but lovely, you daughters of Jerusalem, like Kedar’s tents, like Solomon’s curtains",
+      "answerTerms": ["kedar"]
+    },
+    {
+      "id": "song-of-songs-3",
+      "ref": [2, 1, 1],
+      "q": "\"I am a rose of\" where?",
+      "options": ["Lebanon", "Sharon", "Carmel", "Gilead"],
+      "answer": 1,
+      "evidence": "I am a rose of Sharon, a lily of the valleys"
+    },
+    {
+      "id": "song-of-songs-4",
+      "ref": [2, 15, 15],
+      "q": "What spoils the vineyards in the Song?",
+      "options": ["The wild boars", "The locusts", "The birds of the air", "The little foxes"],
+      "answer": 3,
+      "evidence": "Catch for us the foxes, the little foxes that plunder the vineyards"
+    },
+    {
+      "id": "song-of-songs-5",
+      "ref": [4, 1, 1],
+      "q": "\"Behold, you are beautiful,\" the Song says. \"Your eyes are\" what?",
+      "options": ["Stars", "Pools", "Jewels", "Doves"],
+      "answer": 3,
+      "evidence": "Your eyes are doves behind your veil"
+    },
+    {
+      "id": "song-of-songs-6",
+      "ref": [8, 6, 6],
+      "q": "\"Love is strong as\" what?",
+      "options": ["Iron", "Death", "The sea", "A lion"],
+      "answer": 1,
+      "evidence": "for love is strong as death"
+    }
+  ]
+}
