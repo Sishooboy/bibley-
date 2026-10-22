@@ -1,0 +1,78 @@
+{
+  "book": "Judges",
+  "questions": [
+    {
+      "id": "judges-1",
+      "ref": [3, 15, 15],
+      "q": "Which deliverer of Israel was left-handed?",
+      "options": ["Ehud", "Othniel", "Shamgar", "Barak"],
+      "answer": 0,
+      "evidence": "But when the children of Israel cried to Yahweh, Yahweh raised up a savior for them, Ehud the son of Gera, the Benjamite, a left-handed man"
+    },
+    {
+      "id": "judges-2",
+      "ref": [4, 4, 4],
+      "q": "Which prophetess was judging Israel at the time of Jabin and Sisera?",
+      "options": ["Jael", "Miriam", "Deborah", "Huldah"],
+      "answer": 2,
+      "evidence": "Now Deborah, a prophetess, the wife of Lappidoth, judged Israel at that time"
+    },
+    {
+      "id": "judges-3",
+      "ref": [4, 21, 21],
+      "q": "Who drove a tent peg into Sisera's temple?",
+      "options": ["Deborah", "Jael", "Delilah", "Rahab"],
+      "answer": 1,
+      "evidence": "Then Jael Heber’s wife took a tent peg, and took a hammer in her hand, and went softly to him, and struck the pin into his temples, and it pierced through into the ground"
+    },
+    {
+      "id": "judges-4",
+      "ref": [6, 37, 37],
+      "q": "What did Gideon lay on the threshing floor as a sign?",
+      "options": ["A stone", "His sword", "A loaf of bread", "A fleece of wool"],
+      "answer": 3,
+      "evidence": "behold, I will put a fleece of wool on the threshing floor"
+    },
+    {
+      "id": "judges-5",
+      "ref": [7, 7, 7],
+      "q": "With how many men did Yahweh say he would save Israel through Gideon?",
+      "options": ["Ten thousand", "Thirty-two thousand", "Twelve", "Three hundred"],
+      "answer": 3,
+      "evidence": "Yahweh said to Gideon, “By the three hundred men who lapped will I save you, and deliver the Midianites into your hand"
+    },
+    {
+      "id": "judges-6",
+      "ref": [13, 24, 24],
+      "q": "What did Manoah's wife name the son she bore?",
+      "options": ["Samuel", "Samson", "Gideon", "Micah"],
+      "answer": 1,
+      "evidence": "The woman bore a son, and named him Samson"
+    },
+    {
+      "id": "judges-7",
+      "ref": [14, 5, 6],
+      "q": "What did Samson tear apart with nothing in his hand?",
+      "options": ["A bear", "A wolf", "A young lion", "A wild ox"],
+      "answer": 2,
+      "evidence": "and behold, a young lion roared against him. Yahweh’s Spirit came mightily on him, and he tore him as he would have torn a young goat"
+    },
+    {
+      "id": "judges-8",
+      "ref": [16, 4, 4],
+      "q": "What was the name of the woman Samson loved in the valley of Sorek?",
+      "options": ["Delilah", "Jael", "Deborah", "Naomi"],
+      "answer": 0,
+      "evidence": "It came to pass afterward, that he loved a woman in the valley of Sorek, whose name was Delilah"
+    },
+    {
+      "id": "judges-9",
+      "ref": [21, 25, 25],
+      "q": "In the days when Israel had no king, everyone did what was right in whose eyes?",
+      "options": ["The king's", "His own", "The judge's", "The priest's"],
+      "answer": 1,
+      "evidence": "Everyone did that which was right in his own eyes",
+      "answerTerms": ["his own eyes"]
+    }
+  ]
+}

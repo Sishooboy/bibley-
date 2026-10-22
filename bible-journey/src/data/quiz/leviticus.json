@@ -1,0 +1,90 @@
+{
+  "book": "Leviticus",
+  "questions": [
+    {
+      "id": "leviticus-1",
+      "ref": [6, 13, 13],
+      "q": "What was to be kept burning on the altar continually?",
+      "options": ["Fire", "Incense", "A lamp of oil", "The bread"],
+      "answer": 0,
+      "evidence": "Fire shall be kept burning on the altar continually"
+    },
+    {
+      "id": "leviticus-2",
+      "ref": [8, 12, 12],
+      "q": "Whom did Moses anoint by pouring oil on his head?",
+      "options": ["Joshua", "Eleazar", "Aaron", "Korah"],
+      "answer": 2,
+      "evidence": "He poured some of the anointing oil on Aaron’s head, and anointed him, to sanctify him"
+    },
+    {
+      "id": "leviticus-3",
+      "ref": [10, 1, 2],
+      "q": "Which two sons of Aaron offered strange fire before Yahweh?",
+      "options": ["Eleazar and Ithamar", "Nadab and Abihu", "Moses and Joshua", "Korah and Dathan"],
+      "answer": 1,
+      "evidence": "Nadab and Abihu, the sons of Aaron, each took his censer, and put fire in it, and laid incense on it, and offered strange fire before Yahweh, which he had not commanded them"
+    },
+    {
+      "id": "leviticus-4",
+      "ref": [11, 3, 3],
+      "q": "Besides parting the hoof, what must an animal do for Israel to eat it?",
+      "options": ["Live in the water", "Have no horns", "Fly by day", "Chew the cud"],
+      "answer": 3,
+      "evidence": "Whatever parts the hoof, and is cloven-footed, and chews the cud among the animals, that you may eat",
+      "answerTerms": ["chews the cud"]
+    },
+    {
+      "id": "leviticus-5",
+      "ref": [16, 8, 8],
+      "q": "On the Day of Atonement, Aaron cast lots over two of what?",
+      "options": ["Lambs", "Bulls", "Doves", "Goats"],
+      "answer": 3,
+      "evidence": "Aaron shall cast lots for the two goats"
+    },
+    {
+      "id": "leviticus-6",
+      "ref": [16, 21, 22],
+      "q": "Where was the goat carrying the people's iniquities sent?",
+      "options": ["Into the sea", "Into the wilderness", "To Jerusalem", "To Egypt"],
+      "answer": 1,
+      "evidence": "and he shall put them on the head of the goat, and shall send him away into the wilderness by the hand of a man who is in readiness",
+      "answerTerms": ["wilderness"]
+    },
+    {
+      "id": "leviticus-7",
+      "ref": [19, 18, 18],
+      "q": "Leviticus says you shall love your neighbor as whom?",
+      "options": ["Your father", "Your brother", "Yourself", "Your king"],
+      "answer": 2,
+      "evidence": "but you shall love your neighbor as yourself"
+    },
+    {
+      "id": "leviticus-8",
+      "ref": [23, 5, 5],
+      "q": "On which day of the first month is Yahweh's Passover?",
+      "options": ["The fourteenth", "The tenth", "The seventh", "The twentieth"],
+      "answer": 0,
+      "evidence": "In the first month, on the fourteenth day of the month in the evening, is Yahweh’s Passover",
+      "answerTerms": ["fourteenth"]
+    },
+    {
+      "id": "leviticus-9",
+      "ref": [25, 10, 10],
+      "q": "What was the fiftieth year to be?",
+      "options": ["A Sabbath of weeks", "A jubilee", "A Passover", "A day of atonement"],
+      "answer": 1,
+      "evidence": "It shall be a jubilee to you",
+      "answerTerms": ["jubilee"]
+    },
+    {
+      "id": "leviticus-10",
+      "ref": [26, 12, 12],
+      "q": "If Israel walks in his statutes, what does God promise they will be?",
+      "options": ["My servants", "A nation of kings", "As many as the stars", "My people"],
+      "answer": 3,
+      "evidence": "I will walk among you, and will be your God, and you will be my people",
+      "answerTerms": ["my people"]
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "book": "Numbers",
+  "questions": [
+    {
+      "id": "numbers-1",
+      "ref": [6, 24, 26],
+      "q": "How does the blessing Aaron and his sons were to speak begin?",
+      "options": ["Yahweh bless you, and keep you", "Hear, Israel", "Holy, holy, holy", "Praise Yahweh"],
+      "answer": 0,
+      "evidence": "Yahweh bless you, and keep you"
+    },
+    {
+      "id": "numbers-2",
+      "ref": [9, 15, 15],
+      "q": "Over the tabernacle at night, what did the cloud look like?",
+      "options": ["A star", "Smoke", "Fire", "Lightning"],
+      "answer": 2,
+      "evidence": "On the day that the tabernacle was raised up, the cloud covered the tabernacle, even the Tent of the Testimony: and at evening it was over the tabernacle as it were the appearance of fire, until morning"
+    },
+    {
+      "id": "numbers-3",
+      "ref": [11, 31, 31],
+      "q": "When Israel craved meat, what did a wind from Yahweh bring from the sea?",
+      "options": ["Manna", "Quails", "Fish", "Locusts"],
+      "answer": 1,
+      "evidence": "A wind from Yahweh went out and brought quails from the sea"
+    },
+    {
+      "id": "numbers-4",
+      "ref": [12, 10, 10],
+      "q": "Who became leprous, white as snow, after speaking against Moses?",
+      "options": ["Zipporah", "Korah", "Eldad", "Miriam"],
+      "answer": 3,
+      "evidence": "and behold, Miriam was leprous, as white as snow"
+    },
+    {
+      "id": "numbers-5",
+      "ref": [13, 16, 16],
+      "q": "What name did Moses give Hoshea the son of Nun?",
+      "options": ["Caleb", "Eleazar", "Gideon", "Joshua"],
+      "answer": 3,
+      "evidence": "Moses called Hoshea the son of Nun Joshua"
+    },
+    {
+      "id": "numbers-6",
+      "ref": [14, 33, 34],
+      "q": "For how many years would Israel wander in the wilderness?",
+      "options": ["Seven", "Forty", "Twelve", "Seventy"],
+      "answer": 1,
+      "evidence": "Your children shall be wanderers in the wilderness forty years, and shall bear your prostitution, until your dead bodies are consumed in the wilderness"
+    },
+    {
+      "id": "numbers-7",
+      "ref": [16, 32, 32],
+      "q": "What happened to Korah and the men who stood with him?",
+      "options": ["They were turned to salt", "They drowned in the sea", "The earth swallowed them", "They were stoned"],
+      "answer": 2,
+      "evidence": "The earth opened its mouth and swallowed them up, with their households, all of Korah’s men, and all their goods",
+      "answerTerms": ["swallowed"]
+    },
+    {
+      "id": "numbers-8",
+      "ref": [17, 8, 8],
+      "q": "Whose rod budded, blossomed and bore ripe almonds?",
+      "options": ["Aaron", "Moses", "Korah", "Joshua"],
+      "answer": 0,
+      "evidence": "and behold, Aaron’s rod for the house of Levi had sprouted, budded, produced blossoms, and bore ripe almonds"
+    },
+    {
+      "id": "numbers-9",
+      "ref": [20, 11, 11],
+      "q": "How many times did Moses strike the rock at Meribah?",
+      "options": ["Once", "Twice", "Three times", "Seven times"],
+      "answer": 1,
+      "evidence": "Moses lifted up his hand, and struck the rock with his rod twice, and water came out abundantly"
+    },
+    {
+      "id": "numbers-10",
+      "ref": [21, 9, 9],
+      "q": "What did Moses set on a pole so that the bitten could look and live?",
+      "options": ["A golden calf", "A silver trumpet", "A lamp of gold", "A serpent of brass"],
+      "answer": 3,
+      "evidence": "Moses made a serpent of brass, and set it on the pole"
+    },
+    {
+      "id": "numbers-11",
+      "ref": [22, 28, 28],
+      "q": "Whose donkey was given a voice to speak to him?",
+      "options": ["Balaam", "Balak", "Moses", "Phinehas"],
+      "answer": 0,
+      "evidence": "Yahweh opened the mouth of the donkey, and she said to Balaam, “What have I done to you, that you have struck me these three times"
+    },
+    {
+      "id": "numbers-12",
+      "ref": [32, 1, 1],
+      "q": "Which tribes had so much livestock that they asked for the land of Gilead?",
+      "options": ["Judah and Benjamin", "Ephraim and Manasseh", "Reuben and Gad", "Levi and Simeon"],
+      "answer": 2,
+      "evidence": "Now the children of Reuben and the children of Gad had a very great multitude of livestock",
+      "answerTerms": ["Reuben", "Gad"]
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "book": "Joshua",
+  "questions": [
+    {
+      "id": "joshua-1",
+      "ref": [2, 1, 1],
+      "q": "In whose house did the two spies lodge in Jericho?",
+      "options": ["Rahab", "Achan", "Deborah", "Miriam"],
+      "answer": 0,
+      "evidence": "They went and came into the house of a prostitute whose name was Rahab, and slept there"
+    },
+    {
+      "id": "joshua-2",
+      "ref": [2, 18, 18],
+      "q": "What did Rahab tie in the window so her house would be spared?",
+      "options": ["A white cloth", "A lamp", "A scarlet cord", "A palm branch"],
+      "answer": 2,
+      "evidence": "Behold, when we come into the land, tie this line of scarlet thread in the window which you used to let us down",
+      "answerTerms": ["scarlet"]
+    },
+    {
+      "id": "joshua-3",
+      "ref": [3, 17, 17],
+      "q": "When the priests stood in the Jordan, how did all Israel cross?",
+      "options": ["On rafts", "On dry ground", "Over a bridge", "Through shallow water"],
+      "answer": 1,
+      "evidence": "and all Israel crossed over on dry ground, until all the nation had passed completely over the Jordan",
+      "answerTerms": ["dry ground"]
+    },
+    {
+      "id": "joshua-4",
+      "ref": [4, 3, 3],
+      "q": "How many stones were taken from the middle of the Jordan?",
+      "options": ["Seven", "Ten", "Three", "Twelve"],
+      "answer": 3,
+      "evidence": "twelve stones"
+    },
+    {
+      "id": "joshua-5",
+      "ref": [6, 4, 4],
+      "q": "How many times were they to march around Jericho on the seventh day?",
+      "options": ["Twelve times", "Three times", "Once", "Seven times"],
+      "answer": 3,
+      "evidence": "On the seventh day, you shall march around the city seven times, and the priests shall blow the trumpets"
+    },
+    {
+      "id": "joshua-6",
+      "ref": [6, 20, 20],
+      "q": "What happened to the wall of Jericho when the people shouted?",
+      "options": ["It caught fire", "It fell down flat", "It sank into the ground", "It split in two"],
+      "answer": 1,
+      "evidence": "When the people heard the sound of the trumpet, the people shouted with a great shout, and the wall fell down flat, so that the people went up into the city, every man straight in front of him, and they took the city",
+      "answerTerms": ["fell down flat"]
+    },
+    {
+      "id": "joshua-7",
+      "ref": [7, 1, 1],
+      "q": "Who took some of the devoted things at Jericho?",
+      "options": ["Rahab", "Caleb", "Achan", "Eleazar"],
+      "answer": 2,
+      "evidence": "for Achan, the son of Carmi, the son of Zabdi, the son of Zerah, of the tribe of Judah, took some of the devoted things"
+    },
+    {
+      "id": "joshua-8",
+      "ref": [10, 13, 13],
+      "q": "During the battle for Gibeon, what stood still in the sky?",
+      "options": ["The sun", "A star", "A cloud", "A flame"],
+      "answer": 0,
+      "evidence": "The sun stood still, and the moon stayed, until the nation had avenged themselves of their enemies"
+    },
+    {
+      "id": "joshua-9",
+      "ref": [14, 13, 13],
+      "q": "Which city did Joshua give to Caleb?",
+      "options": ["Jericho", "Hebron", "Shiloh", "Gibeon"],
+      "answer": 1,
+      "evidence": "and he gave Hebron to Caleb the son of Jephunneh for an inheritance"
+    },
+    {
+      "id": "joshua-10",
+      "ref": [24, 15, 15],
+      "q": "\"As for me and my house,\" Joshua said, \"we will\" do what?",
+      "options": ["Return to Egypt", "Build a city", "Go to war", "Serve Yahweh"],
+      "answer": 3,
+      "evidence": "but as for me and my house, we will serve Yahweh"
+    }
+  ]
+}

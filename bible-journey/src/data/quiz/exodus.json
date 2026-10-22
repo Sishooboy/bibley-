@@ -1,0 +1,112 @@
+{
+  "book": "Exodus",
+  "questions": [
+    {
+      "id": "exodus-1",
+      "ref": [2, 10, 10],
+      "q": "What name did Pharaoh's daughter give the child she drew out of the water?",
+      "options": ["Moses", "Aaron", "Joshua", "Levi"],
+      "answer": 0,
+      "evidence": "She named him Moses, and said, “Because I drew him out of the water"
+    },
+    {
+      "id": "exodus-2",
+      "ref": [3, 2, 2],
+      "q": "How did the angel of Yahweh appear to Moses at Horeb?",
+      "options": ["In a pillar of cloud", "In a dream at night", "In a flame of fire in a bush", "In a great wind"],
+      "answer": 2,
+      "evidence": "Yahweh’s angel appeared to him in a flame of fire out of the middle of a bush",
+      "answerTerms": ["flame of fire", "bush"]
+    },
+    {
+      "id": "exodus-3",
+      "ref": [3, 14, 14],
+      "q": "When Moses asked God's name, what did God answer?",
+      "options": ["The Most High", "I AM WHO I AM", "The Lord of Hosts", "The Holy One"],
+      "answer": 1,
+      "evidence": "God said to Moses, “I AM WHO I AM,” and he said, “You shall tell the children of Israel this: ‘I AM has sent me to you"
+    },
+    {
+      "id": "exodus-4",
+      "ref": [7, 20, 20],
+      "q": "In the first plague, what did the waters of the river become?",
+      "options": ["Wine", "Ice", "Dust", "Blood"],
+      "answer": 3,
+      "evidence": "and all the waters that were in the river were turned to blood"
+    },
+    {
+      "id": "exodus-5",
+      "ref": [12, 13, 13],
+      "q": "On the night of the Passover, what would Yahweh see on the houses and pass over?",
+      "options": ["Bread", "A lamp", "Oil", "The blood"],
+      "answer": 3,
+      "evidence": "The blood shall be to you for a token on the houses where you are: and when I see the blood, I will pass over you, and there shall no plague be on you to destroy you, when I strike the land of Egypt"
+    },
+    {
+      "id": "exodus-6",
+      "ref": [14, 22, 22],
+      "q": "When the sea was divided, what did Israel walk through it on?",
+      "options": ["A bridge of boats", "Dry ground", "Shallow water", "Ice"],
+      "answer": 1,
+      "evidence": "The children of Israel went into the middle of the sea on the dry ground, and the waters were a wall to them on their right hand, and on their left"
+    },
+    {
+      "id": "exodus-7",
+      "ref": [16, 31, 31],
+      "q": "What did the house of Israel call the bread Yahweh gave them?",
+      "options": ["Quail", "Showbread", "Manna", "Firstfruits"],
+      "answer": 2,
+      "evidence": "The house of Israel called its name Manna, and it was like coriander seed, white"
+    },
+    {
+      "id": "exodus-8",
+      "ref": [17, 6, 6],
+      "q": "At Horeb, what did Moses strike so that water would come out?",
+      "options": ["The rock", "The sea", "The sand", "A tree"],
+      "answer": 0,
+      "evidence": "You shall strike the rock, and water will come out of it, that the people may drink"
+    },
+    {
+      "id": "exodus-9",
+      "ref": [20, 12, 12],
+      "q": "Which commandment carries the promise \"that your days may be long\"?",
+      "options": ["Remember the Sabbath day", "Honor your father and your mother", "You shall not steal", "You shall not murder"],
+      "answer": 1,
+      "evidence": "Honor your father and your mother, that your days may be long in the land which Yahweh your God gives you",
+      "answerTerms": ["Honor your father and your mother"]
+    },
+    {
+      "id": "exodus-10",
+      "ref": [24, 18, 18],
+      "q": "How long was Moses on the mountain when he went up into the cloud?",
+      "options": ["Seven days", "Three days and three nights", "Twelve days", "Forty days and forty nights"],
+      "answer": 3,
+      "evidence": "and Moses was on the mountain forty days and forty nights"
+    },
+    {
+      "id": "exodus-11",
+      "ref": [32, 4, 4],
+      "q": "What did Aaron make out of the gold the people gave him?",
+      "options": ["A calf", "A serpent", "A lampstand", "An ark"],
+      "answer": 0,
+      "evidence": "He received what they handed him, and fashioned it with an engraving tool, and made it a molten calf",
+      "answerTerms": ["calf"]
+    },
+    {
+      "id": "exodus-12",
+      "ref": [34, 28, 28],
+      "q": "What did Yahweh write on the new tablets?",
+      "options": ["The names of the twelve tribes", "The law of the Passover", "The ten commandments", "The plan of the tabernacle"],
+      "answer": 2,
+      "evidence": "He wrote on the tablets the words of the covenant, the ten commandments"
+    },
+    {
+      "id": "exodus-13",
+      "ref": [40, 34, 34],
+      "q": "When the tabernacle was finished, what filled it?",
+      "options": ["Smoke from the altar", "The people of Israel", "Yahweh's glory", "Rain"],
+      "answer": 2,
+      "evidence": "Then the cloud covered the Tent of Meeting, and Yahweh’s glory filled the tabernacle"
+    }
+  ]
+}

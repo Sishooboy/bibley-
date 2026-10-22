@@ -1,0 +1,105 @@
+{
+  "book": "Deuteronomy",
+  "questions": [
+    {
+      "id": "deuteronomy-1",
+      "ref": [1, 2, 2],
+      "q": "How many days' journey is it from Horeb to Kadesh Barnea by Mount Seir?",
+      "options": ["Eleven", "Forty", "Seven", "Three"],
+      "answer": 0,
+      "evidence": "It is eleven days’ journey from Horeb by the way of Mount Seir to Kadesh Barnea"
+    },
+    {
+      "id": "deuteronomy-2",
+      "ref": [3, 27, 27],
+      "q": "Which river did Yahweh tell Moses he would only see across from the top of Pisgah?",
+      "options": ["The Nile", "The Euphrates", "The Jordan", "The Arnon"],
+      "answer": 2,
+      "evidence": "for you shall not go over this Jordan",
+      "answerTerms": ["Jordan"]
+    },
+    {
+      "id": "deuteronomy-3",
+      "ref": [4, 13, 13],
+      "q": "On what did God write the ten commandments?",
+      "options": ["A scroll of leather", "Two stone tablets", "The door posts", "A plate of bronze"],
+      "answer": 1,
+      "evidence": "He wrote them on two stone tablets"
+    },
+    {
+      "id": "deuteronomy-4",
+      "ref": [6, 4, 4],
+      "q": "\"Hear, Israel: Yahweh is our God.\" What does Moses say Yahweh is?",
+      "options": ["Holy", "Near", "Mighty", "One"],
+      "answer": 3,
+      "evidence": "Yahweh is one"
+    },
+    {
+      "id": "deuteronomy-5",
+      "ref": [6, 9, 9],
+      "q": "Where were Israel to write these words?",
+      "options": ["On the sand of the shore", "On the walls of the temple", "On the robes of the priests", "On the door posts of your house"],
+      "answer": 3,
+      "evidence": "You shall write them on the door posts of your house, and on your gates",
+      "answerTerms": ["door posts of your house"]
+    },
+    {
+      "id": "deuteronomy-6",
+      "ref": [14, 22, 22],
+      "q": "What were Israel to set aside from all the increase of their seed each year?",
+      "options": ["The firstborn", "A tithe", "Half", "The gleanings"],
+      "answer": 1,
+      "evidence": "You shall surely tithe all the increase of your seed, that which comes out of the field year by year",
+      "answerTerms": ["tithe"]
+    },
+    {
+      "id": "deuteronomy-7",
+      "ref": [16, 16, 16],
+      "q": "How many times a year were all Israel's males to appear before Yahweh?",
+      "options": ["Seven", "Twelve", "Three", "Once"],
+      "answer": 2,
+      "evidence": "Three times in a year all of your males shall appear before Yahweh your God in the place which he chooses: in the feast of unleavened bread, in the feast of weeks, and in the feast of tents"
+    },
+    {
+      "id": "deuteronomy-8",
+      "ref": [18, 15, 15],
+      "q": "Moses said Yahweh would raise up a prophet from among Israel like whom?",
+      "options": ["Moses himself", "Aaron", "Abraham", "Joshua"],
+      "answer": 0,
+      "evidence": "Yahweh your God will raise up to you a prophet from among you, of your brothers, like me",
+      "answerTerms": ["like me"]
+    },
+    {
+      "id": "deuteronomy-9",
+      "ref": [30, 19, 19],
+      "q": "Moses set life and death before Israel. Which did he tell them to choose?",
+      "options": ["Wealth", "Life", "A king", "Silence"],
+      "answer": 1,
+      "evidence": "Therefore choose life, that you may live, you and your descendants"
+    },
+    {
+      "id": "deuteronomy-10",
+      "ref": [31, 6, 6],
+      "q": "Moses told Israel to be strong and what?",
+      "options": ["Patient", "Silent", "Humble", "Courageous"],
+      "answer": 3,
+      "evidence": "Be strong and courageous"
+    },
+    {
+      "id": "deuteronomy-11",
+      "ref": [34, 1, 1],
+      "q": "Which mountain did Moses climb to see the promised land before he died?",
+      "options": ["Mount Nebo", "Mount Sinai", "Mount Carmel", "Mount Zion"],
+      "answer": 0,
+      "evidence": "Moses went up from the plains of Moab to Mount Nebo, to the top of Pisgah, that is over against Jericho"
+    },
+    {
+      "id": "deuteronomy-12",
+      "ref": [34, 7, 7],
+      "q": "How old was Moses when he died?",
+      "options": ["Eighty", "Forty", "One hundred twenty", "Ninety-nine"],
+      "answer": 2,
+      "evidence": "Moses was one hundred twenty years old when he died"
+    }
+  ]
+}

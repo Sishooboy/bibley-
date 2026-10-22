@@ -1,0 +1,120 @@
+{
+  "book": "Genesis",
+  "questions": [
+    {
+      "id": "genesis-1",
+      "ref": [1, 26, 31],
+      "q": "On which day of creation did God make mankind?",
+      "options": ["The sixth day", "The third day", "The fifth day", "The seventh day"],
+      "answer": 0,
+      "evidence": "There was evening and there was morning, a sixth day",
+      "answerTerms": ["sixth day"]
+    },
+    {
+      "id": "genesis-2",
+      "ref": [2, 2, 3],
+      "q": "What did God do on the seventh day?",
+      "options": ["He made the stars", "He planted a garden", "He rested", "He named the animals"],
+      "answer": 2,
+      "evidence": "and he rested on the seventh day from all his work which he had done"
+    },
+    {
+      "id": "genesis-3",
+      "ref": [2, 21, 22],
+      "q": "What did God take from the man to make the woman?",
+      "options": ["Dust of the ground", "One of his ribs", "A branch of a tree", "His breath"],
+      "answer": 1,
+      "evidence": "As the man slept, he took one of his ribs, and closed up the flesh in its place"
+    },
+    {
+      "id": "genesis-4",
+      "ref": [4, 8, 8],
+      "q": "Who killed his brother Abel?",
+      "options": ["Seth", "Enoch", "Lamech", "Cain"],
+      "answer": 3,
+      "evidence": "While they were in the field, Cain rose up against Abel, his brother, and killed him"
+    },
+    {
+      "id": "genesis-5",
+      "ref": [7, 12, 12],
+      "q": "How long did the rain fall in the flood?",
+      "options": ["Seven days and seven nights", "Three days", "A hundred and fifty days", "Forty days and forty nights"],
+      "answer": 3,
+      "evidence": "It rained on the earth forty days and forty nights"
+    },
+    {
+      "id": "genesis-6",
+      "ref": [9, 13, 13],
+      "q": "What did God set in the cloud as the sign of his covenant after the flood?",
+      "options": ["A star", "His rainbow", "A pillar of fire", "An olive tree"],
+      "answer": 1,
+      "evidence": "I set my rainbow in the cloud, and it will be a sign of a covenant between me and the earth",
+      "answerTerms": ["rainbow"]
+    },
+    {
+      "id": "genesis-7",
+      "ref": [11, 9, 9],
+      "q": "What was the city called where Yahweh confused the language of all the earth?",
+      "options": ["Ur", "Haran", "Babel", "Nineveh"],
+      "answer": 2,
+      "evidence": "Therefore its name was called Babel, because there Yahweh confused the language of all the earth"
+    },
+    {
+      "id": "genesis-8",
+      "ref": [12, 4, 4],
+      "q": "How old was Abram when he departed from Haran?",
+      "options": ["Seventy-five", "Ninety-nine", "One hundred", "Forty"],
+      "answer": 0,
+      "evidence": "Abram was seventy-five years old when he departed from Haran"
+    },
+    {
+      "id": "genesis-9",
+      "ref": [21, 1, 3],
+      "q": "What did Abraham name the son Sarah bore him?",
+      "options": ["Ishmael", "Isaac", "Jacob", "Esau"],
+      "answer": 1,
+      "evidence": "Abraham called his son who was born to him, whom Sarah bore to him, Isaac"
+    },
+    {
+      "id": "genesis-10",
+      "ref": [22, 13, 13],
+      "q": "What did Abraham offer up instead of his son on the mountain?",
+      "options": ["A lamb", "A goat", "A dove", "A ram"],
+      "answer": 3,
+      "evidence": "Abraham lifted up his eyes, and looked, and saw that behind him was a ram caught in the thicket by his horns",
+      "answerTerms": ["ram"]
+    },
+    {
+      "id": "genesis-11",
+      "ref": [25, 33, 34],
+      "q": "What did Jacob give Esau in exchange for his birthright?",
+      "options": ["Bread and stew of lentils", "A flock of sheep", "A silver cup", "A coat of many colors"],
+      "answer": 0,
+      "evidence": "Jacob gave Esau bread and stew of lentils"
+    },
+    {
+      "id": "genesis-12",
+      "ref": [32, 28, 28],
+      "q": "After Jacob wrestled until daybreak, what new name was he given?",
+      "options": ["Abraham", "Judah", "Israel", "Joseph"],
+      "answer": 2,
+      "evidence": "He said, “Your name will no longer be called Jacob, but Israel"
+    },
+    {
+      "id": "genesis-13",
+      "ref": [37, 3, 3],
+      "q": "What did Israel make for Joseph, the son he loved most?",
+      "options": ["A silver cup", "A golden ring", "A coat of many colors", "A shepherd's staff"],
+      "answer": 2,
+      "evidence": "Now Israel loved Joseph more than all his children, because he was the son of his old age, and he made him a coat of many colors"
+    },
+    {
+      "id": "genesis-14",
+      "ref": [41, 41, 41],
+      "q": "Over which land did Pharaoh set Joseph?",
+      "options": ["Egypt", "Canaan", "Goshen", "Midian"],
+      "answer": 0,
+      "evidence": "Pharaoh said to Joseph, “Behold, I have set you over all the land of Egypt"
+    }
+  ]
+}

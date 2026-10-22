@@ -1,0 +1,37 @@
+{
+  "book": "Ruth",
+  "questions": [
+    {
+      "id": "ruth-1",
+      "ref": [1, 16, 16],
+      "q": "Who said, \"Your people will be my people\"?",
+      "options": ["Ruth", "Naomi", "Orpah", "Boaz"],
+      "answer": 0,
+      "evidence": "Ruth said, “Don’t urge me to leave you, and to return from following you, for where you go, I will go; and where you stay, I will stay. Your people will be my people, and your God my God"
+    },
+    {
+      "id": "ruth-2",
+      "ref": [1, 20, 20],
+      "q": "What did Naomi ask to be called when she came back to Bethlehem?",
+      "options": ["Orpah", "Leah", "Mara", "Hannah"],
+      "answer": 2,
+      "evidence": "Call me Mara"
+    },
+    {
+      "id": "ruth-3",
+      "ref": [2, 3, 3],
+      "q": "In whose field did Ruth happen to glean?",
+      "options": ["Obed", "Boaz", "Jesse", "Mahlon"],
+      "answer": 1,
+      "evidence": "and she happened to come to the portion of the field belonging to Boaz, who was of the family of Elimelech"
+    },
+    {
+      "id": "ruth-4",
+      "ref": [4, 17, 17],
+      "q": "What was the name of the son born to Ruth and Boaz?",
+      "options": ["Perez", "Mahlon", "Salmon", "Obed"],
+      "answer": 3,
+      "evidence": "They named him Obed"
+    }
+  ]
+}
