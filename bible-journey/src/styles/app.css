@@ -10597,13 +10597,6 @@ select {
   padding-bottom: clamp(3rem, 6vw, 4.5rem);
 }
 
-.quizView__note {
-  max-width: 60ch;
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
 .quizList {
   display: grid;
   margin: 0;

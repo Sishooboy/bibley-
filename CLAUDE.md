@@ -276,10 +276,10 @@ redeploy.**
   refresh** for the whole module, and the reducer has to be exported so the tests can reach it.
   `src/state/cloud.tsx` mirrors the journal to Supabase.
 - `src/lib/merge.ts` reconciles two copies of a journal. Read it before touching sync.
-- Views are `Journey`, `Notes`, `Friends`, `Stats`, `Settings`. Journey has its own hero and book
-  rows. The other four share one system: `ViewHeader` for the masthead, `.card` for every panel, and
-  the `Notes, Stats and Settings` block at the end of `app.css`. Change `.card` there and all four
-  move together.
+- Views are `Journey`, `Notes`, `Quiz`, `Friends`, `Stats`, `Settings`. Journey has its own hero
+  and book rows. The other five share one system: `ViewHeader` for the masthead, `.card` for every
+  panel, and the `Notes, Stats and Settings` block at the end of `app.css`. Change `.card` there and
+  all five move together.
 - **Before adding a class to `app.css`, check the name is not already taken.** This has bitten
   twice: `.panel` (Journey's cards, redefined for the inner views, which repainted the verse of the
   day cream on cream) and `.planCard` (the testament chooser's cards, redefined for the Settings
@@ -1014,6 +1014,75 @@ recording of this exact translation.** That is what this is.
   chimes never arrive together. Those chimes, `open` and `note` in `sound.ts`, are **not on the
   cue ladder**: nothing in the journal changed, so they are not the reducer's business. They play
   on the first arrival only; a re-open from the pill rises but makes no sound.
+
+### Quizzes, and why every answer is cut from the text
+
+Every book has a short multiple choice quiz, 536 questions across the 73, to remind a reader what
+they read. **A wrong question is worse than no question**: it teaches something false about
+scripture with the app's authority behind it. So the content is held to the same standard as the
+numbers section, and the suite is what holds it there.
+
+- **Every question proves itself against the shipped text.** It carries a `ref`, `[chapter, from,
+  to]`, and an `evidence` string that must be an exact substring of those verses after `fold()`.
+  The right answer, or its `answerTerms` where the option is phrased for the screen, must stand in
+  the evidence as whole words, and **no wrong option may appear in it at all**. That last rule is
+  what catches the subtle failure: a distractor that is also in the verse is a second right answer.
+  `quiz.test.ts` reads `public/bible/` directly, so a question written from memory of a different
+  translation fails on the first run. It does: "Ebed-Melech" is `Ebedmelech` here, Micah is "the
+  Morashtite", Psalm 150 says "Yah", and Peter says "I have no silver or gold".
+- **The evidence has to hold the proving clause, not only the answer word.** "Cain" appears in
+  Genesis 4 before and after the murder; an evidence span that is just the first "Cain" passes
+  every check and proves nothing. The fix was editorial rather than mechanical: each span was read
+  and widened to the sentence that actually settles the question. The suite cannot tell the
+  difference, which is why the read-through was not optional.
+- **The checks a test can never make were made by reading.** A wrong option can be true somewhere
+  else in the same book: "while we were still enemies" is Romans 5:10, so "Enemies" was not a fair
+  wrong answer to a question on 5:8 even though 5:8 never says it. Parallel accounts are the same
+  trap at a larger scale. Chronicles and Samuel disagree on figures, and the Gospels tell the same
+  scene in different words, so **every question asks what this book says in its own words**, and
+  none was written where a reader remembering the other account would be marked wrong.
+- **Shape rules, all pinned:** four different options, no negative stems and no "all of the above"
+  (a quoted "not" is allowed, since it belongs to scripture), a stem under 120 characters and an
+  option under 48 so both fit a phone, the right answer never parked in one position for most of a
+  book, and every quiz asking about at least three chapters including the book's first and last
+  third, so a quiz is about the book rather than its opening. Eighteen mutations were run against
+  these checks and all eighteen were caught.
+- **Size is `clamp(round(2 * sqrt(chapters)), 3, 15)`**: 3 for Jude, 15 for Psalms, 11 for
+  Matthew. A square root because a quiz is a reminder, not an exam, and a book four times longer
+  deserves twice the questions rather than four times. The total of 536 is pinned.
+- **One fixed set a book, shuffled each attempt.** `prepare(items, seed)` reorders the questions
+  and the options together, so retaking it is not a memory test of positions. A fixed set is what
+  makes "best 9 of 11" mean something across attempts.
+- **The questions live in `src/data/quiz/`, never under `public/bible/`.** They load through
+  `import.meta.glob` as fingerprinted chunks, one a book. Under `/bible/` they would be served
+  cache first with no revalidation, so fixing one wrong answer would need a `CACHE` bump, which
+  throws away every book the reader has downloaded. A chunk with a new hash simply replaces the
+  old one.
+- **After each answer the sheet shows the verse with the evidence marked**, and "Read it in
+  context" opens the reader at that verse through `landOn`. The quiz sends you back to the text,
+  which is the point of it.
+- **Scores sync, and shipped in two releases.** `quizzes` on `AppData` is `{ best, of, at }` by
+  key. `normalizeQuizzes` shipped first and read only (f7540b0), and nothing wrote the field until
+  the next release (3b12b35), because `normalize()` is a whitelist and an older client would strip
+  a field it did not know. `mergeQuizzes` keeps the better **share**, not the larger count, so a
+  quiz that changes size cannot make an old score look better than it was, and a tie goes to the
+  later `at`. `sameJournal` compares it, or a new best would never be written.
+- **`recordQuiz` keeps only a better result and fires no cue.** A quiz is not progress through the
+  Bible, so it does not ring the ladder. Its three sounds, `right`, `miss` and `done`, are chimes
+  like the insight ones, measured at -21.4, -21.7 and -17.4 dBFS against the chapter tick's -14.6:
+  a quiz is a run of small answers and must not sound like a run of small celebrations.
+- **The offer appears in the reader's footer on a finished book** until the quiz is taken or the
+  offer dismissed, and the dismissal is device-local under `bible-journey/quiz-offers-dismissed`. Finishing a book is already the moment
+  with a celebration on it, so the offer waits under it rather than competing. A finished book's
+  panel on the journey carries "Take the quiz" or its best score.
+- **The Quiz tab follows the reader's own plan**, phase by phase, finished books first in each.
+  Unread books are listed under "Not read yet" and still open, since somebody may want to test
+  themselves before reading; books outside the plan get a group of their own.
+- **Phase quizzes are not built yet.** `samplePhase` and `phaseQuizSize` exist and are tested: a
+  phase quiz draws from its books' questions, weighted by chapters, asking every book at least once.
+  The UI is next, and a phase of one book should not get one, since it would only repeat that
+  book's quiz.
+
 ### The data model
 
 One row per account in `public.journals`: `user_id`, `data` jsonb, `updated_at`. Row-level security
@@ -1295,7 +1364,8 @@ notes, stats, streaks, an offline app shell, full text search over all 73 books,
 note on the chapters that matter, a streak that celebrates itself when it grows and can be
 protected by rest days it earns, a finished book and a finished plan that each get their own
 moment, a reader that turns its pages, a knock and a dip on every press in the app, a six panel welcome guide that
-hands over to a tour of the real controls, and a synced settings screen.
+hands over to a tour of the real controls, a quiz for every one of the 73 books with synced best
+scores, and a synced settings screen.
 
 Notes and highlights share one feed in the Notes view, sorted by when each was last touched. They
 are different objects with the same purpose, so the filter switches between them rather than

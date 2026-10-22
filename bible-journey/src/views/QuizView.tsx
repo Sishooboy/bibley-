@@ -16,10 +16,9 @@ type Row = { book: string; finished: boolean; result?: QuizResult };
  * Every book's quiz, in the phases of the reader's own plan, so the list is the
  * journey's spine and not a second ordering to learn.
  *
- * **Only books with a quiz are listed.** The questions are being written a
- * book at a time, each one checked against the text, and seventy rows reading
- * "coming soon" would be a wall announcing what is missing. One line says how
- * far the writing has got instead.
+ * **Only books with a quiz are listed**, which is every book, and the suite
+ * fails if one goes missing. The filter stays so a lost file costs a row rather
+ * than a row that opens onto nothing.
  *
  * Finished books come first in each phase, since a quiz is a reminder of
  * something read; the rest sit under "Not read yet" and still open, because
@@ -65,18 +64,13 @@ export function QuizView() {
         lede="A few questions on each book, answered from the text itself. Every answer shows you the verse it comes from."
         meta={
           <>
-            <HeadChip gold>{plural(QUIZ_BOOKS.length, 'book')} so far</HeadChip>
-            {taken > 0 && <HeadChip>{plural(taken, 'quiz', 'quizzes')} taken</HeadChip>}
+            <HeadChip>{plural(QUIZ_BOOKS.length, 'book')}</HeadChip>
+            {taken > 0 && <HeadChip gold>{plural(taken, 'quiz', 'quizzes')} taken</HeadChip>}
           </>
         }
       />
 
       <div className="container quizView">
-        <p ref={reveal} className="quizView__note reveal">
-          Quizzes are being written a book at a time, each question checked against the words of
-          the World English Bible. {QUIZ_BOOKS.length} of {CANON.length} books have one so far.
-        </p>
-
         {groups.map((group) => {
           const ready = group.rows.filter((r) => r.finished);
           const later = group.rows.filter((r) => !r.finished);
