@@ -1,0 +1,71 @@
+{
+  "book": "Judith",
+  "questions": [
+    {
+      "id": "judith-1",
+      "ref": [1, 1, 1],
+      "q": "From which city does Judith say Nebuchadnezzar reigned over the Assyrians?",
+      "options": ["Nineveh", "Babylon", "Susa", "Damascus"],
+      "answer": 0,
+      "evidence": "IN the twelfth year of the reign of Nebuchadnezzar, who reigned over the Assyrians in Nineveh, the great city"
+    },
+    {
+      "id": "judith-2",
+      "ref": [2, 4, 4],
+      "q": "Who was the chief captain of Nebuchadnezzar's army?",
+      "options": ["Achior", "Bagoas", "Holofernes", "Arphaxad"],
+      "answer": 2,
+      "evidence": "And it came to pass, when he had ended his counsel, Nebuchadnezzar king of the Assyrians called Holofernes the chief captain of his host, which was next after himself, and said to him"
+    },
+    {
+      "id": "judith-3",
+      "ref": [5, 5, 5],
+      "q": "Which leader of the Ammonites told Holofernes the history of Israel?",
+      "options": ["Bagoas", "Achior", "Ozias", "Arphaxad"],
+      "answer": 1,
+      "evidence": "And Achior, the leader of all the children of Ammon"
+    },
+    {
+      "id": "judith-4",
+      "ref": [7, 1, 1],
+      "q": "Toward which city did Holofernes command his whole army to move its camp?",
+      "options": ["Jerusalem", "Samaria", "Jericho", "Bethulia"],
+      "answer": 3,
+      "evidence": "that they should remove their camp toward Bethulia"
+    },
+    {
+      "id": "judith-5",
+      "ref": [8, 4, 4],
+      "q": "How long had Judith been a widow?",
+      "options": ["Seven years", "Forty days", "Twelve years", "Three years and four months"],
+      "answer": 3,
+      "evidence": "And Judith was a widow in her house three years and four months"
+    },
+    {
+      "id": "judith-6",
+      "ref": [13, 8, 8],
+      "q": "How many times did Judith strike Holofernes' neck?",
+      "options": ["Once", "Twice", "Three times", "Seven times"],
+      "answer": 1,
+      "evidence": "And she struck twice upon his neck with all her might, and took away his head from him"
+    },
+    {
+      "id": "judith-7",
+      "ref": [14, 1, 1],
+      "q": "Where did Judith tell the people to hang the head of Holofernes?",
+      "options": ["At the city gate", "In the temple", "On the battlement of the wall", "On a tree by the spring"],
+      "answer": 2,
+      "evidence": "And Judith said to them, Hear me now, my brethren, and take this head, and hang it upon the battlement of your wall",
+      "answerTerms": ["battlement"]
+    },
+    {
+      "id": "judith-8",
+      "ref": [16, 23, 23],
+      "q": "How old was Judith when she died?",
+      "options": ["A hundred and five", "Eighty", "Ninety-nine", "One hundred twenty"],
+      "answer": 0,
+      "evidence": "and she waxed old in her husband’s house, to a hundred and five years, and let her maid go free: and she died in Bethulia",
+      "answerTerms": ["hundred and five years"]
+    }
+  ]
+}

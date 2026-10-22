@@ -1,0 +1,64 @@
+{
+  "book": "Tobit",
+  "questions": [
+    {
+      "id": "tobit-1",
+      "ref": [2, 10, 10],
+      "q": "What fell into Tobit's eyes as he slept by the wall, and blinded him?",
+      "options": ["Sparrows' dung", "Sand from the road", "Ashes from a fire", "Smoke"],
+      "answer": 0,
+      "evidence": "and, mine eyes being open, the sparrows muted warm dung into mine eyes, and white films came in mine eyes",
+      "answerTerms": ["sparrows"]
+    },
+    {
+      "id": "tobit-2",
+      "ref": [3, 8, 8],
+      "q": "How many husbands had Sarah lost before Tobias came?",
+      "options": ["Three", "Two", "Seven", "Twelve"],
+      "answer": 2,
+      "evidence": "because that she had been given to seven husbands, and Asmodaeus the evil spirit killed them, before they had lain with her"
+    },
+    {
+      "id": "tobit-3",
+      "ref": [5, 4, 4],
+      "q": "Which angel travelled with Tobias?",
+      "options": ["Gabriel", "Raphael", "Michael", "Uriel"],
+      "answer": 1,
+      "evidence": "And he went to seek a man, and found Raphael which was an angel"
+    },
+    {
+      "id": "tobit-4",
+      "ref": [6, 2, 3],
+      "q": "What leaped out of the river at Tobias as he washed?",
+      "options": ["A crocodile", "A lion", "A serpent", "A fish"],
+      "answer": 3,
+      "evidence": "But the young man went down to wash himself, and a fish leaped out of the river, and would have swallowed up the young man",
+      "answerTerms": ["fish"]
+    },
+    {
+      "id": "tobit-5",
+      "ref": [8, 3, 3],
+      "q": "When the demon smelled the smoke, where did it flee?",
+      "options": ["Babylon", "Nineveh", "Persia", "Egypt"],
+      "answer": 3,
+      "evidence": "But when the devil smelled the smell, he fled into the uppermost parts of Egypt, and the angel bound him"
+    },
+    {
+      "id": "tobit-6",
+      "ref": [11, 11, 13],
+      "q": "What did Tobias put on his father's eyes to heal them?",
+      "options": ["Clay and spittle", "The gall of the fish", "Oil and wine", "Water from the Jordan"],
+      "answer": 1,
+      "evidence": "and took hold of his father: and he struck the gall on his father’s eyes, saying, Be of good cheer, my father",
+      "answerTerms": ["gall"]
+    },
+    {
+      "id": "tobit-7",
+      "ref": [12, 15, 15],
+      "q": "Raphael said he was one of how many holy angels?",
+      "options": ["Twelve", "Three", "Seven", "Seventy"],
+      "answer": 2,
+      "evidence": "I am Raphael, one of the seven holy angels, which present the prayers of the saints, and go in before the glory of the Holy One"
+    }
+  ]
+}

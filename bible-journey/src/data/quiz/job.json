@@ -1,0 +1,111 @@
+{
+  "book": "Job",
+  "questions": [
+    {
+      "id": "job-1",
+      "ref": [1, 1, 1],
+      "q": "In which land did Job live?",
+      "options": ["Uz", "Ur", "Edom", "Moab"],
+      "answer": 0,
+      "evidence": "There was a man in the land of Uz, whose name was Job"
+    },
+    {
+      "id": "job-2",
+      "ref": [1, 2, 2],
+      "q": "How many sons were born to Job?",
+      "options": ["Ten", "Twelve", "Seven", "Five"],
+      "answer": 2,
+      "evidence": "There were born to him seven sons and three daughters"
+    },
+    {
+      "id": "job-3",
+      "ref": [1, 21, 21],
+      "q": "\"Yahweh gave, and Yahweh has taken away.\" How did Job end that saying?",
+      "options": ["I will not be silent", "Blessed be Yahweh's name", "Who can stand before him", "Let the day perish"],
+      "answer": 1,
+      "evidence": "Blessed be Yahweh’s name"
+    },
+    {
+      "id": "job-4",
+      "ref": [2, 7, 7],
+      "q": "With what did Satan strike Job from the sole of his foot to his head?",
+      "options": ["Blindness", "A fever", "Lameness", "Painful sores"],
+      "answer": 3,
+      "evidence": "So Satan went out from the presence of Yahweh, and struck Job with painful sores from the sole of his foot to his head",
+      "answerTerms": ["sores"]
+    },
+    {
+      "id": "job-5",
+      "ref": [2, 9, 9],
+      "q": "Who told Job, \"Renounce God, and die\"?",
+      "options": ["Eliphaz", "Bildad", "Elihu", "His wife"],
+      "answer": 3,
+      "evidence": "Then his wife said to him, “Do you still maintain your integrity? Renounce God, and die",
+      "answerTerms": ["his wife"]
+    },
+    {
+      "id": "job-6",
+      "ref": [2, 11, 11],
+      "q": "Which of Job's friends was called the Temanite?",
+      "options": ["Elihu", "Eliphaz", "Eldad", "Ezra"],
+      "answer": 1,
+      "evidence": "Now when Job’s three friends heard of all this evil that had come on him, they each came from his own place: Eliphaz the Temanite, Bildad the Shuhite, and Zophar the Naamathite"
+    },
+    {
+      "id": "job-7",
+      "ref": [2, 13, 13],
+      "q": "How long did the friends sit with Job on the ground, without a word?",
+      "options": ["Three days", "Forty days", "Seven days and seven nights", "One night"],
+      "answer": 2,
+      "evidence": "So they sat down with him on the ground seven days and seven nights, and no one spoke a word to him, for they saw that his grief was very great"
+    },
+    {
+      "id": "job-8",
+      "ref": [19, 25, 25],
+      "q": "\"I know that my\" who \"lives\", Job said?",
+      "options": ["Redeemer", "King", "Father", "Shepherd"],
+      "answer": 0,
+      "evidence": "But as for me, I know that my Redeemer lives"
+    },
+    {
+      "id": "job-9",
+      "ref": [32, 2, 2],
+      "q": "Which young man spoke after the three friends fell silent?",
+      "options": ["Eliphaz", "Elihu", "Baruch", "Buz"],
+      "answer": 1,
+      "evidence": "Then the wrath of Elihu the son of Barachel, the Buzite, of the family of Ram, was kindled against Job"
+    },
+    {
+      "id": "job-10",
+      "ref": [38, 1, 1],
+      "q": "Out of what did Yahweh answer Job?",
+      "options": ["A burning bush", "A cloud", "A fire", "The whirlwind"],
+      "answer": 3,
+      "evidence": "Then Yahweh answered Job out of the whirlwind"
+    },
+    {
+      "id": "job-11",
+      "ref": [38, 4, 4],
+      "q": "\"Where were you when I laid the foundations of\" what, Yahweh asked?",
+      "options": ["The earth", "The temple", "The heavens", "Jerusalem"],
+      "answer": 0,
+      "evidence": "Where were you when I laid the foundations of the earth"
+    },
+    {
+      "id": "job-12",
+      "ref": [42, 10, 10],
+      "q": "How much did Yahweh give Job, compared with what he had before?",
+      "options": ["The same again", "Half as much", "Twice as much", "Ten times as much"],
+      "answer": 2,
+      "evidence": "Yahweh gave Job twice as much as he had before"
+    },
+    {
+      "id": "job-13",
+      "ref": [42, 16, 16],
+      "q": "How long did Job live after this?",
+      "options": ["Seventy years", "Ninety years", "One hundred forty years", "Two hundred years"],
+      "answer": 2,
+      "evidence": "After this Job lived one hundred forty years, and saw his sons, and his sons’ sons, to four generations"
+    }
+  ]
+}

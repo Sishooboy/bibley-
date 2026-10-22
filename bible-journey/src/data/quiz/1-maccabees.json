@@ -1,0 +1,69 @@
+{
+  "book": "1 Maccabees",
+  "questions": [
+    {
+      "id": "1-maccabees-1",
+      "ref": [1, 1, 1],
+      "q": "Which king, the son of Philip, came out of the land of Chittim?",
+      "options": ["Alexander", "Antiochus", "Darius", "Ptolemy"],
+      "answer": 0,
+      "evidence": "after that Alexander the Macedonian, the son of Philip, who came out of the land of Chittim"
+    },
+    {
+      "id": "1-maccabees-2",
+      "ref": [1, 10, 10],
+      "q": "Which wicked root came out of Alexander's successors, a son of Antiochus the king?",
+      "options": ["Demetrius", "Ptolemy", "Antiochus Epiphanes", "Seleucus"],
+      "answer": 2,
+      "evidence": "And there came forth out of them a sinful root, Antiochus Epiphanes, son of Antiochus the king, who had been a hostage at Rome, and he reigned in the hundred and thirty and seventh year of the kingdom of the Greeks"
+    },
+    {
+      "id": "1-maccabees-3",
+      "ref": [2, 1, 1],
+      "q": "Where did the priest Mattathias live?",
+      "options": ["Bethlehem", "Modin", "Jericho", "Hebron"],
+      "answer": 1,
+      "evidence": "and he lived at Modin"
+    },
+    {
+      "id": "1-maccabees-4",
+      "ref": [2, 4, 4],
+      "q": "Which son of Mattathias was called Maccabaeus?",
+      "options": ["Jonathan", "Eleazar", "John", "Judas"],
+      "answer": 3,
+      "evidence": "Judas, who was called Maccabaeus"
+    },
+    {
+      "id": "1-maccabees-5",
+      "ref": [4, 59, 59],
+      "q": "For how many days did they keep the dedication of the altar?",
+      "options": ["Seven", "Three", "Twelve", "Eight"],
+      "answer": 3,
+      "evidence": "that the days of the dedication of the altar should be kept in their seasons from year to year by the space of eight days"
+    },
+    {
+      "id": "1-maccabees-6",
+      "ref": [6, 43, 46],
+      "q": "Who gave himself to deliver his people by attacking the elephant the king seemed to ride?",
+      "options": ["Judas", "Eleazar", "Jonathan", "Simon"],
+      "answer": 1,
+      "evidence": "And Eleazar, who was called Avaran, saw one of the beasts armed with royal breastplates, and he was higher than all the beasts, and the king seemed to be upon him; and he gave himself to deliver his people"
+    },
+    {
+      "id": "1-maccabees-7",
+      "ref": [9, 30, 31],
+      "q": "Who was chosen to lead in place of his brother Judas?",
+      "options": ["Simon", "John", "Jonathan", "Eleazar"],
+      "answer": 2,
+      "evidence": "And Jonathan took the governance upon him at that time, and rose up in the stead of his brother Judas"
+    },
+    {
+      "id": "1-maccabees-8",
+      "ref": [14, 41, 41],
+      "q": "Whom did the Jews and the priests make their leader and high priest for ever?",
+      "options": ["Simon", "Jonathan", "Judas", "John"],
+      "answer": 0,
+      "evidence": "and that the Jews and the priests were well pleased that Simon should be their leader and high priest for ever, until there should arise a faithful prophet"
+    }
+  ]
+}

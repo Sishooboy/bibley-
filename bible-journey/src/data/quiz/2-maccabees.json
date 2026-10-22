@@ -1,0 +1,72 @@
+{
+  "book": "2 Maccabees",
+  "questions": [
+    {
+      "id": "2-maccabees-1",
+      "ref": [2, 23, 23],
+      "q": "Whose five books does 2 Maccabees say it shortens into one?",
+      "options": ["Jason of Cyrene", "Ezra the scribe", "Nehemiah", "Mattathias"],
+      "answer": 0,
+      "evidence": "these things, I say, which have been declared by Jason of Cyrene in five books, we will assay to abridge in one work",
+      "answerTerms": ["Jason of Cyrene"]
+    },
+    {
+      "id": "2-maccabees-2",
+      "ref": [3, 24, 26],
+      "q": "Who came to seize the temple treasury and was struck down by a vision of a horse and rider?",
+      "options": ["Nicanor", "Lysias", "Heliodorus", "Apollonius"],
+      "answer": 2,
+      "evidence": "and he rushed fiercely and struck at Heliodorus with his forefeet"
+    },
+    {
+      "id": "2-maccabees-3",
+      "ref": [6, 18, 18],
+      "q": "Which aged scribe chose death rather than eat swine's flesh?",
+      "options": ["Razis", "Eleazar", "Onias", "Jason"],
+      "answer": 1,
+      "evidence": "Eleazar, one of the principal scribes, a man already well stricken in years, and of a noble countenance, was compelled to open his mouth to eat swine’s flesh"
+    },
+    {
+      "id": "2-maccabees-4",
+      "ref": [7, 1, 1],
+      "q": "How many brothers were arrested with their mother?",
+      "options": ["Three", "Five", "Ten", "Seven"],
+      "answer": 3,
+      "evidence": "And it came to pass that seven brethren also with their mother were at the king’s command taken and shamefully handled with scourges and cords, to compel them to taste of the abominable swine’s flesh"
+    },
+    {
+      "id": "2-maccabees-5",
+      "ref": [8, 1, 1],
+      "q": "About how many men did Judas Maccabaeus first gather?",
+      "options": ["Three hundred", "Ten thousand", "Forty thousand", "Six thousand"],
+      "answer": 3,
+      "evidence": "and taking to them such as had continued in the Jews’ religion, gathered together as many as six thousand"
+    },
+    {
+      "id": "2-maccabees-6",
+      "ref": [10, 5, 5],
+      "q": "On which day of the month Chislev was the sanctuary purified?",
+      "options": ["The first", "The twenty-fifth", "The fourteenth", "The tenth"],
+      "answer": 1,
+      "evidence": "Now on the same day that the sanctuary was profaned by aliens, upon that very day did it come to pass that the cleansing of the sanctuary was made, even on the five and twentieth day of the same month, which is Chislev",
+      "answerTerms": ["five and twentieth"]
+    },
+    {
+      "id": "2-maccabees-7",
+      "ref": [15, 14, 16],
+      "q": "In Judas' vision, which prophet gave him a sword of gold?",
+      "options": ["Isaiah", "Elijah", "Jeremiah", "Daniel"],
+      "answer": 2,
+      "evidence": "and Jeremiah stretching forth his right hand delivered to Judas a sword of gold, and in giving it addressed him thus, Take the holy sword, a gift from God, wherewith you shall strike down the adversaries"
+    },
+    {
+      "id": "2-maccabees-8",
+      "ref": [15, 36, 36],
+      "q": "The victory over Nicanor was to be kept on the day before which day?",
+      "options": ["Mordecai's day", "The Passover", "The day of atonement", "The Sabbath"],
+      "answer": 0,
+      "evidence": "the day before the day of Mordecai",
+      "answerTerms": ["mordecai"]
+    }
+  ]
+}

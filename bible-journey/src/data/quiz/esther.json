@@ -1,0 +1,70 @@
+{
+  "book": "Esther",
+  "questions": [
+    {
+      "id": "esther-1",
+      "ref": [1, 12, 12],
+      "q": "Which queen refused to come at the king's command?",
+      "options": ["Vashti", "Esther", "Zeresh", "Jezebel"],
+      "answer": 0,
+      "evidence": "But the queen Vashti refused to come at the king’s commandment by the eunuchs"
+    },
+    {
+      "id": "esther-2",
+      "ref": [2, 7, 7],
+      "q": "Who brought up Esther as his own daughter?",
+      "options": ["Haman", "Hegai", "Mordecai", "Hathach"],
+      "answer": 2,
+      "evidence": "and when her father and mother were dead, Mordecai took her for his own daughter"
+    },
+    {
+      "id": "esther-3",
+      "ref": [3, 6, 6],
+      "q": "Who sought to destroy all the Jews throughout the kingdom of Ahasuerus?",
+      "options": ["Mordecai", "Haman", "Hegai", "Bigthan"],
+      "answer": 1,
+      "evidence": "Therefore Haman sought to destroy all the Jews who were throughout the whole kingdom of Ahasuerus"
+    },
+    {
+      "id": "esther-4",
+      "ref": [4, 13, 14],
+      "q": "Who told Esther she may have come to the kingdom for such a time as this?",
+      "options": ["Hathach", "Hegai", "Haman", "Mordecai"],
+      "answer": 3,
+      "evidence": "Mordecai asked them return answer to Esther, “Don’t think to yourself that you will escape in the king’s house any more than all the Jews. For if you remain silent now, then relief and deliverance will come to the Jews from another place, but you and your father’s house will perish. Who knows if you haven’t come to the kingdom for such a time as this"
+    },
+    {
+      "id": "esther-5",
+      "ref": [5, 14, 14],
+      "q": "How high was the gallows Haman had made?",
+      "options": ["Ten cubits", "Twenty cubits", "One hundred cubits", "Fifty cubits"],
+      "answer": 3,
+      "evidence": "Then Zeresh his wife and all his friends said to him, “Let a gallows be made fifty cubits high, and in the morning speak to the king about hanging Mordecai on it"
+    },
+    {
+      "id": "esther-6",
+      "ref": [7, 10, 10],
+      "q": "Who was hanged on the gallows he had prepared for Mordecai?",
+      "options": ["Bigthan", "Haman", "Teresh", "Hegai"],
+      "answer": 1,
+      "evidence": "So they hanged Haman on the gallows that he had prepared for Mordecai"
+    },
+    {
+      "id": "esther-7",
+      "ref": [9, 26, 26],
+      "q": "What were the days called, after the lot Haman cast?",
+      "options": ["Passover", "Tabernacles", "Purim", "Hanukkah"],
+      "answer": 2,
+      "evidence": "Therefore they called these days “Purim”, from the word “Pur"
+    },
+    {
+      "id": "esther-8",
+      "ref": [11, 6, 6],
+      "q": "In Mordecai's dream, what came forth ready to fight?",
+      "options": ["Two great dragons", "Two lions", "Two armies of horsemen", "Two eagles"],
+      "answer": 0,
+      "evidence": "and, behold, two great dragons came forth, both of them ready to fight, and their cry was great",
+      "answerTerms": ["two great dragons"]
+    }
+  ]
+}
