@@ -1,0 +1,39 @@
+{
+  "book": "Philippians",
+  "questions": [
+    {
+      "id": "philippians-1",
+      "ref": [1, 21, 21],
+      "q": "For Paul, to live is Christ, and to die is what?",
+      "options": ["Gain", "Loss", "Rest", "Sleep"],
+      "answer": 0,
+      "evidence": "For to me to live is Christ, and to die is gain"
+    },
+    {
+      "id": "philippians-2",
+      "ref": [2, 10, 10],
+      "q": "At the name of Jesus, what should bow?",
+      "options": ["Every king", "Every head", "Every knee", "Every nation"],
+      "answer": 2,
+      "evidence": "that at the name of Jesus every knee should bow, of those in heaven, those on earth, and those under the earth",
+      "answerTerms": ["every knee"]
+    },
+    {
+      "id": "philippians-3",
+      "ref": [3, 5, 5],
+      "q": "Of which tribe was Paul?",
+      "options": ["Judah", "Benjamin", "Levi", "Ephraim"],
+      "answer": 1,
+      "evidence": "circumcised the eighth day, of the stock of Israel, of the tribe of Benjamin, a Hebrew of Hebrews"
+    },
+    {
+      "id": "philippians-4",
+      "ref": [4, 13, 13],
+      "q": "Through whom does Paul say he can do all things?",
+      "options": ["The church at Philippi", "His own strength", "The law", "Christ, who strengthens him"],
+      "answer": 3,
+      "evidence": "I can do all things through Christ, who strengthens me",
+      "answerTerms": ["christ, who strengthens me"]
+    }
+  ]
+}

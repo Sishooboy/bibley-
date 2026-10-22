@@ -1,0 +1,73 @@
+{
+  "book": "1 Corinthians",
+  "questions": [
+    {
+      "id": "1-corinthians-1",
+      "ref": [1, 2, 2],
+      "q": "To the assembly in which city is 1 Corinthians written?",
+      "options": ["Corinth", "Rome", "Athens", "Thessalonica"],
+      "answer": 0,
+      "evidence": "to the assembly of God which is at Corinth"
+    },
+    {
+      "id": "1-corinthians-2",
+      "ref": [3, 6, 6],
+      "q": "Paul planted. Who watered?",
+      "options": ["Peter", "Timothy", "Apollos", "Silas"],
+      "answer": 2,
+      "evidence": "Apollos watered"
+    },
+    {
+      "id": "1-corinthians-3",
+      "ref": [6, 19, 19],
+      "q": "What does Paul call the body of a believer?",
+      "options": ["A house of clay", "A temple of the Holy Spirit", "A garment", "A tent of meeting"],
+      "answer": 1,
+      "evidence": "Or don’t you know that your body is a temple of the Holy Spirit who is in you, whom you have from God",
+      "answerTerms": ["temple of the holy spirit"]
+    },
+    {
+      "id": "1-corinthians-4",
+      "ref": [11, 23, 23],
+      "q": "On which night did the Lord Jesus take bread, Paul writes?",
+      "options": ["The night of the storm", "The night he was born", "The night of the census", "The night he was betrayed"],
+      "answer": 3,
+      "evidence": "For I received from the Lord that which also I delivered to you, that the Lord Jesus on the night in which he was betrayed took bread",
+      "answerTerms": ["betrayed"]
+    },
+    {
+      "id": "1-corinthians-5",
+      "ref": [12, 12, 12],
+      "q": "The body is one, Paul says, but has many what?",
+      "options": ["Heads", "Names", "Gifts", "Members"],
+      "answer": 3,
+      "evidence": "For as the body is one, and has many members, and all the members of the body, being many, are one body"
+    },
+    {
+      "id": "1-corinthians-6",
+      "ref": [13, 13, 13],
+      "q": "Of faith, hope, and love, which does Paul call the greatest?",
+      "options": ["Faith", "Love", "Hope", "All three equally"],
+      "answer": 1,
+      "evidence": "The greatest of these is love",
+      "answerTerms": ["greatest of these is love"]
+    },
+    {
+      "id": "1-corinthians-7",
+      "ref": [15, 4, 4],
+      "q": "On which day was Christ raised, according to the Scriptures?",
+      "options": ["The seventh day", "The first day", "The third day", "The fortieth day"],
+      "answer": 2,
+      "evidence": "that he was buried, that he was raised on the third day according to the Scriptures",
+      "answerTerms": ["third day"]
+    },
+    {
+      "id": "1-corinthians-8",
+      "ref": [15, 55, 55],
+      "q": "\"Death, where is your\" what, Paul asks?",
+      "options": ["Sting", "Crown", "Power", "Shadow"],
+      "answer": 0,
+      "evidence": "Death, where is your sting"
+    }
+  ]
+}

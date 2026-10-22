@@ -1,0 +1,47 @@
+{
+  "book": "Ephesians",
+  "questions": [
+    {
+      "id": "ephesians-1",
+      "ref": [1, 1, 1],
+      "q": "To the saints in which city is Ephesians addressed?",
+      "options": ["Ephesus", "Colossae", "Laodicea", "Philippi"],
+      "answer": 0,
+      "evidence": "Paul, an apostle of Christ Jesus through the will of God, to the saints who are at Ephesus, and the faithful in Christ Jesus"
+    },
+    {
+      "id": "ephesians-2",
+      "ref": [2, 8, 8],
+      "q": "By what have you been saved through faith, Paul says?",
+      "options": ["Works", "The law", "Grace", "Sacrifice"],
+      "answer": 2,
+      "evidence": "for by grace you have been saved through faith, and that not of yourselves"
+    },
+    {
+      "id": "ephesians-3",
+      "ref": [4, 5, 5],
+      "q": "\"One Lord, one faith,\" and one what?",
+      "options": ["Temple", "Baptism", "Law", "Nation"],
+      "answer": 1,
+      "evidence": "one Lord, one faith, one baptism"
+    },
+    {
+      "id": "ephesians-4",
+      "ref": [6, 11, 11],
+      "q": "What does Paul tell believers to put on, to stand against the devil?",
+      "options": ["Sackcloth", "A crown of glory", "The robe of a priest", "The whole armor of God"],
+      "answer": 3,
+      "evidence": "Put on the whole armor of God, that you may be able to stand against the wiles of the devil",
+      "answerTerms": ["whole armor of god"]
+    },
+    {
+      "id": "ephesians-5",
+      "ref": [6, 17, 17],
+      "q": "In the armor of God, what is the sword of the Spirit?",
+      "options": ["Faith", "Truth", "Righteousness", "The word of God"],
+      "answer": 3,
+      "evidence": "And take the helmet of salvation, and the sword of the Spirit, which is the word of God",
+      "answerTerms": ["word of god"]
+    }
+  ]
+}

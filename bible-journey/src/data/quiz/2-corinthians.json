@@ -1,0 +1,67 @@
+{
+  "book": "2 Corinthians",
+  "questions": [
+    {
+      "id": "2-corinthians-1",
+      "ref": [1, 1, 1],
+      "q": "Who joins Paul in the greeting of 2 Corinthians?",
+      "options": ["Timothy", "Silas", "Titus", "Apollos"],
+      "answer": 0,
+      "evidence": "Paul, an apostle of Christ Jesus through the will of God, and Timothy our brother, to the assembly of God which is at Corinth, with all the saints who are in the whole of Achaia"
+    },
+    {
+      "id": "2-corinthians-2",
+      "ref": [4, 7, 7],
+      "q": "In what does Paul say we have this treasure?",
+      "options": ["Golden boxes", "Locked rooms", "Clay vessels", "Stone jars"],
+      "answer": 2,
+      "evidence": "But we have this treasure in clay vessels, that the exceeding greatness of the power may be of God, and not from ourselves",
+      "answerTerms": ["clay vessels"]
+    },
+    {
+      "id": "2-corinthians-3",
+      "ref": [5, 17, 17],
+      "q": "If anyone is in Christ, what is he?",
+      "options": ["A son of Abraham", "A new creation", "A priest", "A citizen of Rome"],
+      "answer": 1,
+      "evidence": "Therefore if anyone is in Christ, he is a new creation",
+      "answerTerms": ["new creation"]
+    },
+    {
+      "id": "2-corinthians-4",
+      "ref": [9, 7, 7],
+      "q": "What kind of giver does God love?",
+      "options": ["A rich giver", "A secret giver", "A generous giver", "A cheerful giver"],
+      "answer": 3,
+      "evidence": "for God loves a cheerful giver",
+      "answerTerms": ["cheerful giver"]
+    },
+    {
+      "id": "2-corinthians-5",
+      "ref": [11, 25, 25],
+      "q": "How many times does Paul say he suffered shipwreck?",
+      "options": ["Once", "Five", "Seven", "Three"],
+      "answer": 3,
+      "evidence": "Three times I suffered shipwreck",
+      "answerTerms": ["three times i suffered shipwreck"]
+    },
+    {
+      "id": "2-corinthians-6",
+      "ref": [12, 7, 7],
+      "q": "What was given to Paul, a messenger of Satan to torment him?",
+      "options": ["A blindness", "A thorn in the flesh", "A prison", "A fever"],
+      "answer": 1,
+      "evidence": "By reason of the exceeding greatness of the revelations, that I should not be exalted excessively, there was given to me a thorn in the flesh, a messenger of Satan to torment me, that I should not be exalted excessively",
+      "answerTerms": ["thorn in the flesh"]
+    },
+    {
+      "id": "2-corinthians-7",
+      "ref": [12, 9, 9],
+      "q": "What did the Lord tell Paul was sufficient for him?",
+      "options": ["My law", "My presence", "My grace", "My word"],
+      "answer": 2,
+      "evidence": "He has said to me, “My grace is sufficient for you, for my power is made perfect in weakness",
+      "answerTerms": ["my grace"]
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "book": "1 Timothy",
+  "questions": [
+    {
+      "id": "1-timothy-1",
+      "ref": [1, 2, 2],
+      "q": "What does Paul call Timothy?",
+      "options": ["My true child in faith", "My fellow soldier", "My beloved physician", "My fellow prisoner"],
+      "answer": 0,
+      "evidence": "to Timothy, my true child in faith: Grace, mercy, and peace, from God our Father and Christ Jesus our Lord",
+      "answerTerms": ["true child in faith"]
+    },
+    {
+      "id": "1-timothy-2",
+      "ref": [1, 15, 15],
+      "q": "Of the sinners Christ came to save, what does Paul call himself?",
+      "options": ["Least", "Last", "Chief", "Forgiven"],
+      "answer": 2,
+      "evidence": "The saying is faithful and worthy of all acceptance, that Christ Jesus came into the world to save sinners; of whom I am chief"
+    },
+    {
+      "id": "1-timothy-3",
+      "ref": [4, 12, 12],
+      "q": "What should no one despise in Timothy?",
+      "options": ["His mother", "His youth", "His learning", "His health"],
+      "answer": 1,
+      "evidence": "Let no man despise your youth",
+      "answerTerms": ["your youth"]
+    },
+    {
+      "id": "1-timothy-4",
+      "ref": [5, 23, 23],
+      "q": "What does Paul tell Timothy to use for his stomach's sake?",
+      "options": ["Honey", "Olive oil", "Bitter herbs", "A little wine"],
+      "answer": 3,
+      "evidence": "Be no longer a drinker of water only, but use a little wine for your stomach’s sake and your frequent infirmities",
+      "answerTerms": ["little wine"]
+    },
+    {
+      "id": "1-timothy-5",
+      "ref": [6, 10, 10],
+      "q": "What is a root of all kinds of evil?",
+      "options": ["Pride", "Idleness", "Anger", "The love of money"],
+      "answer": 3,
+      "evidence": "For the love of money is a root of all kinds of evil",
+      "answerTerms": ["love of money"]
+    }
+  ]
+}

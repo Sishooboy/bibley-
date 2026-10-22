@@ -1,0 +1,40 @@
+{
+  "book": "Colossians",
+  "questions": [
+    {
+      "id": "colossians-1",
+      "ref": [1, 15, 15],
+      "q": "Christ is the image of what kind of God?",
+      "options": ["The invisible God", "The living God", "The most high God", "The unknown God"],
+      "answer": 0,
+      "evidence": "who is the image of the invisible God, the firstborn of all creation",
+      "answerTerms": ["invisible"]
+    },
+    {
+      "id": "colossians-2",
+      "ref": [2, 14, 14],
+      "q": "To what was the record of debts against us nailed?",
+      "options": ["The temple door", "The city gate", "The cross", "A tree"],
+      "answer": 2,
+      "evidence": "and he has taken it out of the way, nailing it to the cross",
+      "answerTerms": ["cross"]
+    },
+    {
+      "id": "colossians-3",
+      "ref": [3, 2, 2],
+      "q": "Where does Paul tell believers to set their minds?",
+      "options": ["On the law", "On things above", "On their work", "On the elders"],
+      "answer": 1,
+      "evidence": "Set your mind on the things that are above, not on the things that are on the earth",
+      "answerTerms": ["things that are above"]
+    },
+    {
+      "id": "colossians-4",
+      "ref": [4, 14, 14],
+      "q": "Whom does Paul call the beloved physician?",
+      "options": ["Titus", "Mark", "Epaphras", "Luke"],
+      "answer": 3,
+      "evidence": "Luke, the beloved physician, and Demas greet you"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "book": "Titus",
+  "questions": [
+    {
+      "id": "titus-1",
+      "ref": [1, 5, 5],
+      "q": "Where did Paul leave Titus?",
+      "options": ["Crete", "Corinth", "Ephesus", "Cyprus"],
+      "answer": 0,
+      "evidence": "I left you in Crete for this reason, that you would set in order the things that were lacking, and appoint elders in every city, as I directed you"
+    },
+    {
+      "id": "titus-2",
+      "ref": [2, 11, 11],
+      "q": "What has appeared, bringing salvation to all?",
+      "options": ["A great star", "The law of Moses", "The grace of God", "The day of judgment"],
+      "answer": 2,
+      "evidence": "For the grace of God has appeared, bringing salvation to all men",
+      "answerTerms": ["grace of god"]
+    },
+    {
+      "id": "titus-3",
+      "ref": [3, 5, 5],
+      "q": "According to what did God save us, Titus 3 says?",
+      "options": ["Our works", "His mercy", "Our fathers' merit", "The law"],
+      "answer": 1,
+      "evidence": "not by works of righteousness which we did ourselves, but according to his mercy, he saved us through the washing of regeneration and renewing by the Holy Spirit",
+      "answerTerms": ["his mercy"]
+    }
+  ]
+}

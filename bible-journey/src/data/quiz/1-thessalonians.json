@@ -1,0 +1,41 @@
+{
+  "book": "1 Thessalonians",
+  "questions": [
+    {
+      "id": "1-thessalonians-1",
+      "ref": [1, 1, 1],
+      "q": "Who join Paul in writing to the Thessalonians?",
+      "options": ["Silvanus and Timothy", "Barnabas and Mark", "Luke and Titus", "Apollos and Sosthenes"],
+      "answer": 0,
+      "evidence": "Paul, Silvanus, and Timothy, to the assembly of the Thessalonians in God the Father and the Lord Jesus Christ: Grace to you and peace from God our Father and the Lord Jesus Christ",
+      "answerTerms": ["silvanus", "timothy"]
+    },
+    {
+      "id": "1-thessalonians-2",
+      "ref": [4, 16, 16],
+      "q": "Who will rise first when the Lord descends from heaven?",
+      "options": ["The living", "The apostles", "The dead in Christ", "The angels"],
+      "answer": 2,
+      "evidence": "The dead in Christ will rise first",
+      "answerTerms": ["dead in christ"]
+    },
+    {
+      "id": "1-thessalonians-3",
+      "ref": [5, 2, 2],
+      "q": "How does the day of the Lord come?",
+      "options": ["Like a storm", "Like a thief in the night", "Like the dawn", "Like a trumpet"],
+      "answer": 1,
+      "evidence": "For you yourselves know well that the day of the Lord comes like a thief in the night",
+      "answerTerms": ["thief in the night"]
+    },
+    {
+      "id": "1-thessalonians-4",
+      "ref": [5, 17, 17],
+      "q": "How does Paul tell them to pray?",
+      "options": ["In secret", "At dawn", "Standing", "Without ceasing"],
+      "answer": 3,
+      "evidence": "Pray without ceasing",
+      "answerTerms": ["without ceasing"]
+    }
+  ]
+}

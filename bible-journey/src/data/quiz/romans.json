@@ -1,0 +1,72 @@
+{
+  "book": "Romans",
+  "questions": [
+    {
+      "id": "romans-1",
+      "ref": [1, 7, 7],
+      "q": "To believers in which city is Romans written?",
+      "options": ["Rome", "Corinth", "Ephesus", "Philippi"],
+      "answer": 0,
+      "evidence": "to all who are in Rome, beloved of God, called to be saints: Grace to you and peace from God our Father and the Lord Jesus Christ"
+    },
+    {
+      "id": "romans-2",
+      "ref": [1, 16, 16],
+      "q": "Paul says the Good News is the power of God for what?",
+      "options": ["Judgment", "Wisdom", "Salvation", "Wealth"],
+      "answer": 2,
+      "evidence": "For I am not ashamed of the Good News of Christ, for it is the power of God for salvation for everyone who believes"
+    },
+    {
+      "id": "romans-3",
+      "ref": [3, 23, 23],
+      "q": "All have sinned, and fall short of what?",
+      "options": ["The law of Moses", "The glory of God", "The promise", "Their fathers"],
+      "answer": 1,
+      "evidence": "for all have sinned, and fall short of the glory of God",
+      "answerTerms": ["glory of god"]
+    },
+    {
+      "id": "romans-4",
+      "ref": [5, 8, 8],
+      "q": "While we were still what, did Christ die for us?",
+      "options": ["Children", "Strangers", "Priests", "Sinners"],
+      "answer": 3,
+      "evidence": "But God commends his own love toward us, in that while we were yet sinners, Christ died for us"
+    },
+    {
+      "id": "romans-5",
+      "ref": [6, 23, 23],
+      "q": "What are the wages of sin?",
+      "options": ["Shame", "Sorrow", "Exile", "Death"],
+      "answer": 3,
+      "evidence": "For the wages of sin is death, but the free gift of God is eternal life in Christ Jesus our Lord"
+    },
+    {
+      "id": "romans-6",
+      "ref": [8, 28, 28],
+      "q": "All things work together for good for whom?",
+      "options": ["The strong", "Those who love God", "The wise", "Every nation"],
+      "answer": 1,
+      "evidence": "We know that all things work together for good for those who love God, to those who are called according to his purpose",
+      "answerTerms": ["those who love god"]
+    },
+    {
+      "id": "romans-7",
+      "ref": [12, 1, 1],
+      "q": "Paul urges believers to present their bodies as what?",
+      "options": ["A temple of stone", "A burnt offering", "A living sacrifice", "A free gift"],
+      "answer": 2,
+      "evidence": "Therefore I urge you, brothers, by the mercies of God, to present your bodies a living sacrifice, holy, acceptable to God, which is your spiritual service",
+      "answerTerms": ["living sacrifice"]
+    },
+    {
+      "id": "romans-8",
+      "ref": [16, 1, 1],
+      "q": "Whom does Paul commend, a servant of the assembly at Cenchreae?",
+      "options": ["Phoebe", "Priscilla", "Lydia", "Junia"],
+      "answer": 0,
+      "evidence": "I commend to you Phoebe, our sister, who is a servant of the assembly that is at Cenchreae"
+    }
+  ]
+}

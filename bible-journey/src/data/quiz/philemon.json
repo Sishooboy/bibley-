@@ -1,0 +1,31 @@
+{
+  "book": "Philemon",
+  "questions": [
+    {
+      "id": "philemon-1",
+      "ref": [1, 1, 1],
+      "q": "How does Paul describe himself as he writes to Philemon?",
+      "options": ["A prisoner of Christ Jesus", "An apostle to the Gentiles", "A servant of the church", "A tentmaker"],
+      "answer": 0,
+      "evidence": "Paul, a prisoner of Christ Jesus, and Timothy our brother, to Philemon, our beloved fellow worker",
+      "answerTerms": ["prisoner of christ jesus"]
+    },
+    {
+      "id": "philemon-2",
+      "ref": [1, 10, 10],
+      "q": "For whom does Paul plead with Philemon?",
+      "options": ["Onesiphorus", "Epaphras", "Onesimus", "Archippus"],
+      "answer": 2,
+      "evidence": "I beg you for my child, whom I have become the father of in my chains, Onesimus"
+    },
+    {
+      "id": "philemon-3",
+      "ref": [1, 16, 16],
+      "q": "Paul asks Philemon to have him back as what?",
+      "options": ["A hired servant", "A beloved brother", "A son", "A stranger"],
+      "answer": 1,
+      "evidence": "no longer as a slave, but more than a slave, a beloved brother, especially to me, but how much rather to you, both in the flesh and in the Lord",
+      "answerTerms": ["beloved brother"]
+    }
+  ]
+}

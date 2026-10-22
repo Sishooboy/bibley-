@@ -1,0 +1,47 @@
+{
+  "book": "Galatians",
+  "questions": [
+    {
+      "id": "galatians-1",
+      "ref": [1, 18, 18],
+      "q": "After three years, whom did Paul go up to Jerusalem to visit?",
+      "options": ["Peter", "James", "John", "Barnabas"],
+      "answer": 0,
+      "evidence": "Then after three years I went up to Jerusalem to visit Peter, and stayed with him fifteen days"
+    },
+    {
+      "id": "galatians-2",
+      "ref": [2, 11, 11],
+      "q": "Where did Paul resist Peter to his face?",
+      "options": ["Jerusalem", "Damascus", "Antioch", "Tarsus"],
+      "answer": 2,
+      "evidence": "But when Peter came to Antioch, I resisted him to his face, because he stood condemned"
+    },
+    {
+      "id": "galatians-3",
+      "ref": [3, 28, 28],
+      "q": "In Christ Jesus, Paul says, there is neither Jew nor Greek, for all are what?",
+      "options": ["Equal under the law", "One", "Free from sin", "Sons of Abraham"],
+      "answer": 1,
+      "evidence": "for you are all one in Christ Jesus",
+      "answerTerms": ["all one in christ jesus"]
+    },
+    {
+      "id": "galatians-4",
+      "ref": [5, 22, 23],
+      "q": "What does Paul call love, joy, peace, patience and the rest?",
+      "options": ["The works of the flesh", "The gifts of tongues", "The armor of God", "The fruit of the Spirit"],
+      "answer": 3,
+      "evidence": "But the fruit of the Spirit is love, joy, peace, patience, kindness, goodness, faith, gentleness, and self-control",
+      "answerTerms": ["fruit of the spirit"]
+    },
+    {
+      "id": "galatians-5",
+      "ref": [6, 7, 7],
+      "q": "Whatever a man sows, Paul says, that he will also do what?",
+      "options": ["Lose", "Eat", "Sell", "Reap"],
+      "answer": 3,
+      "evidence": "God is not mocked, for whatever a man sows, that he will also reap"
+    }
+  ]
+}

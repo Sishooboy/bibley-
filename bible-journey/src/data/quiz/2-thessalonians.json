@@ -1,0 +1,32 @@
+{
+  "book": "2 Thessalonians",
+  "questions": [
+    {
+      "id": "2-thessalonians-1",
+      "ref": [1, 7, 7],
+      "q": "With whom will the Lord Jesus be revealed from heaven?",
+      "options": ["His mighty angels", "The twelve apostles", "Moses and Elijah", "The elders"],
+      "answer": 0,
+      "evidence": "and to give relief to you who are afflicted with us, when the Lord Jesus is revealed from heaven with his mighty angels in flaming fire",
+      "answerTerms": ["mighty angels"]
+    },
+    {
+      "id": "2-thessalonians-2",
+      "ref": [2, 3, 3],
+      "q": "Who must be revealed before the day of Christ, Paul says?",
+      "options": ["Elijah", "The beast from the sea", "The man of sin", "A great king"],
+      "answer": 2,
+      "evidence": "For it will not be, unless the departure comes first, and the man of sin is revealed, the son of destruction",
+      "answerTerms": ["man of sin"]
+    },
+    {
+      "id": "2-thessalonians-3",
+      "ref": [3, 10, 10],
+      "q": "Paul says anyone unwilling to work should go without what?",
+      "options": ["Sleep", "Food", "Clothes", "Friends"],
+      "answer": 1,
+      "evidence": "For even when we were with you, we commanded you this: “If anyone will not work, don’t let him eat",
+      "answerTerms": ["don't let him eat"]
+    }
+  ]
+}

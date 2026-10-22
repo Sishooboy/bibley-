@@ -1,0 +1,38 @@
+{
+  "book": "2 Timothy",
+  "questions": [
+    {
+      "id": "2-timothy-1",
+      "ref": [1, 5, 5],
+      "q": "Who was Timothy's grandmother, in whom faith lived first?",
+      "options": ["Lois", "Lydia", "Priscilla", "Chloe"],
+      "answer": 0,
+      "evidence": "which lived first in your grandmother Lois, and your mother Eunice, and, I am persuaded, in you also"
+    },
+    {
+      "id": "2-timothy-2",
+      "ref": [2, 3, 3],
+      "q": "Endure hardship, Paul tells Timothy, as a good what?",
+      "options": ["Shepherd", "Servant", "Soldier", "Farmer"],
+      "answer": 2,
+      "evidence": "You therefore must endure hardship, as a good soldier of Christ Jesus"
+    },
+    {
+      "id": "2-timothy-3",
+      "ref": [3, 16, 16],
+      "q": "What does Paul say every Scripture is?",
+      "options": ["Hidden", "God-breathed", "Written by Moses", "Sealed"],
+      "answer": 1,
+      "evidence": "Every Scripture is God-breathed and profitable for teaching, for reproof, for correction, and for instruction in righteousness"
+    },
+    {
+      "id": "2-timothy-4",
+      "ref": [4, 7, 7],
+      "q": "Near his end, what does Paul say he has kept?",
+      "options": ["The law", "His freedom", "His silence", "The faith"],
+      "answer": 3,
+      "evidence": "I have kept the faith",
+      "answerTerms": ["kept the faith"]
+    }
+  ]
+}
