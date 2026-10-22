@@ -1,0 +1,56 @@
+{
+  "book": "Amos",
+  "questions": [
+    {
+      "id": "amos-1",
+      "ref": [1, 1, 1],
+      "q": "From which town was Amos, among the herdsmen?",
+      "options": ["Tekoa", "Anathoth", "Moresheth", "Elkosh"],
+      "answer": 0,
+      "evidence": "The words of Amos, who was among the herdsmen of Tekoa, which he saw concerning Israel in the days of Uzziah king of Judah, and in the days of Jeroboam the son of Joash king of Israel, two years before the earthquake"
+    },
+    {
+      "id": "amos-2",
+      "ref": [3, 3, 3],
+      "q": "\"Do two walk together, unless they have\" done what?",
+      "options": ["Eaten", "Prayed", "Agreed", "Fought"],
+      "answer": 2,
+      "evidence": "Do two walk together, unless they have agreed"
+    },
+    {
+      "id": "amos-3",
+      "ref": [5, 24, 24],
+      "q": "What does Amos say should roll on like rivers?",
+      "options": ["Wine", "Justice", "Mercy", "Praise"],
+      "answer": 1,
+      "evidence": "But let justice roll on like rivers, and righteousness like a mighty stream"
+    },
+    {
+      "id": "amos-4",
+      "ref": [7, 8, 8],
+      "q": "What did Amos say he saw when Yahweh asked him in chapter 7?",
+      "options": ["A basket of fruit", "A sword", "A scroll", "A plumb line"],
+      "answer": 3,
+      "evidence": "I said, “A plumb line",
+      "answerTerms": ["plumb line"]
+    },
+    {
+      "id": "amos-5",
+      "ref": [7, 14, 14],
+      "q": "Besides a herdsman, what did Amos say he was?",
+      "options": ["A priest at Bethel", "A potter", "A fisherman", "A farmer of sycamore figs"],
+      "answer": 3,
+      "evidence": "but I was a herdsman, and a farmer of sycamore figs",
+      "answerTerms": ["sycamore"]
+    },
+    {
+      "id": "amos-6",
+      "ref": [8, 11, 11],
+      "q": "What famine did Amos say was coming on the land?",
+      "options": ["Of grain and oil", "Of hearing Yahweh's words", "Of kings and judges", "Of rain and dew"],
+      "answer": 1,
+      "evidence": "Behold, the days come,” says the Lord Yahweh, “that I will send a famine in the land, not a famine of bread, nor a thirst for water, but of hearing Yahweh’s words",
+      "answerTerms": ["hearing yahweh"]
+    }
+  ]
+}

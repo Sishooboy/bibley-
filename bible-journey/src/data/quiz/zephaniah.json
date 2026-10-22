@@ -1,0 +1,32 @@
+{
+  "book": "Zephaniah",
+  "questions": [
+    {
+      "id": "zephaniah-1",
+      "ref": [1, 14, 14],
+      "q": "What does Zephaniah say is near?",
+      "options": ["The great day of Yahweh", "The end of the exile", "A great harvest", "The king's return"],
+      "answer": 0,
+      "evidence": "The great day of Yahweh is near",
+      "answerTerms": ["great day of yahweh"]
+    },
+    {
+      "id": "zephaniah-2",
+      "ref": [2, 3, 3],
+      "q": "Whom does Zephaniah 2 call to seek Yahweh?",
+      "options": ["The kings of the nations", "The priests of Baal", "All the humble of the land", "The rich of Jerusalem"],
+      "answer": 2,
+      "evidence": "Seek Yahweh, all you humble of the land, who have kept his ordinances",
+      "answerTerms": ["humble of the land"]
+    },
+    {
+      "id": "zephaniah-3",
+      "ref": [3, 17, 17],
+      "q": "How will Yahweh rejoice over his people, in Zephaniah 3?",
+      "options": ["With trumpets", "With singing", "With feasting", "With silence"],
+      "answer": 1,
+      "evidence": "He will rejoice over you with singing",
+      "answerTerms": ["singing"]
+    }
+  ]
+}

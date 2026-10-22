@@ -1,0 +1,31 @@
+{
+  "book": "Haggai",
+  "questions": [
+    {
+      "id": "haggai-1",
+      "ref": [1, 1, 1],
+      "q": "Who was governor of Judah when Haggai spoke?",
+      "options": ["Zerubbabel", "Nehemiah", "Ezra", "Sheshbazzar"],
+      "answer": 0,
+      "evidence": "to Zerubbabel, the son of Shealtiel, governor of Judah"
+    },
+    {
+      "id": "haggai-2",
+      "ref": [1, 4, 4],
+      "q": "What were the people living in while Yahweh's house lay waste?",
+      "options": ["Tents", "Caves", "Paneled houses", "Palaces of cedar"],
+      "answer": 2,
+      "evidence": "Is it a time for you yourselves to dwell in your paneled houses, while this house lies waste",
+      "answerTerms": ["paneled houses"]
+    },
+    {
+      "id": "haggai-3",
+      "ref": [2, 9, 9],
+      "q": "How will the latter glory of this house compare with the former?",
+      "options": ["It will be less", "It will be greater", "It will be the same", "It will be hidden"],
+      "answer": 1,
+      "evidence": "The latter glory of this house will be greater than the former,’ says Yahweh of Armies",
+      "answerTerms": ["greater"]
+    }
+  ]
+}

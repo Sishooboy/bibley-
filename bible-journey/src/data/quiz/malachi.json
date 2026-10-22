@@ -1,0 +1,41 @@
+{
+  "book": "Malachi",
+  "questions": [
+    {
+      "id": "malachi-1",
+      "ref": [1, 6, 6],
+      "q": "A son honors his father, and a servant honors whom?",
+      "options": ["His master", "His king", "His brother", "His neighbor"],
+      "answer": 0,
+      "evidence": "A son honors his father, and a servant his master",
+      "answerTerms": ["master"]
+    },
+    {
+      "id": "malachi-2",
+      "ref": [3, 1, 1],
+      "q": "Whom does Yahweh send to prepare the way before him?",
+      "options": ["My son", "A king", "My messenger", "An army"],
+      "answer": 2,
+      "evidence": "Behold, I send my messenger, and he will prepare the way before me",
+      "answerTerms": ["my messenger"]
+    },
+    {
+      "id": "malachi-3",
+      "ref": [3, 8, 8],
+      "q": "In what had the people robbed God, Malachi says?",
+      "options": ["Songs and prayers", "Tithes and offerings", "Gold and silver", "Fasts and feasts"],
+      "answer": 1,
+      "evidence": "Will a man rob God? Yet you rob me! But you say, ‘How have we robbed you?’ In tithes and offerings",
+      "answerTerms": ["tithes and offerings"]
+    },
+    {
+      "id": "malachi-4",
+      "ref": [4, 5, 5],
+      "q": "Whom will Yahweh send before his great and terrible day?",
+      "options": ["Moses", "Enoch", "Isaiah", "Elijah the prophet"],
+      "answer": 3,
+      "evidence": "Behold, I will send you Elijah the prophet before the great and terrible day of Yahweh comes",
+      "answerTerms": ["elijah"]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "book": "Jonah",
+  "questions": [
+    {
+      "id": "jonah-1",
+      "ref": [1, 2, 2],
+      "q": "To which great city was Jonah sent?",
+      "options": ["Nineveh", "Tarshish", "Joppa", "Babylon"],
+      "answer": 0,
+      "evidence": "Arise, go to Nineveh, that great city, and preach against it, for their wickedness has come up before me"
+    },
+    {
+      "id": "jonah-2",
+      "ref": [1, 17, 17],
+      "q": "How long was Jonah in the belly of the fish?",
+      "options": ["Seven days", "Forty days", "Three days and three nights", "One night"],
+      "answer": 2,
+      "evidence": "Yahweh prepared a great fish to swallow up Jonah, and Jonah was in the belly of the fish three days and three nights",
+      "answerTerms": ["three days and three nights"]
+    },
+    {
+      "id": "jonah-3",
+      "ref": [3, 4, 4],
+      "q": "In how many days did Jonah cry that Nineveh would be overthrown?",
+      "options": ["Three", "Forty", "Seven", "Ten"],
+      "answer": 1,
+      "evidence": "Jonah began to enter into the city a day’s journey, and he cried out, and said, “In forty days, Nineveh will be overthrown"
+    },
+    {
+      "id": "jonah-4",
+      "ref": [4, 6, 6],
+      "q": "What did God make grow up to shade Jonah's head?",
+      "options": ["A fig tree", "An oak", "A palm", "A vine"],
+      "answer": 3,
+      "evidence": "Yahweh God prepared a vine, and made it to come up over Jonah, that it might be a shade over his head, to deliver him from his discomfort",
+      "answerTerms": ["vine"]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "book": "Hosea",
+  "questions": [
+    {
+      "id": "hosea-1",
+      "ref": [1, 1, 1],
+      "q": "Whose son was the prophet Hosea?",
+      "options": ["Beeri", "Amoz", "Buzi", "Pethuel"],
+      "answer": 0,
+      "evidence": "Yahweh’s word that came to Hosea the son of Beeri, in the days of Uzziah, Jotham, Ahaz, and Hezekiah, kings of Judah, and in the days of Jeroboam the son of Joash, king of Israel"
+    },
+    {
+      "id": "hosea-2",
+      "ref": [1, 3, 3],
+      "q": "Whom did Hosea take as his wife?",
+      "options": ["Hannah", "Tamar", "Gomer", "Abigail"],
+      "answer": 2,
+      "evidence": "So he went and took Gomer the daughter of Diblaim"
+    },
+    {
+      "id": "hosea-3",
+      "ref": [3, 2, 2],
+      "q": "For how many pieces of silver did Hosea buy her back?",
+      "options": ["Thirty", "Fifteen", "Twenty", "Fifty"],
+      "answer": 1,
+      "evidence": "So I bought her for myself for fifteen pieces of silver and a homer and a half of barley"
+    },
+    {
+      "id": "hosea-4",
+      "ref": [6, 6, 6],
+      "q": "Hosea 6 says Yahweh desires mercy rather than what?",
+      "options": ["Silence", "Fasting", "Gold", "Sacrifice"],
+      "answer": 3,
+      "evidence": "For I desire mercy, and not sacrifice"
+    },
+    {
+      "id": "hosea-5",
+      "ref": [8, 7, 7],
+      "q": "They sow the wind, and they will reap what?",
+      "options": ["The harvest", "A flood", "Thorns", "The whirlwind"],
+      "answer": 3,
+      "evidence": "For they sow the wind, and they will reap the whirlwind",
+      "answerTerms": ["whirlwind"]
+    },
+    {
+      "id": "hosea-6",
+      "ref": [11, 1, 1],
+      "q": "Out of which land did Yahweh call his son, Hosea 11 says?",
+      "options": ["Babylon", "Egypt", "Assyria", "Ur"],
+      "answer": 1,
+      "evidence": "When Israel was a child, then I loved him, and called my son out of Egypt"
+    },
+    {
+      "id": "hosea-7",
+      "ref": [14, 1, 1],
+      "q": "What does Hosea's last chapter call Israel to do?",
+      "options": ["Rebuild the temple", "Go up to Jerusalem", "Return to Yahweh", "Choose a king"],
+      "answer": 2,
+      "evidence": "Israel, return to Yahweh your God",
+      "answerTerms": ["return to yahweh"]
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "book": "Zechariah",
+  "questions": [
+    {
+      "id": "zechariah-1",
+      "ref": [1, 1, 1],
+      "q": "Whose son was the prophet Zechariah?",
+      "options": ["Berechiah", "Beeri", "Amoz", "Cushi"],
+      "answer": 0,
+      "evidence": "In the eighth month, in the second year of Darius, Yahweh’s word came to Zechariah the son of Berechiah, the son of Iddo, the prophet, saying"
+    },
+    {
+      "id": "zechariah-2",
+      "ref": [1, 8, 8],
+      "q": "Among which trees stood the man on the red horse?",
+      "options": ["Oak trees", "Olive trees", "Myrtle trees", "Fig trees"],
+      "answer": 2,
+      "evidence": "I had a vision in the night, and behold, a man riding on a red horse, and he stood among the myrtle trees that were in a ravine",
+      "answerTerms": ["myrtle"]
+    },
+    {
+      "id": "zechariah-3",
+      "ref": [4, 6, 6],
+      "q": "\"Not by might, nor by power, but by\" what, says Yahweh?",
+      "options": ["My law", "My Spirit", "My sword", "My priests"],
+      "answer": 1,
+      "evidence": "Then he answered and spoke to me, saying, “This is Yahweh’s word to Zerubbabel, saying, ‘Not by might, nor by power, but by my Spirit,’ says Yahweh of Armies",
+      "answerTerms": ["my spirit"]
+    },
+    {
+      "id": "zechariah-4",
+      "ref": [5, 1, 2],
+      "q": "What did Zechariah see flying, in Zechariah 5?",
+      "options": ["An eagle", "A sword", "A chariot", "A scroll"],
+      "answer": 3,
+      "evidence": "Then again I lifted up my eyes, and saw, and behold, a flying scroll",
+      "answerTerms": ["scroll"]
+    },
+    {
+      "id": "zechariah-5",
+      "ref": [9, 9, 9],
+      "q": "On what does Zion's king come, lowly?",
+      "options": ["A war horse", "A chariot", "A camel", "A donkey"],
+      "answer": 3,
+      "evidence": "lowly, and riding on a donkey, even on a colt, the foal of a donkey",
+      "answerTerms": ["donkey"]
+    },
+    {
+      "id": "zechariah-6",
+      "ref": [11, 12, 12],
+      "q": "What was weighed out as the shepherd's wages?",
+      "options": ["Ten talents of gold", "Thirty pieces of silver", "A homer of barley", "Fifty shekels"],
+      "answer": 1,
+      "evidence": "So they weighed for my wages thirty pieces of silver",
+      "answerTerms": ["thirty pieces of silver"]
+    },
+    {
+      "id": "zechariah-7",
+      "ref": [14, 9, 9],
+      "q": "In that day, Zechariah says, Yahweh will be King over what?",
+      "options": ["Jerusalem alone", "The heavens", "All the earth", "The northern nations"],
+      "answer": 2,
+      "evidence": "Yahweh will be King over all the earth",
+      "answerTerms": ["all the earth"]
+    }
+  ]
+}

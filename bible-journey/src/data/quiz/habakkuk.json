@@ -1,0 +1,32 @@
+{
+  "book": "Habakkuk",
+  "questions": [
+    {
+      "id": "habakkuk-1",
+      "ref": [1, 6, 6],
+      "q": "Whom does Yahweh say he is raising up, in Habakkuk 1?",
+      "options": ["The Chaldeans", "The Persians", "The Egyptians", "The Philistines"],
+      "answer": 0,
+      "evidence": "For, behold, I raise up the Chaldeans, that bitter and hasty nation, that march through the width of the earth, to possess dwelling places that are not theirs",
+      "answerTerms": ["chaldeans"]
+    },
+    {
+      "id": "habakkuk-2",
+      "ref": [2, 4, 4],
+      "q": "The righteous will live by what, in Habakkuk 2?",
+      "options": ["His works", "The law", "His faith", "His sword"],
+      "answer": 2,
+      "evidence": "It is not upright in him, but the righteous will live by his faith",
+      "answerTerms": ["faith"]
+    },
+    {
+      "id": "habakkuk-3",
+      "ref": [3, 17, 18],
+      "q": "Though the fig tree fails, what will Habakkuk still do?",
+      "options": ["Leave the land", "Rejoice in Yahweh", "Curse the day", "Weep for Zion"],
+      "answer": 1,
+      "evidence": "the flocks are cut off from the fold, and there is no herd in the stalls: yet I will rejoice in Yahweh",
+      "answerTerms": ["rejoice in yahweh"]
+    }
+  ]
+}

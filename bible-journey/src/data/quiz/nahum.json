@@ -1,0 +1,30 @@
+{
+  "book": "Nahum",
+  "questions": [
+    {
+      "id": "nahum-1",
+      "ref": [1, 7, 7],
+      "q": "Yahweh is good, Nahum says, a stronghold in the day of what?",
+      "options": ["Trouble", "Harvest", "Rest", "Battle"],
+      "answer": 0,
+      "evidence": "Yahweh is good, a stronghold in the day of trouble"
+    },
+    {
+      "id": "nahum-2",
+      "ref": [2, 8, 8],
+      "q": "Which city has been like a pool of water from of old, Nahum 2 says?",
+      "options": ["Babylon", "Tyre", "Nineveh", "Damascus"],
+      "answer": 2,
+      "evidence": "But Nineveh has been from of old like a pool of water, yet they flee away"
+    },
+    {
+      "id": "nahum-3",
+      "ref": [3, 1, 1],
+      "q": "What does Nahum 3 call Nineveh?",
+      "options": ["The holy city", "The bloody city", "The city of palms", "The faithful city"],
+      "answer": 1,
+      "evidence": "Woe to the bloody city",
+      "answerTerms": ["bloody city"]
+    }
+  ]
+}

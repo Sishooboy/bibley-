@@ -1,0 +1,49 @@
+{
+  "book": "Micah",
+  "questions": [
+    {
+      "id": "micah-1",
+      "ref": [1, 1, 1],
+      "q": "What does the first verse call Micah?",
+      "options": ["The Morashtite", "The Tishbite", "The Elkoshite", "The Tekoite"],
+      "answer": 0,
+      "evidence": "Yahweh’s word that came to Micah the Morashtite in the days of Jotham, Ahaz, and Hezekiah, kings of Judah, which he saw concerning Samaria and Jerusalem",
+      "answerTerms": ["morashtite"]
+    },
+    {
+      "id": "micah-2",
+      "ref": [4, 4, 4],
+      "q": "Under what will everyone sit, with no one to make them afraid?",
+      "options": ["Their own roof", "The temple's shade", "Their vine and fig tree", "The city wall"],
+      "answer": 2,
+      "evidence": "But they will sit every man under his vine and under his fig tree",
+      "answerTerms": ["vine", "fig tree"]
+    },
+    {
+      "id": "micah-3",
+      "ref": [5, 2, 2],
+      "q": "Out of which small town will the ruler of Israel come?",
+      "options": ["Nazareth", "Bethlehem", "Hebron", "Jericho"],
+      "answer": 1,
+      "evidence": "But you, Bethlehem Ephrathah, being small among the clans of Judah, out of you one will come out to me that is to be ruler in Israel"
+    },
+    {
+      "id": "micah-4",
+      "ref": [6, 8, 8],
+      "q": "What does Yahweh require, according to Micah 6?",
+      "options": ["Thousands of rams", "A great altar", "Fasting in sackcloth", "Justice, mercy, and a humble walk"],
+      "answer": 3,
+      "evidence": "What does Yahweh require of you, but to act justly, to love mercy, and to walk humbly with your God",
+      "answerTerms": ["justly", "mercy", "humbly"]
+    },
+    {
+      "id": "micah-5",
+      "ref": [7, 19, 19],
+      "q": "Where will God cast all their sins, Micah ends?",
+      "options": ["Into the fire", "Behind the mountains", "Into the wilderness", "Into the depths of the sea"],
+      "answer": 3,
+      "evidence": "and you will cast all their sins into the depths of the sea",
+      "answerTerms": ["depths of the sea"]
+    }
+  ]
+}

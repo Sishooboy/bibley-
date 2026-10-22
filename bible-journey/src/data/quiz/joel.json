@@ -1,0 +1,30 @@
+{
+  "book": "Joel",
+  "questions": [
+    {
+      "id": "joel-1",
+      "ref": [1, 1, 1],
+      "q": "Whose son was the prophet Joel?",
+      "options": ["Pethuel", "Beeri", "Amoz", "Hilkiah"],
+      "answer": 0,
+      "evidence": "Yahweh’s word that came to Joel, the son of Pethuel"
+    },
+    {
+      "id": "joel-2",
+      "ref": [2, 28, 28],
+      "q": "On whom will Yahweh pour out his Spirit, Joel says?",
+      "options": ["The priests alone", "The kings", "All flesh", "The elders of Judah"],
+      "answer": 2,
+      "evidence": "It will happen afterward, that I will pour out my Spirit on all flesh",
+      "answerTerms": ["all flesh"]
+    },
+    {
+      "id": "joel-3",
+      "ref": [3, 10, 10],
+      "q": "In Joel 3, what are the plowshares to be beaten into?",
+      "options": ["Shields", "Swords", "Crowns", "Sickles"],
+      "answer": 1,
+      "evidence": "Beat your plowshares into swords, and your pruning hooks into spears"
+    }
+  ]
+}
