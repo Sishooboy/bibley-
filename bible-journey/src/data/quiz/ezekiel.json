@@ -3,11 +3,12 @@
   "questions": [
     {
       "id": "ezekiel-1",
-      "ref": [1, 1, 1],
-      "q": "By which river was Ezekiel among the captives when the heavens were opened?",
-      "options": ["Chebar", "Jordan", "Euphrates", "Tigris"],
+      "ref": [1, 16, 16],
+      "q": "What did the wheels look like in Ezekiel's vision?",
+      "options": ["A wheel within a wheel", "Circles of fire", "Stars in a row", "Chariots of gold"],
       "answer": 0,
-      "evidence": "Now in the thirtieth year, in the fourth month, in the fifth of the month, as I was among the captives by the river Chebar, the heavens were opened, and I saw visions of God"
+      "evidence": "and their appearance and their work was as it were a wheel within a wheel",
+      "answerTerms": ["wheel within a wheel"]
     },
     {
       "id": "ezekiel-2",
@@ -29,11 +30,12 @@
     },
     {
       "id": "ezekiel-4",
-      "ref": [8, 14, 14],
-      "q": "For whom were the women at the temple gate weeping?",
-      "options": ["Baal", "Molech", "Dagon", "Tammuz"],
+      "ref": [34, 2, 2],
+      "q": "Whom does Ezekiel 34 condemn for feeding themselves?",
+      "options": ["The merchants of Tyre", "The kings of Egypt", "The priests of Baal", "The shepherds of Israel"],
       "answer": 3,
-      "evidence": "and I saw the women sit there weeping for Tammuz"
+      "evidence": "Son of man, prophesy against the shepherds of Israel, prophesy, and tell them, even to the shepherds, Thus says the Lord Yahweh: Woe to the shepherds of Israel who feed themselves",
+      "answerTerms": ["shepherds of israel"]
     },
     {
       "id": "ezekiel-5",

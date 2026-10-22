@@ -70,19 +70,21 @@
     },
     {
       "id": "psalms-9",
-      "ref": [51, 1, 1],
-      "q": "Psalm 51 was written after which prophet came to David?",
-      "options": ["Gad", "Nathan", "Samuel", "Elijah"],
+      "ref": [51, 10, 10],
+      "q": "What does David ask God to create in him, in Psalm 51?",
+      "options": ["A new name", "A clean heart", "A strong arm", "A wise mind"],
       "answer": 1,
-      "evidence": "A Psalm by David, when Nathan the prophet came to him, after he had gone in to Bathsheba"
+      "evidence": "Create in me a clean heart, O God",
+      "answerTerms": ["clean heart"]
     },
     {
       "id": "psalms-10",
-      "ref": [90, 1, 1],
-      "q": "Psalm 90 is a prayer by whom?",
-      "options": ["David", "Solomon", "Asaph", "Moses"],
+      "ref": [139, 14, 14],
+      "q": "In Psalm 139, how does the psalmist say he is made?",
+      "options": ["From dust and breath", "In secret and in shame", "Strong and upright", "Fearfully and wonderfully"],
       "answer": 3,
-      "evidence": "A Prayer by Moses, the man of God"
+      "evidence": "I will give thanks to you, for I am fearfully and wonderfully made",
+      "answerTerms": ["fearfully and wonderfully made"]
     },
     {
       "id": "psalms-11",

@@ -3,12 +3,12 @@
   "questions": [
     {
       "id": "1-thessalonians-1",
-      "ref": [1, 1, 1],
-      "q": "Who join Paul in writing to the Thessalonians?",
-      "options": ["Silvanus and Timothy", "Barnabas and Mark", "Luke and Titus", "Apollos and Sosthenes"],
+      "ref": [1, 9, 9],
+      "q": "From what did the Thessalonians turn to serve the living God?",
+      "options": ["Idols", "The law", "The sea", "Their fathers"],
       "answer": 0,
-      "evidence": "Paul, Silvanus, and Timothy, to the assembly of the Thessalonians in God the Father and the Lord Jesus Christ: Grace to you and peace from God our Father and the Lord Jesus Christ",
-      "answerTerms": ["silvanus", "timothy"]
+      "evidence": "and how you turned to God from idols, to serve a living and true God",
+      "answerTerms": ["from idols"]
     },
     {
       "id": "1-thessalonians-2",

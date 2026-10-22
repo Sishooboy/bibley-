@@ -4,10 +4,11 @@
     {
       "id": "amos-1",
       "ref": [1, 1, 1],
-      "q": "From which town was Amos, among the herdsmen?",
-      "options": ["Tekoa", "Anathoth", "Moresheth", "Elkosh"],
+      "q": "Who was Amos among before he prophesied?",
+      "options": ["The herdsmen", "The priests", "The king's scribes", "The soldiers"],
       "answer": 0,
-      "evidence": "The words of Amos, who was among the herdsmen of Tekoa, which he saw concerning Israel in the days of Uzziah king of Judah, and in the days of Jeroboam the son of Joash king of Israel, two years before the earthquake"
+      "evidence": "The words of Amos, who was among the herdsmen of Tekoa, which he saw concerning Israel in the days of Uzziah king of Judah, and in the days of Jeroboam the son of Joash king of Israel, two years before the earthquake",
+      "answerTerms": ["herdsmen"]
     },
     {
       "id": "amos-2",
@@ -36,12 +37,12 @@
     },
     {
       "id": "amos-5",
-      "ref": [7, 14, 14],
-      "q": "Besides a herdsman, what did Amos say he was?",
-      "options": ["A priest at Bethel", "A potter", "A fisherman", "A farmer of sycamore figs"],
+      "ref": [4, 1, 1],
+      "q": "What does Amos call the women who oppress the poor?",
+      "options": ["Lions of Judah", "Daughters of Zion", "Doves of the valley", "Cows of Bashan"],
       "answer": 3,
-      "evidence": "but I was a herdsman, and a farmer of sycamore figs",
-      "answerTerms": ["sycamore"]
+      "evidence": "Listen to this word, you cows of Bashan, who are on the mountain of Samaria, who oppress the poor, who crush the needy, who tell their husbands, “Bring us drinks",
+      "answerTerms": ["cows of bashan"]
     },
     {
       "id": "amos-6",

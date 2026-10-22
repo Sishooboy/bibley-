@@ -1041,6 +1041,17 @@ numbers section, and the suite is what holds it there.
   trap at a larger scale. Chronicles and Samuel disagree on figures, and the Gospels tell the same
   scene in different words, so **every question asks what this book says in its own words**, and
   none was written where a reader remembering the other account would be marked wrong.
+- **A question asks what a reader carries away, not what a concordance holds.** The first pass
+  leaned on numbers and minor names: the 140 years Job lived afterwards, Hanamel's field, the month
+  the second temple was finished, the fathers of the minor prophets. Every one was true and proved,
+  and somebody who had just finished the book still could not answer a fifth of them. 82 were
+  replaced with the turning points and the lines people quote, and where a story is memorable but
+  a name is not, the question asks about the story: what struck down the man robbing the treasury,
+  not that he was called Heliodorus. **Wrong options are not traps either**: no look-alike names
+  (Belshazzar beside Belteshazzar) and no figure that is true of something else in the same story
+  (ten, beside Job's seven sons and three daughters), so a half-remembered answer can still be
+  reached by ruling things out. At least one wrong option stays plausible, or it stops being a
+  question.
 - **Shape rules, all pinned:** four different options, no negative stems and no "all of the above"
   (a quoted "not" is allowed, since it belongs to scripture), a stem under 120 characters and an
   option under 48 so both fit a phone, the right answer never parked in one position for most of a

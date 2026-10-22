@@ -5,25 +5,27 @@
       "id": "3-john-1",
       "ref": [1, 1, 1],
       "q": "To whom does the elder write 3 John?",
-      "options": ["Gaius", "Diotrephes", "Demetrius", "The chosen lady"],
+      "options": ["Gaius", "Diotrephes", "Timothy", "The chosen lady"],
       "answer": 0,
       "evidence": "The elder to Gaius the beloved, whom I love in truth"
     },
     {
       "id": "3-john-2",
       "ref": [1, 9, 9],
-      "q": "Who loves to be first among them?",
-      "options": ["Demetrius", "Gaius", "Diotrephes", "Timothy"],
+      "q": "What fault does the elder find in Diotrephes?",
+      "options": ["He drinks too much", "He is lazy", "He loves to be first", "He lies about money"],
       "answer": 2,
-      "evidence": "I wrote to the assembly, but Diotrephes, who loves to be first among them, doesn’t accept what we say"
+      "evidence": "I wrote to the assembly, but Diotrephes, who loves to be first among them, doesn’t accept what we say",
+      "answerTerms": ["loves to be first"]
     },
     {
       "id": "3-john-3",
-      "ref": [1, 12, 12],
-      "q": "Who has the testimony of all, and of the truth itself?",
-      "options": ["Diotrephes", "Demetrius", "Gaius", "Titus"],
+      "ref": [1, 4, 4],
+      "q": "What gives the elder no greater joy?",
+      "options": ["Seeing the assembly grow", "Hearing his children walk in truth", "Receiving letters", "Visiting Gaius"],
       "answer": 1,
-      "evidence": "Demetrius has the testimony of all, and of the truth itself"
+      "evidence": "I have no greater joy than this, to hear about my children walking in truth",
+      "answerTerms": ["walking in truth"]
     }
   ]
 }

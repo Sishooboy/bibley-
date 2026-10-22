@@ -12,12 +12,11 @@
     },
     {
       "id": "song-of-songs-2",
-      "ref": [1, 5, 5],
-      "q": "Like whose tents does the beloved say she is dark?",
-      "options": ["Edom's", "Midian's", "Kedar's", "Moab's"],
+      "ref": [2, 4, 4],
+      "q": "What is his banner over her, the Song says?",
+      "options": ["Peace", "Victory", "Love", "Gold"],
       "answer": 2,
-      "evidence": "I am dark, but lovely, you daughters of Jerusalem, like Kedar’s tents, like Solomon’s curtains",
-      "answerTerms": ["kedar"]
+      "evidence": "His banner over me is love"
     },
     {
       "id": "song-of-songs-3",

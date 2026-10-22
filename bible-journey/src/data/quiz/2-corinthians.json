@@ -3,11 +3,11 @@
   "questions": [
     {
       "id": "2-corinthians-1",
-      "ref": [1, 1, 1],
-      "q": "Who joins Paul in the greeting of 2 Corinthians?",
-      "options": ["Timothy", "Silas", "Titus", "Apollos"],
+      "ref": [5, 7, 7],
+      "q": "We walk by faith, Paul says, rather than by what?",
+      "options": ["Sight", "Law", "Works", "Strength"],
       "answer": 0,
-      "evidence": "Paul, an apostle of Christ Jesus through the will of God, and Timothy our brother, to the assembly of God which is at Corinth, with all the saints who are in the whole of Achaia"
+      "evidence": "for we walk by faith, not by sight"
     },
     {
       "id": "2-corinthians-2",
@@ -31,7 +31,7 @@
       "id": "2-corinthians-4",
       "ref": [9, 7, 7],
       "q": "What kind of giver does God love?",
-      "options": ["A rich giver", "A secret giver", "A generous giver", "A cheerful giver"],
+      "options": ["A rich giver", "A secret giver", "A wise giver", "A cheerful giver"],
       "answer": 3,
       "evidence": "for God loves a cheerful giver",
       "answerTerms": ["cheerful giver"]

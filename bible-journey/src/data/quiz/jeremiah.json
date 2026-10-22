@@ -3,11 +3,12 @@
   "questions": [
     {
       "id": "jeremiah-1",
-      "ref": [1, 1, 1],
-      "q": "From which town did Jeremiah, of the priests, come?",
-      "options": ["Anathoth", "Tekoa", "Bethlehem", "Shiloh"],
+      "ref": [1, 9, 9],
+      "q": "Where did Yahweh put his words when he touched Jeremiah?",
+      "options": ["In his mouth", "In his heart", "On a scroll", "On his hands"],
       "answer": 0,
-      "evidence": "The words of Jeremiah the son of Hilkiah, one of the priests who were in Anathoth in the land of Benjamin"
+      "evidence": "Then Yahweh said to me, “Behold, I have put my words in your mouth",
+      "answerTerms": ["in your mouth"]
     },
     {
       "id": "jeremiah-2",
@@ -46,11 +47,12 @@
     },
     {
       "id": "jeremiah-6",
-      "ref": [20, 2, 2],
-      "q": "Who struck Jeremiah and put him in the stocks?",
-      "options": ["Hananiah", "Pashhur", "Baruch", "Gedaliah"],
+      "ref": [20, 9, 9],
+      "q": "What did Jeremiah say God's word was like when he held it in?",
+      "options": ["A sweet song", "A burning fire in his bones", "A heavy stone", "A cool spring"],
       "answer": 1,
-      "evidence": "Then Pashhur struck Jeremiah the prophet, and put him in the stocks that were in the upper gate of Benjamin, which was in Yahweh’s house"
+      "evidence": "If I say, I will not make mention of him, nor speak any more in his name, then there is in my heart as it were a burning fire shut up in my bones, and I am weary with holding it in, and I can’t",
+      "answerTerms": ["burning fire shut up in my bones"]
     },
     {
       "id": "jeremiah-7",
@@ -78,19 +80,21 @@
     },
     {
       "id": "jeremiah-10",
-      "ref": [32, 9, 9],
-      "q": "Whose field did Jeremiah buy in Anathoth?",
-      "options": ["Baruch", "Pashhur", "Ebedmelech", "Hanamel"],
+      "ref": [32, 15, 15],
+      "q": "Why did Jeremiah buy a field while Jerusalem was under siege?",
+      "options": ["To bury his family", "To hide treasure", "To pay a debt", "Fields would be bought there again"],
       "answer": 3,
-      "evidence": "I bought the field that was in Anathoth of Hanamel my uncle’s son, and weighed him the money, even seventeen shekels of silver"
+      "evidence": "For Yahweh of Armies, the God of Israel says: ‘Houses and fields and vineyards shall yet again be bought in this land",
+      "answerTerms": ["yet again be bought"]
     },
     {
       "id": "jeremiah-11",
-      "ref": [36, 28, 28],
-      "q": "Which king burned the first scroll of Jeremiah's words?",
-      "options": ["Jehoiakim", "Zedekiah", "Josiah", "Jehoiachin"],
+      "ref": [36, 23, 23],
+      "q": "What did the king do with Jeremiah's scroll as it was read?",
+      "options": ["Burned it in the fire", "Hid it in the temple", "Sealed it in a jar", "Sent it to Babylon"],
       "answer": 0,
-      "evidence": "Take again another scroll, and write in it all the former words that were in the first scroll, which Jehoiakim the king of Judah has burned"
+      "evidence": "When Jehudi had read three or four leaves, the king cut it with the penknife, and cast it into the fire that was in the brazier, until all the scroll was consumed in the fire that was in the brazier",
+      "answerTerms": ["into the fire"]
     },
     {
       "id": "jeremiah-12",
@@ -105,17 +109,18 @@
       "id": "jeremiah-13",
       "ref": [38, 10, 10],
       "q": "Which Ethiopian did the king send to take Jeremiah out of the dungeon?",
-      "options": ["Baruch", "Seraiah", "Ebedmelech", "Gemariah"],
+      "options": ["Baruch", "Ezra", "Ebedmelech", "Daniel"],
       "answer": 2,
       "evidence": "Then the king commanded Ebedmelech the Ethiopian, saying, “Take from here thirty men with you, and take up Jeremiah the prophet out of the dungeon, before he dies"
     },
     {
       "id": "jeremiah-14",
-      "ref": [52, 12, 13],
-      "q": "Who was the captain of the guard who burned Yahweh's house?",
-      "options": ["Nebuzaradan", "Nebuchadnezzar", "Gedaliah", "Zedekiah"],
+      "ref": [52, 11, 11],
+      "q": "What did the king of Babylon do to Zedekiah?",
+      "options": ["Put out his eyes", "Made him governor", "Let him go free", "Gave him a daughter"],
       "answer": 0,
-      "evidence": "Nebuzaradan the captain of the guard, who stood before the king of Babylon, came into Jerusalem. He burned Yahweh’s house"
+      "evidence": "He put out the eyes of Zedekiah",
+      "answerTerms": ["put out the eyes of zedekiah"]
     }
   ]
 }

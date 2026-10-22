@@ -3,11 +3,12 @@
   "questions": [
     {
       "id": "hosea-1",
-      "ref": [1, 1, 1],
-      "q": "Whose son was the prophet Hosea?",
-      "options": ["Beeri", "Amoz", "Buzi", "Pethuel"],
+      "ref": [1, 2, 2],
+      "q": "What kind of wife did Yahweh tell Hosea to take?",
+      "options": ["A wife of prostitution", "A widow of Israel", "A priest's daughter", "A foreign princess"],
       "answer": 0,
-      "evidence": "Yahweh’s word that came to Hosea the son of Beeri, in the days of Uzziah, Jotham, Ahaz, and Hezekiah, kings of Judah, and in the days of Jeroboam the son of Joash, king of Israel"
+      "evidence": "When Yahweh spoke at first by Hosea, Yahweh said to Hosea, “Go, take for yourself a wife of prostitution and children of unfaithfulness",
+      "answerTerms": ["wife of prostitution"]
     },
     {
       "id": "hosea-2",
@@ -19,11 +20,12 @@
     },
     {
       "id": "hosea-3",
-      "ref": [3, 2, 2],
-      "q": "For how many pieces of silver did Hosea buy her back?",
-      "options": ["Thirty", "Fifteen", "Twenty", "Fifty"],
+      "ref": [3, 1, 1],
+      "q": "In chapter 3, what did Yahweh tell Hosea to do again?",
+      "options": ["Leave the land", "Love a woman who was an adulteress", "Build an altar", "Fast forty days"],
       "answer": 1,
-      "evidence": "So I bought her for myself for fifteen pieces of silver and a homer and a half of barley"
+      "evidence": "Yahweh said to me, “Go again, love a woman loved by another, and an adulteress, even as Yahweh loves the children of Israel, though they turn to other gods, and love cakes of raisins",
+      "answerTerms": ["love a woman", "adulteress"]
     },
     {
       "id": "hosea-4",

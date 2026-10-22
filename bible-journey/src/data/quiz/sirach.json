@@ -53,19 +53,20 @@
     },
     {
       "id": "sirach-7",
-      "ref": [24, 3, 3],
-      "q": "In Sirach 24, wisdom says she covered the earth like what?",
-      "options": ["A flood", "A cloud of locusts", "A mist", "Snow"],
+      "ref": [3, 30, 30],
+      "q": "What does Sirach say makes atonement for sins, as water quenches fire?",
+      "options": ["Sacrifice", "Fasting", "Almsgiving", "Silence"],
       "answer": 2,
-      "evidence": "I came forth from the mouth of the Most High, And covered the earth as a mist"
+      "evidence": "And almsgiving will make atonement for sins"
     },
     {
       "id": "sirach-8",
-      "ref": [24, 8, 8],
-      "q": "In whom did the Creator tell wisdom to make her dwelling?",
-      "options": ["Jacob", "Egypt", "Babylon", "Greece"],
+      "ref": [28, 2, 2],
+      "q": "Forgive your neighbor, Sirach says, and what will happen when you pray?",
+      "options": ["Your sins will be pardoned", "Rain will fall", "Your enemies will flee", "The king will hear"],
       "answer": 0,
-      "evidence": "And he that created me made my tabernacle to rest, And said, Let your tabernacle be in Jacob, And your inheritance in Israel"
+      "evidence": "And then your sins shall be pardoned when you pray",
+      "answerTerms": ["sins shall be pardoned"]
     },
     {
       "id": "sirach-9",
@@ -103,7 +104,7 @@
       "id": "sirach-13",
       "ref": [48, 1, 1],
       "q": "Which prophet stood up as fire, his word burning like a torch?",
-      "options": ["Elisha", "Isaiah", "Elijah", "Jeremiah"],
+      "options": ["Samuel", "Isaiah", "Elijah", "Jeremiah"],
       "answer": 2,
       "evidence": "Also there arose Elijah the prophet as fire, And his word burned like a torch"
     },

@@ -3,11 +3,12 @@
   "questions": [
     {
       "id": "1-kings-1",
-      "ref": [1, 39, 39],
-      "q": "Who took the horn of oil from the Tent and anointed Solomon?",
-      "options": ["Zadok the priest", "Abiathar the priest", "Joab", "Benaiah"],
+      "ref": [8, 27, 27],
+      "q": "What did Solomon say cannot contain God, let alone the temple?",
+      "options": ["Heaven and the heaven of heavens", "The ark of the covenant", "The holy of holies", "The tent of meeting"],
       "answer": 0,
-      "evidence": "Zadok the priest took the horn of oil from the Tent, and anointed Solomon"
+      "evidence": "Behold, heaven and the heaven of heavens can’t contain you",
+      "answerTerms": ["heaven of heavens"]
     },
     {
       "id": "1-kings-2",
@@ -29,12 +30,12 @@
     },
     {
       "id": "1-kings-4",
-      "ref": [6, 1, 1],
-      "q": "In which year of his reign did Solomon begin to build Yahweh's house?",
-      "options": ["The first", "The seventh", "The twelfth", "The fourth"],
+      "ref": [11, 4, 4],
+      "q": "What turned Solomon's heart away when he was old?",
+      "options": ["His wealth", "His army", "His enemies", "His wives"],
       "answer": 3,
-      "evidence": "in the fourth year of Solomon’s reign over Israel",
-      "answerTerms": ["fourth year"]
+      "evidence": "When Solomon was old, his wives turned away his heart after other gods",
+      "answerTerms": ["wives"]
     },
     {
       "id": "1-kings-5",
@@ -47,18 +48,18 @@
     },
     {
       "id": "1-kings-6",
-      "ref": [12, 28, 29],
-      "q": "Where did Jeroboam set up his two calves of gold?",
-      "options": ["Jerusalem and Hebron", "Bethel and Dan", "Shiloh and Gilgal", "Samaria and Jezreel"],
+      "ref": [12, 8, 8],
+      "q": "Whose counsel did Rehoboam follow when Israel asked for a lighter yoke?",
+      "options": ["The prophets'", "The young men's", "Pharaoh's", "The priests'"],
       "answer": 1,
-      "evidence": "He set the one in Bethel, and the other put he in Dan",
-      "answerTerms": ["Bethel", "Dan"]
+      "evidence": "But he abandoned the counsel of the old men which they had given him, and took counsel with the young men who had grown up with him, who stood before him",
+      "answerTerms": ["young men"]
     },
     {
       "id": "1-kings-7",
       "ref": [17, 6, 6],
       "q": "What brought Elijah bread and meat by the brook?",
-      "options": ["Doves", "Eagles", "Ravens", "Angels"],
+      "options": ["Doves", "Eagles", "Ravens", "Lions"],
       "answer": 2,
       "evidence": "The ravens brought him bread and meat in the morning, and bread and meat in the evening"
     },

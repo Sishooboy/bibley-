@@ -5,17 +5,18 @@
       "id": "nehemiah-1",
       "ref": [1, 11, 11],
       "q": "What was Nehemiah's work for the king?",
-      "options": ["Cup bearer", "Scribe", "Baker", "Governor"],
+      "options": ["Cup bearer", "Scribe", "Baker", "Soldier"],
       "answer": 0,
       "evidence": "Now I was cup bearer to the king"
     },
     {
       "id": "nehemiah-2",
-      "ref": [2, 1, 1],
-      "q": "In the twentieth year of which king did Nehemiah bring him wine?",
-      "options": ["Cyrus", "Darius", "Artaxerxes", "Nebuchadnezzar"],
+      "ref": [2, 2, 2],
+      "q": "Why did the king ask Nehemiah what was wrong?",
+      "options": ["He spilled the wine", "He came late", "His face was sad", "He wore sackcloth"],
       "answer": 2,
-      "evidence": "In the month Nisan, in the twentieth year of Artaxerxes the king, when wine was before him, I picked up the wine, and gave it to the king"
+      "evidence": "The king said to me, “Why is your face sad, since you are not sick",
+      "answerTerms": ["sad"]
     },
     {
       "id": "nehemiah-3",
@@ -28,17 +29,18 @@
     },
     {
       "id": "nehemiah-4",
-      "ref": [6, 15, 15],
-      "q": "In how many days was the wall finished?",
-      "options": ["Forty", "Seventy", "One hundred", "Fifty-two"],
+      "ref": [6, 16, 16],
+      "q": "When the wall was finished, who did the enemies see had done the work?",
+      "options": ["The king of Persia", "Nehemiah alone", "The priests", "God"],
       "answer": 3,
-      "evidence": "So the wall was finished in the twenty-fifth day of Elul, in fifty-two days"
+      "evidence": "for they perceived that this work was done by our God",
+      "answerTerms": ["our god"]
     },
     {
       "id": "nehemiah-5",
       "ref": [8, 2, 3],
       "q": "Who read the book of the law to the people from early morning until midday?",
-      "options": ["Nehemiah", "Joshua", "Zerubbabel", "Ezra"],
+      "options": ["Nehemiah", "Joshua", "Samuel", "Ezra"],
       "answer": 3,
       "evidence": "Ezra the priest brought the law before the assembly, both men and women, and all who could hear with understanding, on the first day of the seventh month. He read from it before the wide place that was in front of the water gate from early morning until midday"
     },
@@ -52,11 +54,12 @@
     },
     {
       "id": "nehemiah-7",
-      "ref": [13, 15, 15],
-      "q": "What did Nehemiah see men in Judah doing on the Sabbath?",
-      "options": ["Building the wall", "Reading the law", "Treading wine presses", "Selling slaves"],
+      "ref": [13, 31, 31],
+      "q": "How does Nehemiah end his book?",
+      "options": ["Praise Yahweh, all you nations", "Amen and amen", "Remember me, my God, for good", "Peace be on Israel"],
       "answer": 2,
-      "evidence": "In those days saw I in Judah some men treading wine presses on the Sabbath, bringing in sheaves, and loading donkeys"
+      "evidence": "Remember me, my God, for good",
+      "answerTerms": ["remember me, my god, for good"]
     }
   ]
 }

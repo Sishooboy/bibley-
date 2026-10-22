@@ -79,7 +79,7 @@
       "id": "exodus-10",
       "ref": [24, 18, 18],
       "q": "How long was Moses on the mountain when he went up into the cloud?",
-      "options": ["Seven days", "Three days and three nights", "Twelve days", "Forty days and forty nights"],
+      "options": ["A hundred days", "Three days and three nights", "Twelve days", "Forty days and forty nights"],
       "answer": 3,
       "evidence": "and Moses was on the mountain forty days and forty nights"
     },

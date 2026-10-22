@@ -3,26 +3,27 @@
   "questions": [
     {
       "id": "2-maccabees-1",
-      "ref": [2, 23, 23],
-      "q": "Whose five books does 2 Maccabees say it shortens into one?",
-      "options": ["Jason of Cyrene", "Ezra the scribe", "Nehemiah", "Mattathias"],
+      "ref": [2, 5, 5],
+      "q": "What did Jeremiah hide in a chamber in the rock, 2 Maccabees says?",
+      "options": ["The tabernacle and the ark", "The tablets of stone", "The temple gold", "The book of Moses"],
       "answer": 0,
-      "evidence": "these things, I say, which have been declared by Jason of Cyrene in five books, we will assay to abridge in one work",
-      "answerTerms": ["Jason of Cyrene"]
+      "evidence": "And Jeremiah came and found a chamber in the rock, and there he brought in the tabernacle, and the ark, and the altar of incense",
+      "answerTerms": ["tabernacle, and the ark"]
     },
     {
       "id": "2-maccabees-2",
-      "ref": [3, 24, 26],
-      "q": "Who came to seize the temple treasury and was struck down by a vision of a horse and rider?",
-      "options": ["Nicanor", "Lysias", "Heliodorus", "Apollonius"],
+      "ref": [3, 25, 25],
+      "q": "What struck down the man who came to seize the temple treasury?",
+      "options": ["An earthquake", "A plague of boils", "A horse with a terrible rider", "Fire from the altar"],
       "answer": 2,
-      "evidence": "and he rushed fiercely and struck at Heliodorus with his forefeet"
+      "evidence": "For there was seen by them a horse with a terrible rider upon him",
+      "answerTerms": ["horse with a terrible rider"]
     },
     {
       "id": "2-maccabees-3",
       "ref": [6, 18, 18],
       "q": "Which aged scribe chose death rather than eat swine's flesh?",
-      "options": ["Razis", "Eleazar", "Onias", "Jason"],
+      "options": ["Judas", "Eleazar", "Onias", "Ezra"],
       "answer": 1,
       "evidence": "Eleazar, one of the principal scribes, a man already well stricken in years, and of a noble countenance, was compelled to open his mouth to eat swine’s flesh"
     },
@@ -36,20 +37,20 @@
     },
     {
       "id": "2-maccabees-5",
-      "ref": [8, 1, 1],
-      "q": "About how many men did Judas Maccabaeus first gather?",
-      "options": ["Three hundred", "Ten thousand", "Forty thousand", "Six thousand"],
+      "ref": [7, 20, 20],
+      "q": "How could the mother bear seeing her seven sons die in one day?",
+      "options": ["The king's promise", "A vision of angels", "Her hatred of the king", "Her hope in the Lord"],
       "answer": 3,
-      "evidence": "and taking to them such as had continued in the Jews’ religion, gathered together as many as six thousand"
+      "evidence": "for when she looked on seven sons perishing within the space of one day, she bare the sight with a good courage for the hopes that she had set on the Lord",
+      "answerTerms": ["hopes that she had set on the lord"]
     },
     {
       "id": "2-maccabees-6",
-      "ref": [10, 5, 5],
-      "q": "On which day of the month Chislev was the sanctuary purified?",
-      "options": ["The first", "The twenty-fifth", "The fourteenth", "The tenth"],
+      "ref": [9, 9, 9],
+      "q": "What swarmed out of the body of Antiochus as he died?",
+      "options": ["Bees", "Worms", "Locusts", "Frogs"],
       "answer": 1,
-      "evidence": "Now on the same day that the sanctuary was profaned by aliens, upon that very day did it come to pass that the cleansing of the sanctuary was made, even on the five and twentieth day of the same month, which is Chislev",
-      "answerTerms": ["five and twentieth"]
+      "evidence": "so that out of the body of the impious man worms swarmed, and while he was still living in anguish and pains, his flesh fell off, and by reason of the stench all the army turned with loathing from his corruption"
     },
     {
       "id": "2-maccabees-7",
@@ -61,12 +62,12 @@
     },
     {
       "id": "2-maccabees-8",
-      "ref": [15, 36, 36],
-      "q": "The victory over Nicanor was to be kept on the day before which day?",
-      "options": ["Mordecai's day", "The Passover", "The day of atonement", "The Sabbath"],
+      "ref": [12, 45, 45],
+      "q": "For whom did Judas make propitiation, that they might be released from sin?",
+      "options": ["Those who had died", "The Gentiles", "The king", "The priests"],
       "answer": 0,
-      "evidence": "the day before the day of Mordecai",
-      "answerTerms": ["mordecai"]
+      "evidence": "Wherefore he made the propitiation for them that had died, that they might be released from their sin",
+      "answerTerms": ["them that had died"]
     }
   ]
 }

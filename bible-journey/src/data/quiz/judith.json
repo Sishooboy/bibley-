@@ -3,17 +3,17 @@
   "questions": [
     {
       "id": "judith-1",
-      "ref": [1, 1, 1],
-      "q": "From which city does Judith say Nebuchadnezzar reigned over the Assyrians?",
-      "options": ["Nineveh", "Babylon", "Susa", "Damascus"],
+      "ref": [12, 20, 20],
+      "q": "What did Holofernes drink more of than ever before, the night he died?",
+      "options": ["Wine", "Milk", "Water", "Honey"],
       "answer": 0,
-      "evidence": "IN the twelfth year of the reign of Nebuchadnezzar, who reigned over the Assyrians in Nineveh, the great city"
+      "evidence": "And Holofernes took great delight in her, and drank exceeding much wine, more than he had drunk at any time in one day since he was born"
     },
     {
       "id": "judith-2",
       "ref": [2, 4, 4],
       "q": "Who was the chief captain of Nebuchadnezzar's army?",
-      "options": ["Achior", "Bagoas", "Holofernes", "Arphaxad"],
+      "options": ["Achior", "Goliath", "Holofernes", "Haman"],
       "answer": 2,
       "evidence": "And it came to pass, when he had ended his counsel, Nebuchadnezzar king of the Assyrians called Holofernes the chief captain of his host, which was next after himself, and said to him"
     },
@@ -21,7 +21,7 @@
       "id": "judith-3",
       "ref": [5, 5, 5],
       "q": "Which leader of the Ammonites told Holofernes the history of Israel?",
-      "options": ["Bagoas", "Achior", "Ozias", "Arphaxad"],
+      "options": ["Bagoas", "Achior", "Haman", "Goliath"],
       "answer": 1,
       "evidence": "And Achior, the leader of all the children of Ammon"
     },
@@ -35,19 +35,21 @@
     },
     {
       "id": "judith-5",
-      "ref": [8, 4, 4],
-      "q": "How long had Judith been a widow?",
-      "options": ["Seven years", "Forty days", "Twelve years", "Three years and four months"],
+      "ref": [8, 8, 8],
+      "q": "Why did no one say an evil word about Judith?",
+      "options": ["She was very rich", "She was the governor's wife", "She was very old", "She feared God exceedingly"],
       "answer": 3,
-      "evidence": "And Judith was a widow in her house three years and four months"
+      "evidence": "for she feared God exceedingly",
+      "answerTerms": ["feared god exceedingly"]
     },
     {
       "id": "judith-6",
-      "ref": [13, 8, 8],
-      "q": "How many times did Judith strike Holofernes' neck?",
-      "options": ["Once", "Twice", "Three times", "Seven times"],
+      "ref": [13, 10, 10],
+      "q": "In what did Judith carry away the head of Holofernes?",
+      "options": ["A basket of figs", "Her bag of food", "A wineskin", "Her cloak"],
       "answer": 1,
-      "evidence": "And she struck twice upon his neck with all her might, and took away his head from him"
+      "evidence": "and she put it in her bag of food",
+      "answerTerms": ["bag of food"]
     },
     {
       "id": "judith-7",
@@ -60,12 +62,12 @@
     },
     {
       "id": "judith-8",
-      "ref": [16, 23, 23],
-      "q": "How old was Judith when she died?",
-      "options": ["A hundred and five", "Eighty", "Ninety-nine", "One hundred twenty"],
+      "ref": [16, 1, 1],
+      "q": "What did Judith lead all Israel in after the victory?",
+      "options": ["A song of thanksgiving", "A march to Babylon", "A feast for the king", "A fast"],
       "answer": 0,
-      "evidence": "and she waxed old in her husband’s house, to a hundred and five years, and let her maid go free: and she died in Bethulia",
-      "answerTerms": ["hundred and five years"]
+      "evidence": "And Judith began to sing this thanksgiving in all Israel, and all the people sang with loud voices this song of praise",
+      "answerTerms": ["thanksgiving"]
     }
   ]
 }

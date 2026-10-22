@@ -49,7 +49,7 @@
       "id": "acts-6",
       "ref": [10, 1, 1],
       "q": "Who was the centurion of the Italian Regiment at Caesarea?",
-      "options": ["Julius", "Cornelius", "Lysias", "Felix"],
+      "options": ["Barnabas", "Cornelius", "Stephen", "Felix"],
       "answer": 1,
       "evidence": "Now there was a certain man in Caesarea, Cornelius by name, a centurion of what was called the Italian Regiment"
     },
@@ -90,7 +90,7 @@
       "id": "acts-11",
       "ref": [28, 1, 1],
       "q": "On which island did they learn they had come ashore after the wreck?",
-      "options": ["Malta", "Cyprus", "Crete", "Rhodes"],
+      "options": ["Malta", "Cyprus", "Crete", "Patmos"],
       "answer": 0,
       "evidence": "When we had escaped, then they learned that the island was called Malta"
     }

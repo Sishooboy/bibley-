@@ -5,7 +5,7 @@
       "id": "ezra-1",
       "ref": [1, 1, 1],
       "q": "Whose spirit did Yahweh stir up to make a proclamation through all his kingdom?",
-      "options": ["Cyrus", "Darius", "Nebuchadnezzar", "Artaxerxes"],
+      "options": ["Cyrus", "Darius", "Nebuchadnezzar", "Hezekiah"],
       "answer": 0,
       "evidence": "Yahweh stirred up the spirit of Cyrus king of Persia"
     },
@@ -20,19 +20,21 @@
     },
     {
       "id": "ezra-3",
-      "ref": [4, 24, 24],
-      "q": "Until the second year of which king did the work on God's house stop?",
-      "options": ["Cyrus", "Darius", "Artaxerxes", "Ahasuerus"],
+      "ref": [3, 11, 11],
+      "q": "What did the people do when the foundation of Yahweh's house was laid?",
+      "options": ["Tore their clothes", "Shouted with a great shout", "Left for Babylon", "Fell silent"],
       "answer": 1,
-      "evidence": "It stopped until the second year of the reign of Darius king of Persia"
+      "evidence": "All the people shouted with a great shout, when they praised Yahweh, because the foundation of Yahweh’s house had been laid",
+      "answerTerms": ["great shout"]
     },
     {
       "id": "ezra-4",
-      "ref": [6, 15, 15],
-      "q": "In which month was the house finished?",
-      "options": ["Nisan", "Elul", "Chislev", "Adar"],
+      "ref": [6, 16, 16],
+      "q": "How did the people keep the dedication of the rebuilt house of God?",
+      "options": ["In silence", "With fasting", "In mourning", "With joy"],
       "answer": 3,
-      "evidence": "This house was finished on the third day of the month Adar, which was in the sixth year of the reign of Darius the king"
+      "evidence": "The children of Israel, the priests, the Levites, and the rest of the children of the captivity, kept the dedication of this house of God with joy",
+      "answerTerms": ["with joy"]
     },
     {
       "id": "ezra-5",

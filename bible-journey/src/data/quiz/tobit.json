@@ -37,11 +37,12 @@
     },
     {
       "id": "tobit-5",
-      "ref": [8, 3, 3],
-      "q": "When the demon smelled the smoke, where did it flee?",
-      "options": ["Babylon", "Nineveh", "Persia", "Egypt"],
+      "ref": [5, 16, 16],
+      "q": "What animal went along when Tobias set out with the angel?",
+      "options": ["A donkey", "A camel", "A lamb", "A dog"],
       "answer": 3,
-      "evidence": "But when the devil smelled the smell, he fled into the uppermost parts of Egypt, and the angel bound him"
+      "evidence": "And they both went forth to depart, and the young man’s dog with them",
+      "answerTerms": ["dog"]
     },
     {
       "id": "tobit-6",

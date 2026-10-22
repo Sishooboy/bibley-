@@ -48,7 +48,7 @@
       "id": "2-kings-6",
       "ref": [9, 30, 30],
       "q": "Who painted her eyes and looked out of the window when Jehu came to Jezreel?",
-      "options": ["Athaliah", "Jezebel", "Huldah", "Michal"],
+      "options": ["Athaliah", "Jezebel", "Huldah", "Esther"],
       "answer": 1,
       "evidence": "When Jehu had come to Jezreel, Jezebel heard of it; and she painted her eyes, and adorned her head, and looked out at the window"
     },
@@ -62,11 +62,12 @@
     },
     {
       "id": "2-kings-8",
-      "ref": [20, 11, 11],
-      "q": "By how many steps did the shadow go back as a sign to Hezekiah?",
-      "options": ["Ten", "Seven", "Three", "Forty"],
+      "ref": [2, 24, 24],
+      "q": "What came out of the woods when the youths mocked Elisha?",
+      "options": ["Two bears", "A lion", "Wolves", "A swarm of bees"],
       "answer": 0,
-      "evidence": "and he brought the shadow ten steps backward, by which it had gone down on the sundial of Ahaz"
+      "evidence": "Then two female bears came out of the woods, and mauled forty-two of those youths",
+      "answerTerms": ["bears"]
     },
     {
       "id": "2-kings-9",

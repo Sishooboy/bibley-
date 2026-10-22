@@ -3,12 +3,11 @@
   "questions": [
     {
       "id": "micah-1",
-      "ref": [1, 1, 1],
-      "q": "What does the first verse call Micah?",
-      "options": ["The Morashtite", "The Tishbite", "The Elkoshite", "The Tekoite"],
+      "ref": [3, 12, 12],
+      "q": "What does Micah say Zion will be plowed like?",
+      "options": ["A field", "A vineyard", "A garden", "A threshing floor"],
       "answer": 0,
-      "evidence": "Yahweh’s word that came to Micah the Morashtite in the days of Jotham, Ahaz, and Hezekiah, kings of Judah, which he saw concerning Samaria and Jerusalem",
-      "answerTerms": ["morashtite"]
+      "evidence": "Therefore Zion for your sake will be plowed like a field, and Jerusalem will become heaps of rubble, and the mountain of the temple like the high places of a forest"
     },
     {
       "id": "micah-2",

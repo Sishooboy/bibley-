@@ -13,7 +13,7 @@
       "id": "2-chronicles-2",
       "ref": [3, 1, 1],
       "q": "On which mountain did Solomon build Yahweh's house?",
-      "options": ["Mount Zion", "Mount Carmel", "Mount Moriah", "Mount Gilboa"],
+      "options": ["Mount Sinai", "Mount Carmel", "Mount Moriah", "Mount Gilboa"],
       "answer": 2,
       "evidence": "Then Solomon began to build Yahweh’s house at Jerusalem on Mount Moriah, where Yahweh appeared to David his father, which he prepared in the place that David had appointed, on the threshing floor of Ornan the Jebusite"
     },
@@ -36,20 +36,21 @@
     },
     {
       "id": "2-chronicles-5",
-      "ref": [10, 1, 1],
-      "q": "Where did all Israel gather to make Rehoboam king?",
-      "options": ["Jerusalem", "Hebron", "Bethel", "Shechem"],
+      "ref": [5, 13, 14],
+      "q": "When the singers praised, what filled the house of Yahweh?",
+      "options": ["Smoke", "Water", "Darkness", "A cloud"],
       "answer": 3,
-      "evidence": "Rehoboam went to Shechem"
+      "evidence": "then the house was filled with a cloud, even Yahweh’s house, so that the priests could not stand to minister by reason of the cloud",
+      "answerTerms": ["cloud"]
     },
     {
       "id": "2-chronicles-6",
-      "ref": [17, 9, 9],
-      "q": "What did the teachers Jehoshaphat sent take with them through Judah?",
-      "options": ["The ark", "The book of Yahweh's law", "Gold for the temple", "Swords for the people"],
+      "ref": [20, 15, 15],
+      "q": "Whose battle did Jahaziel tell Judah it was?",
+      "options": ["The king's", "God's", "The priests'", "Their own"],
       "answer": 1,
-      "evidence": "They taught in Judah, having the book of Yahweh’s law with them",
-      "answerTerms": ["book of yahweh's law"]
+      "evidence": "for the battle is not yours, but God’s",
+      "answerTerms": ["god's"]
     },
     {
       "id": "2-chronicles-7",
@@ -62,19 +63,20 @@
     },
     {
       "id": "2-chronicles-8",
-      "ref": [24, 1, 1],
-      "q": "How old was Joash when he began to reign?",
-      "options": ["Seven", "Eight", "Twelve", "Sixteen"],
+      "ref": [24, 8, 8],
+      "q": "What did Joash have set at the gate of Yahweh's house to collect money?",
+      "options": ["A chest", "A golden bowl", "A stone basin", "A bronze pillar"],
       "answer": 0,
-      "evidence": "Joash was seven years old when he began to reign, and he reigned forty years in Jerusalem"
+      "evidence": "So the king commanded, and they made a chest, and set it outside at the gate of Yahweh’s house",
+      "answerTerms": ["chest"]
     },
     {
       "id": "2-chronicles-9",
       "ref": [26, 19, 19],
-      "q": "Which king was struck with leprosy while he held a censer to burn incense?",
-      "options": ["Hezekiah", "Uzziah", "Ahaz", "Jotham"],
+      "q": "What broke out on King Uzziah's forehead as he burned incense?",
+      "options": ["Fire", "Leprosy", "Blood", "A crown of light"],
       "answer": 1,
-      "evidence": "Then Uzziah was angry. He had a censer in his hand to burn incense, and while he was angry with the priests, the leprosy broke out on his forehead before the priests in Yahweh’s house, beside the altar of incense"
+      "evidence": "He had a censer in his hand to burn incense, and while he was angry with the priests, the leprosy broke out on his forehead before the priests in Yahweh’s house, beside the altar of incense"
     },
     {
       "id": "2-chronicles-10",
@@ -87,16 +89,17 @@
     {
       "id": "2-chronicles-11",
       "ref": [33, 11, 13],
-      "q": "Which king humbled himself and prayed after being carried to Babylon in chains?",
-      "options": ["Manasseh", "Amon", "Ahaz", "Jehoiakim"],
+      "q": "What did Manasseh do when he was taken to Babylon in chains?",
+      "options": ["Humbled himself and prayed", "Cursed God", "Escaped by night", "Served the gods of Babylon"],
       "answer": 0,
-      "evidence": "Therefore Yahweh brought on them the captains of the army of the king of Assyria, who took Manasseh in chains, bound him with fetters, and carried him to Babylon"
+      "evidence": "When he was in distress, he begged Yahweh his God, and humbled himself greatly before the God of his fathers",
+      "answerTerms": ["humbled himself"]
     },
     {
       "id": "2-chronicles-12",
       "ref": [36, 22, 23],
       "q": "Which king of Persia proclaimed that God's house would be built in Jerusalem?",
-      "options": ["Darius", "Artaxerxes", "Cyrus", "Ahasuerus"],
+      "options": ["Darius", "Nebuchadnezzar", "Cyrus", "Hezekiah"],
       "answer": 2,
       "evidence": "Yahweh stirred up the spirit of Cyrus king of Persia, so that he made a proclamation throughout all his kingdom"
     }

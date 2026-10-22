@@ -21,11 +21,12 @@
     },
     {
       "id": "lamentations-3",
-      "ref": [4, 1, 1],
-      "q": "What has become dim, Lamentations 4 begins?",
-      "options": ["The lamp", "The gold", "The eyes", "The sky"],
+      "ref": [1, 12, 12],
+      "q": "What does Jerusalem ask all who pass by?",
+      "options": ["Where is your God?", "Is it nothing to you?", "Who will build the walls?", "Why do you weep?"],
       "answer": 1,
-      "evidence": "How the gold has become dim"
+      "evidence": "Is it nothing to you, all you who pass by",
+      "answerTerms": ["is it nothing to you"]
     },
     {
       "id": "lamentations-4",

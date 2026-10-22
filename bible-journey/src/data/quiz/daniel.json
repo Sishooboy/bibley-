@@ -5,7 +5,7 @@
       "id": "daniel-1",
       "ref": [1, 7, 7],
       "q": "What name did the prince of the eunuchs give Daniel?",
-      "options": ["Belteshazzar", "Belshazzar", "Ashpenaz", "Zerubbabel"],
+      "options": ["Belteshazzar", "Mordecai", "Ashpenaz", "Zerubbabel"],
       "answer": 0,
       "evidence": "The prince of the eunuchs gave names to them: to Daniel he gave the name Belteshazzar"
     },
@@ -21,7 +21,7 @@
       "id": "daniel-3",
       "ref": [3, 25, 25],
       "q": "How many men did the king see walking in the middle of the fire?",
-      "options": ["Three", "Four", "Seven", "Two"],
+      "options": ["Three", "Four", "Ten", "Two"],
       "answer": 1,
       "evidence": "He answered, Look, I see four men loose, walking in the middle of the fire, and they are unharmed"
     },
@@ -45,12 +45,12 @@
     },
     {
       "id": "daniel-6",
-      "ref": [13, 54, 54],
-      "q": "Under what kind of tree did the first elder say he saw Susanna?",
-      "options": ["A holm tree", "A mastick tree", "An oak", "A fig tree"],
+      "ref": [13, 51, 51],
+      "q": "How did Daniel prove the two elders lied about Susanna?",
+      "options": ["He read their thoughts", "He questioned them apart", "He called a witness", "He cast lots"],
       "answer": 1,
-      "evidence": "Who answered, Under a mastick tree",
-      "answerTerms": ["mastick"]
+      "evidence": "Then said Daniel to them, Put them asunder one far from another, and I will examine them",
+      "answerTerms": ["one far from another"]
     },
     {
       "id": "daniel-7",

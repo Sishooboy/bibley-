@@ -11,11 +11,11 @@
     },
     {
       "id": "nahum-2",
-      "ref": [2, 8, 8],
-      "q": "Which city has been like a pool of water from of old, Nahum 2 says?",
-      "options": ["Babylon", "Tyre", "Nineveh", "Damascus"],
+      "ref": [2, 4, 4],
+      "q": "What rage in the streets as Nineveh falls?",
+      "options": ["The waters", "The lions", "The chariots", "The fires"],
       "answer": 2,
-      "evidence": "But Nineveh has been from of old like a pool of water, yet they flee away"
+      "evidence": "The chariots rage in the streets"
     },
     {
       "id": "nahum-3",

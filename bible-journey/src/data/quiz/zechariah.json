@@ -3,20 +3,21 @@
   "questions": [
     {
       "id": "zechariah-1",
-      "ref": [1, 1, 1],
-      "q": "Whose son was the prophet Zechariah?",
-      "options": ["Berechiah", "Beeri", "Amoz", "Cushi"],
+      "ref": [1, 3, 3],
+      "q": "What does Yahweh promise if his people return to him?",
+      "options": ["He will return to them", "He will give them a king", "He will send rain", "He will destroy Babylon"],
       "answer": 0,
-      "evidence": "In the eighth month, in the second year of Darius, Yahweh’s word came to Zechariah the son of Berechiah, the son of Iddo, the prophet, saying"
+      "evidence": "Therefore tell them: Yahweh of Armies says: ‘Return to me,’ says Yahweh of Armies, ‘and I will return to you,’ says Yahweh of Armies",
+      "answerTerms": ["i will return to you"]
     },
     {
       "id": "zechariah-2",
-      "ref": [1, 8, 8],
-      "q": "Among which trees stood the man on the red horse?",
-      "options": ["Oak trees", "Olive trees", "Myrtle trees", "Fig trees"],
+      "ref": [2, 8, 8],
+      "q": "Whoever touches God's people touches what?",
+      "options": ["The hem of his robe", "The ark of the covenant", "The apple of his eye", "His holy mountain"],
       "answer": 2,
-      "evidence": "I had a vision in the night, and behold, a man riding on a red horse, and he stood among the myrtle trees that were in a ravine",
-      "answerTerms": ["myrtle"]
+      "evidence": "for he who touches you touches the apple of his eye",
+      "answerTerms": ["apple of his eye"]
     },
     {
       "id": "zechariah-3",

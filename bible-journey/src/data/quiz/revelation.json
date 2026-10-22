@@ -47,7 +47,7 @@
       "id": "revelation-6",
       "ref": [13, 18, 18],
       "q": "What is the number of the beast?",
-      "options": ["Seven hundred seventy-seven", "Six hundred sixty-six", "One hundred forty-four", "Six hundred sixteen"],
+      "options": ["Seven hundred seventy-seven", "Six hundred sixty-six", "One hundred forty-four", "Seven"],
       "answer": 1,
       "evidence": "His number is six hundred sixty-six",
       "answerTerms": ["six hundred sixty-six"]

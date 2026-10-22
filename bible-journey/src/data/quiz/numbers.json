@@ -35,11 +35,11 @@
     },
     {
       "id": "numbers-5",
-      "ref": [13, 16, 16],
-      "q": "What name did Moses give Hoshea the son of Nun?",
-      "options": ["Caleb", "Eleazar", "Gideon", "Joshua"],
+      "ref": [13, 30, 30],
+      "q": "Which spy said, \"Let's go up at once, and possess it\"?",
+      "options": ["Korah", "Aaron", "Balaam", "Caleb"],
       "answer": 3,
-      "evidence": "Moses called Hoshea the son of Nun Joshua"
+      "evidence": "Caleb stilled the people before Moses, and said, “Let us go up at once, and possess it"
     },
     {
       "id": "numbers-6",
@@ -86,18 +86,17 @@
       "id": "numbers-11",
       "ref": [22, 28, 28],
       "q": "Whose donkey was given a voice to speak to him?",
-      "options": ["Balaam", "Balak", "Moses", "Phinehas"],
+      "options": ["Balaam", "Jethro", "Moses", "Phinehas"],
       "answer": 0,
       "evidence": "Yahweh opened the mouth of the donkey, and she said to Balaam, “What have I done to you, that you have struck me these three times"
     },
     {
       "id": "numbers-12",
-      "ref": [32, 1, 1],
-      "q": "Which tribes had so much livestock that they asked for the land of Gilead?",
-      "options": ["Judah and Benjamin", "Ephraim and Manasseh", "Reuben and Gad", "Levi and Simeon"],
+      "ref": [27, 18, 18],
+      "q": "On whom did Yahweh tell Moses to lay his hand, to lead after him?",
+      "options": ["Caleb", "Aaron", "Joshua", "Korah"],
       "answer": 2,
-      "evidence": "Now the children of Reuben and the children of Gad had a very great multitude of livestock",
-      "answerTerms": ["Reuben", "Gad"]
+      "evidence": "Yahweh said to Moses, “Take Joshua the son of Nun, a man in whom is the Spirit, and lay your hand on him"
     }
   ]
 }

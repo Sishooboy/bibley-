@@ -53,11 +53,12 @@
     },
     {
       "id": "1-samuel-7",
-      "ref": [17, 4, 4],
-      "q": "Where was the Philistine champion Goliath from?",
-      "options": ["Gaza", "Ashdod", "Gath", "Ekron"],
+      "ref": [16, 7, 7],
+      "q": "Man looks at the outward appearance, but what does Yahweh look at?",
+      "options": ["The face", "The strength", "The heart", "The family"],
       "answer": 2,
-      "evidence": "A champion out of the camp of the Philistines named Goliath, of Gath, whose height was six cubits and a span went out"
+      "evidence": "For man looks at the outward appearance, but Yahweh looks at the heart",
+      "answerTerms": ["heart"]
     },
     {
       "id": "1-samuel-8",

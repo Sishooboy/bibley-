@@ -13,17 +13,18 @@
       "id": "1-chronicles-2",
       "ref": [4, 10, 10],
       "q": "Who prayed, \"Oh that you would bless me indeed, and enlarge my border\"?",
-      "options": ["Jabin", "Jair", "Jabez", "Jesse"],
+      "options": ["Solomon", "Hezekiah", "Jabez", "Jesse"],
       "answer": 2,
       "evidence": "Jabez called on the God of Israel, saying, “Oh that you would bless me indeed, and enlarge my border"
     },
     {
       "id": "1-chronicles-3",
-      "ref": [10, 6, 6],
-      "q": "How many of Saul's sons died with him?",
-      "options": ["Two", "Three", "Seven", "One"],
+      "ref": [16, 34, 34],
+      "q": "\"Give thanks to Yahweh, for he is good; for his loving kindness\" does what?",
+      "options": ["Comes each morning", "Endures forever", "Fills the temple", "Is new each day"],
       "answer": 1,
-      "evidence": "So Saul died with his three sons"
+      "evidence": "Oh give thanks to Yahweh, for he is good, for his loving kindness endures forever",
+      "answerTerms": ["endures forever"]
     },
     {
       "id": "1-chronicles-4",
@@ -35,17 +36,18 @@
     },
     {
       "id": "1-chronicles-5",
-      "ref": [11, 17, 17],
-      "q": "David longed for water from the well of which town?",
-      "options": ["Hebron", "Jericho", "Shiloh", "Bethlehem"],
+      "ref": [11, 18, 18],
+      "q": "What did David do with the water his mighty men brought from Bethlehem?",
+      "options": ["Drank it all", "Gave it to the priests", "Shared it with the army", "Poured it out to Yahweh"],
       "answer": 3,
-      "evidence": "David longed, and said, “Oh that one would give me water to drink from the well of Bethlehem, which is by the gate"
+      "evidence": "but David would not drink any of it, but poured it out to Yahweh",
+      "answerTerms": ["poured it out to yahweh"]
     },
     {
       "id": "1-chronicles-6",
       "ref": [13, 9, 10],
       "q": "Who put out his hand to hold the ark, and died before God?",
-      "options": ["Ahio", "Uzza", "Obed-Edom", "Eleazar"],
+      "options": ["Aaron", "Uzza", "Obed-Edom", "Eleazar"],
       "answer": 1,
       "evidence": "When they came to Chidon’s threshing floor, Uzza put out his hand to hold the ark"
     },
@@ -80,17 +82,17 @@
       "id": "1-chronicles-10",
       "ref": [28, 6, 6],
       "q": "Which son did David say would build God's house?",
-      "options": ["Absalom", "Adonijah", "Nathan", "Solomon"],
+      "options": ["Absalom", "Joab", "Nathan", "Solomon"],
       "answer": 3,
       "evidence": "He said to me, ‘Solomon, your son, shall build my house and my courts"
     },
     {
       "id": "1-chronicles-11",
-      "ref": [29, 27, 27],
-      "q": "For how many years did David reign in Hebron?",
-      "options": ["Seven", "Twelve", "Twenty", "Three"],
+      "ref": [29, 11, 11],
+      "q": "To whom does David say the greatness, the power and the glory belong?",
+      "options": ["Yahweh", "The king", "Israel", "The priests"],
       "answer": 0,
-      "evidence": "he reigned seven years in Hebron"
+      "evidence": "Yours, Yahweh, is the greatness, the power, the glory, the victory, and the majesty"
     }
   ]
 }

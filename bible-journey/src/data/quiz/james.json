@@ -31,7 +31,7 @@
       "id": "james-4",
       "ref": [5, 17, 17],
       "q": "Which prophet does James say prayed earnestly about the rain?",
-      "options": ["Elisha", "Samuel", "Moses", "Elijah"],
+      "options": ["Jonah", "Samuel", "Moses", "Elijah"],
       "answer": 3,
       "evidence": "Elijah was a man with a nature like ours, and he prayed earnestly that it might not rain, and it didn’t rain on the earth for three years and six months"
     }

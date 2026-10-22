@@ -5,7 +5,7 @@
       "id": "job-1",
       "ref": [1, 1, 1],
       "q": "In which land did Job live?",
-      "options": ["Uz", "Ur", "Edom", "Moab"],
+      "options": ["Uz", "Egypt", "Edom", "Moab"],
       "answer": 0,
       "evidence": "There was a man in the land of Uz, whose name was Job"
     },
@@ -13,7 +13,7 @@
       "id": "job-2",
       "ref": [1, 2, 2],
       "q": "How many sons were born to Job?",
-      "options": ["Ten", "Twelve", "Seven", "Five"],
+      "options": ["Two", "Twelve", "Seven", "Five"],
       "answer": 2,
       "evidence": "There were born to him seven sons and three daughters"
     },
@@ -45,11 +45,12 @@
     },
     {
       "id": "job-6",
-      "ref": [2, 11, 11],
-      "q": "Which of Job's friends was called the Temanite?",
-      "options": ["Elihu", "Eliphaz", "Eldad", "Ezra"],
+      "ref": [1, 8, 8],
+      "q": "How does Yahweh describe Job to Satan?",
+      "options": ["Rich and wise", "Blameless and upright", "Proud and stubborn", "Young and strong"],
       "answer": 1,
-      "evidence": "Now when Job’s three friends heard of all this evil that had come on him, they each came from his own place: Eliphaz the Temanite, Bildad the Shuhite, and Zophar the Naamathite"
+      "evidence": "For there is no one like him in the earth, a blameless and an upright man, one who fears God, and turns away from evil",
+      "answerTerms": ["blameless and an upright man"]
     },
     {
       "id": "job-7",
@@ -71,7 +72,7 @@
       "id": "job-9",
       "ref": [32, 2, 2],
       "q": "Which young man spoke after the three friends fell silent?",
-      "options": ["Eliphaz", "Elihu", "Baruch", "Buz"],
+      "options": ["Eliphaz", "Elihu", "Baruch", "Solomon"],
       "answer": 1,
       "evidence": "Then the wrath of Elihu the son of Barachel, the Buzite, of the family of Ram, was kindled against Job"
     },
@@ -101,11 +102,12 @@
     },
     {
       "id": "job-13",
-      "ref": [42, 16, 16],
-      "q": "How long did Job live after this?",
-      "options": ["Seventy years", "Ninety years", "One hundred forty years", "Two hundred years"],
+      "ref": [42, 5, 5],
+      "q": "Job says he had heard of God by the ear, but now what?",
+      "options": ["He understands all", "His friends believe", "His eye sees him", "His sores are healed"],
       "answer": 2,
-      "evidence": "After this Job lived one hundred forty years, and saw his sons, and his sons’ sons, to four generations"
+      "evidence": "I had heard of you by the hearing of the ear, but now my eye sees you",
+      "answerTerms": ["my eye sees you"]
     }
   ]
 }

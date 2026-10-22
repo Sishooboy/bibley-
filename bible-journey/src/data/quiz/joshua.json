@@ -39,7 +39,7 @@
       "id": "joshua-5",
       "ref": [6, 4, 4],
       "q": "How many times were they to march around Jericho on the seventh day?",
-      "options": ["Twelve times", "Three times", "Once", "Seven times"],
+      "options": ["Twelve times", "Three times", "Twenty times", "Seven times"],
       "answer": 3,
       "evidence": "On the seventh day, you shall march around the city seven times, and the priests shall blow the trumpets"
     },
@@ -70,11 +70,12 @@
     },
     {
       "id": "joshua-9",
-      "ref": [14, 13, 13],
-      "q": "Which city did Joshua give to Caleb?",
-      "options": ["Jericho", "Hebron", "Shiloh", "Gibeon"],
+      "ref": [9, 6, 6],
+      "q": "How did the Gibeonites trick Joshua into a treaty?",
+      "options": ["By offering gold and silver", "By claiming to come from far away", "By sending their king as a hostage", "By hiding in the hills"],
       "answer": 1,
-      "evidence": "and he gave Hebron to Caleb the son of Jephunneh for an inheritance"
+      "evidence": "They went to Joshua at the camp at Gilgal, and said to him and to the men of Israel, “We have come from a far country",
+      "answerTerms": ["far country"]
     },
     {
       "id": "joshua-10",

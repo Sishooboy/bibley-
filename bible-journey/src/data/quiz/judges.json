@@ -3,11 +3,12 @@
   "questions": [
     {
       "id": "judges-1",
-      "ref": [3, 15, 15],
-      "q": "Which deliverer of Israel was left-handed?",
-      "options": ["Ehud", "Othniel", "Shamgar", "Barak"],
+      "ref": [2, 11, 11],
+      "q": "After Joshua died, whom did Israel serve when they did evil?",
+      "options": ["The Baals", "The Philistines", "The Egyptians", "Their kings"],
       "answer": 0,
-      "evidence": "But when the children of Israel cried to Yahweh, Yahweh raised up a savior for them, Ehud the son of Gera, the Benjamite, a left-handed man"
+      "evidence": "The children of Israel did that which was evil in Yahweh’s sight, and served the Baals",
+      "answerTerms": ["baals"]
     },
     {
       "id": "judges-2",
@@ -37,7 +38,7 @@
       "id": "judges-5",
       "ref": [7, 7, 7],
       "q": "With how many men did Yahweh say he would save Israel through Gideon?",
-      "options": ["Ten thousand", "Thirty-two thousand", "Twelve", "Three hundred"],
+      "options": ["Ten thousand", "Seven", "Twelve", "Three hundred"],
       "answer": 3,
       "evidence": "Yahweh said to Gideon, “By the three hundred men who lapped will I save you, and deliver the Midianites into your hand"
     },

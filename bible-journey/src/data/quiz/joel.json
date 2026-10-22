@@ -3,11 +3,12 @@
   "questions": [
     {
       "id": "joel-1",
-      "ref": [1, 1, 1],
-      "q": "Whose son was the prophet Joel?",
-      "options": ["Pethuel", "Beeri", "Amoz", "Hilkiah"],
+      "ref": [1, 4, 4],
+      "q": "What plague does Joel 1 describe devouring the land?",
+      "options": ["Locusts", "Frogs", "Hail", "Boils"],
       "answer": 0,
-      "evidence": "Yahweh’s word that came to Joel, the son of Pethuel"
+      "evidence": "What the swarming locust has left, the great locust has eaten",
+      "answerTerms": ["locust"]
     },
     {
       "id": "joel-2",

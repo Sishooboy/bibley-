@@ -19,17 +19,18 @@
     },
     {
       "id": "1-maccabees-3",
-      "ref": [2, 1, 1],
-      "q": "Where did the priest Mattathias live?",
-      "options": ["Bethlehem", "Modin", "Jericho", "Hebron"],
+      "ref": [1, 54, 54],
+      "q": "What was built on the altar in the days of Antiochus?",
+      "options": ["A golden calf", "An abomination of desolation", "A statue of Moses", "A lamp of gold"],
       "answer": 1,
-      "evidence": "and he lived at Modin"
+      "evidence": "And on the fifteenth day of Chislev, in the hundred and forty and fifth year, they builded an abomination of desolation upon the altar, and in the cities of Judah on every side they builded idol altars",
+      "answerTerms": ["abomination of desolation"]
     },
     {
       "id": "1-maccabees-4",
       "ref": [2, 4, 4],
       "q": "Which son of Mattathias was called Maccabaeus?",
-      "options": ["Jonathan", "Eleazar", "John", "Judas"],
+      "options": ["Jonathan", "Antiochus", "Nicanor", "Judas"],
       "answer": 3,
       "evidence": "Judas, who was called Maccabaeus"
     },
@@ -44,16 +45,17 @@
     {
       "id": "1-maccabees-6",
       "ref": [6, 43, 46],
-      "q": "Who gave himself to deliver his people by attacking the elephant the king seemed to ride?",
-      "options": ["Judas", "Eleazar", "Jonathan", "Simon"],
+      "q": "What did Eleazar kill, thinking the king was riding it?",
+      "options": ["A chariot horse", "An elephant", "A camel", "A lion"],
       "answer": 1,
-      "evidence": "And Eleazar, who was called Avaran, saw one of the beasts armed with royal breastplates, and he was higher than all the beasts, and the king seemed to be upon him; and he gave himself to deliver his people"
+      "evidence": "And he crept under the elephant, and thrust him from beneath, and killed him",
+      "answerTerms": ["elephant"]
     },
     {
       "id": "1-maccabees-7",
       "ref": [9, 30, 31],
       "q": "Who was chosen to lead in place of his brother Judas?",
-      "options": ["Simon", "John", "Jonathan", "Eleazar"],
+      "options": ["Simon", "Antiochus", "Jonathan", "Mattathias"],
       "answer": 2,
       "evidence": "And Jonathan took the governance upon him at that time, and rose up in the stead of his brother Judas"
     },
@@ -61,7 +63,7 @@
       "id": "1-maccabees-8",
       "ref": [14, 41, 41],
       "q": "Whom did the Jews and the priests make their leader and high priest for ever?",
-      "options": ["Simon", "Jonathan", "Judas", "John"],
+      "options": ["Simon", "Jonathan", "Antiochus", "Mattathias"],
       "answer": 0,
       "evidence": "and that the Jews and the priests were well pleased that Simon should be their leader and high priest for ever, until there should arise a faithful prophet"
     }

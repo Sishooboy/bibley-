@@ -3,11 +3,12 @@
   "questions": [
     {
       "id": "leviticus-1",
-      "ref": [6, 13, 13],
-      "q": "What was to be kept burning on the altar continually?",
-      "options": ["Fire", "Incense", "A lamp of oil", "The bread"],
+      "ref": [17, 11, 11],
+      "q": "Where does Leviticus say the life of the flesh is?",
+      "options": ["In the blood", "In the breath", "In the heart", "In the bones"],
       "answer": 0,
-      "evidence": "Fire shall be kept burning on the altar continually"
+      "evidence": "For the life of the flesh is in the blood",
+      "answerTerms": ["in the blood"]
     },
     {
       "id": "leviticus-2",
@@ -19,11 +20,11 @@
     },
     {
       "id": "leviticus-3",
-      "ref": [10, 1, 2],
-      "q": "Which two sons of Aaron offered strange fire before Yahweh?",
-      "options": ["Eleazar and Ithamar", "Nadab and Abihu", "Moses and Joshua", "Korah and Dathan"],
+      "ref": [10, 2, 2],
+      "q": "What came out from Yahweh and devoured Nadab and Abihu?",
+      "options": ["A plague", "Fire", "The earth", "A lion"],
       "answer": 1,
-      "evidence": "Nadab and Abihu, the sons of Aaron, each took his censer, and put fire in it, and laid incense on it, and offered strange fire before Yahweh, which he had not commanded them"
+      "evidence": "Fire came out from before Yahweh, and devoured them, and they died before Yahweh"
     },
     {
       "id": "leviticus-4",
@@ -61,12 +62,12 @@
     },
     {
       "id": "leviticus-8",
-      "ref": [23, 5, 5],
-      "q": "On which day of the first month is Yahweh's Passover?",
-      "options": ["The fourteenth", "The tenth", "The seventh", "The twentieth"],
+      "ref": [11, 44, 44],
+      "q": "Why does Yahweh tell Israel to be holy?",
+      "options": ["Because he is holy", "Because the land is holy", "Because the temple is near", "Because the law is old"],
       "answer": 0,
-      "evidence": "In the first month, on the fourteenth day of the month in the evening, is Yahweh’s Passover",
-      "answerTerms": ["fourteenth"]
+      "evidence": "for I am holy",
+      "answerTerms": ["for i am holy"]
     },
     {
       "id": "leviticus-9",

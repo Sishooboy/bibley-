@@ -14,7 +14,7 @@
       "id": "philemon-2",
       "ref": [1, 10, 10],
       "q": "For whom does Paul plead with Philemon?",
-      "options": ["Onesiphorus", "Epaphras", "Onesimus", "Archippus"],
+      "options": ["Timothy", "Epaphras", "Onesimus", "Archippus"],
       "answer": 2,
       "evidence": "I beg you for my child, whom I have become the father of in my chains, Onesimus"
     },

@@ -70,20 +70,21 @@
     },
     {
       "id": "proverbs-9",
-      "ref": [30, 1, 1],
-      "q": "Whose words, the son of Jakeh, does Proverbs 30 record?",
-      "options": ["Lemuel", "Agur", "Solomon", "Asaph"],
+      "ref": [17, 22, 22],
+      "q": "What does a cheerful heart make, Proverbs says?",
+      "options": ["Many friends", "Good medicine", "Great wealth", "Long life"],
       "answer": 1,
-      "evidence": "The words of Agur the son of Jakeh"
+      "evidence": "A cheerful heart makes good medicine, but a crushed spirit dries up the bones",
+      "answerTerms": ["good medicine"]
     },
     {
       "id": "proverbs-10",
-      "ref": [31, 1, 1],
-      "q": "Whose mother taught him the words of Proverbs 31?",
-      "options": ["King Solomon", "King Hezekiah", "King David", "King Lemuel"],
+      "ref": [25, 21, 21],
+      "q": "If your enemy is hungry, what does Proverbs say to do?",
+      "options": ["Pass him by", "Tell the king", "Pray for rain", "Give him food to eat"],
       "answer": 3,
-      "evidence": "The words of king Lemuel",
-      "answerTerms": ["lemuel"]
+      "evidence": "If your enemy is hungry, give him food to eat",
+      "answerTerms": ["give him food to eat"]
     },
     {
       "id": "proverbs-11",

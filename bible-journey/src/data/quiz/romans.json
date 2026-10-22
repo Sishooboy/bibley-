@@ -62,11 +62,12 @@
     },
     {
       "id": "romans-8",
-      "ref": [16, 1, 1],
-      "q": "Whom does Paul commend, a servant of the assembly at Cenchreae?",
-      "options": ["Phoebe", "Priscilla", "Lydia", "Junia"],
+      "ref": [10, 9, 9],
+      "q": "What must you confess with your mouth, Romans 10 says?",
+      "options": ["That Jesus is Lord", "That you are a sinner", "That the law is holy", "That Abraham is your father"],
       "answer": 0,
-      "evidence": "I commend to you Phoebe, our sister, who is a servant of the assembly that is at Cenchreae"
+      "evidence": "that if you will confess with your mouth that Jesus is Lord, and believe in your heart that God raised him from the dead, you will be saved",
+      "answerTerms": ["jesus is lord"]
     }
   ]
 }

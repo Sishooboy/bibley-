@@ -38,7 +38,7 @@
       "id": "genesis-5",
       "ref": [7, 12, 12],
       "q": "How long did the rain fall in the flood?",
-      "options": ["Seven days and seven nights", "Three days", "A hundred and fifty days", "Forty days and forty nights"],
+      "options": ["Seven days and seven nights", "Three days", "Twelve days", "Forty days and forty nights"],
       "answer": 3,
       "evidence": "It rained on the earth forty days and forty nights"
     },
@@ -61,11 +61,12 @@
     },
     {
       "id": "genesis-8",
-      "ref": [12, 4, 4],
-      "q": "How old was Abram when he departed from Haran?",
-      "options": ["Seventy-five", "Ninety-nine", "One hundred", "Forty"],
+      "ref": [15, 5, 5],
+      "q": "What did God tell Abram his offspring would be as many as?",
+      "options": ["The stars", "The trees", "The birds", "The fish"],
       "answer": 0,
-      "evidence": "Abram was seventy-five years old when he departed from Haran"
+      "evidence": "Yahweh brought him outside, and said, “Look now toward the sky, and count the stars, if you are able to count them",
+      "answerTerms": ["stars"]
     },
     {
       "id": "genesis-9",
@@ -79,7 +80,7 @@
       "id": "genesis-10",
       "ref": [22, 13, 13],
       "q": "What did Abraham offer up instead of his son on the mountain?",
-      "options": ["A lamb", "A goat", "A dove", "A ram"],
+      "options": ["A calf", "A goat", "A dove", "A ram"],
       "answer": 3,
       "evidence": "Abraham lifted up his eyes, and looked, and saw that behind him was a ram caught in the thicket by his horns",
       "answerTerms": ["ram"]
@@ -112,7 +113,7 @@
       "id": "genesis-14",
       "ref": [41, 41, 41],
       "q": "Over which land did Pharaoh set Joseph?",
-      "options": ["Egypt", "Canaan", "Goshen", "Midian"],
+      "options": ["Egypt", "Canaan", "Babylon", "Midian"],
       "answer": 0,
       "evidence": "Pharaoh said to Joseph, “Behold, I have set you over all the land of Egypt"
     }

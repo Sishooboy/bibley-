@@ -13,7 +13,7 @@
       "id": "esther-2",
       "ref": [2, 7, 7],
       "q": "Who brought up Esther as his own daughter?",
-      "options": ["Haman", "Hegai", "Mordecai", "Hathach"],
+      "options": ["Haman", "Hegai", "Mordecai", "Ahasuerus"],
       "answer": 2,
       "evidence": "and when her father and mother were dead, Mordecai took her for his own daughter"
     },
@@ -29,17 +29,18 @@
       "id": "esther-4",
       "ref": [4, 13, 14],
       "q": "Who told Esther she may have come to the kingdom for such a time as this?",
-      "options": ["Hathach", "Hegai", "Haman", "Mordecai"],
+      "options": ["Hathach", "Vashti", "Haman", "Mordecai"],
       "answer": 3,
       "evidence": "Mordecai asked them return answer to Esther, “Don’t think to yourself that you will escape in the king’s house any more than all the Jews. For if you remain silent now, then relief and deliverance will come to the Jews from another place, but you and your father’s house will perish. Who knows if you haven’t come to the kingdom for such a time as this"
     },
     {
       "id": "esther-5",
-      "ref": [5, 14, 14],
-      "q": "How high was the gallows Haman had made?",
-      "options": ["Ten cubits", "Twenty cubits", "One hundred cubits", "Fifty cubits"],
+      "ref": [4, 16, 16],
+      "q": "What did Esther say as she resolved to go to the king unsummoned?",
+      "options": ["Let the king live forever", "The Lord will provide", "Who knows what will be", "If I perish, I perish"],
       "answer": 3,
-      "evidence": "Then Zeresh his wife and all his friends said to him, “Let a gallows be made fifty cubits high, and in the morning speak to the king about hanging Mordecai on it"
+      "evidence": "and if I perish, I perish",
+      "answerTerms": ["if i perish, i perish"]
     },
     {
       "id": "esther-6",
@@ -59,12 +60,12 @@
     },
     {
       "id": "esther-8",
-      "ref": [11, 6, 6],
-      "q": "In Mordecai's dream, what came forth ready to fight?",
-      "options": ["Two great dragons", "Two lions", "Two armies of horsemen", "Two eagles"],
+      "ref": [15, 7, 7],
+      "q": "What happened when Esther came before the king's fierce anger?",
+      "options": ["She fainted", "She sang", "She fled", "She laughed"],
       "answer": 0,
-      "evidence": "and, behold, two great dragons came forth, both of them ready to fight, and their cry was great",
-      "answerTerms": ["two great dragons"]
+      "evidence": "Then lifting up his countenance that was flushed with glory, he looked upon her in fierce anger: and the queen fell down, and turned pale, and fainted, and she bowed herself upon the head of the maid that went before",
+      "answerTerms": ["fainted"]
     }
   ]
 }

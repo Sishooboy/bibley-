@@ -12,11 +12,12 @@
     },
     {
       "id": "2-samuel-2",
-      "ref": [5, 4, 4],
-      "q": "How old was David when he began to reign?",
-      "options": ["Twenty", "Twelve", "Thirty", "Fifty"],
+      "ref": [7, 16, 16],
+      "q": "Through Nathan, what did God promise would be made sure forever?",
+      "options": ["The tabernacle", "Jerusalem's walls", "David's house and kingdom", "The law of Moses"],
       "answer": 2,
-      "evidence": "David was thirty years old when he began to reign, and he reigned forty years"
+      "evidence": "Your house and your kingdom will be made sure forever before you",
+      "answerTerms": ["your house and your kingdom"]
     },
     {
       "id": "2-samuel-3",
@@ -54,7 +55,7 @@
       "id": "2-samuel-7",
       "ref": [12, 24, 24],
       "q": "What did David name the son Bathsheba bore, whom Yahweh loved?",
-      "options": ["Absalom", "Adonijah", "Solomon", "Amnon"],
+      "options": ["Absalom", "Jonathan", "Solomon", "Amnon"],
       "answer": 2,
       "evidence": "She bore a son, and he called his name Solomon"
     },
@@ -71,17 +72,17 @@
       "id": "2-samuel-9",
       "ref": [18, 33, 33],
       "q": "For whom did David weep, \"my son, my son\"?",
-      "options": ["Amnon", "Absalom", "Solomon", "Adonijah"],
+      "options": ["Amnon", "Absalom", "Solomon", "Jonathan"],
       "answer": 1,
       "evidence": "As he went, he said, “My son Absalom"
     },
     {
       "id": "2-samuel-10",
-      "ref": [24, 24, 24],
-      "q": "What did David pay Araunah for the threshing floor and the oxen?",
-      "options": ["Ten shekels of gold", "A flock of sheep", "A city in Judah", "Fifty shekels of silver"],
+      "ref": [9, 6, 7],
+      "q": "Whom did David bring to eat at his table for Jonathan's sake?",
+      "options": ["Absalom", "Joab", "Abner", "Mephibosheth"],
       "answer": 3,
-      "evidence": "So David bought the threshing floor and the oxen for fifty shekels of silver"
+      "evidence": "Mephibosheth.” He answered, “Behold, your servant!” David said to him, “Don’t be afraid of him; for I will surely show you kindness for Jonathan your father’s sake, and will restore to you all the land of Saul your father. You will eat bread at my table"
     }
   ]
 }

@@ -29,12 +29,12 @@
     },
     {
       "id": "wisdom-4",
-      "ref": [7, 26, 26],
-      "q": "Wisdom is called an unspotted mirror of what?",
-      "options": ["The human heart", "The night sky", "The law of Moses", "The working of God"],
+      "ref": [7, 8, 8],
+      "q": "What did Solomon prefer wisdom to, counting riches as nothing?",
+      "options": ["Health and long life", "Friends and family", "Music and wine", "Sceptres and thrones"],
       "answer": 3,
-      "evidence": "For she is an effulgence from everlasting light, And an unspotted mirror of the working of God, And an image of his goodness",
-      "answerTerms": ["working of god"]
+      "evidence": "I preferred her before sceptres and thrones, And riches I esteemed nothing in comparison of her",
+      "answerTerms": ["sceptres and thrones"]
     },
     {
       "id": "wisdom-5",
@@ -46,12 +46,12 @@
     },
     {
       "id": "wisdom-6",
-      "ref": [13, 5, 5],
-      "q": "From the beauty of created things, man forms the image of whom?",
-      "options": ["The angels", "Their first maker", "The ancients", "The kings"],
+      "ref": [11, 24, 24],
+      "q": "What does God love, Wisdom 11 says?",
+      "options": ["Only the righteous", "All things that are", "Israel alone", "The angels"],
       "answer": 1,
-      "evidence": "For from the greatness of the beauty even of created things In like proportion does man form the image of their first maker",
-      "answerTerms": ["first maker"]
+      "evidence": "For you love all things that are, And abhor none of the things which you did make",
+      "answerTerms": ["all things that are"]
     },
     {
       "id": "wisdom-7",

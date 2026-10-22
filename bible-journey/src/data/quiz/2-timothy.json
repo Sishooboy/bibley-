@@ -3,11 +3,11 @@
   "questions": [
     {
       "id": "2-timothy-1",
-      "ref": [1, 5, 5],
-      "q": "Who was Timothy's grandmother, in whom faith lived first?",
-      "options": ["Lois", "Lydia", "Priscilla", "Chloe"],
+      "ref": [1, 7, 7],
+      "q": "God gave us a spirit of power, love and self-control, rather than of what?",
+      "options": ["Fear", "Wisdom", "Joy", "Truth"],
       "answer": 0,
-      "evidence": "which lived first in your grandmother Lois, and your mother Eunice, and, I am persuaded, in you also"
+      "evidence": "For God didn’t give us a spirit of fear, but of power, love, and self-control"
     },
     {
       "id": "2-timothy-2",

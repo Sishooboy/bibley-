@@ -3,11 +3,12 @@
   "questions": [
     {
       "id": "isaiah-1",
-      "ref": [1, 1, 1],
-      "q": "Whose son was the prophet Isaiah?",
-      "options": ["Amoz", "Hilkiah", "Buzi", "Neriah"],
+      "ref": [6, 6, 7],
+      "q": "What did the seraph touch to Isaiah's lips?",
+      "options": ["A live coal", "A scroll", "Oil", "Water"],
       "answer": 0,
-      "evidence": "The vision of Isaiah the son of Amoz, which he saw concerning Judah and Jerusalem, in the days of Uzziah, Jotham, Ahaz, and Hezekiah, kings of Judah"
+      "evidence": "Then one of the seraphim flew to me, having a live coal in his hand, which he had taken with the tongs from off the altar",
+      "answerTerms": ["live coal"]
     },
     {
       "id": "isaiah-2",
@@ -29,7 +30,7 @@
       "id": "isaiah-4",
       "ref": [6, 1, 1],
       "q": "In the year which king died did Isaiah see the Lord on a throne?",
-      "options": ["Hezekiah", "Ahaz", "Jotham", "Uzziah"],
+      "options": ["Hezekiah", "Ahaz", "Solomon", "Uzziah"],
       "answer": 3,
       "evidence": "In the year that king Uzziah died, I saw the Lord sitting on a throne, high and lifted up"
     },
@@ -87,7 +88,7 @@
       "id": "isaiah-11",
       "ref": [44, 28, 28],
       "q": "Which king does Yahweh call \"my shepherd\" in Isaiah 44?",
-      "options": ["Cyrus", "Darius", "David", "Hezekiah"],
+      "options": ["Cyrus", "Pharaoh", "David", "Hezekiah"],
       "answer": 0,
       "evidence": "Who says of Cyrus, ‘He is my shepherd, and shall perform all my pleasure,’ even saying of Jerusalem, ‘She will be built"
     },

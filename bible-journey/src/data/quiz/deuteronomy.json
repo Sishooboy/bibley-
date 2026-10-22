@@ -3,11 +3,11 @@
   "questions": [
     {
       "id": "deuteronomy-1",
-      "ref": [1, 2, 2],
-      "q": "How many days' journey is it from Horeb to Kadesh Barnea by Mount Seir?",
-      "options": ["Eleven", "Forty", "Seven", "Three"],
+      "ref": [6, 5, 5],
+      "q": "With all your heart, all your soul and all your what, are you to love Yahweh?",
+      "options": ["Might", "Wealth", "Days", "Words"],
       "answer": 0,
-      "evidence": "It is eleven days’ journey from Horeb by the way of Mount Seir to Kadesh Barnea"
+      "evidence": "You shall love Yahweh your God with all your heart, with all your soul, and with all your might"
     },
     {
       "id": "deuteronomy-2",
@@ -54,11 +54,12 @@
     },
     {
       "id": "deuteronomy-7",
-      "ref": [16, 16, 16],
-      "q": "How many times a year were all Israel's males to appear before Yahweh?",
-      "options": ["Seven", "Twelve", "Three", "Once"],
+      "ref": [8, 3, 3],
+      "q": "Manna taught Israel that man lives by bread and by what else?",
+      "options": ["Water from the rock", "The work of his hands", "Every word from Yahweh's mouth", "Rain from heaven"],
       "answer": 2,
-      "evidence": "Three times in a year all of your males shall appear before Yahweh your God in the place which he chooses: in the feast of unleavened bread, in the feast of weeks, and in the feast of tents"
+      "evidence": "that he might teach you that man does not live by bread only, but man lives by every word that proceeds out of Yahweh’s mouth",
+      "answerTerms": ["every word"]
     },
     {
       "id": "deuteronomy-8",
@@ -97,7 +98,7 @@
       "id": "deuteronomy-12",
       "ref": [34, 7, 7],
       "q": "How old was Moses when he died?",
-      "options": ["Eighty", "Forty", "One hundred twenty", "Ninety-nine"],
+      "options": ["Seventy", "Forty", "One hundred twenty", "Ninety-nine"],
       "answer": 2,
       "evidence": "Moses was one hundred twenty years old when he died"
     }

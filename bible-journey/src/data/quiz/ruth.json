@@ -21,7 +21,7 @@
       "id": "ruth-3",
       "ref": [2, 3, 3],
       "q": "In whose field did Ruth happen to glean?",
-      "options": ["Obed", "Boaz", "Jesse", "Mahlon"],
+      "options": ["Obed", "Boaz", "Jesse", "Saul"],
       "answer": 1,
       "evidence": "and she happened to come to the portion of the field belonging to Boaz, who was of the family of Elimelech"
     },
@@ -29,7 +29,7 @@
       "id": "ruth-4",
       "ref": [4, 17, 17],
       "q": "What was the name of the son born to Ruth and Boaz?",
-      "options": ["Perez", "Mahlon", "Salmon", "Obed"],
+      "options": ["Benjamin", "Mahlon", "Samuel", "Obed"],
       "answer": 3,
       "evidence": "They named him Obed"
     }
