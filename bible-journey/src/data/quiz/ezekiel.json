@@ -48,11 +48,12 @@
     },
     {
       "id": "ezekiel-6",
-      "ref": [14, 14, 14],
-      "q": "Which three righteous men does Yahweh name in Ezekiel 14?",
-      "options": ["Abraham, Isaac, and Jacob", "Noah, Daniel, and Job", "Moses, Aaron, and Samuel", "David, Solomon, and Hezekiah"],
+      "ref": [4, 1, 1],
+      "q": "What did Ezekiel draw on a tile and lay siege to, as a sign?",
+      "options": ["Babylon", "Jerusalem", "Nineveh", "Egypt"],
       "answer": 1,
-      "evidence": "though these three men, Noah, Daniel, and Job, were in it, they should deliver only their own souls by their righteousness,” says the Lord Yahweh"
+      "evidence": "You also, son of man, take a tile, and lay it before yourself, and portray on it a city, even Jerusalem",
+      "answerTerms": ["jerusalem"]
     },
     {
       "id": "ezekiel-7",

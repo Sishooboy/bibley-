@@ -29,10 +29,11 @@
     {
       "id": "isaiah-4",
       "ref": [6, 1, 1],
-      "q": "In the year which king died did Isaiah see the Lord on a throne?",
-      "options": ["Hezekiah", "Ahaz", "Solomon", "Uzziah"],
+      "q": "What did Isaiah see in the temple in chapter 6?",
+      "options": ["A burning bush", "A ladder to heaven", "A chariot of fire", "The Lord on a throne"],
       "answer": 3,
-      "evidence": "In the year that king Uzziah died, I saw the Lord sitting on a throne, high and lifted up"
+      "evidence": "In the year that king Uzziah died, I saw the Lord sitting on a throne, high and lifted up",
+      "answerTerms": ["sitting on a throne"]
     },
     {
       "id": "isaiah-5",
@@ -111,19 +112,20 @@
     {
       "id": "isaiah-14",
       "ref": [61, 1, 1],
-      "q": "Yahweh has anointed me to preach good news to whom, in Isaiah 61?",
-      "options": ["The humble", "The kings", "The priests", "The rich"],
+      "q": "To whom is liberty proclaimed, in Isaiah 61?",
+      "options": ["The captives", "The kings", "The priests", "The rich"],
       "answer": 0,
-      "evidence": "because Yahweh has anointed me to preach good news to the humble"
+      "evidence": "He has sent me to bind up the broken hearted, to proclaim liberty to the captives, and release to those who are bound",
+      "answerTerms": ["captives"]
     },
     {
       "id": "isaiah-15",
-      "ref": [66, 1, 1],
-      "q": "If heaven is Yahweh's throne, what is the earth?",
-      "options": ["His garden", "His temple", "His field", "His footstool"],
+      "ref": [65, 17, 17],
+      "q": "What does Yahweh promise to create, near the end of Isaiah?",
+      "options": ["A new temple of gold", "A new king for Babylon", "A new law for Egypt", "New heavens and a new earth"],
       "answer": 3,
-      "evidence": "Yahweh says, “Heaven is my throne, and the earth is my footstool",
-      "answerTerms": ["footstool"]
+      "evidence": "For, behold, I create new heavens and a new earth",
+      "answerTerms": ["new heavens and a new earth"]
     }
   ]
 }

@@ -20,11 +20,12 @@
     },
     {
       "id": "philippians-3",
-      "ref": [3, 5, 5],
-      "q": "Of which tribe was Paul?",
-      "options": ["Judah", "Benjamin", "Levi", "Ephraim"],
+      "ref": [3, 7, 7],
+      "q": "How does Paul count his old gains, next to knowing Christ?",
+      "options": ["As treasure", "As loss", "As a reward", "As a debt"],
       "answer": 1,
-      "evidence": "circumcised the eighth day, of the stock of Israel, of the tribe of Benjamin, a Hebrew of Hebrews"
+      "evidence": "However, I consider those things that were gain to me as a loss for Christ",
+      "answerTerms": ["loss"]
     },
     {
       "id": "philippians-4",

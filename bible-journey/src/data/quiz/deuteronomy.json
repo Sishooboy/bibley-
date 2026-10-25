@@ -88,11 +88,12 @@
     },
     {
       "id": "deuteronomy-11",
-      "ref": [34, 1, 1],
-      "q": "Which mountain did Moses climb to see the promised land before he died?",
-      "options": ["Mount Nebo", "Mount Sinai", "Mount Carmel", "Mount Zion"],
+      "ref": [34, 4, 4],
+      "q": "What did Yahweh let Moses do with the promised land before he died?",
+      "options": ["See it, but not go over", "Enter it and rule it", "Divide it among the tribes", "Bless it from Jerusalem"],
       "answer": 0,
-      "evidence": "Moses went up from the plains of Moab to Mount Nebo, to the top of Pisgah, that is over against Jericho"
+      "evidence": "I have caused you to see it with your eyes, but you shall not go over there",
+      "answerTerms": ["see it with your eyes"]
     },
     {
       "id": "deuteronomy-12",

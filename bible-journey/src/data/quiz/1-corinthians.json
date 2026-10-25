@@ -11,11 +11,12 @@
     },
     {
       "id": "1-corinthians-2",
-      "ref": [3, 6, 6],
-      "q": "Paul planted. Who watered?",
-      "options": ["Peter", "Timothy", "Apollos", "Silas"],
+      "ref": [1, 11, 11],
+      "q": "What had Paul heard was going on in the church at Corinth?",
+      "options": ["A famine", "Persecution from Rome", "Quarrels among them", "False miracles"],
       "answer": 2,
-      "evidence": "Apollos watered"
+      "evidence": "For it has been reported to me concerning you, my brothers, by those who are from Chloe’s household, that there are contentions among you",
+      "answerTerms": ["contentions"]
     },
     {
       "id": "1-corinthians-3",

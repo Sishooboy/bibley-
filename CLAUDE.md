@@ -1052,6 +1052,15 @@ numbers section, and the suite is what holds it there.
   (ten, beside Job's seven sons and three daughters), so a half-remembered answer can still be
   reached by ruling things out. At least one wrong option stays plausible, or it stops being a
   question.
+- **Finishing a sentence is only fair when the sentence is famous.** A second pass found the same
+  failure in a different shape: "Paul planted. Who watered?", "Renew our days as when?", "Do two walk
+  together, unless they have" what. Each tests whether somebody memorised a line that was never a
+  highlight, which is a different thing from having read the book. 49 more were rewritten to ask
+  what happened or what it means, in plain words, with `answerTerms` tying the plain answer back to
+  the verse: "Ruth's son became the grandfather of which king?" rather than "What was the son
+  called?", "What did Daniel refuse to eat?" rather than the name the eunuch gave him. **Quote
+  questions stay only for lines a reader already knows by heart**, Psalm 23, John 3:16, the wages
+  of sin, love being the greatest, and new ones should be held to that.
 - **Shape rules, all pinned:** four different options, no negative stems and no "all of the above"
   (a quoted "not" is allowed, since it belongs to scripture), a stem under 120 characters and an
   option under 48 so both fit a phone, the right answer never parked in one position for most of a

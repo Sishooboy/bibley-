@@ -36,11 +36,12 @@
     },
     {
       "id": "song-of-songs-5",
-      "ref": [4, 1, 1],
-      "q": "\"Behold, you are beautiful,\" the Song says. \"Your eyes are\" what?",
-      "options": ["Stars", "Pools", "Jewels", "Doves"],
+      "ref": [3, 2, 2],
+      "q": "What did the bride do at night, longing for the one she loved?",
+      "options": ["Slept soundly", "Sang in the vineyard", "Wrote him a letter", "Went about the city seeking him"],
       "answer": 3,
-      "evidence": "Your eyes are doves behind your veil"
+      "evidence": "in the streets and in the squares I will seek him whom my soul loves",
+      "answerTerms": ["seek him"]
     },
     {
       "id": "song-of-songs-6",

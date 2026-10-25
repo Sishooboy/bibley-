@@ -11,11 +11,12 @@
     },
     {
       "id": "job-2",
-      "ref": [1, 2, 2],
-      "q": "How many sons were born to Job?",
-      "options": ["Two", "Twelve", "Seven", "Five"],
+      "ref": [1, 19, 19],
+      "q": "What happened to Job's children as they feasted together?",
+      "options": ["They were taken captive", "They fled to Egypt", "A great wind brought the house down", "They fell sick with sores"],
       "answer": 2,
-      "evidence": "There were born to him seven sons and three daughters"
+      "evidence": "and behold, there came a great wind from the wilderness, and struck the four corners of the house, and it fell on the young men, and they are dead",
+      "answerTerms": ["great wind"]
     },
     {
       "id": "job-3",
@@ -102,12 +103,12 @@
     },
     {
       "id": "job-13",
-      "ref": [42, 5, 5],
-      "q": "Job says he had heard of God by the ear, but now what?",
-      "options": ["He understands all", "His friends believe", "His eye sees him", "His sores are healed"],
+      "ref": [42, 7, 7],
+      "q": "At the end, with whom was Yahweh angry for how they spoke of him?",
+      "options": ["Job himself", "Elihu alone", "Eliphaz and his two friends", "Job's wife"],
       "answer": 2,
-      "evidence": "I had heard of you by the hearing of the ear, but now my eye sees you",
-      "answerTerms": ["my eye sees you"]
+      "evidence": "It was so, that after Yahweh had spoken these words to Job, Yahweh said to Eliphaz the Temanite, “My wrath is kindled against you, and against your two friends",
+      "answerTerms": ["eliphaz", "two friends"]
     }
   ]
 }

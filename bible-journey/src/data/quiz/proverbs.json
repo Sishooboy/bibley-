@@ -62,11 +62,11 @@
     {
       "id": "proverbs-8",
       "ref": [27, 17, 17],
-      "q": "\"Iron sharpens iron\", and a man sharpens what?",
-      "options": ["His friend's countenance", "His own sword", "The king's heart", "His neighbor's field"],
+      "q": "\"Iron sharpens iron,\" Proverbs says, and a man sharpens whom?",
+      "options": ["His friend", "His sword", "The king", "His neighbor's son"],
       "answer": 0,
       "evidence": "so a man sharpens his friend’s countenance",
-      "answerTerms": ["countenance"]
+      "answerTerms": ["friend"]
     },
     {
       "id": "proverbs-9",

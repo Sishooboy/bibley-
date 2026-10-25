@@ -19,11 +19,12 @@
     },
     {
       "id": "ephesians-3",
-      "ref": [4, 5, 5],
-      "q": "\"One Lord, one faith,\" and one what?",
-      "options": ["Temple", "Baptism", "Law", "Nation"],
+      "ref": [5, 25, 25],
+      "q": "How does Paul tell husbands to love their wives?",
+      "options": ["As much as their work", "As Christ loved the assembly", "Only when they obey", "As their fathers did"],
       "answer": 1,
-      "evidence": "one Lord, one faith, one baptism"
+      "evidence": "Husbands, love your wives, even as Christ also loved the assembly, and gave himself up for it",
+      "answerTerms": ["christ also loved the assembly"]
     },
     {
       "id": "ephesians-4",

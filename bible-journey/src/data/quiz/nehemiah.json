@@ -54,12 +54,12 @@
     },
     {
       "id": "nehemiah-7",
-      "ref": [13, 31, 31],
-      "q": "How does Nehemiah end his book?",
-      "options": ["Praise Yahweh, all you nations", "Amen and amen", "Remember me, my God, for good", "Peace be on Israel"],
+      "ref": [13, 19, 19],
+      "q": "What did Nehemiah have shut so no goods came in on the Sabbath?",
+      "options": ["The temple", "The markets of Tyre", "The gates of Jerusalem", "The storehouses"],
       "answer": 2,
-      "evidence": "Remember me, my God, for good",
-      "answerTerms": ["remember me, my god, for good"]
+      "evidence": "It came to pass that when the gates of Jerusalem began to be dark before the Sabbath, I commanded that the doors should be shut, and commanded that they should not be opened until after the Sabbath",
+      "answerTerms": ["gates of jerusalem"]
     }
   ]
 }

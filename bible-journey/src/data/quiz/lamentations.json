@@ -3,12 +3,12 @@
   "questions": [
     {
       "id": "lamentations-1",
-      "ref": [1, 1, 1],
-      "q": "How does Lamentations begin?",
-      "options": ["How the city sits solitary", "By the rivers of Babylon", "Out of the depths", "Comfort my people"],
+      "ref": [1, 7, 7],
+      "q": "Which city does Lamentations mourn?",
+      "options": ["Jerusalem", "Nineveh", "Babylon", "Samaria"],
       "answer": 0,
-      "evidence": "How the city sits solitary, that was full of people",
-      "answerTerms": ["how the city sits solitary"]
+      "evidence": "Jerusalem remembers in the days of her affliction and of her miseries all her pleasant things that were from the days of old",
+      "answerTerms": ["jerusalem"]
     },
     {
       "id": "lamentations-2",
@@ -30,12 +30,12 @@
     },
     {
       "id": "lamentations-4",
-      "ref": [5, 21, 21],
-      "q": "\"Renew our days as\" when, the last chapter prays?",
-      "options": ["In Egypt", "In the wilderness", "Of David", "Of old"],
+      "ref": [5, 1, 1],
+      "q": "What does the last chapter of Lamentations ask Yahweh to do?",
+      "options": ["Destroy Babylon", "Send a new king", "Rebuild the walls", "Remember what has come on them"],
       "answer": 3,
-      "evidence": "Renew our days as of old",
-      "answerTerms": ["of old"]
+      "evidence": "Remember, Yahweh, what has come on us: Look, and see our reproach",
+      "answerTerms": ["remember"]
     }
   ]
 }

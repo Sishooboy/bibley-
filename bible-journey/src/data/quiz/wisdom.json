@@ -29,20 +29,21 @@
     },
     {
       "id": "wisdom-4",
-      "ref": [7, 8, 8],
-      "q": "What did Solomon prefer wisdom to, counting riches as nothing?",
-      "options": ["Health and long life", "Friends and family", "Music and wine", "Sceptres and thrones"],
+      "ref": [7, 7, 7],
+      "q": "How did Solomon receive wisdom, Wisdom 7 says?",
+      "options": ["He bought it in Egypt", "He learned it from his father", "He found it in a scroll", "He prayed and it was given"],
       "answer": 3,
-      "evidence": "I preferred her before sceptres and thrones, And riches I esteemed nothing in comparison of her",
-      "answerTerms": ["sceptres and thrones"]
+      "evidence": "For this cause I prayed, and understanding was given me: I called upon God, and there came to me a spirit of wisdom",
+      "answerTerms": ["i prayed"]
     },
     {
       "id": "wisdom-5",
-      "ref": [11, 20, 20],
-      "q": "By measure, number and what did God order all things?",
-      "options": ["Time", "Color", "Sound", "Weight"],
+      "ref": [10, 18, 18],
+      "q": "In Wisdom 10, through what did wisdom lead the righteous people?",
+      "options": ["The Jordan", "The desert of Sinai", "The Euphrates", "The Red Sea"],
       "answer": 3,
-      "evidence": "But by measure and number and weight you did order all things"
+      "evidence": "She brought them over the Red sea, And led them through much water",
+      "answerTerms": ["red sea"]
     },
     {
       "id": "wisdom-6",
@@ -64,12 +65,12 @@
     },
     {
       "id": "wisdom-8",
-      "ref": [18, 15, 15],
-      "q": "What leaped down from heaven, out of the royal throne?",
-      "options": ["Your all-powerful word", "A pillar of fire", "A flood of water", "A choir of angels"],
+      "ref": [13, 10, 10],
+      "q": "What does Wisdom mock men for calling gods?",
+      "options": ["Works of men's hands", "The stars", "The angels", "Their kings"],
       "answer": 0,
-      "evidence": "Your all-powerful word leaped from heaven out of the royal throne, A stern warrior, into the midst of the doomed land",
-      "answerTerms": ["all-powerful word"]
+      "evidence": "Who called them gods which are works of men’s hands",
+      "answerTerms": ["works of men's hands"]
     },
     {
       "id": "wisdom-9",

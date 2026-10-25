@@ -3,12 +3,12 @@
   "questions": [
     {
       "id": "2-thessalonians-1",
-      "ref": [1, 7, 7],
-      "q": "With whom will the Lord Jesus be revealed from heaven?",
-      "options": ["His mighty angels", "The twelve apostles", "Moses and Elijah", "The elders"],
+      "ref": [1, 4, 4],
+      "q": "What does Paul boast of the Thessalonians for?",
+      "options": ["Their faith under persecution", "Their wealth", "Their large buildings", "Their famous teachers"],
       "answer": 0,
-      "evidence": "and to give relief to you who are afflicted with us, when the Lord Jesus is revealed from heaven with his mighty angels in flaming fire",
-      "answerTerms": ["mighty angels"]
+      "evidence": "so that we ourselves boast about you in the assemblies of God for your perseverance and faith in all your persecutions and in the afflictions which you endure",
+      "answerTerms": ["perseverance and faith"]
     },
     {
       "id": "2-thessalonians-2",

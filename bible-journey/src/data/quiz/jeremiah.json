@@ -108,10 +108,11 @@
     {
       "id": "jeremiah-13",
       "ref": [38, 10, 10],
-      "q": "Which Ethiopian did the king send to take Jeremiah out of the dungeon?",
-      "options": ["Baruch", "Ezra", "Ebedmelech", "Daniel"],
+      "q": "Who pleaded with the king and had Jeremiah drawn out of the dungeon?",
+      "options": ["Baruch the scribe", "Pashhur the priest", "An Ethiopian of the king's house", "A Babylonian captain"],
       "answer": 2,
-      "evidence": "Then the king commanded Ebedmelech the Ethiopian, saying, “Take from here thirty men with you, and take up Jeremiah the prophet out of the dungeon, before he dies"
+      "evidence": "Then the king commanded Ebedmelech the Ethiopian, saying, “Take from here thirty men with you, and take up Jeremiah the prophet out of the dungeon, before he dies",
+      "answerTerms": ["ethiopian"]
     },
     {
       "id": "jeremiah-14",

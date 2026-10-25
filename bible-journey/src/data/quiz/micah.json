@@ -3,11 +3,12 @@
   "questions": [
     {
       "id": "micah-1",
-      "ref": [3, 12, 12],
-      "q": "What does Micah say Zion will be plowed like?",
-      "options": ["A field", "A vineyard", "A garden", "A threshing floor"],
+      "ref": [3, 11, 11],
+      "q": "What does Micah accuse Jerusalem's leaders, priests and prophets of?",
+      "options": ["Working for bribes and money", "Worshipping the sun", "Marrying foreigners", "Breaking the Sabbath"],
       "answer": 0,
-      "evidence": "Therefore Zion for your sake will be plowed like a field, and Jerusalem will become heaps of rubble, and the mountain of the temple like the high places of a forest"
+      "evidence": "Her leaders judge for bribes, and her priests teach for a price, and her prophets of it tell fortunes for money: yet they lean on Yahweh, and say, “Isn’t Yahweh among us",
+      "answerTerms": ["bribes"]
     },
     {
       "id": "micah-2",

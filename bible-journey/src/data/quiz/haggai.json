@@ -3,11 +3,12 @@
   "questions": [
     {
       "id": "haggai-1",
-      "ref": [1, 1, 1],
-      "q": "Who was governor of Judah when Haggai spoke?",
-      "options": ["Zerubbabel", "Nehemiah", "Ezra", "Daniel"],
+      "ref": [1, 8, 8],
+      "q": "What did Haggai urge the people to do?",
+      "options": ["Rebuild Yahweh's house", "Return to Babylon", "Make a new king", "Fight against Edom"],
       "answer": 0,
-      "evidence": "to Zerubbabel, the son of Shealtiel, governor of Judah"
+      "evidence": "Go up to the mountain, bring wood, and build the house",
+      "answerTerms": ["build the house"]
     },
     {
       "id": "haggai-2",

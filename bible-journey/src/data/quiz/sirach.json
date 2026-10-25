@@ -45,11 +45,12 @@
     },
     {
       "id": "sirach-6",
-      "ref": [9, 10, 10],
-      "q": "To what does Sirach liken a new friend?",
-      "options": ["A young tree", "New wine", "A new house", "Fresh bread"],
+      "ref": [6, 7, 7],
+      "q": "How does Sirach say to gain a friend?",
+      "options": ["Give him gifts", "Prove him before trusting him", "Praise him often", "Lend him money"],
       "answer": 1,
-      "evidence": "For the new is not comparable to him: As new wine, so is a new friend"
+      "evidence": "If you would get you a friend, get him by proving, And be not in haste to trust him",
+      "answerTerms": ["proving"]
     },
     {
       "id": "sirach-7",

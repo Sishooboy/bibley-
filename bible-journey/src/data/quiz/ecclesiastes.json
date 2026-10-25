@@ -36,12 +36,12 @@
     },
     {
       "id": "ecclesiastes-5",
-      "ref": [11, 1, 1],
-      "q": "Where does the Preacher say to cast your bread?",
-      "options": ["On the ground", "To the birds", "Into the fire", "On the waters"],
+      "ref": [1, 2, 2],
+      "q": "What does the Preacher keep calling everything?",
+      "options": ["Holy", "Good", "New", "Vanity"],
       "answer": 3,
-      "evidence": "Cast your bread on the waters",
-      "answerTerms": ["on the waters"]
+      "evidence": "Vanity of vanities,” says the Preacher",
+      "answerTerms": ["vanity"]
     },
     {
       "id": "ecclesiastes-6",

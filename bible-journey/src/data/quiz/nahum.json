@@ -3,16 +3,16 @@
   "questions": [
     {
       "id": "nahum-1",
-      "ref": [1, 7, 7],
-      "q": "Yahweh is good, Nahum says, a stronghold in the day of what?",
-      "options": ["Trouble", "Harvest", "Rest", "Battle"],
+      "ref": [1, 1, 1],
+      "q": "Which city's fall is Nahum about?",
+      "options": ["Nineveh", "Babylon", "Tyre", "Jerusalem"],
       "answer": 0,
-      "evidence": "Yahweh is good, a stronghold in the day of trouble"
+      "evidence": "A revelation about Nineveh"
     },
     {
       "id": "nahum-2",
       "ref": [2, 4, 4],
-      "q": "What rage in the streets as Nineveh falls?",
+      "q": "What does Nahum picture raging in the streets as the city falls?",
       "options": ["The waters", "The lions", "The chariots", "The fires"],
       "answer": 2,
       "evidence": "The chariots rage in the streets"

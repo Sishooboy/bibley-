@@ -47,11 +47,12 @@
     },
     {
       "id": "acts-6",
-      "ref": [10, 1, 1],
-      "q": "Who was the centurion of the Italian Regiment at Caesarea?",
-      "options": ["Barnabas", "Cornelius", "Stephen", "Felix"],
+      "ref": [10, 44, 44],
+      "q": "What happened as Peter preached in Cornelius' house?",
+      "options": ["The house was shaken", "The Holy Spirit fell on all who heard", "Peter was arrested", "Cornelius was healed"],
       "answer": 1,
-      "evidence": "Now there was a certain man in Caesarea, Cornelius by name, a centurion of what was called the Italian Regiment"
+      "evidence": "While Peter was still speaking these words, the Holy Spirit fell on all those who heard the word",
+      "answerTerms": ["holy spirit fell"]
     },
     {
       "id": "acts-7",

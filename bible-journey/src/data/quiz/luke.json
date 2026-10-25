@@ -3,11 +3,12 @@
   "questions": [
     {
       "id": "luke-1",
-      "ref": [1, 3, 3],
-      "q": "To whom does Luke address his account?",
-      "options": ["Theophilus", "Timothy", "Titus", "Philemon"],
+      "ref": [1, 13, 13],
+      "q": "What did the angel tell Zacharias his wife Elizabeth would have?",
+      "options": ["A son, to be named John", "A daughter", "Twins", "A vision"],
       "answer": 0,
-      "evidence": "it seemed good to me also, having traced the course of all things accurately from the first, to write to you in order, most excellent Theophilus"
+      "evidence": "But the angel said to him, “Don’t be afraid, Zacharias, because your request has been heard, and your wife, Elizabeth, will bear you a son, and you shall call his name John",
+      "answerTerms": ["bear you a son"]
     },
     {
       "id": "luke-2",

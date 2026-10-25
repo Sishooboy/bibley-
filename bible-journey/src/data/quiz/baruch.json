@@ -11,20 +11,21 @@
     },
     {
       "id": "baruch-2",
-      "ref": [3, 37, 37],
-      "q": "Baruch says wisdom afterward appeared upon earth and did what?",
-      "options": ["Built a temple", "Judged the nations", "Was conversant with men", "Hid in the clouds"],
+      "ref": [1, 5, 5],
+      "q": "What did the exiles do when they heard the book read?",
+      "options": ["Danced in the streets", "Went back to Jerusalem", "Wept, fasted, and prayed", "Rose up against Babylon"],
       "answer": 2,
-      "evidence": "Afterward did she appear upon earth, and was conversant with men",
-      "answerTerms": ["conversant with men"]
+      "evidence": "And they wept, and fasted, and prayed before the Lord",
+      "answerTerms": ["wept", "fasted", "prayed"]
     },
     {
       "id": "baruch-3",
-      "ref": [3, 9, 9],
-      "q": "\"Hear, O Israel, the commandments of\" what?",
-      "options": ["Moses", "Life", "Peace", "Kings"],
+      "ref": [3, 10, 12],
+      "q": "Why is Israel in its enemies' land, Baruch 3 says?",
+      "options": ["It had too few soldiers", "It forsook the fountain of wisdom", "Its kings were too young", "The rains failed"],
       "answer": 1,
-      "evidence": "Hear, O Israel, the commandments of life: give ear to understand wisdom"
+      "evidence": "You have forsaken the fountain of wisdom",
+      "answerTerms": ["forsaken the fountain of wisdom"]
     },
     {
       "id": "baruch-4",

@@ -11,12 +11,12 @@
     },
     {
       "id": "titus-2",
-      "ref": [2, 11, 11],
-      "q": "What has appeared, bringing salvation to all?",
-      "options": ["A great star", "The law of Moses", "The grace of God", "The day of judgment"],
+      "ref": [2, 3, 4],
+      "q": "Whom does Paul tell the older women to teach?",
+      "options": ["The elders", "The children of Crete", "The young women", "The slaves"],
       "answer": 2,
-      "evidence": "For the grace of God has appeared, bringing salvation to all men",
-      "answerTerms": ["grace of god"]
+      "evidence": "that they may train the young women to love their husbands, to love their children",
+      "answerTerms": ["young women"]
     },
     {
       "id": "titus-3",

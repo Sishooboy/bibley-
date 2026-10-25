@@ -19,11 +19,12 @@
     },
     {
       "id": "judith-3",
-      "ref": [5, 5, 5],
-      "q": "Which leader of the Ammonites told Holofernes the history of Israel?",
-      "options": ["Bagoas", "Achior", "Haman", "Goliath"],
+      "ref": [5, 21, 21],
+      "q": "What did Achior warn Holofernes about the Israelites?",
+      "options": ["They had no army", "Their God would defend them", "They would surrender at once", "They worshipped the sun"],
       "answer": 1,
-      "evidence": "And Achior, the leader of all the children of Ammon"
+      "evidence": "But if there is no lawlessness in their nation, let my lord now pass by, lest their Lord defend them, and their God be for them, and we shall be a reproach before all the earth",
+      "answerTerms": ["their lord defend them"]
     },
     {
       "id": "judith-4",

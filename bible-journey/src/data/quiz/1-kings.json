@@ -3,12 +3,12 @@
   "questions": [
     {
       "id": "1-kings-1",
-      "ref": [8, 27, 27],
-      "q": "What did Solomon say cannot contain God, let alone the temple?",
-      "options": ["Heaven and the heaven of heavens", "The ark of the covenant", "The holy of holies", "The tent of meeting"],
+      "ref": [6, 1, 1],
+      "q": "What did Solomon begin to build in the fourth year of his reign?",
+      "options": ["Yahweh's house", "A golden calf", "A tower to heaven", "A palace in Babylon"],
       "answer": 0,
-      "evidence": "Behold, heaven and the heaven of heavens can’t contain you",
-      "answerTerms": ["heaven of heavens"]
+      "evidence": "he began to build Yahweh’s house",
+      "answerTerms": ["yahweh's house"]
     },
     {
       "id": "1-kings-2",

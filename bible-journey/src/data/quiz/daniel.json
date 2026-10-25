@@ -3,11 +3,12 @@
   "questions": [
     {
       "id": "daniel-1",
-      "ref": [1, 7, 7],
-      "q": "What name did the prince of the eunuchs give Daniel?",
-      "options": ["Belteshazzar", "Mordecai", "Ashpenaz", "Zerubbabel"],
+      "ref": [1, 8, 8],
+      "q": "What did Daniel refuse to eat and drink in Babylon?",
+      "options": ["The king's rich food and wine", "Bread and water", "Vegetables", "Fish from the river"],
       "answer": 0,
-      "evidence": "The prince of the eunuchs gave names to them: to Daniel he gave the name Belteshazzar"
+      "evidence": "But Daniel purposed in his heart that he would not defile himself with the king’s dainties, nor with the wine which he drank: therefore he requested of the prince of the eunuchs that he might not defile himself",
+      "answerTerms": ["king's dainties"]
     },
     {
       "id": "daniel-2",

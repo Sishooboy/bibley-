@@ -3,12 +3,12 @@
   "questions": [
     {
       "id": "malachi-1",
-      "ref": [1, 6, 6],
-      "q": "A son honors his father, and a servant honors whom?",
-      "options": ["His master", "His king", "His brother", "His neighbor"],
+      "ref": [1, 8, 8],
+      "q": "What were the priests offering that Malachi condemns?",
+      "options": ["Blind and lame animals", "Too much incense", "Gold from Egypt", "Their own children"],
       "answer": 0,
-      "evidence": "A son honors his father, and a servant his master",
-      "answerTerms": ["master"]
+      "evidence": "When you offer the blind for sacrifice, isn’t that evil? And when you offer the lame and sick, isn’t that evil",
+      "answerTerms": ["blind", "lame"]
     },
     {
       "id": "malachi-2",

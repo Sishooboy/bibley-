@@ -88,12 +88,12 @@
     },
     {
       "id": "psalms-11",
-      "ref": [103, 1, 1],
-      "q": "How does Psalm 103 begin?",
-      "options": ["Praise Yahweh, my soul!", "Shout for joy, all the earth!", "Out of the depths I have cried", "Have mercy on me, God"],
+      "ref": [103, 12, 12],
+      "q": "How far does Psalm 103 say God has removed our sins from us?",
+      "options": ["As far as the east is from the west", "As high as the heavens", "As deep as the sea", "As far as Babylon"],
       "answer": 0,
-      "evidence": "Praise Yahweh, my soul",
-      "answerTerms": ["praise yahweh, my soul"]
+      "evidence": "As far as the east is from the west, so far has he removed our transgressions from us",
+      "answerTerms": ["as far as the east is from the west"]
     },
     {
       "id": "psalms-12",

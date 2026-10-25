@@ -28,11 +28,12 @@
     },
     {
       "id": "1-chronicles-4",
-      "ref": [11, 3, 3],
-      "q": "Where did the elders of Israel anoint David king over Israel?",
-      "options": ["Jerusalem", "Bethlehem", "Gibeah", "Hebron"],
+      "ref": [11, 4, 5],
+      "q": "Which city did David capture, taking the stronghold of Zion?",
+      "options": ["Hebron", "Bethlehem", "Shiloh", "Jerusalem"],
       "answer": 3,
-      "evidence": "and David made a covenant with them in Hebron before Yahweh; and they anointed David king over Israel, according to Yahweh’s word by Samuel"
+      "evidence": "Jerusalem (also called Jebus); and the Jebusites, the inhabitants of the land, were there. The inhabitants of Jebus said to David, “You will not come in here.” Nevertheless David took the stronghold of Zion",
+      "answerTerms": ["jerusalem"]
     },
     {
       "id": "1-chronicles-5",
@@ -45,11 +46,12 @@
     },
     {
       "id": "1-chronicles-6",
-      "ref": [13, 9, 10],
-      "q": "Who put out his hand to hold the ark, and died before God?",
-      "options": ["Aaron", "Uzza", "Obed-Edom", "Eleazar"],
+      "ref": [13, 10, 10],
+      "q": "What happened to Uzza when he put his hand on the ark?",
+      "options": ["He was healed", "He died before God", "He became a priest", "He was made king"],
       "answer": 1,
-      "evidence": "When they came to Chidon’s threshing floor, Uzza put out his hand to hold the ark"
+      "evidence": "and he died there before God",
+      "answerTerms": ["died"]
     },
     {
       "id": "1-chronicles-7",

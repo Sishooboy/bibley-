@@ -28,10 +28,11 @@
     {
       "id": "ruth-4",
       "ref": [4, 17, 17],
-      "q": "What was the name of the son born to Ruth and Boaz?",
-      "options": ["Benjamin", "Mahlon", "Samuel", "Obed"],
+      "q": "Ruth's son Obed became the grandfather of which king?",
+      "options": ["Saul", "Solomon", "Hezekiah", "David"],
       "answer": 3,
-      "evidence": "They named him Obed"
+      "evidence": "He is the father of Jesse, the father of David",
+      "answerTerms": ["david"]
     }
   ]
 }

@@ -28,20 +28,21 @@
     },
     {
       "id": "leviticus-4",
-      "ref": [11, 3, 3],
-      "q": "Besides parting the hoof, what must an animal do for Israel to eat it?",
-      "options": ["Live in the water", "Have no horns", "Fly by day", "Chew the cud"],
+      "ref": [11, 7, 7],
+      "q": "Which animal does Leviticus forbid Israel to eat?",
+      "options": ["The sheep", "The ox", "The goat", "The pig"],
       "answer": 3,
-      "evidence": "Whatever parts the hoof, and is cloven-footed, and chews the cud among the animals, that you may eat",
-      "answerTerms": ["chews the cud"]
+      "evidence": "The pig, because he has a split hoof, and is cloven-footed, but doesn’t chew the cud, he is unclean to you",
+      "answerTerms": ["pig"]
     },
     {
       "id": "leviticus-5",
-      "ref": [16, 8, 8],
-      "q": "On the Day of Atonement, Aaron cast lots over two of what?",
-      "options": ["Lambs", "Bulls", "Doves", "Goats"],
+      "ref": [23, 27, 27],
+      "q": "Which yearly day was set apart to make atonement for Israel?",
+      "options": ["The Passover", "The Sabbath", "The Feast of Weeks", "The Day of Atonement"],
       "answer": 3,
-      "evidence": "Aaron shall cast lots for the two goats"
+      "evidence": "However on the tenth day of this seventh month is the day of atonement: it shall be a holy convocation to you, and you shall afflict yourselves",
+      "answerTerms": ["day of atonement"]
     },
     {
       "id": "leviticus-6",

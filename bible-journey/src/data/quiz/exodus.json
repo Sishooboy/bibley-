@@ -68,12 +68,12 @@
     },
     {
       "id": "exodus-9",
-      "ref": [20, 12, 12],
-      "q": "Which commandment carries the promise \"that your days may be long\"?",
-      "options": ["Remember the Sabbath day", "Honor your father and your mother", "You shall not steal", "You shall not murder"],
+      "ref": [19, 20, 20],
+      "q": "On which mountain did Yahweh come down to meet Moses?",
+      "options": ["Mount Carmel", "Mount Sinai", "Mount Zion", "Mount Nebo"],
       "answer": 1,
-      "evidence": "Honor your father and your mother, that your days may be long in the land which Yahweh your God gives you",
-      "answerTerms": ["Honor your father and your mother"]
+      "evidence": "Yahweh came down on Mount Sinai, to the top of the mountain",
+      "answerTerms": ["sinai"]
     },
     {
       "id": "exodus-10",

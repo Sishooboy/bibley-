@@ -22,10 +22,11 @@
     {
       "id": "2-maccabees-3",
       "ref": [6, 18, 18],
-      "q": "Which aged scribe chose death rather than eat swine's flesh?",
-      "options": ["Judas", "Eleazar", "Onias", "Ezra"],
+      "q": "What did the old scribe Eleazar refuse to do, even to save his life?",
+      "options": ["Leave Jerusalem", "Eat swine's flesh", "Bow to a statue", "Burn the scrolls"],
       "answer": 1,
-      "evidence": "Eleazar, one of the principal scribes, a man already well stricken in years, and of a noble countenance, was compelled to open his mouth to eat swine’s flesh"
+      "evidence": "Eleazar, one of the principal scribes, a man already well stricken in years, and of a noble countenance, was compelled to open his mouth to eat swine’s flesh",
+      "answerTerms": ["swine's flesh"]
     },
     {
       "id": "2-maccabees-4",
@@ -54,11 +55,12 @@
     },
     {
       "id": "2-maccabees-7",
-      "ref": [15, 14, 16],
-      "q": "In Judas' vision, which prophet gave him a sword of gold?",
-      "options": ["Isaiah", "Elijah", "Jeremiah", "Daniel"],
+      "ref": [15, 28, 28],
+      "q": "How did the last battle against Nicanor end?",
+      "options": ["Judas was taken captive", "The temple was burned", "Nicanor lay dead in his armor", "Both armies fled"],
       "answer": 2,
-      "evidence": "and Jeremiah stretching forth his right hand delivered to Judas a sword of gold, and in giving it addressed him thus, Take the holy sword, a gift from God, wherewith you shall strike down the adversaries"
+      "evidence": "And when the engagement was over, and they were returning again with joy, they recognized Nicanor lying dead in full armor",
+      "answerTerms": ["nicanor lying dead"]
     },
     {
       "id": "2-maccabees-8",

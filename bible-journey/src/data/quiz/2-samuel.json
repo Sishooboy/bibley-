@@ -78,11 +78,12 @@
     },
     {
       "id": "2-samuel-10",
-      "ref": [9, 6, 7],
-      "q": "Whom did David bring to eat at his table for Jonathan's sake?",
-      "options": ["Absalom", "Joab", "Abner", "Mephibosheth"],
+      "ref": [9, 7, 7],
+      "q": "Why did David show kindness to Mephibosheth?",
+      "options": ["He was a great warrior", "He was very rich", "Nathan told him to", "For his father Jonathan's sake"],
       "answer": 3,
-      "evidence": "Mephibosheth.” He answered, “Behold, your servant!” David said to him, “Don’t be afraid of him; for I will surely show you kindness for Jonathan your father’s sake, and will restore to you all the land of Saul your father. You will eat bread at my table"
+      "evidence": "for I will surely show you kindness for Jonathan your father’s sake, and will restore to you all the land of Saul your father",
+      "answerTerms": ["jonathan your father's sake"]
     }
   ]
 }
