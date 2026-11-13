@@ -1103,6 +1103,103 @@ numbers section, and the suite is what holds it there.
   The UI is next, and a phase of one book should not get one, since it would only repeat that
   book's quiz.
 
+### Night, and why it is tokens and not a second stylesheet
+
+Reading in bed is a core use and every comparable app offers a dark theme, so there is one. It
+follows the system by default, and Settings has "Match this device", "Light" and "Dark".
+
+- **The brand tokens never change; paper does.** `--ink` is the words on the page, the ground of
+  every dark surface and the words on a gold chip, all three at once, and `--cream` is both the
+  page and the words on the header. Flipping either at night breaks two uses to fix one, and every
+  figure in this file names them by value. So `--ink`, `--cream`, `--red-*` and `--yellow*` are
+  fixed, and what changes is paper: `--surface`, `--line`, `--line-strong`, `--text`, `--muted`,
+  `--paper` and the shadows, which were only ever used on paper and flip as they are, plus a set of
+  roles in the block after `:root`.
+- **On paper, a colour comes from a paper token.** `--paper-red-700` is red-700 as written on
+  paper: red-700 by day, and at night the lighter red that can still be read on a dark page. The
+  same for `--paper-ink`, `-ink-700`, `-ink-500`, `-red-800`, `-red-600` and `-red-050`. Writing
+  `--red-700` on paper is right by day and 2:1 at night, and it looks fine in development until
+  somebody switches their phone to dark. **`theme.test.ts` fails if `color:` ever takes
+  `--red-700`, `--red-800`, `--ink-700` or `--ink-500`**: none of the four has a dark or gold
+  ground it can be read on, so as a text colour it can only be on paper. Ink is allowed only where
+  the same rule paints the gold under it. Hex literals on paper cannot be caught that way, so a
+  new one needs a token by hand: `--wash`, `--sunk`, the `--gold-wash` family and `--red-wash`
+  cover the grounds, `--gold-ink` and `--red-ink` the words on them.
+- **The day theme computes identically, and that was checked, not assumed.** Every literal that
+  became a token has its old value as the day value. The check was the computed colour, border,
+  shadow, fill and stroke of every element on every screen, at 375px and on a laptop, under the old
+  stylesheet and the new one against the same DOM: 0 differences on Journey (712 elements with a
+  book open), Notes (134 with a row open), the Quiz tab, Friends (180 with an exchange and a menu
+  open), Settings, the reader (825), the highlight sheet (844) and a whole quiz, question, answer
+  and score. The only differences anywhere were the Appearance card, which did not exist before,
+  and the chart's colours, which moved from attributes to CSS and resolve to the exact old values.
+- **The dark surfaces are the same at night**, the gate, guide, tour, celebrations, insight sheet,
+  header, hero, mastheads, `.yours`, and the reader's and quiz's bars, because they only use brand
+  tokens. Checked the same way with the system dark: the guide 0 of 37 elements changed, the book
+  celebration 0 of 146, the insight sheet 0 of 15, Journey's dark surfaces 0 of 74. Two things do
+  follow the page, on purpose: a shadow, which falls onto whatever is behind it, and the reader
+  bar's `<option>` lists, which are dark at night.
+- **The night set is written twice**, under `@media (prefers-color-scheme: dark)` for
+  `:root:not([data-theme='light'])` and again for `:root[data-theme='dark']`, because "the system
+  is dark and nobody chose light" and "the reader chose dark" cannot be one selector. A test fails
+  if the copies differ, if the night sets a token the day never defined, or if it touches a brand
+  token. The minifier keeps both; checked in `dist`.
+- **At night the page is `--ink` itself.** The header, the reader's bar and the page beneath them
+  are then one colour, cards lift off it at `#241d19`, and the ink islands that were contrast by
+  day, the verse of the day, read as a recess instead. It also settles `theme-color`: the top of
+  every screen is ink in both schemes, so it stays one tag with one value. `index.html` says why,
+  since a pair split by media query would carry the same colour twice.
+- **The choice is device-local**, `bible-journey/theme` in `src/lib/theme.ts`, not a `Prefs`
+  field: `normalize()` is a whitelist, so a synced field needs a read-only release first, and a
+  phone dark at the bedside beside a laptop light at a desk is a sensible pair that syncing would
+  forbid. "System" is stored as nothing. **A script in `index.html` applies a stored choice before
+  the stylesheet paints**, so a reader who chose dark on a light phone never sees a cream frame;
+  it cannot import the module, so `theme.test.ts` pins its key and attribute to `theme.ts`. The
+  `color-scheme` meta lets the first frame be dark before any CSS at all, and at night
+  `color-scheme: dark` hands the scrollbars and the date picker to the browser's dark versions.
+- **Measured, not judged.** Every text colour at night against the grounds it sits on, page
+  `#1a1512`, surface `#241d19` and the hover wash `#2e2620`, worst point last:
+
+  | At night | Ratio |
+  |---|---|
+  | Verse text, `--paper-ink-700` `#ddd3c4` | 12.23 on the page, 11.22 on a card |
+  | Body text, `--text` `#e6ddd0` | 13.46, 12.35, 11.04 |
+  | Muted, `--muted` `#b0a194` | 7.22, 6.62, 5.92, **4.67** on a read chapter's 16% gold |
+  | Title red, `--paper-red-800` `#ee6f75` | 6.18, 5.67, 5.07, **4.96** on a red tint |
+  | Heading red, `--paper-red-700` `#f2898e` | 7.54, 6.91, **4.88** on the quiz offer's gold |
+  | Verse numbers, `--paper-red-600` `#e9666d` | 5.68, 5.21 |
+  | Gold words on a gold wash, `--gold-ink` `#f0c665` | 7.97 |
+  | A found phrase on `--find` | 5.00 |
+  | White on a red button | 5.74, unchanged |
+
+  Three values were moved by measurement. Muted and the heading red both failed first on that 16%
+  gold, at 4.28 and 4.33, which is a read chapter's mark button and the quiz offer. And the title
+  red was `#f59fa3` until it was seen on the page, where it read as pink; `#ee6f75` is red and its
+  worst ground is still 4.96. **Plain `--red-600` as a graphic is 2.89 on a night card**, under the
+  3:1 a graphic needs, so the marks that carry information, the book grid's fills, the chapter
+  strip, a note's red edge, your side of an exchange and the presence dot, take `--paper-red-600`
+  (5.21) instead. Buttons keep `--red-600`, because their white label is what identifies them.
+- **The highlight alphas are tokens because gold's day alphas fail at night.** By day gold runs
+  0.18 to 0.42 and blue and green 0.14 to 0.32, so the three sit at the same weight on cream. On a
+  dark page that inverts, since gold is a light colour, and the day hover of 0.55 put verse text at
+  3.4:1. At night gold runs 0.14 to 0.30, hover 0.36, and blue and green get lighter channels,
+  `104 160 236` and `92 184 118`, at 0.14 to 0.36, hover 0.44. Verse text on the darkest stop is
+  6.07 on gold, 6.36 on blue and 6.10 on green, and under the pointer 5.16, 5.36 and 5.09. The
+  noted underline is `--hl-note`, `#f2898e` at night: 3.74, 3.92 and 3.76 against the three tints,
+  where `--red-600` would have been about 1.2 and simply vanished. The swatches are 10.18, 6.75 and
+  7.39 against the night sheet, so the gold one no longer needs the ink edge it needs by day, and
+  the chosen ring is `--paper-ink-700`, cream at night, where ink would have been invisible.
+- **Stats' chart is coloured in CSS now.** recharts writes colours as SVG attributes, and any CSS
+  rule outranks an attribute, so `.thirtyChart` gives the ticks, the axis, the cursor and the bar
+  gradient's stops their tokens. The day bars' foot is `--red-700`, 1.9:1 on a night card, so at
+  night they run `#f0545b` to `#c81d25`. The heatmap runs from dark to bright at night, which made
+  "darkest where you read most" false, so it now says "strongest".
+- **Not covered, deliberately.** The share card is a picture made to be sent and stays as it is.
+  `privacy.html` and `rules.html` follow the system through their own inline CSS and ignore an
+  explicit choice, which is acceptable for two pages of prose. The manifest's `background_color`,
+  the splash an installed web app shows on Android, is cream at night too, because a manifest
+  cannot vary by scheme; the Capacitor shell will decide that natively.
+
 ### The data model
 
 One row per account in `public.journals`: `user_id`, `data` jsonb, `updated_at`. Row-level security

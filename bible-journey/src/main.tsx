@@ -3,11 +3,17 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import { ErrorBoundary } from './components/ErrorBoundary.tsx';
 import { listenForPresses } from './lib/press.ts';
+import { applyTheme, loadTheme } from './lib/theme.ts';
 import { lockZoom } from './lib/zoom.ts';
 import './styles/app.css';
 
 // Before the first paint, so a pinch during startup is refused too.
 lockZoom();
+
+// The script in index.html has normally done this already. Doing it again is
+// free, and it means a stripped or blocked inline script costs a flash rather
+// than ignoring the reader's choice for the whole session.
+applyTheme(loadTheme());
 
 /*
  * One listener for every press in the app, registered here rather than inside

@@ -24,10 +24,14 @@ import { SLOTS, SLOT_LABELS, type Slot } from '../lib/storage';
 import { useReader } from '../state/useReader';
 import { useStore } from '../state/useStore';
 
-const RED = '#c81d25';
+/*
+ * The running total's gold is the same by day and by night, so it can stay a
+ * constant. Everything else in the chart takes its colour from the stylesheet
+ * through `.thirtyChart`: recharts writes colours as SVG attributes, and any
+ * CSS rule outranks an attribute, so a token there follows the theme where a
+ * hex string here would stay at its day value at night.
+ */
 const YELLOW = '#f7b801';
-const LINE = '#e2d8c8';
-const MUTED = '#6b5e55';
 
 /*
  * Both 30-day charts, so they stay the same height as each other: side by side
@@ -120,7 +124,7 @@ function NothingYet({ planTotal }: { planTotal: number }) {
       <ul className="statsEmpty__list">
         <li>A streak, from the first day you mark anything</li>
         <li>Your pace, and the date the last of {formatNumber(planTotal)} chapters lands</li>
-        <li>Every day of the last eighteen weeks, darkest where you read most</li>
+        <li>Every day of the last eighteen weeks, strongest where you read most</li>
         <li>A card of the whole Bible, filling in book by book, worth sending someone</li>
       </ul>
 
@@ -174,7 +178,7 @@ export function StatsView() {
   const phasesDone = phases.filter((p) => p.done).length;
   const loggedChapters = days.reduce((n, d) => n + d.total, 0);
 
-  const tickStyle = { fill: MUTED, fontSize: 11, fontFamily: 'Inter Variable, sans-serif' };
+  const tickStyle = { fontSize: 11, fontFamily: 'Inter Variable, sans-serif' };
 
   /*
    * Before the first chapter there is nothing to draw, and the masthead's own
@@ -385,19 +389,22 @@ export function StatsView() {
             </div>
             <div className="legend">
               <span className="legend__key">
-                <span className="legend__swatch" style={{ background: RED }} /> a day
+                <span className="legend__swatch legend__swatch--bar" /> a day
               </span>
               <span className="legend__key">
                 <span className="legend__swatch legend__swatch--line" /> total
               </span>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={CHART_H}>
+          <ResponsiveContainer className="thirtyChart" width="100%" height={CHART_H}>
             <ComposedChart data={thirty} margin={{ top: 6, right: 4, bottom: 4, left: -18 }}>
               <defs>
+                {/* Coloured by `.thirtyChart__barTop` and `__barFoot`. The day
+                    foot is red-700, which on a night card is 1.9:1 and the bars
+                    would sink into it from the bottom up. */}
                 <linearGradient id="barRed" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#e0313a" />
-                  <stop offset="100%" stopColor="#96161f" />
+                  <stop className="thirtyChart__barTop" offset="0%" />
+                  <stop className="thirtyChart__barFoot" offset="100%" />
                 </linearGradient>
                 <linearGradient id="barGold" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#ffd447" />
@@ -408,7 +415,6 @@ export function StatsView() {
                 dataKey="day"
                 tick={tickStyle}
                 tickLine={false}
-                axisLine={{ stroke: LINE }}
                 interval={6}
                 tickFormatter={(d: string) => formatDay(d, { year: undefined })}
               />
@@ -423,7 +429,7 @@ export function StatsView() {
               {/* Hidden on purpose. Two axes on a 288px phone leaves no room for
                   thirty bars, and the total is in the tooltip and the strip. */}
               <YAxis yAxisId="total" orientation="right" hide />
-              <Tooltip cursor={{ fill: 'rgba(200,29,37,0.07)' }} content={<ChartTip />} />
+              <Tooltip content={<ChartTip />} />
               <Bar yAxisId="day" dataKey="chapters" radius={[3, 3, 0, 0]} isAnimationActive={false}>
                 {thirty.map((d) => (
                   <Cell key={d.day} fill={d.day === todayKey ? 'url(#barGold)' : 'url(#barRed)'} />
@@ -448,7 +454,7 @@ export function StatsView() {
             <div>
               <h3 className="card__title">Reading rhythm</h3>
               <p className="card__note">
-                Every day of the last eighteen weeks, darkest where you read most
+                Every day of the last eighteen weeks, strongest where you read most
               </p>
             </div>
           </div>

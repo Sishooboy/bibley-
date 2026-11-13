@@ -55,6 +55,242 @@
   --topbar-h: 62px;
 }
 
+/* ── Paper, by day and by night ─────────────────────────────────────────── */
+/*
+ * The brand tokens above never change. `--ink` is the words on the page, the
+ * ground of every dark surface and the words on a gold chip, all three, so a
+ * night theme that flipped it would break two of those to fix one, and every
+ * contrast figure in CLAUDE.md names it by value.
+ *
+ * What changes at night is paper: the page, the cards on it, the rules between
+ * them and the words written on them. `--surface`, `--line`, `--line-strong`,
+ * `--text`, `--muted`, `--paper` and the shadows were only ever used on paper,
+ * so they flip as they are. Everything else here is a role, and its day value
+ * is exactly what the rule said before it became a token, so the day theme
+ * computes identically on every element. That was checked by snapshotting the
+ * computed colours of every screen before and after, not assumed.
+ *
+ * **A rule on paper takes its colour from here.** `--paper-red-700` is red-700
+ * as written on paper: red-700 by day, and at night the lighter red that can
+ * still be read on a dark page. Writing `--red-700` on paper instead is a rule
+ * that is right by day and illegible at night, and nothing fails to say so.
+ * The dark surfaces, the gate, the guide, the celebrations, the reader and quiz
+ * bars, the mastheads, keep the brand tokens and so look the same in both.
+ */
+:root {
+  --page: var(--cream);
+  --paper-ink: var(--ink);
+  --paper-ink-700: var(--ink-700);
+  --paper-ink-500: var(--ink-500);
+  --paper-red-800: var(--red-800);
+  --paper-red-700: var(--red-700);
+  --paper-red-600: var(--red-600);
+  --paper-red-050: var(--red-050);
+  --muted-soft: #6b5f57;
+  --placeholder: #a3968a;
+  --gold-ink: #6a5000;
+  --gold-ink-soft: #7a5c00;
+  --red-ink: #7a1a20;
+
+  /* Grounds a shade off the surface: under the pointer, opened, chosen. */
+  --sunk: #fbf7ee;
+  --wash: #fdf4e6;
+  --wash-soft: #fbf6ec;
+  --ghost-hover: #ece3d3;
+  --surface-warm: #fffdf4;
+  --surface-picked: #fffdf7;
+  --surface-glass: rgba(255, 252, 246, 0.92);
+  --gold-wash: #fdf4dd;
+  --gold-wash-warm: #fdf3dc;
+  --gold-wash-soft: #fdf6e3;
+  --gold-wash-pale: #fffaec;
+  --gold-rise: linear-gradient(180deg, #fff8e6, #fff1cf);
+  --red-wash: #fdeaea;
+
+  /* A raised control: its face, and the hairline of light along its top. */
+  --btn-face: linear-gradient(180deg, #fffdf8, #f3ebdb);
+  --btn-face-hover: linear-gradient(180deg, #fffefb, #f8f2e6);
+  --gleam: 0.85;
+  --gleam-hover: 0.9;
+
+  /* Shadow channels, so a rule keeps its own alpha and the hue can change. */
+  --shade: 74 45 20;
+  --shade-deep: 46 24 12;
+  --shade-ink: 36 28 22;
+
+  /* Marks on the words: a found phrase, a quiz's proof, a written-on highlight. */
+  --find: var(--yellow-soft);
+  --evidence: rgba(247, 184, 1, 0.45);
+  --hl-note: var(--red-600);
+  --hl-gold-lo: 0.18;
+  --hl-gold-hi: 0.42;
+  --hl-gold-over: 0.55;
+  --hl-tint-lo: 0.14;
+  --hl-tint-hi: 0.32;
+  --hl-tint-over: 0.42;
+
+  /* Tracks and what fills them. */
+  --track: #ece2d2;
+  --fill-red: linear-gradient(90deg, var(--red-700), var(--red-500));
+  --heat-1: #f0b9bc;
+  --heat-2: #dd6b71;
+  --heat-3: var(--red-600);
+  --heat-future: rgba(226, 216, 200, 0.7);
+  --chart-bar-top: #e0313a;
+  --chart-bar-bottom: #96161f;
+  --chart-cursor: rgba(200, 29, 37, 0.07);
+}
+
+/*
+ * Night. The same set twice, because "the system is dark and the reader has not
+ * chosen light" and "the reader chose dark" are two conditions CSS cannot join
+ * into one selector. `theme.test.ts` fails if the two copies ever differ.
+ *
+ * The page at night is `--ink` itself, the brand's own warm near-black, so the
+ * header, the reader's bar and the page beneath them are one colour and the
+ * status bar's `theme-color` matches both schemes without changing.
+ *
+ * **Measured, not judged**, against the darkest and the brightest ground each
+ * colour sits on. CLAUDE.md has the figures. Three were moved by measurement:
+ * the muted grey and the red that labels the quiz offer both failed on the 16%
+ * gold tint of a read chapter's button (4.28 and 4.33 against 4.5), and gold's
+ * day alphas put verse text at 3.4:1 under the pointer, which is why the
+ * highlight alphas are tokens at all.
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --page: #1a1512;
+    --surface: #241d19;
+    --paper: linear-gradient(180deg, #282019, #241d19);
+    --line: #3a302a;
+    --line-strong: #54473e;
+    --text: #e6ddd0;
+    --muted: #b0a194;
+    --muted-soft: #b0a194;
+    --placeholder: #968878;
+    --paper-ink: #f2ebdf;
+    --paper-ink-700: #ddd3c4;
+    --paper-ink-500: #c6baab;
+    --paper-red-800: #ee6f75;
+    --paper-red-700: #f2898e;
+    --paper-red-600: #e9666d;
+    --paper-red-050: rgba(200, 29, 37, 0.2);
+    --gold-ink: #f0c665;
+    --gold-ink-soft: #f0c665;
+    --red-ink: #ee6f75;
+    --sunk: #1f1915;
+    --wash: #2e2620;
+    --wash-soft: #2c241e;
+    --ghost-hover: #342b25;
+    --surface-warm: #282019;
+    --surface-picked: #2a211c;
+    --surface-glass: rgba(36, 29, 25, 0.92);
+    --gold-wash: rgba(247, 184, 1, 0.12);
+    --gold-wash-warm: rgba(247, 184, 1, 0.12);
+    --gold-wash-soft: rgba(247, 184, 1, 0.1);
+    --gold-wash-pale: rgba(247, 184, 1, 0.1);
+    --gold-rise: linear-gradient(180deg, rgba(247, 184, 1, 0.08), rgba(247, 184, 1, 0.16));
+    --red-wash: rgba(200, 29, 37, 0.16);
+    --btn-face: linear-gradient(180deg, #342b24, #2b231d);
+    --btn-face-hover: linear-gradient(180deg, #3b3129, #31281f);
+    --gleam: 0.07;
+    --gleam-hover: 0.1;
+    --shade: 0 0 0;
+    --shade-deep: 0 0 0;
+    --shade-ink: 236 226 212;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 8px 22px -12px rgba(0, 0, 0, 0.7), 0 1px 2px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 22px 48px -24px rgba(0, 0, 0, 0.8);
+    --find: rgba(247, 184, 1, 0.34);
+    --evidence: rgba(247, 184, 1, 0.3);
+    --hl-note: #f2898e;
+    --hl-blue: 104 160 236;
+    --hl-green: 92 184 118;
+    --hl-gold-lo: 0.14;
+    --hl-gold-hi: 0.3;
+    --hl-gold-over: 0.36;
+    --hl-tint-lo: 0.14;
+    --hl-tint-hi: 0.36;
+    --hl-tint-over: 0.44;
+    --track: #3a302a;
+    --fill-red: linear-gradient(90deg, #e04a52, #f2898e);
+    --heat-1: #5e2026;
+    --heat-2: #9c2a31;
+    --heat-3: #e04a52;
+    --heat-future: rgba(84, 71, 62, 0.7);
+    --chart-bar-top: #f0545b;
+    --chart-bar-bottom: #c81d25;
+    --chart-cursor: rgba(242, 137, 142, 0.08);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --page: #1a1512;
+  --surface: #241d19;
+  --paper: linear-gradient(180deg, #282019, #241d19);
+  --line: #3a302a;
+  --line-strong: #54473e;
+  --text: #e6ddd0;
+  --muted: #b0a194;
+  --muted-soft: #b0a194;
+  --placeholder: #968878;
+  --paper-ink: #f2ebdf;
+  --paper-ink-700: #ddd3c4;
+  --paper-ink-500: #c6baab;
+  --paper-red-800: #ee6f75;
+  --paper-red-700: #f2898e;
+  --paper-red-600: #e9666d;
+  --paper-red-050: rgba(200, 29, 37, 0.2);
+  --gold-ink: #f0c665;
+  --gold-ink-soft: #f0c665;
+  --red-ink: #ee6f75;
+  --sunk: #1f1915;
+  --wash: #2e2620;
+  --wash-soft: #2c241e;
+  --ghost-hover: #342b25;
+  --surface-warm: #282019;
+  --surface-picked: #2a211c;
+  --surface-glass: rgba(36, 29, 25, 0.92);
+  --gold-wash: rgba(247, 184, 1, 0.12);
+  --gold-wash-warm: rgba(247, 184, 1, 0.12);
+  --gold-wash-soft: rgba(247, 184, 1, 0.1);
+  --gold-wash-pale: rgba(247, 184, 1, 0.1);
+  --gold-rise: linear-gradient(180deg, rgba(247, 184, 1, 0.08), rgba(247, 184, 1, 0.16));
+  --red-wash: rgba(200, 29, 37, 0.16);
+  --btn-face: linear-gradient(180deg, #342b24, #2b231d);
+  --btn-face-hover: linear-gradient(180deg, #3b3129, #31281f);
+  --gleam: 0.07;
+  --gleam-hover: 0.1;
+  --shade: 0 0 0;
+  --shade-deep: 0 0 0;
+  --shade-ink: 236 226 212;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 22px -12px rgba(0, 0, 0, 0.7), 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 22px 48px -24px rgba(0, 0, 0, 0.8);
+  --find: rgba(247, 184, 1, 0.34);
+  --evidence: rgba(247, 184, 1, 0.3);
+  --hl-note: #f2898e;
+  --hl-blue: 104 160 236;
+  --hl-green: 92 184 118;
+  --hl-gold-lo: 0.14;
+  --hl-gold-hi: 0.3;
+  --hl-gold-over: 0.36;
+  --hl-tint-lo: 0.14;
+  --hl-tint-hi: 0.36;
+  --hl-tint-over: 0.44;
+  --track: #3a302a;
+  --fill-red: linear-gradient(90deg, #e04a52, #f2898e);
+  --heat-1: #5e2026;
+  --heat-2: #9c2a31;
+  --heat-3: #e04a52;
+  --heat-future: rgba(84, 71, 62, 0.7);
+  --chart-bar-top: #f0545b;
+  --chart-bar-bottom: #c81d25;
+  --chart-cursor: rgba(242, 137, 142, 0.08);
+}
+
 /* ── Base ───────────────────────────────────────────────────────────────── */
 * {
   box-sizing: border-box;
@@ -108,7 +344,7 @@ html {
 
 body {
   margin: 0;
-  background: var(--cream);
+  background: var(--page);
   color: var(--text);
   font-family: var(--font-body);
   font-size: 16px;
@@ -1145,10 +1381,10 @@ select {
   gap: 0.4rem;
   min-height: 38px;
   border: 1px solid var(--line-strong);
-  background: linear-gradient(180deg, #fffdf8, #f3ebdb);
+  background: var(--btn-face);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    0 1px 2px rgba(74, 45, 20, 0.13);
+    inset 0 1px 0 rgb(255 255 255 / var(--gleam)),
+    0 1px 2px rgb(var(--shade) / 0.13);
   border-radius: 999px;
   padding: 0.5rem 1.05rem;
   font-family: var(--font-display);
@@ -1191,14 +1427,14 @@ select {
   outline-offset: 2px;
   box-shadow:
     0 0 0 2px var(--ink-700),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    inset 0 1px 0 rgb(255 255 255 / var(--gleam));
 }
 
 /* Pressed in rather than only smaller: the light along the top edge goes and
    the shadow moves inside, which is what a real key does. */
 .btn:active {
   transform: scale(0.97);
-  box-shadow: inset 0 1px 3px rgba(74, 45, 20, 0.2);
+  box-shadow: inset 0 1px 3px rgb(var(--shade) / 0.2);
   transition-duration: 120ms, 120ms, 120ms, 80ms, 70ms;
   transition-timing-function: ease, ease, ease, ease, ease-in;
 }
@@ -1211,12 +1447,12 @@ select {
  */
 @media (hover: hover) {
   .btn:not(:disabled):hover {
-    background: linear-gradient(180deg, #fffefb, #f8f2e6);
+    background: var(--btn-face-hover);
     border-color: var(--red-600);
-    color: var(--red-700);
+    color: var(--paper-red-700);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.9),
-      0 4px 10px -4px rgba(74, 45, 20, 0.3);
+      inset 0 1px 0 rgb(255 255 255 / var(--gleam-hover)),
+      0 4px 10px -4px rgb(var(--shade) / 0.3);
     transform: translateY(-1px);
   }
 }
@@ -1272,7 +1508,7 @@ select {
 
 @media (hover: hover) {
   .btn--ghost:not(:disabled):hover {
-    background: #ece3d3;
+    background: var(--ghost-hover);
     border-color: transparent;
     color: var(--text);
     box-shadow: none;
@@ -1362,7 +1598,7 @@ select {
 }
 
 .bar--done .bar__fill {
-  background: var(--red-600);
+  background: var(--paper-red-600);
 }
 
 .bar--thin {
@@ -1697,7 +1933,7 @@ select {
 
 @media (hover: hover) {
   .phase__row:hover .phase__head h3 {
-    color: var(--red-700);
+    color: var(--paper-red-700);
   }
 }
 
@@ -1760,8 +1996,8 @@ select {
 }
 
 .phase--ahead .phase__num {
-  border-color: var(--red-600);
-  color: var(--red-700);
+  border-color: var(--paper-red-600);
+  color: var(--paper-red-700);
 }
 
 .phase__head {
@@ -1791,8 +2027,8 @@ select {
 }
 
 .phase__tag--done {
-  background: var(--red-050);
-  color: var(--red-800);
+  background: var(--paper-red-050);
+  color: var(--paper-red-800);
 }
 
 .phase__tag--ahead {
@@ -1803,7 +2039,7 @@ select {
 .phase__count {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -1855,7 +2091,7 @@ select {
 
 @media (hover: hover) {
   .book__row:hover {
-    background: #fbf6ec;
+    background: var(--wash-soft);
   }
 }
 
@@ -1874,11 +2110,11 @@ select {
 }
 
 .book--done .book__name {
-  color: var(--red-800);
+  color: var(--paper-red-800);
 }
 
 .book__check {
-  color: var(--red-600);
+  color: var(--paper-red-600);
   flex: none;
   display: block;
 }
@@ -1911,7 +2147,7 @@ select {
 .book__panel {
   padding: 0.25rem 0.95rem 1.25rem;
   border-top: 1px dashed var(--line);
-  background: #fbf7ee;
+  background: var(--sunk);
 }
 
 /* Bulk marking: the slider is the primary control, the grid is for corrections. */
@@ -1961,7 +2197,7 @@ select {
 @media (hover: hover) {
   .readTo__step:hover:not(:disabled) {
     border-color: var(--red-600);
-    color: var(--red-700);
+    color: var(--paper-red-700);
   }
 }
 
@@ -2018,9 +2254,9 @@ select {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: #fdf3dc;
+  background: var(--gold-wash-warm);
   border-left: 3px solid var(--yellow);
-  color: #6a5000;
+  color: var(--gold-ink);
   font-size: 0.85rem;
   font-weight: 500;
   padding: 0.5rem 0.75rem;
@@ -2034,9 +2270,9 @@ select {
  * 9.08 on its own tint, against the 4.5 small text needs.
  */
 .riskNote[data-level='urgent'] {
-  background: #fdeaea;
+  background: var(--red-wash);
   border-left-color: var(--red-600);
-  color: #7a1a20;
+  color: var(--red-ink);
   font-weight: 600;
 }
 
@@ -2048,7 +2284,7 @@ select {
 .lossNote {
   margin: 0 0 1rem;
   font-size: 0.85rem;
-  color: #6b5f57;
+  color: var(--muted-soft);
 }
 
 /*
@@ -2178,7 +2414,7 @@ select {
 
 @media (hover: hover) {
   .quickMark__summary:hover {
-    color: var(--red-700);
+    color: var(--paper-red-700);
   }
 }
 
@@ -2247,8 +2483,8 @@ select {
 
 .logDay__reset {
   border: 1px solid var(--yellow-dim);
-  background: #fdf4dd;
-  color: #6a5000;
+  background: var(--gold-wash);
+  color: var(--gold-ink);
   border-radius: 99px;
   padding: 0.2rem 0.6rem;
   font-size: 0.72rem;
@@ -2268,14 +2504,14 @@ select {
  * quiet version of this control is how a whole week ends up on the wrong date.
  */
 .logDay--past {
-  color: #6a5000;
+  color: var(--gold-ink);
   font-weight: 600;
 }
 
 .logDay--past .logDay__select {
   border-color: var(--yellow-dim);
-  background: #fdf4dd;
-  color: #6a5000;
+  background: var(--gold-wash);
+  color: var(--gold-ink);
   font-weight: 600;
 }
 
@@ -2319,11 +2555,11 @@ select {
 }
 
 .field::placeholder {
-  color: #a3968a;
+  color: var(--placeholder);
 }
 
 .field:focus {
-  border-color: var(--red-600);
+  border-color: var(--paper-red-600);
 }
 
 .undoBar {
@@ -2876,7 +3112,7 @@ select {
 @media (hover: hover) {
   .fold__head:hover .fold__meta,
   .fold__head:hover .fold__chev {
-    color: var(--red-700);
+    color: var(--paper-red-700);
   }
 }
 
@@ -3024,7 +3260,7 @@ select {
   font-weight: 600;
   line-height: 1.05;
   letter-spacing: -0.02em;
-  color: var(--red-700);
+  color: var(--paper-red-700);
   font-variant-numeric: tabular-nums;
   /* "Feb 2028" is the longest thing that lands here and it must not wrap onto
      two lines while the five numbers beside it sit on one. */
@@ -3154,7 +3390,7 @@ select {
 }
 
 .ring--light .ring__value {
-  color: var(--red-800);
+  color: var(--paper-red-800);
 }
 
 .ring--light .ring__label {
@@ -3362,23 +3598,23 @@ select {
 .heat__cell {
   aspect-ratio: 1;
   border-radius: 2px;
-  background: #ece2d2;
+  background: var(--track);
 }
 
 .heat__cell--0 {
-  background: #ece2d2;
+  background: var(--track);
 }
 
 .heat__cell--1 {
-  background: #f0b9bc;
+  background: var(--heat-1);
 }
 
 .heat__cell--2 {
-  background: #dd6b71;
+  background: var(--heat-2);
 }
 
 .heat__cell--3 {
-  background: var(--red-600);
+  background: var(--heat-3);
 }
 
 /* The heaviest days go gold, so a good week reads at a glance. */
@@ -3388,7 +3624,7 @@ select {
 
 .heat__cell--future {
   background: transparent;
-  box-shadow: inset 0 0 0 1px rgba(226, 216, 200, 0.7);
+  box-shadow: inset 0 0 0 1px var(--heat-future);
 }
 
 .heat__foot {
@@ -3466,6 +3702,36 @@ select {
   background: var(--yellow);
 }
 
+/*
+ * The thirty-day chart's colours live here and not in StatsView. recharts
+ * writes them as SVG attributes, and any CSS rule outranks an attribute, so a
+ * token here follows the theme where a hex string in the TSX stayed at its day
+ * value: the axis labels were 2.89:1 on a night card before this.
+ */
+.legend__swatch--bar {
+  background: var(--paper-red-600);
+}
+
+.thirtyChart .recharts-cartesian-axis-tick-value {
+  fill: var(--muted);
+}
+
+.thirtyChart .recharts-cartesian-axis-line {
+  stroke: var(--line);
+}
+
+.thirtyChart .recharts-tooltip-cursor {
+  fill: var(--chart-cursor);
+}
+
+.thirtyChart__barTop {
+  stop-color: var(--chart-bar-top);
+}
+
+.thirtyChart__barFoot {
+  stop-color: var(--chart-bar-bottom);
+}
+
 .tooltip__sub {
   margin-top: 0.15rem;
   font-size: 0.76rem;
@@ -3489,7 +3755,7 @@ select {
   font-size: 1.7rem;
   font-weight: 600;
   letter-spacing: -0.03em;
-  color: var(--red-800);
+  color: var(--paper-red-800);
   font-variant-numeric: tabular-nums;
   pointer-events: none;
 }
@@ -3513,7 +3779,7 @@ select {
 
 @media (hover: hover) {
   .phaseRow:hover {
-    background: #fdf4e6;
+    background: var(--wash);
   }
 }
 
@@ -3521,7 +3787,7 @@ select {
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 0.9rem;
-  color: var(--red-600);
+  color: var(--paper-red-600);
   font-variant-numeric: tabular-nums;
 }
 
@@ -3535,7 +3801,7 @@ select {
 .phaseRow__count {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
 }
 
 .phaseRow__count small {
@@ -3547,7 +3813,7 @@ select {
   grid-column: 1 / -1;
   height: 5px;
   border-radius: 99px;
-  background: #ece2d2;
+  background: var(--track);
   overflow: hidden;
   margin-top: 0.4rem;
 }
@@ -3557,7 +3823,7 @@ select {
   height: 100%;
   width: var(--pct, 0%);
   border-radius: 99px;
-  background: linear-gradient(90deg, var(--red-700), var(--red-500));
+  background: var(--fill-red);
   transition: width 900ms var(--ease-out);
 }
 
@@ -3598,7 +3864,7 @@ select {
   padding: 0.8rem 0.9rem;
   border: 1px solid var(--line-strong);
   border-radius: var(--panel-radius);
-  background: rgba(255, 252, 246, 0.92);
+  background: var(--surface-glass);
   backdrop-filter: blur(10px);
   box-shadow: var(--shadow-sm);
 }
@@ -3657,7 +3923,7 @@ select {
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--red-700);
+  color: var(--paper-red-700);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -3734,11 +4000,11 @@ select {
   font-size: 1.3rem;
   font-weight: 600;
   letter-spacing: -0.025em;
-  color: var(--red-800);
+  color: var(--paper-red-800);
 }
 
 .noteCard__ref span {
-  color: var(--red-600);
+  color: var(--paper-red-600);
 }
 
 .noteCard__date {
@@ -3754,8 +4020,8 @@ select {
   justify-self: start;
   font-size: 0.7rem;
   font-weight: 500;
-  color: #7a5c00;
-  background: #fdf4dd;
+  color: var(--gold-ink-soft);
+  background: var(--gold-wash);
   border: 1px solid rgba(247, 184, 1, 0.55);
   border-radius: 99px;
   padding: 0.1rem 0.6rem;
@@ -3769,11 +4035,11 @@ select {
   white-space: pre-wrap;
   font-size: 0.97rem;
   line-height: 1.65;
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
 }
 
 .noteCard__text mark {
-  background: var(--yellow-soft);
+  background: var(--find);
   border-radius: 2px;
   padding: 0 0.1em;
   color: inherit;
@@ -3816,7 +4082,7 @@ select {
 
 .empty h3 {
   font-size: 1.45rem;
-  color: var(--red-800);
+  color: var(--paper-red-800);
   margin-bottom: 0.5rem;
 }
 
@@ -3840,7 +4106,7 @@ select {
   font-family: var(--font-display);
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--ink);
+  color: var(--paper-ink);
 }
 
 .planGroup__count {
@@ -3913,7 +4179,7 @@ select {
 .planPick__track {
   height: 4px;
   border-radius: 99px;
-  background: #ece2d2;
+  background: var(--track);
   overflow: hidden;
   margin-top: 0.3rem;
 }
@@ -3922,7 +4188,7 @@ select {
   display: block;
   height: 100%;
   border-radius: 99px;
-  background: linear-gradient(90deg, var(--red-700), var(--red-500));
+  background: var(--fill-red);
   transition: width 800ms var(--ease-out);
 }
 
@@ -4022,7 +4288,7 @@ select {
   font-size: 0.74rem;
   font-weight: 500;
   color: var(--muted);
-  background: var(--cream);
+  background: var(--page);
   white-space: nowrap;
 }
 
@@ -4032,19 +4298,19 @@ select {
 
 .pill--on {
   border-color: var(--red-600);
-  color: var(--red-700);
-  background: #fdeaea;
+  color: var(--paper-red-700);
+  background: var(--red-wash);
   font-weight: 600;
 }
 
 .pill--error {
   border-color: var(--red-500);
-  color: var(--red-700);
+  color: var(--paper-red-700);
 }
 
 .pill--locked {
   border-color: var(--line-strong);
-  background: var(--cream);
+  background: var(--page);
   color: var(--muted);
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -4068,7 +4334,7 @@ select {
   padding: 1.1rem 1.15rem;
   border: 1px dashed var(--line-strong);
   border-radius: var(--panel-radius);
-  background: var(--cream);
+  background: var(--page);
 }
 
 .locked__mark {
@@ -4088,7 +4354,7 @@ select {
   font-size: 1.06rem;
   font-weight: 600;
   letter-spacing: -0.015em;
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
 }
 
 .locked .card__note {
@@ -4144,20 +4410,20 @@ select {
 
 .notice--gold {
   border-left: 3px solid var(--yellow);
-  background: #fdf6e3;
-  color: var(--ink-500);
+  background: var(--gold-wash-soft);
+  color: var(--paper-ink-500);
 }
 
 .notice--warn {
   border-left: 3px solid var(--line-strong);
-  background: var(--cream);
+  background: var(--page);
   color: var(--muted);
 }
 
 .notice--error {
   border-left: 3px solid var(--red-600);
-  background: #fdeaea;
-  color: var(--red-800);
+  background: var(--red-wash);
+  color: var(--paper-red-800);
   font-weight: 500;
   display: grid;
   gap: 0.7rem;
@@ -4247,7 +4513,7 @@ select {
    * more control in that bar was enough to push it 53px off a 375px phone.
    */
   grid-template-columns: minmax(0, 1fr);
-  background: var(--cream);
+  background: var(--page);
   /*
    * Rises a little as it fades in, so it reads as a sheet being lifted onto
    * the journey rather than the screen changing underneath. A transform here
@@ -4331,9 +4597,9 @@ select {
   border-radius: 4px;
   background: linear-gradient(
     100deg,
-    rgba(36, 28, 22, 0.07) 30%,
-    rgba(36, 28, 22, 0.13) 50%,
-    rgba(36, 28, 22, 0.07) 70%
+    rgb(var(--shade-ink) / 0.07) 30%,
+    rgb(var(--shade-ink) / 0.13) 50%,
+    rgb(var(--shade-ink) / 0.07) 70%
   );
   background-size: 300% 100%;
   animation: skShimmer 1.6s ease-in-out infinite;
@@ -4519,7 +4785,7 @@ select {
   font-size: clamp(1.9rem, 5vw, 2.6rem);
   font-variation-settings: 'SOFT' 16, 'WONK' 1;
   letter-spacing: -0.03em;
-  color: var(--red-800);
+  color: var(--paper-red-800);
   margin-bottom: 0.4rem;
 }
 
@@ -4553,7 +4819,7 @@ select {
   font-size: 1.12rem;
   line-height: 1.75;
   margin-bottom: 1rem;
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
   text-wrap: pretty;
 }
 
@@ -4561,7 +4827,7 @@ select {
   font-family: var(--font-body);
   font-size: 0.66rem;
   font-weight: 700;
-  color: var(--red-600);
+  color: var(--paper-red-600);
   vertical-align: 0.45em;
   margin-right: 0.35rem;
   font-variant-numeric: tabular-nums;
@@ -4647,7 +4913,7 @@ select {
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--red-700);
+  color: var(--paper-red-700);
   margin: 2rem 0 0.8rem;
 }
 
@@ -4738,7 +5004,7 @@ select {
 
 @media (hover: hover) {
   .passage__toggle:not(:disabled):hover .passage__why {
-    color: var(--red-600);
+    color: var(--paper-red-600);
   }
 }
 
@@ -4851,7 +5117,7 @@ select {
     max(1rem, env(safe-area-inset-left));
   background: var(--surface);
   border-top: 1px solid var(--line-strong);
-  box-shadow: 0 -8px 24px -20px rgba(46, 24, 12, 0.5);
+  box-shadow: 0 -8px 24px -20px rgb(var(--shade-deep) / 0.5);
 }
 
 /*
@@ -5148,7 +5414,7 @@ select {
 }
 
 .logDay__slot--set {
-  color: var(--red-700);
+  color: var(--paper-red-700);
   border-color: var(--red-500);
   font-weight: 500;
 }
@@ -5202,7 +5468,7 @@ select {
 .slotBar__track {
   height: 10px;
   border-radius: 99px;
-  background: #ece2d2;
+  background: var(--track);
   overflow: hidden;
 }
 
@@ -5210,7 +5476,7 @@ select {
   display: block;
   height: 100%;
   border-radius: 99px;
-  background: linear-gradient(90deg, var(--red-700), var(--red-500));
+  background: var(--fill-red);
   transition: width 800ms var(--ease-out);
 }
 
@@ -5220,7 +5486,7 @@ select {
 }
 
 .slotBar--best .slotBar__name {
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
   font-weight: 600;
 }
 
@@ -5228,7 +5494,7 @@ select {
   text-align: right;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
 }
 
 @media (max-width: 620px) {
@@ -5245,7 +5511,7 @@ select {
  * and a highlight is a mark on a page, not a replacement for it.
  */
 .hl {
-  background: linear-gradient(180deg, rgba(247, 184, 1, 0.18), rgba(247, 184, 1, 0.42));
+  background: linear-gradient(180deg, rgb(var(--hl-gold) / var(--hl-gold-lo)), rgb(var(--hl-gold) / var(--hl-gold-hi)));
   color: inherit;
   border-radius: 2px;
   padding: 0.05em 0;
@@ -5257,14 +5523,14 @@ select {
 
 @media (hover: hover) {
   .hl:hover {
-    background: rgba(247, 184, 1, 0.55);
+    background: rgb(var(--hl-gold) / var(--hl-gold-over));
   }
 }
 
 /* A highlight carrying a thought earns an underline, so the page shows which
    passages you actually wrote about without opening anything. */
 .hl--noted {
-  box-shadow: inset 0 -2px 0 var(--red-600);
+  box-shadow: inset 0 -2px 0 var(--hl-note);
 }
 
 /*
@@ -5278,20 +5544,20 @@ select {
  * that must not be able to hide each other.
  */
 .hl[data-colour='blue'] {
-  background: linear-gradient(180deg, rgb(var(--hl-blue) / 0.14), rgb(var(--hl-blue) / 0.32));
+  background: linear-gradient(180deg, rgb(var(--hl-blue) / var(--hl-tint-lo)), rgb(var(--hl-blue) / var(--hl-tint-hi)));
 }
 
 .hl[data-colour='green'] {
-  background: linear-gradient(180deg, rgb(var(--hl-green) / 0.14), rgb(var(--hl-green) / 0.32));
+  background: linear-gradient(180deg, rgb(var(--hl-green) / var(--hl-tint-lo)), rgb(var(--hl-green) / var(--hl-tint-hi)));
 }
 
 @media (hover: hover) {
   .hl[data-colour='blue']:hover {
-    background: rgb(var(--hl-blue) / 0.42);
+    background: rgb(var(--hl-blue) / var(--hl-tint-over));
   }
 
   .hl[data-colour='green']:hover {
-    background: rgb(var(--hl-green) / 0.42);
+    background: rgb(var(--hl-green) / var(--hl-tint-over));
   }
 }
 
@@ -5395,7 +5661,7 @@ select {
   font-size: 1.05rem;
   font-weight: 600;
   letter-spacing: -0.02em;
-  color: var(--red-800);
+  color: var(--paper-red-800);
 }
 
 .hlSheet__close {
@@ -5414,7 +5680,7 @@ select {
 @media (hover: hover) {
   .hlSheet__close:hover {
     border-color: var(--red-600);
-    color: var(--red-700);
+    color: var(--paper-red-700);
   }
 }
 
@@ -5425,7 +5691,7 @@ select {
   font-family: var(--font-display);
   font-size: 0.98rem;
   line-height: 1.55;
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
   max-height: 7.5rem;
   overflow-y: auto;
   /* A panel over the app scrolls itself and never the app behind it. */
@@ -5498,7 +5764,7 @@ select {
   box-shadow:
     inset 0 0 0 1px rgb(43 35 32 / 0.6),
     0 0 0 2px var(--surface),
-    0 0 0 4px var(--ink-700);
+    0 0 0 4px var(--paper-ink-700);
 }
 
 .hlSheet__note {
@@ -5531,7 +5797,7 @@ select {
 
 @media (hover: hover) {
   .kindSwitch__item:hover {
-    color: var(--red-700);
+    color: var(--paper-red-700);
   }
 }
 
@@ -5564,7 +5830,7 @@ select {
   font-family: var(--font-display);
   font-size: 1rem;
   line-height: 1.6;
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
 }
 
 .noteCard__text--empty {
@@ -5716,7 +5982,7 @@ select {
 @media (hover: hover) {
   .chipBtn:hover {
     border-color: var(--red-600);
-    color: var(--red-700);
+    color: var(--paper-red-700);
   }
 }
 
@@ -5736,7 +6002,7 @@ select {
   border: 1px solid var(--yellow-dim);
   border-left: 4px solid var(--yellow);
   border-radius: var(--radius);
-  background: #fffaec;
+  background: var(--gold-wash-pale);
 }
 
 .commit__actions {
@@ -5837,11 +6103,11 @@ select {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   text-align: center;
-  color: var(--red-800);
+  color: var(--paper-red-800);
 }
 
 .range__input:focus {
-  border-color: var(--red-600);
+  border-color: var(--paper-red-600);
   box-shadow: 0 0 0 3px rgba(200, 29, 37, 0.12);
 }
 
@@ -5850,7 +6116,7 @@ select {
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--red-700);
+  color: var(--paper-red-700);
   font-variant-numeric: tabular-nums;
 }
 
@@ -5883,8 +6149,8 @@ select {
 }
 
 .strip__ch--read {
-  background: var(--red-600);
-  border-color: var(--red-600);
+  background: var(--paper-red-600);
+  border-color: var(--paper-red-600);
 }
 
 /* What the numbers above currently cover, so the range is visible as a shape. */
@@ -5916,7 +6182,7 @@ select {
 }
 
 .log__title {
-  background: var(--cream);
+  background: var(--page);
   padding: 0.45rem 0.7rem;
   font-size: 0.7rem;
   font-weight: 600;
@@ -5939,18 +6205,18 @@ select {
 
 @media (hover: hover) {
   .log__row:hover {
-    background: #fdf4e6;
+    background: var(--wash);
   }
 }
 
 .log__day {
   font-weight: 600;
-  color: var(--red-700);
+  color: var(--paper-red-700);
   white-space: nowrap;
 }
 
 .log__ch {
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -5979,13 +6245,13 @@ select {
 
 @media (hover: hover) {
   .dayLog__row:hover {
-    background: #fdf4e6;
+    background: var(--wash);
   }
 }
 
 .dayLog__day {
   font-weight: 600;
-  color: var(--red-700);
+  color: var(--paper-red-700);
   white-space: nowrap;
 }
 
@@ -5997,7 +6263,7 @@ select {
 }
 
 .dayLog__book {
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
 }
 
 .dayLog__book + .dayLog__book::before {
@@ -6009,7 +6275,7 @@ select {
 .dayLog__count {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
 }
 
 /*
@@ -6064,7 +6330,7 @@ select {
   font-size: 1.1rem;
   font-weight: 600;
   letter-spacing: -0.02em;
-  color: var(--red-800);
+  color: var(--paper-red-800);
   padding: 0 0.2rem 0.45rem;
   border-bottom: 2px solid var(--yellow);
   margin-bottom: 0.5rem;
@@ -6110,13 +6376,13 @@ select {
 
 @media (hover: hover) {
   .entry__head:hover {
-    background: #fdf4e6;
+    background: var(--wash);
   }
 }
 
 /* Red spine for a chapter note, gold for a highlight, so kind reads at a glance. */
 .entry {
-  border-left: 3px solid var(--red-600);
+  border-left: 3px solid var(--paper-red-600);
 }
 
 .entry--hl {
@@ -6138,12 +6404,12 @@ select {
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: -0.015em;
-  color: var(--red-800);
+  color: var(--paper-red-800);
   white-space: nowrap;
 }
 
 .entry__preview {
-  color: var(--ink-500);
+  color: var(--paper-ink-500);
   font-size: 0.9rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -6191,8 +6457,8 @@ select {
   justify-self: start;
   font-size: 0.7rem;
   font-weight: 500;
-  color: #7a5c00;
-  background: #fdf4dd;
+  color: var(--gold-ink-soft);
+  background: var(--gold-wash);
   border: 1px solid rgba(247, 184, 1, 0.55);
   border-radius: 99px;
   padding: 0.1rem 0.6rem;
@@ -6209,7 +6475,7 @@ select {
   font-family: var(--font-display);
   font-size: 1rem;
   line-height: 1.6;
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
 }
 
 .entry__passage[data-colour='blue'] {
@@ -6263,13 +6529,13 @@ select {
   white-space: pre-wrap;
   font-size: 0.95rem;
   line-height: 1.6;
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
 }
 
 .entry__text mark,
 .entry__preview mark,
 .entry__passage mark {
-  background: var(--yellow-soft);
+  background: var(--find);
   border-radius: 2px;
   padding: 0 0.1em;
   color: inherit;
@@ -6590,7 +6856,7 @@ select {
   background: none;
   padding: 0;
   font: inherit;
-  color: var(--red-700);
+  color: var(--paper-red-700);
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -6598,7 +6864,7 @@ select {
 
 @media (hover: hover) {
   .linkBtn:hover {
-    color: var(--red-800);
+    color: var(--paper-red-800);
   }
 }
 
@@ -6628,7 +6894,7 @@ select {
 
 @media (hover: hover) {
   .hit:hover {
-    background: #fdf4e6;
+    background: var(--wash);
     border-left-color: var(--red-600);
   }
 }
@@ -6638,17 +6904,17 @@ select {
   font-size: 0.92rem;
   font-weight: 600;
   letter-spacing: -0.015em;
-  color: var(--red-800);
+  color: var(--paper-red-800);
 }
 
 .hit__text {
   font-size: 0.9rem;
   line-height: 1.5;
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
 }
 
 .hit__text mark {
-  background: var(--yellow-soft);
+  background: var(--find);
   border-radius: 2px;
   padding: 0 0.1em;
   color: inherit;
@@ -6661,17 +6927,17 @@ select {
  * reading. An attribute and not a class: React owns className on this span.
  */
 .verse__t[data-landed] {
-  background: var(--yellow-soft);
+  background: var(--find);
   border-radius: 3px;
-  box-shadow: 0 0 0 4px var(--yellow-soft);
+  box-shadow: 0 0 0 4px var(--find);
   animation: landed 2.8s ease-out forwards;
 }
 
 @keyframes landed {
   0%,
   55% {
-    background: var(--yellow-soft);
-    box-shadow: 0 0 0 4px var(--yellow-soft);
+    background: var(--find);
+    box-shadow: 0 0 0 4px var(--find);
   }
   100% {
     background: transparent;
@@ -6786,7 +7052,7 @@ select {
 .statsEmpty__list li {
   position: relative;
   padding-left: 1.5rem;
-  color: var(--ink-500);
+  color: var(--paper-ink-500);
 }
 
 /* A rule rather than a bullet, the same gold the section heads use. */
@@ -6826,7 +7092,7 @@ select {
 }
 
 .bookGrid__count b {
-  color: var(--red-800);
+  color: var(--paper-red-800);
   font-weight: 600;
 }
 
@@ -6859,7 +7125,7 @@ select {
 .bookGrid__fill {
   position: absolute;
   inset: auto 0 0 0;
-  background: var(--red-600);
+  background: var(--paper-red-600);
 }
 
 .bookGrid__cell--done .bookGrid__fill {
@@ -6868,7 +7134,7 @@ select {
 
 @media (hover: hover) {
   .bookGrid__cell:hover {
-    outline-color: var(--ink);
+    outline-color: var(--paper-ink);
   }
 }
 
@@ -7420,7 +7686,7 @@ select {
   margin: 0;
   font-size: 0.82rem;
   line-height: 1.5;
-  color: var(--red-700);
+  color: var(--paper-red-700);
 }
 
 .danger__actions {
@@ -7455,7 +7721,7 @@ select {
   font-size: 1.35rem;
   font-weight: 600;
   letter-spacing: -0.02em;
-  color: var(--red-800);
+  color: var(--paper-red-800);
   font-variant-numeric: tabular-nums;
 }
 
@@ -9308,7 +9574,7 @@ select {
   font-family: var(--font-display);
   font-size: 0.95rem;
   font-variation-settings: 'SOFT' 0, 'WONK' 0;
-  color: var(--ink);
+  color: var(--paper-ink);
   white-space: nowrap;
 }
 
@@ -9404,8 +9670,8 @@ select {
 }
 
 .modeOption:has(input:checked) {
-  border-color: var(--red-600);
-  background: #fffdf7;
+  border-color: var(--paper-red-600);
+  background: var(--surface-picked);
 }
 
 .modeOption input {
@@ -9417,6 +9683,15 @@ select {
   .modeOption:hover {
     border-color: var(--line-strong);
   }
+}
+
+/* Settings' three appearance positions, the same cards as the two above. */
+.themeChoice {
+  display: grid;
+  gap: 0.5rem;
+  border: 0;
+  margin: 0;
+  padding: 0;
 }
 
 @media (max-width: 460px) {
@@ -9535,7 +9810,7 @@ select {
   border: 1px solid var(--line);
   border-left: 3px solid var(--yellow);
   border-radius: var(--radius);
-  background: #fffdf4;
+  background: var(--surface-warm);
 }
 
 .sendVerse__ref {
@@ -9543,7 +9818,7 @@ select {
   font-family: var(--font-display);
   font-size: 0.84rem;
   font-variation-settings: 'SOFT' 0, 'WONK' 0;
-  color: var(--red-700);
+  color: var(--paper-red-700);
 }
 
 .sendVerse__quote {
@@ -9551,7 +9826,7 @@ select {
   font-family: var(--font-display);
   font-size: 0.95rem;
   line-height: 1.55;
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
   max-height: 7rem;
   overflow-y: auto;
   /* A panel over the app scrolls itself and never the app behind it. */
@@ -9560,7 +9835,7 @@ select {
 
 @media (hover: hover) {
   .sendVerse__person:hover {
-    border-color: var(--ink-500);
+    border-color: var(--paper-ink-500);
   }
 
   .sendVerse__person--on:hover {
@@ -9595,7 +9870,7 @@ select {
   flex: 0 0 auto;
   min-width: 0;
   border-radius: 50%;
-  background: var(--red-050);
+  background: var(--paper-red-050);
   /* The dot sits on the rim, so it is drawn outside this box on purpose. */
   overflow: visible;
 }
@@ -9612,7 +9887,7 @@ select {
   border-radius: 50%;
   object-fit: cover;
   /* A hairline keeps a light photograph from bleeding into the card. */
-  box-shadow: inset 0 0 0 1px rgba(74, 45, 20, 0.14);
+  box-shadow: inset 0 0 0 1px rgb(var(--shade) / 0.14);
 }
 
 .avatar__initials {
@@ -9621,7 +9896,7 @@ select {
   font-size: 0.78em;
   font-variation-settings: 'SOFT' 0, 'WONK' 0;
   letter-spacing: 0.01em;
-  color: var(--red-700);
+  color: var(--paper-red-700);
 }
 
 /*
@@ -9642,7 +9917,7 @@ select {
 }
 
 .avatar__dot--today {
-  background: var(--red-600);
+  background: var(--paper-red-600);
 }
 
 .avatarPick {
@@ -9680,7 +9955,7 @@ select {
   font-family: var(--font-display);
   font-size: 0.95rem;
   line-height: 1.55;
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
 }
 
 /*
@@ -9798,7 +10073,7 @@ select {
   border: 1px solid var(--line);
   border-left: 3px solid var(--yellow);
   border-radius: var(--radius);
-  background: #fffdf4;
+  background: var(--surface-warm);
 }
 
 .bubble--mine {
@@ -9807,7 +10082,7 @@ select {
   /* The gold edge has to go, not just get thinner: left in, one bubble carried
      both colours and read as belonging to both sides at once. */
   border-left: 1px solid var(--line);
-  border-right: 3px solid var(--red-600);
+  border-right: 3px solid var(--paper-red-600);
   background: var(--surface);
 }
 
@@ -9816,7 +10091,7 @@ select {
   font-family: var(--font-display);
   font-size: 0.82rem;
   font-variation-settings: 'SOFT' 0, 'WONK' 0;
-  color: var(--red-700);
+  color: var(--paper-red-700);
 }
 
 .bubble__thought {
@@ -9850,7 +10125,7 @@ select {
 
 @media (hover: hover) {
   .bubble__remove:hover {
-    color: var(--red-700);
+    color: var(--paper-red-700);
   }
 }
 
@@ -9955,7 +10230,7 @@ select {
 }
 
 .person--open {
-  background: var(--cream);
+  background: var(--page);
 }
 
 .person__head {
@@ -10060,7 +10335,7 @@ select {
   font-family: var(--font-display);
   font-size: 0.8rem;
   font-variation-settings: 'SOFT' 0, 'WONK' 0;
-  color: var(--red-700);
+  color: var(--paper-red-700);
 }
 
 .person__postedText {
@@ -10068,7 +10343,7 @@ select {
   font-family: var(--font-display);
   font-size: 0.9rem;
   line-height: 1.5;
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
 }
 
 .person__postedThought {
@@ -10089,7 +10364,7 @@ select {
   font-family: var(--font-body);
   font-size: 0.76rem;
   letter-spacing: 0.03em;
-  color: var(--red-700);
+  color: var(--paper-red-700);
   cursor: pointer;
 }
 
@@ -10132,7 +10407,7 @@ select {
 
 @media (hover: hover) {
   .person__more:hover {
-    color: var(--red-700);
+    color: var(--paper-red-700);
   }
 
   .person__open:hover {
@@ -10178,13 +10453,13 @@ select {
 .markFold--shut {
   border: 1px solid var(--line-strong);
   border-radius: 999px;
-  background: linear-gradient(180deg, #fffdf8, #f3ebdb);
+  background: var(--btn-face);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    0 1px 2px rgba(74, 45, 20, 0.13);
+    inset 0 1px 0 rgb(255 255 255 / var(--gleam)),
+    0 1px 2px rgb(var(--shade) / 0.13);
   padding: 0.5rem 0.9rem;
   min-height: 38px;
-  color: var(--ink-700);
+  color: var(--paper-ink-700);
 }
 
 .markFold__chev {
@@ -10198,7 +10473,7 @@ select {
 
 @media (hover: hover) {
   .markFold:hover {
-    color: var(--red-700);
+    color: var(--paper-red-700);
   }
 }
 
@@ -10217,7 +10492,7 @@ select {
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr);
   grid-template-columns: minmax(0, 1fr);
-  background: var(--cream);
+  background: var(--page);
   animation: readerIn 320ms var(--ease-out);
 }
 
@@ -10274,7 +10549,7 @@ select {
    resetting, which is why it sits outside the keyed stage. */
 .quiz__rail {
   height: 3px;
-  background: rgba(36, 28, 22, 0.08);
+  background: rgb(var(--shade-ink) / 0.08);
 }
 
 .quiz__rail span {
@@ -10322,7 +10597,7 @@ select {
   line-height: 1.25;
   letter-spacing: -0.01em;
   text-wrap: balance;
-  color: var(--ink);
+  color: var(--paper-ink);
 }
 
 .quiz__options {
@@ -10354,8 +10629,8 @@ select {
   border: 1px solid var(--line-strong);
   border-radius: 10px;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    0 1px 2px rgba(46, 24, 12, 0.06);
+    inset 0 1px 0 rgb(255 255 255 / var(--gleam)),
+    0 1px 2px rgb(var(--shade-deep) / 0.06);
   cursor: pointer;
   transition:
     border-color 160ms ease,
@@ -10369,7 +10644,7 @@ select {
 
 @media (hover: hover) {
   .quiz__option:not(:disabled):hover {
-    border-color: var(--ink-500);
+    border-color: var(--paper-ink-500);
   }
 }
 
@@ -10391,7 +10666,7 @@ select {
 .quiz__option[data-state='right'] {
   background: rgba(247, 184, 1, 0.2);
   border-color: var(--yellow-dim);
-  color: var(--ink);
+  color: var(--paper-ink);
   animation: quizRight 460ms cubic-bezier(0.2, 1.3, 0.4, 1);
 }
 
@@ -10402,7 +10677,7 @@ select {
 }
 
 .quiz__option[data-state='wrong'] {
-  background: var(--red-050);
+  background: var(--paper-red-050);
   border-color: var(--red-600);
   animation: quizMiss 320ms ease-out;
 }
@@ -10475,7 +10750,7 @@ select {
   padding: 0 0.05em;
   background: none;
   color: inherit;
-  box-shadow: inset 0 -0.42em 0 rgba(247, 184, 1, 0.45);
+  box-shadow: inset 0 -0.42em 0 var(--evidence);
 }
 
 .quiz__actions {
@@ -10506,7 +10781,7 @@ select {
   font-family: var(--font-display);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--red-800);
+  color: var(--paper-red-800);
 }
 
 .quiz__score b {
@@ -10564,7 +10839,7 @@ select {
 .quiz__missedA {
   margin: 0.25rem 0 0;
   font-family: var(--font-display);
-  color: var(--red-800);
+  color: var(--paper-red-800);
 }
 
 /* A reference that opens the reader there. Underlined, because a reference
@@ -10577,7 +10852,7 @@ select {
   font: inherit;
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--red-700);
+  color: var(--paper-red-700);
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
@@ -10660,7 +10935,7 @@ select {
   padding: 0.15rem 0.6rem;
   border-radius: 99px;
   background: rgba(247, 184, 1, 0.24);
-  color: var(--ink);
+  color: var(--paper-ink);
   font-weight: 600;
 }
 
@@ -10670,7 +10945,7 @@ select {
 
 @media (hover: hover) {
   .quizRow:hover .quizRow__book {
-    color: var(--red-700);
+    color: var(--paper-red-700);
   }
 }
 
@@ -10685,7 +10960,7 @@ select {
   align-items: stretch;
   border: 1px solid var(--yellow-dim);
   border-radius: 10px;
-  background: linear-gradient(180deg, #fff8e6, #fff1cf);
+  background: var(--gold-rise);
   animation: celebrateFade 420ms ease-out both;
 }
 
@@ -10699,7 +10974,7 @@ select {
   background: none;
   text-align: left;
   font: inherit;
-  color: var(--ink);
+  color: var(--paper-ink);
   cursor: pointer;
 }
 
@@ -10708,7 +10983,7 @@ select {
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--red-700);
+  color: var(--paper-red-700);
 }
 
 .quizOffer__text {
@@ -10845,7 +11120,7 @@ label,
  */
 .btn[data-press] {
   transform: scale(0.97);
-  box-shadow: inset 0 1px 3px rgba(74, 45, 20, 0.2);
+  box-shadow: inset 0 1px 3px rgb(var(--shade) / 0.2);
 }
 
 .btn--primary[data-press],

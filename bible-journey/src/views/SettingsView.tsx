@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { AccountPanel } from '../components/AccountPanel';
+import { AppearancePanel } from '../components/AppearancePanel';
 import { SUPPORT_EMAIL } from '../lib/contact';
 import { DeleteAccountPanel } from '../components/DeleteAccountPanel';
 import { ExportPanel } from '../components/ExportPanel';
@@ -61,7 +62,7 @@ export function SettingsView() {
       <ViewHeader
         eyebrow="Account, plan and reminders"
         title="Settings"
-        lede="Everything here is saved to your account, not this device."
+        lede="Saved to your account, except how this device looks."
         meta={
           <>
             <HeadChip gold>{plan.label}</HeadChip>
@@ -137,6 +138,11 @@ export function SettingsView() {
             ))}
           </div>
         </section>
+
+        {/* Straight after the plan, because reading comfortably is the next
+            question after what to read, and night mode is what people come
+            to Settings looking for. */}
+        <AppearancePanel reveal={reveal} />
 
         <AccountPanel reveal={reveal} />
 

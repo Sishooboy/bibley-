@@ -15,7 +15,34 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
+    <!--
+      Ink in both schemes, deliberately one tag rather than a pair split by
+      media query. The top of every screen is ink by day and by night: the
+      header, the reader's bar, the quiz's bar, the guide and the gate are all
+      dark surfaces that keep their colour, and at night the page itself is
+      ink too. A per-scheme pair would carry the same value twice.
+    -->
     <meta name="theme-color" content="#1a1512" />
+    <!--
+      Lets the browser paint its first frame, before the stylesheet arrives,
+      in the reader's scheme rather than white, which in a dark bedroom is the
+      flash that matters. The script below narrows it to an explicit choice.
+    -->
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      // Before the first paint, so a reader who chose dark on a light phone
+      // never sees a cream frame. Mirrors applyTheme in src/lib/theme.ts, and
+      // theme.test.ts fails if the key or the attribute drift apart.
+      try {
+        var theme = localStorage.getItem('bible-journey/theme');
+        if (theme === 'light' || theme === 'dark') {
+          document.documentElement.setAttribute('data-theme', theme);
+          document.querySelector('meta[name="color-scheme"]').setAttribute('content', theme);
+        }
+      } catch (e) {
+        // Storage blocked: the system scheme applies, which is the default.
+      }
+    </script>
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icon-180.png" />
     <meta name="mobile-web-app-capable" content="yes" />
