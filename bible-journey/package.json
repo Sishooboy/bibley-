@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "bible": "node scripts/fetch-bible.mjs",
+    "kjv": "node scripts/build-kjv.mjs",
     "layout": "node scripts/build-layout.mjs",
     "sections": "node scripts/build-sections.mjs",
     "audio": "node scripts/build-audio-map.mjs"

@@ -10268,6 +10268,80 @@ select {
   margin-top: 0.2rem;
 }
 
+/*
+ * When the reader is open in another translation, the app's notes still quote
+ * the World English Bible, and this says so. Same size and colour as the line it
+ * finishes, since it is the end of that sentence and not a warning.
+ */
+.sources__quotes {
+  font-style: italic;
+}
+
+.sourcesFold__quotes {
+  margin: 0.4rem 0 0;
+  font-style: italic;
+}
+
+/* ── Translations ──────────────────────────────────────────────────────── */
+/*
+ * The About pill and the translation pill share a row under the chapter's name.
+ * The row takes the margin the About pill used to carry alone, and resets the
+ * pill's own with two classes, so it wins on specificity rather than on which
+ * rule sits lower in this file.
+ */
+.reader__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: -0.4rem 0 1.1rem;
+}
+
+.reader__pills .aboutPill {
+  margin: 0;
+}
+
+.reader__translationPill {
+  gap: 0.45rem;
+}
+
+.reader__translationSwitch {
+  padding-left: 0.45rem;
+  border-left: 1px solid var(--line-strong);
+  color: var(--red-700);
+}
+
+/*
+ * Highlights made in the other translation are not drawn, since their offsets
+ * belong to other words, but they are not hidden either: one muted line under
+ * the chapter's name says they exist and offers the way back to them.
+ */
+.reader__elsewhere {
+  margin: -0.4rem 0 1rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.reader__elsewhereSwitch {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--red-700);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+/* A highlight in Notes made in the King James says so beside its reference. */
+.entry__translation {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
 /* Settings. One row a work: the name links to the page that states the terms. */
 .credits {
   display: grid;

@@ -419,6 +419,18 @@ describe('highlights', () => {
 
     expect(back?.highlights?.map((h) => h.colour)).toEqual(['blue', 'purple']);
   });
+
+  // The same reasoning for the translation a highlight was made in. A client
+  // that strips it would turn a King James highlight into a WEB one, and its
+  // character positions would then be drawn over different words.
+  it('keeps a translation through normalize, including one it does not know', () => {
+    const raw = journal({
+      highlights: [hl({ translation: 'kjv' }), hl({ id: 'h2', translation: 'bsb' }), hl({ id: 'h3' })],
+    });
+    const back = normalize(JSON.parse(JSON.stringify(raw)));
+
+    expect(back?.highlights?.map((h) => h.translation)).toEqual(['kjv', 'bsb', undefined]);
+  });
 });
 
 describe('sameJournal', () => {

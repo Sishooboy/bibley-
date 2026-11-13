@@ -8,7 +8,17 @@ import {
   type CSSProperties,
 } from 'react';
 import { CANON, NEW_TESTAMENT, OLD_TESTAMENT } from '../data/canon';
-import { TRANSLATION_NAME, cachedBook, loadBook, type BookText } from '../lib/bible';
+import { cachedBook, loadBook, type BookText } from '../lib/bible';
+import {
+  DEFAULT_TRANSLATION,
+  TRANSLATIONS,
+  highlightTranslation,
+  isKnownTranslation,
+  setTranslation,
+  translationById,
+  useTranslation,
+  type TranslationId,
+} from '../lib/translations';
 import {
   highlightsFor,
   isEmptyRange,
@@ -86,7 +96,7 @@ import { Check, Chevron, Search, Speaker } from './icons';
  * The note is shut until it is asked for. A reader who came to read should meet
  * a heading, not a paragraph of commentary between them and the next sentence.
  */
-function SectionHead({ section }: { section: Section }) {
+function SectionHead({ section, quotesFrom }: { section: Section; quotesFrom?: string }) {
   const [open, setOpen] = useState(false);
 
   if (!section.n) {
@@ -110,7 +120,7 @@ function SectionHead({ section }: { section: Section }) {
       {open && (
         <div className="passage__note">
           <p>{section.n}</p>
-          <SourceLine sources={section.s} />
+          <SourceLine sources={section.s} quotesFrom={quotesFrom} />
         </div>
       )}
     </div>
@@ -232,7 +242,18 @@ export function Reader({
   const { data, derived, toggleChapter, addHighlight, setPrefs } = useStore();
   const { plan } = derived;
   const prefs = data.prefs ?? DEFAULT_PREFS;
-  const [text, setText] = useState<BookText | undefined>(() => cachedBook(book));
+  const translation = useTranslation();
+  const reading = translationById(translation);
+  const nextTranslation =
+    TRANSLATIONS[(TRANSLATIONS.findIndex((t) => t.id === translation) + 1) % TRANSLATIONS.length];
+  /*
+   * The app's own notes quote the World English Bible, and when another
+   * translation is open the words on the page will not match theirs, so the
+   * notes say whose wording they are quoting rather than leave a reader to
+   * wonder whether the note or the page is wrong.
+   */
+  const quotesFrom = translation === DEFAULT_TRANSLATION ? undefined : translationById(DEFAULT_TRANSLATION).name;
+  const [text, setText] = useState<BookText | undefined>(() => cachedBook(book, translation));
   const [error, setError] = useState<string | null>(null);
   /** The highlight whose note is open, or a pending range not yet saved. */
   const [editing, setEditing] = useState<string | null>(null);
@@ -386,10 +407,21 @@ export function Reader({
     !data.quizzes?.[quizKey] &&
     !quizOfferDismissed(quizKey);
   const readOn = data.read[key];
-  const marks = useMemo(
-    () => highlightsFor(data.highlights, book, chapter),
-    [data.highlights, book, chapter],
-  );
+  /*
+   * Only the highlights made in the translation that is open. A highlight is a
+   * pair of character positions inside one translation's verse strings, so drawn
+   * over another translation's words it would mark the wrong ones. The rest are
+   * counted, so the page can say they exist rather than seem to have lost them.
+   */
+  const { marks, elsewhere, elsewhereIn } = useMemo(() => {
+    const all = highlightsFor(data.highlights, book, chapter);
+    const here = all.filter((h) => highlightTranslation(h) === translation);
+    // Somewhere to send the reader to see them, if this build can open it.
+    const away = all
+      .map(highlightTranslation)
+      .filter((id): id is TranslationId => id !== translation && isKnownTranslation(id))[0];
+    return { marks: here, elsewhere: all.length - here.length, elsewhereIn: away };
+  }, [data.highlights, book, chapter, translation]);
 
   const { previous, next } = useMemo(
     () => neighbours(book, chapter, plan),
@@ -398,7 +430,7 @@ export function Reader({
 
   useEffect(() => {
     let live = true;
-    const hit = cachedBook(book);
+    const hit = cachedBook(book, translation);
     if (hit) {
       setText(hit);
       setError(null);
@@ -406,7 +438,7 @@ export function Reader({
     }
     setText(undefined);
     setError(null);
-    loadBook(book)
+    loadBook(book, translation)
       .then((loaded) => live && setText(loaded))
       .catch(() => {
         if (!live) return;
@@ -417,7 +449,7 @@ export function Reader({
     return () => {
       live = false;
     };
-  }, [book]);
+  }, [book, translation]);
 
   // A new chapter starts at the top, the way turning a page does.
   useEffect(() => {
@@ -605,6 +637,9 @@ export function Reader({
         text: quoteFor(pending),
         note: note.trim() || undefined,
         colour,
+        // Absent means the World English Bible, which is what every highlight
+        // made before there was a choice already is, so only another is written.
+        translation: translation === DEFAULT_TRANSLATION ? undefined : translation,
         createdAt: now,
         updatedAt: now,
       };
@@ -612,7 +647,7 @@ export function Reader({
       setPending(null);
       window.getSelection()?.removeAllRanges();
     },
-    [pending, text, book, chapter, addHighlight, quoteFor],
+    [pending, text, book, chapter, addHighlight, quoteFor, translation],
   );
 
   const chapterCount = text?.chapters.length ?? 0;
@@ -796,15 +831,51 @@ export function Reader({
             <h2 className="reader__heading">
               {book} {chapter}
             </h2>
-            {bookInsight(insights, book) && !sheetOpen && (
-              <AboutPill
-                book={book}
-                onOpen={() => {
-                  setSheetReplay(true);
-                  setSheetOpen(true);
-                }}
-              />
+            {elsewhere > 0 && (
+              <p className="reader__elsewhere">
+                {elsewhere === 1 ? 'One highlight' : `${elsewhere} highlights`} in this chapter{' '}
+                {elsewhere === 1 ? 'was' : 'were'} made in another translation.{' '}
+                {elsewhereIn && (
+                  <button
+                    type="button"
+                    className="reader__elsewhereSwitch"
+                    onClick={() => setTranslation(elsewhereIn)}
+                  >
+                    Show {elsewhere === 1 ? 'it' : 'them'}
+                  </button>
+                )}
+              </p>
             )}
+            {/*
+              The translation lives here and not in the bar. It was a fourth
+              38px circle there first, and on a 375px phone it squeezed the book
+              picker to 54px, which printed Genesis as "G": the failure the bar's
+              gap rule exists to prevent. Under the chapter's name it costs the
+              bar nothing, has room to name the translation in full, and says
+              what a tap does, the way every button here does.
+            */}
+            <div className="reader__pills">
+              {bookInsight(insights, book) && !sheetOpen && (
+                <AboutPill
+                  book={book}
+                  onOpen={() => {
+                    setSheetReplay(true);
+                    setSheetOpen(true);
+                  }}
+                />
+              )}
+              <button
+                type="button"
+                className="aboutPill reader__translationPill"
+                onClick={() => setTranslation(nextTranslation.id)}
+                aria-label={`Reading the ${reading.name}. Switch to the ${nextTranslation.name}.`}
+              >
+                {reading.name}
+                <span className="reader__translationSwitch" aria-hidden="true">
+                  Switch to {nextTranslation.short}
+                </span>
+              </button>
+            </div>
             {/* Held back while the sheet is up, so its lines rise after the
                 card has gone rather than underneath it. */}
             {!sheetOpen && chapterNote(insights, book, chapter) && (
@@ -812,6 +883,7 @@ export function Reader({
                 key={`${book}-${chapter}`}
                 note={chapterNote(insights, book, chapter)!}
                 mode={noteMode}
+                quotesFrom={quotesFrom}
               />
             )}
             {/*
@@ -827,7 +899,7 @@ export function Reader({
                     heading's verse is the first verse of a block, which a test
                     pins, so this can never cut a paragraph in half. */}
                 {headings.get(block.verses[0]) && (
-                  <SectionHead section={headings.get(block.verses[0])!} />
+                  <SectionHead section={headings.get(block.verses[0])!} quotesFrom={quotesFrom} />
                 )}
                 {block.kind === 'poetry' ? (
                 <p
@@ -875,7 +947,7 @@ export function Reader({
               the wrong way round.
             */}
             <p className="reader__credit">
-              {TRANSLATION_NAME}, public domain
+              {reading.credit}
               {headings.size > 0 && <span>Headings from the Berean Standard Bible</span>}
             </p>
           </article>
@@ -1088,6 +1160,7 @@ export function Reader({
           insight={bookInsight(insights, book)!}
           replay={sheetReplay}
           onBegin={dismissSheet}
+          quotesFrom={quotesFrom}
         />
       )}
     </div>

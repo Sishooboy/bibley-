@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AUDIO_CREDIT, audioUrl, clock } from '../lib/audio';
+import { DEFAULT_TRANSLATION, useTranslation } from '../lib/translations';
 import { Pause, Play } from './icons';
 
 type Props = { book: string; chapter: number; onClose: () => void };
@@ -20,6 +21,7 @@ type Props = { book: string; chapter: number; onClose: () => void };
  */
 export function ListenBar({ book, chapter, onClose }: Props) {
   const url = audioUrl(book, chapter);
+  const translation = useTranslation();
   const ref = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [at, setAt] = useState(0);
@@ -140,7 +142,11 @@ export function ListenBar({ book, chapter, onClose }: Props) {
               <span className="listen__time">
                 {clock(at)} / {clock(length)}
               </span>
-              <span className="listen__credit">{AUDIO_CREDIT}</span>
+              <span className="listen__credit">
+                {/* The only recording there is reads the WEB, so with another
+                    translation open the strip says which words are being read. */}
+                {translation === DEFAULT_TRANSLATION ? AUDIO_CREDIT : `World English Bible, ${AUDIO_CREDIT.toLowerCase()}`}
+              </span>
             </>
           )}
         </p>

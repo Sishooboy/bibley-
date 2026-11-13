@@ -73,6 +73,16 @@ export type Highlight = {
    * through this one.
    */
   colour?: HighlightColour;
+  /*
+   * Which translation the words were marked in. Absent means the World English
+   * Bible, which is what every highlight made before there was a choice was
+   * made in. It matters more than it looks: `from` and `to` are character
+   * positions inside one translation's verse strings, so a highlight drawn over
+   * another translation's words would land on the wrong ones. The reader only
+   * draws a highlight in the translation it belongs to. Passed through by
+   * `normalizeHighlights` exactly as `colour` is, so no staged release.
+   */
+  translation?: string;
   createdAt: string;
   updatedAt: string;
 };

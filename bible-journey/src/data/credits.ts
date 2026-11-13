@@ -37,8 +37,9 @@ export const CREDITS: Credit[] = [
   },
   {
     work: 'King James Version',
-    usedFor: 'The verse of the day.',
-    terms: 'Public domain outside the United Kingdom, where it remains under letters patent.',
+    usedFor: 'The second translation in the reader, with the Apocrypha, and the verse of the day.',
+    terms:
+      'The 1769 standardised text. Public domain outside the United Kingdom, where it remains under letters patent. Text courtesy of CrossWire and eBible.org.',
     url: 'https://ebible.org/KJV/copr.htm',
   },
   {

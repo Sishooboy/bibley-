@@ -7,6 +7,7 @@ import { colourOf, highlightRef } from '../lib/highlight';
 import { useReveal } from '../lib/motion';
 import type { PhasedTrack } from '../data/tracks';
 import type { Highlight, Note } from '../lib/storage';
+import { DEFAULT_TRANSLATION, highlightTranslation, translationShort } from '../lib/translations';
 import { useReader } from '../state/useReader';
 import { useStore } from '../state/useStore';
 
@@ -114,6 +115,11 @@ function EntryRow({
             />
           )}
           {entryRef(entry)}
+          {/* The quote is in the words it was marked in, so a reader comparing
+              it with their own Bible can see which one to compare it with. */}
+          {entry.kind === 'highlight' && highlightTranslation(entry.highlight) !== DEFAULT_TRANSLATION && (
+            <span className="entry__translation"> {translationShort(highlightTranslation(entry.highlight))}</span>
+          )}
         </span>
         <span className="entry__preview">
           {preview ? <Highlighted text={preview} query={query} /> : <em>No thoughts yet</em>}

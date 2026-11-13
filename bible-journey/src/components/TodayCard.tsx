@@ -8,6 +8,7 @@ import { useStore } from '../state/useStore';
 import { LogDayPicker } from './LogDayPicker';
 import { Cross } from './Ornament';
 import { SourceLine } from './Sources';
+import { useTranslation } from '../lib/translations';
 import { Check, Flame } from './icons';
 
 const SUGGESTION_SIZE = 3;
@@ -76,12 +77,15 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
   // The name alone, so the effect keys on the book and not on a `refs` array
   // that is new every render.
   const firstBook = first?.book;
+  // The open translation, so the minutes promised are the minutes it takes to
+  // read the words the reader will actually show, and the prefetch warms them.
+  const translation = useTranslation();
   const [text, setText] = useState<BookText | undefined>(() =>
-    firstBook ? cachedBook(firstBook) : undefined,
+    firstBook ? cachedBook(firstBook, translation) : undefined,
   );
   useEffect(() => {
     if (!firstBook) return;
-    const hit = cachedBook(firstBook);
+    const hit = cachedBook(firstBook, translation);
     if (hit) {
       setText(hit);
       return;
@@ -90,13 +94,13 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
     setText(undefined);
     // Offline with the book uncached is the one case this fails, and the
     // button simply says less. The reader itself explains when pressed.
-    loadBook(firstBook)
+    loadBook(firstBook, translation)
       .then((loaded) => live && setText(loaded))
       .catch(() => {});
     return () => {
       live = false;
     };
-  }, [firstBook]);
+  }, [firstBook, translation]);
 
   if (!first) {
     return (

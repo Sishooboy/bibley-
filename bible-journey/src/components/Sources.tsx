@@ -9,12 +9,20 @@ import { isVerse, sourceLabel, type Source } from '../lib/sources';
  * purpose: it is there for the reader who wants to check, and it must not
  * compete with the note for the attention of the one who does not.
  */
-export function SourceLine({ sources }: { sources: Source[] | undefined }) {
+export function SourceLine({
+  sources,
+  quotesFrom,
+}: {
+  sources: Source[] | undefined;
+  /** Set when the reader is open in a translation other than the one quoted. */
+  quotesFrom?: string;
+}) {
   if (!sources || sources.length === 0) return null;
   return (
     <p className="sources">
       <span className="sources__label">{sources.length === 1 ? 'Source' : 'Sources'}</span>{' '}
       <SourceItems sources={sources} />
+      {quotesFrom && <span className="sources__quotes"> · Quotes are from the {quotesFrom}</span>}
     </p>
   );
 }
@@ -24,11 +32,12 @@ export function SourceLine({ sources }: { sources: Source[] | undefined }) {
  * each have their own, so they are numbered to match rather than pooled into a
  * list that would leave a reader guessing which fact rests on what.
  */
-export function SourcesFold({ groups }: { groups: (Source[] | undefined)[] }) {
+export function SourcesFold({ groups, quotesFrom }: { groups: (Source[] | undefined)[]; quotesFrom?: string }) {
   if (!groups.some((g) => g && g.length > 0)) return null;
   return (
     <details className="sourcesFold">
       <summary className="sourcesFold__summary">Sources</summary>
+      {quotesFrom && <p className="sourcesFold__quotes">Quotes are from the {quotesFrom}.</p>}
       <ol className="sourcesFold__list">
         {groups.map((sources, i) => (
           <li key={i} className="sourcesFold__item">

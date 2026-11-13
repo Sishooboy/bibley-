@@ -1,3 +1,5 @@
+import { DEFAULT_TRANSLATION, translationById, type TranslationId } from './translations';
+
 export type BookText = {
   book: string;
   translation: string;
@@ -22,24 +24,29 @@ export type BookText = {
   layout?: string[];
 };
 
-export const TRANSLATION_NAME = 'World English Bible';
-
 /**
- * The text is 4.4 MB across 73 files, so it is fetched per book rather than
- * bundled. A book is a session's worth of reading, which makes it the right unit:
- * one request covers everything you are likely to open next, and the service
- * worker keeps it for later.
+ * The text is 4.4 MB a translation across 73 files, so it is fetched per book
+ * rather than bundled. A book is a session's worth of reading, which makes it the
+ * right unit: one request covers everything you are likely to open next, and the
+ * service worker keeps it for later.
+ *
+ * Every function here takes the translation and defaults to the World English
+ * Bible. The default is deliberate rather than lazy: the quiz's proof verses and
+ * a passage a friend sent are the WEB's words whatever is open in the reader,
+ * because that is the text their quotes and offsets were taken from.
  */
 const cache = new Map<string, BookText>();
 /** Two chapters of the same book opening at once must not fetch it twice. */
 const inFlight = new Map<string, Promise<BookText>>();
 
+const keyOf = (book: string, translation: TranslationId) => `${translation}:${book}`;
+
 export function bookSlug(book: string): string {
   return book.toLowerCase().replace(/\s+/g, '-');
 }
 
-export function cachedBook(book: string): BookText | undefined {
-  return cache.get(book);
+export function cachedBook(book: string, translation: TranslationId = DEFAULT_TRANSLATION): BookText | undefined {
+  return cache.get(keyOf(book, translation));
 }
 
 /**
@@ -58,14 +65,15 @@ async function missingWithNoWayToGetIt(url: string): Promise<boolean> {
   }
 }
 
-export async function loadBook(book: string): Promise<BookText> {
-  const hit = cache.get(book);
+export async function loadBook(book: string, translation: TranslationId = DEFAULT_TRANSLATION): Promise<BookText> {
+  const key = keyOf(book, translation);
+  const hit = cache.get(key);
   if (hit) return hit;
 
-  const pending = inFlight.get(book);
+  const pending = inFlight.get(key);
   if (pending) return pending;
 
-  const url = `/bible/${bookSlug(book)}.json`;
+  const url = `${translationById(translation).dir}${bookSlug(book)}.json`;
   const request = (async () => {
     if (await missingWithNoWayToGetIt(url)) {
       throw new Error(`${book} has not been downloaded`);
@@ -73,10 +81,10 @@ export async function loadBook(book: string): Promise<BookText> {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Could not load ${book} (${response.status})`);
     const text = (await response.json()) as BookText;
-    cache.set(book, text);
+    cache.set(key, text);
     return text;
-  })().finally(() => inFlight.delete(book));
+  })().finally(() => inFlight.delete(key));
 
-  inFlight.set(book, request);
+  inFlight.set(key, request);
   return request;
 }
