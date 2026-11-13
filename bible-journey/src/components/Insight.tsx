@@ -1,6 +1,7 @@
 import { useEffect, useRef, type CSSProperties } from 'react';
 import type { BookInsight, ChapterNote as Note, NoteMode } from '../lib/insights';
 import { reducedMotion } from '../lib/motion';
+import { SourceLine, SourcesFold } from './Sources';
 
 /**
  * A book introducing itself, over the text, the first time it is opened.
@@ -50,6 +51,7 @@ export function BookSheet({
             </li>
           ))}
         </ul>
+        <SourcesFold groups={insight.facts.map((_, i) => insight.factSources?.[i])} />
         <button ref={go} type="button" className="btn btn--primary insightSheet__go" onClick={onBegin}>
           <span className="today__goMain">Begin {book}</span>
         </button>
@@ -76,6 +78,7 @@ export function ChapterNoteCard({ note, mode }: { note: Note; mode: NoteMode }) 
       <p className="chapterNote__eyebrow">Why this chapter matters</p>
       <p className="chapterNote__title">{note.title}</p>
       <p className="chapterNote__text">{note.note}</p>
+      <SourceLine sources={note.sources} />
     </aside>
   );
 }

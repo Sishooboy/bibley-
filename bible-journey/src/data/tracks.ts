@@ -1,3 +1,4 @@
+import type { Source } from '../lib/sources';
 import raw from './readingTracks.json';
 
 /**
@@ -30,6 +31,8 @@ export type TrackBook = {
 export type TrackPhase = {
   name: string;
   note?: string;
+  /** What the note rests on, when it says something about history. */
+  note_sources?: Source[];
   books?: TrackBook[];
   /** Points at another track whose phases are inlined here. */
   reference?: string;
@@ -57,6 +60,8 @@ type RawTrack = {
   best_for: string;
   tradeoff: string;
   why: string;
+  /** What `why` and `tradeoff` rest on, keyed by the field. */
+  sources?: { why?: Source[]; tradeoff?: Source[] };
   phases?: TrackPhase[];
   structure?: string;
   streams?: TrackStream[];
@@ -139,6 +144,7 @@ export type Phase = {
   phase: number;
   title: string;
   why: string;
+  whySources?: Source[];
   books: { name: string; chapters: number }[];
   /** The entries as the file has them, carrying skimmable and deferred. */
   entries: TrackBook[];
@@ -153,8 +159,10 @@ type TrackBase = {
   label: string;
   tagline: string;
   why: string;
+  whySources?: Source[];
   bestFor: string;
   tradeoff: string;
+  tradeoffSources?: Source[];
   recommended: boolean;
   primary: boolean;
   /** Kept so existing callers reading `blurb` and `rationale` keep working. */
@@ -196,8 +204,10 @@ function build(track: RawTrack): Track {
     label: track.name,
     tagline: track.tagline,
     why: track.why,
+    whySources: track.sources?.why,
     bestFor: track.best_for,
     tradeoff: track.tradeoff,
+    tradeoffSources: track.sources?.tradeoff,
     recommended: track.recommended,
     primary: track.primary,
     blurb: track.tagline,
@@ -219,6 +229,7 @@ function build(track: RawTrack): Track {
     phase: i + 1,
     title: phase.name,
     why: phase.note ?? '',
+    whySources: phase.note_sources,
     books: (phase.books ?? []).map((b) => ({ name: b.book, chapters: b.chapters })),
     entries: phase.books ?? [],
   }));

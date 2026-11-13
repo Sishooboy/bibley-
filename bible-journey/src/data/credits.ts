@@ -1,0 +1,68 @@
+/**
+ * Every outside work the app uses, what it is used for, and on what terms.
+ *
+ * Each licence line was checked against the rights holder's own page, and the
+ * `url` is that page rather than a home page, so a reader who wants to check can
+ * land on the statement itself. Two corrections came out of doing that. The
+ * audio was recorded in 2000 and 2001 and released without restriction; nothing
+ * on the host says who released it or when, so nothing here says either. And
+ * the King James page speaks of letters patent, not the Crown, so this does too.
+ *
+ * `credits.test.ts` checks every entry has a working shape. Adding a text, a
+ * recording or a font to the app means adding it here in the same commit.
+ */
+export type Credit = {
+  /** The work, as its owner names it. */
+  work: string;
+  /** What the app uses it for, in the reader's terms. */
+  usedFor: string;
+  /** The terms, in a sentence. */
+  terms: string;
+  /** The page that states the terms. */
+  url: string;
+};
+
+export const CREDITS: Credit[] = [
+  {
+    work: 'World English Bible',
+    usedFor: 'The Bible text in the reader, search and quizzes, and its paragraphs and poetry lines.',
+    terms: 'Public domain. Text downloaded from bolls.life; paragraphing from the eBible.org USFM edition.',
+    url: 'https://worldenglish.bible/',
+  },
+  {
+    work: 'Berean Standard Bible',
+    usedFor: 'The section headings over each chapter of the 66 books.',
+    terms: 'Dedicated to the public domain on 30 April 2023.',
+    url: 'https://berean.bible/terms.htm',
+  },
+  {
+    work: 'King James Version',
+    usedFor: 'The verse of the day.',
+    terms: 'Public domain outside the United Kingdom, where it remains under letters patent.',
+    url: 'https://ebible.org/KJV/copr.htm',
+  },
+  {
+    work: 'World English Bible audio, read by David Williams',
+    usedFor: 'Listening in the reader.',
+    terms: 'Recorded in 2000 and 2001 and released into the public domain without restriction.',
+    url: 'https://www.audiotreasure.com/webindex.htm',
+  },
+  {
+    work: 'Fraunces, by Undercase Type',
+    usedFor: 'Headings, figures and buttons.',
+    terms: 'SIL Open Font License 1.1.',
+    url: 'https://github.com/undercasetype/Fraunces/blob/master/OFL.txt',
+  },
+  {
+    work: 'Inter, by Rasmus Andersson',
+    usedFor: 'Body text.',
+    terms: 'SIL Open Font License 1.1.',
+    url: 'https://github.com/rsms/inter/blob/master/LICENSE.txt',
+  },
+  {
+    work: 'React, Recharts and Supabase JS',
+    usedFor: 'The interface, the charts in Stats, and the connection that keeps devices in step.',
+    terms: 'MIT License.',
+    url: 'https://opensource.org/license/mit',
+  },
+];

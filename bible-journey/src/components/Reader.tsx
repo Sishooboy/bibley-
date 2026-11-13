@@ -58,6 +58,7 @@ import { useStore } from '../state/useStore';
 import { BibleSearch } from './BibleSearch';
 import { HighlightSheet } from './HighlightSheet';
 import { AboutPill, BookSheet, ChapterNoteCard } from './Insight';
+import { SourceLine } from './Sources';
 import { ListenBar } from './ListenBar';
 import { LogDayPicker } from './LogDayPicker';
 import { Check, Chevron, Search, Speaker } from './icons';
@@ -77,9 +78,10 @@ import { Check, Chevron, Search, Speaker } from './icons';
  * Modern Bibles all have these and almost none of them are usable: the headings
  * in the NIV, the ESV and the NASB are editorial work under their own copyright
  * even where the translation is old. The World English Bible, which is the text
- * here precisely because it is public domain, has none of its own. So these are
- * written for this app, which also means they can say what a heading in a
- * printed Bible cannot: why the paragraph under it is one people know.
+ * here precisely because it is public domain, has none of its own, so the
+ * headings come from the Berean Standard Bible, which is public domain too and
+ * is credited in the footer. The notes are this app's own, and each names the
+ * verses it rests on, so a reader can check a note rather than take it on trust.
  *
  * The note is shut until it is asked for. A reader who came to read should meet
  * a heading, not a paragraph of commentary between them and the next sentence.
@@ -105,7 +107,12 @@ function SectionHead({ section }: { section: Section }) {
           <Chevron size={12} className="passage__chev" />
         </span>
       </button>
-      {open && <p className="passage__note">{section.n}</p>}
+      {open && (
+        <div className="passage__note">
+          <p>{section.n}</p>
+          <SourceLine sources={section.s} />
+        </div>
+      )}
     </div>
   );
 }

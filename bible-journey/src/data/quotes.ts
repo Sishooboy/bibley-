@@ -1,3 +1,5 @@
+import type { Source } from '../lib/sources';
+
 export type Quote = {
   /** Verse text, King James Version (public domain). */
   text: string;
@@ -5,6 +7,12 @@ export type Quote = {
   testament: 'OT' | 'NT';
   /** Who is speaking, to whom, and what is going on around the verse. */
   context: string;
+  /**
+   * The verses that say who is speaking and what is going on. The verse itself
+   * is not enough on its own more often than not: "said to Zerubbabel" is only
+   * true because the line before it says so.
+   */
+  sources?: Source[];
 };
 
 /**

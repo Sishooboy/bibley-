@@ -7,6 +7,7 @@ import { useReminder } from '../state/useReminder';
 import { useStore } from '../state/useStore';
 import { LogDayPicker } from './LogDayPicker';
 import { Cross } from './Ornament';
+import { SourceLine } from './Sources';
 import { Check, Flame } from './icons';
 
 const SUGGESTION_SIZE = 3;
@@ -187,7 +188,12 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
         The first-timer needs the reasoning, and only the first-timer. Everyone
         else has read it and is here to get on with it.
       */}
-      {first.phase === 0 && <p className="today__rest">{phase?.why}</p>}
+      {first.phase === 0 && (
+        <>
+          <p className="today__rest">{phase?.why}</p>
+          <SourceLine sources={phase?.whySources} />
+        </>
+      )}
 
       {/*
         Marking without opening the reader is the second job, not the first, so

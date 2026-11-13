@@ -10202,6 +10202,105 @@ select {
   }
 }
 
+/* ── Sources and credits ───────────────────────────────────────────────── */
+/*
+ * A source is apparatus under apparatus, so it is set a size down from the note
+ * it belongs to and carries no colour of its own. It inherits the note's,
+ * which is the point: the line sits on cream under a chapter note, on ink under
+ * the verse of the day and on near-black in a book's card, and every one of
+ * those colours was already measured against its own background. A grey picked
+ * here would have to be measured on all three and would pass on at most two.
+ * The size stays in the same small-text band as the notes, so the threshold it
+ * has to clear does not change either.
+ */
+.sources {
+  margin: 0.55rem 0 0;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+  color: inherit;
+  text-wrap: pretty;
+}
+
+.sources__label {
+  font-weight: 600;
+}
+
+.sources__link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* The heading note became a box holding a paragraph and its sources. */
+.passage__note p {
+  margin: 0;
+}
+
+/*
+ * A book's three facts each rest on something different, so their sources are
+ * numbered to match and shut until asked for. A card that opens on a list of
+ * references before its facts have finished rising would be a bibliography.
+ */
+.sourcesFold {
+  margin: 1.1rem 0 0;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: inherit;
+}
+
+.sourcesFold__summary {
+  cursor: pointer;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.sourcesFold__list {
+  margin: 0.4rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.sourcesFold__item + .sourcesFold__item {
+  margin-top: 0.2rem;
+}
+
+/* Settings. One row a work: the name links to the page that states the terms. */
+.credits {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.credits__item {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.credits__work {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  width: fit-content;
+}
+
+.credits__use {
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.credits__terms {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
 /* ── Quizzes ────────────────────────────────────────────────────────────── */
 /*
  * The quiz sheet. Paper like the reader with the reader's own dark bar,

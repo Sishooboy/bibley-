@@ -10,6 +10,7 @@ import {
 } from '../data/tracks';
 import { formatNumber, plural } from '../lib/format';
 import { CrossWatermark } from './Ornament';
+import { SourceLine } from './Sources';
 
 /**
  * What each testament is, in one line.
@@ -167,12 +168,14 @@ export function PlanChooser({ onChoose }: { onChoose: (id: string) => void }) {
                 <p>
                   <b>Why this order:</b> {chosen.why}
                 </p>
+                <SourceLine sources={chosen.whySources} />
                 <p>
                   <b>Best for:</b> {chosen.bestFor}
                 </p>
                 <p>
                   <b>The trade-off:</b> {chosen.tradeoff}
                 </p>
+                <SourceLine sources={chosen.tradeoffSources} />
               </div>
             )}
 

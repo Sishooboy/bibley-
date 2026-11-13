@@ -1,6 +1,7 @@
 import { QUOTE_TRANSLATION } from '../data/quotes';
 import { formatDay, today } from '../lib/dates';
 import { quoteForDay } from '../lib/quote';
+import { SourceLine } from './Sources';
 
 export function QuoteCard() {
   const day = today();
@@ -17,6 +18,7 @@ export function QuoteCard() {
           {quote.text}
         </blockquote>
         <p className="quote__context">{quote.context}</p>
+        <SourceLine sources={quote.sources} />
       </div>
       <div className="quote__ref">
         <b>
