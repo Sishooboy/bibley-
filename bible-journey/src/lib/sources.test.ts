@@ -11,13 +11,16 @@ import { bookQuizKey } from './quiz';
 import { isVerse, parseRef, type Source } from './sources';
 
 /*
- * What has not been sourced yet. **It may only shrink**: an entry here is
- * exempt from the rule that everything carries a source, and an entry not here
- * is held to it. Book names cover a book's introduction, its chapter notes and
- * its heading notes together; `quotes` is the verse of the day and `tracks` the
- * reading orders. When it is empty, nothing the app says is unsourced.
+ * What has been sourced so far. **It may only grow**: an area named here is held
+ * to the rule that everything carries a source, and one not yet named is exempt
+ * while the work goes book by book. A book name covers its introduction, its
+ * chapter notes and its heading notes together; `quotes` is the verse of the day
+ * and `tracks` the reading orders. When every area is here, nothing the app says
+ * is unsourced, and this list and the exemption it grants should both go.
  */
-const PENDING = new Set<string>([...CANON, 'quotes', 'tracks']);
+const SOURCED = new Set<string>(['Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy']);
+const AREAS = [...CANON, 'quotes', 'tracks'];
+const PENDING = new Set<string>(AREAS.filter((a) => !SOURCED.has(a)));
 
 const BIBLE_DIR = join(process.cwd(), 'public/bible');
 const insights = JSON.parse(readFileSync(join(BIBLE_DIR, 'insights.json'), 'utf8')) as Insights;
@@ -93,9 +96,8 @@ function items(): Item[] {
 const all = items();
 
 describe('the sources behind what the app says', () => {
-  it('names only areas that exist in its pending list', () => {
-    const known = new Set([...CANON, 'quotes', 'tracks']);
-    for (const p of PENDING) expect(known.has(p), p).toBe(true);
+  it('names only areas that exist in its sourced list', () => {
+    for (const s of SOURCED) expect(AREAS, s).toContain(s);
   });
 
   it('gives everything outside the pending list at least one source', () => {
