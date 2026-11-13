@@ -18,7 +18,10 @@ import { isVerse, parseRef, type Source } from './sources';
  * and `tracks` the reading orders. When every area is here, nothing the app says
  * is unsourced, and this list and the exemption it grants should both go.
  */
-const SOURCED = new Set<string>(['Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy']);
+const SOURCED = new Set<string>([
+  'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth', '1 Samuel', '2 Samuel',
+  '1 Kings', '2 Kings',
+]);
 const AREAS = [...CANON, 'quotes', 'tracks'];
 const PENDING = new Set<string>(AREAS.filter((a) => !SOURCED.has(a)));
 
