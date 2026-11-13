@@ -23,7 +23,7 @@
           "primary": true,
           "best_for": "Almost everyone, especially first-time readers",
           "tradeoff": "Four books sit out of canonical position on purpose",
-          "why": "Reads the narrative backbone as one continuous story, then drops the prophets, poetry and deuterocanon into the historical moment they belong to. Highest completion rate of any approach because you are never stuck in one genre for long.",
+          "why": "Reads the narrative backbone as one continuous story, then sets the prophets, poetry and deuterocanon in the historical moment they belong to, so you are never stuck in one genre for long.",
           "phases": [
             {
               "name": "Foundations",
@@ -37,6 +37,11 @@
                   "book": "Exodus",
                   "chapters": 40,
                   "skimmable": "25-40"
+                }
+              ],
+              "note_sources": [
+                {
+                  "ref": "Genesis 1:1"
                 }
               ]
             },
@@ -91,7 +96,7 @@
             },
             {
               "name": "Prophets of the Divided Kingdom",
-              "note": "These men were shouting during 2 Kings. Read them here and they finally make sense.",
+              "note": "These men were preaching during 2 Kings, and their books name its kings. Read them here and they finally make sense.",
               "books": [
                 {
                   "book": "Amos",
@@ -112,6 +117,23 @@
                 {
                   "book": "Isaiah",
                   "chapters": 66
+                }
+              ],
+              "note_sources": [
+                {
+                  "ref": "Amos 1:1"
+                },
+                {
+                  "ref": "Hosea 1:1"
+                },
+                {
+                  "ref": "Isaiah 1:1"
+                },
+                {
+                  "ref": "Micah 1:1"
+                },
+                {
+                  "ref": "2 Kings 14:25"
                 }
               ]
             },
@@ -166,6 +188,14 @@
                   "book": "Tobit",
                   "chapters": 14,
                   "deuterocanonical": true
+                }
+              ],
+              "note_sources": [
+                {
+                  "ref": "Tobit 1:3"
+                },
+                {
+                  "ref": "Tobit 1:10"
                 }
               ]
             },
@@ -242,11 +272,22 @@
                   "skimmable": "44-50",
                   "deuterocanonical": true
                 }
+              ],
+              "note_sources": [
+                {
+                  "ref": "Psalms 51:1"
+                },
+                {
+                  "ref": "Psalms 137:1"
+                },
+                {
+                  "ref": "Proverbs 25:1"
+                }
               ]
             },
             {
               "name": "The Silent Years",
-              "note": "The 400-year gap. Where the Pharisees, Hanukkah and the Roman occupation come from.",
+              "note": "The years between the testaments, where Hanukkah begins and Rome first enters the story.",
               "books": [
                 {
                   "book": "1 Maccabees",
@@ -258,11 +299,24 @@
                   "chapters": 15,
                   "deuterocanonical": true
                 }
+              ],
+              "note_sources": [
+                {
+                  "ref": "1 Maccabees 4:59"
+                },
+                {
+                  "ref": "1 Maccabees 8:17-20"
+                },
+                {
+                  "title": "Hanukkah",
+                  "by": "Wikipedia",
+                  "url": "https://en.wikipedia.org/wiki/Hanukkah"
+                }
               ]
             },
             {
               "name": "The Deep Cuts",
-              "note": "Now you have the framework. Hebrews only makes sense against Leviticus.",
+              "note": "Now you have the framework. Hebrews leans on Leviticus throughout, and Chronicles retells kings you already know.",
               "books": [
                 {
                   "book": "Leviticus",
@@ -286,9 +340,36 @@
                   "chapters": 36,
                   "deferred": true
                 }
+              ],
+              "note_sources": [
+                {
+                  "ref": "Hebrews 9:7"
+                },
+                {
+                  "ref": "Leviticus 16:2"
+                },
+                {
+                  "ref": "1 Chronicles 10:6"
+                }
               ]
             }
-          ]
+          ],
+          "sources": {
+            "why": [
+              {
+                "ref": "Amos 1:1"
+              },
+              {
+                "ref": "Hosea 1:1"
+              },
+              {
+                "ref": "Isaiah 1:1"
+              },
+              {
+                "ref": "Tobit 1:3"
+              }
+            ]
+          }
         },
         {
           "id": "ot_chronological",
@@ -299,7 +380,7 @@
           "primary": true,
           "best_for": "History lovers who want a strict timeline",
           "tradeoff": "Still hits Leviticus and Numbers early, and some placements are debated",
-          "why": "Arranges every book by when its events occur rather than by genre. Job is placed first on the traditional reading that it is set in the patriarchal age, though many scholars date its composition to the Persian period.",
+          "why": "Arranges every book by when its events occur rather than by genre. Job goes first because he lives like a patriarch: he offers his own sacrifices, counts his wealth in flocks, and lives 140 years after his trial.",
           "phases": [
             {
               "name": "Before Israel",
@@ -538,7 +619,20 @@
                 }
               ]
             }
-          ]
+          ],
+          "sources": {
+            "why": [
+              {
+                "ref": "Job 1:3"
+              },
+              {
+                "ref": "Job 1:5"
+              },
+              {
+                "ref": "Job 42:16"
+              }
+            ]
+          }
         },
         {
           "id": "ot_canonical",
@@ -548,7 +642,7 @@
           "recommended": false,
           "primary": true,
           "best_for": "Disciplined readers who want the traditional arrangement",
-          "tradeoff": "Lowest completion rate. Most people stall in Leviticus or Numbers.",
+          "tradeoff": "Leviticus and Numbers come third and fourth, before the story has built much momentum.",
           "why": "The order printed in Catholic Bibles: Pentateuch, Historical, Wisdom, Prophets.",
           "phases": [
             {
@@ -773,7 +867,16 @@
                 }
               ]
             }
-          ]
+          ],
+          "sources": {
+            "why": [
+              {
+                "title": "Biblical canon",
+                "by": "Wikipedia",
+                "url": "https://en.wikipedia.org/wiki/Biblical_canon"
+              }
+            ]
+          }
         }
       ]
     },
@@ -790,7 +893,7 @@
           "primary": true,
           "best_for": "Almost everyone, especially first-time readers",
           "tradeoff": "Gospels are not in canonical order",
-          "why": "Opens with the shortest gospel so you get a win in week one, keeps Luke and Acts together as the single two-volume work their author wrote, and saves Revelation for last because it is built almost entirely out of quotations from books you will have already read.",
+          "why": "Opens with the shortest gospel so you get a win in week one, keeps Luke and Acts together as the two volumes they are, and saves Revelation for last, because it is woven from images in books you will already have read.",
           "phases": [
             {
               "name": "The Life of Jesus",
@@ -819,7 +922,7 @@
             },
             {
               "name": "Paul's Letters",
-              "note": "Roughly in the order he wrote them, so you watch his thinking develop",
+              "note": "Roughly in the order they are usually dated, so you can watch his thinking develop. Some dates, and who wrote some of them, are debated.",
               "books": [
                 {
                   "book": "1 Thessalonians",
@@ -872,6 +975,13 @@
                 {
                   "book": "2 Timothy",
                   "chapters": 4
+                }
+              ],
+              "note_sources": [
+                {
+                  "title": "Pauline epistles",
+                  "by": "Wikipedia",
+                  "url": "https://en.wikipedia.org/wiki/Pauline_epistles"
                 }
               ]
             },
@@ -914,15 +1024,45 @@
             },
             {
               "name": "The End",
-              "note": "Read it first and it is noise. Read it last and it is a summation.",
+              "note": "Read it first and it is noise. Read it last and it is a summation, ending at the tree of life that Genesis began with.",
               "books": [
                 {
                   "book": "Revelation",
                   "chapters": 22
                 }
+              ],
+              "note_sources": [
+                {
+                  "ref": "Genesis 2:9"
+                },
+                {
+                  "ref": "Revelation 22:2"
+                }
               ]
             }
-          ]
+          ],
+          "sources": {
+            "why": [
+              {
+                "ref": "Luke 1:3"
+              },
+              {
+                "ref": "Acts 1:1"
+              },
+              {
+                "ref": "Genesis 2:9"
+              },
+              {
+                "ref": "Revelation 22:2"
+              },
+              {
+                "ref": "Daniel 7:3-7"
+              },
+              {
+                "ref": "Revelation 13:1-2"
+              }
+            ]
+          }
         },
         {
           "id": "nt_written_order",
@@ -933,10 +1073,10 @@
           "primary": true,
           "best_for": "Readers curious about how Christianity actually developed",
           "tradeoff": "You read letters about Jesus before you read the story of Jesus. Some dates are contested.",
-          "why": "The New Testament was not written in the order it is printed. Paul wrote decades before the gospels were finished. This order shows you what the earliest churches knew and when.",
+          "why": "The New Testament was not written in the order it is printed. Paul's earliest letters are dated around AD 48 to 51, and the gospels from around 70 to 100, so this order shows what the earliest churches knew and when.",
           "phases": [
             {
-              "name": "The Earliest Letters (c. 45-60 AD)",
+              "name": "The Earliest Letters",
               "books": [
                 {
                   "book": "James",
@@ -985,7 +1125,7 @@
               ]
             },
             {
-              "name": "The Gospels Appear (c. 65-85 AD)",
+              "name": "The Gospels Appear",
               "books": [
                 {
                   "book": "Mark",
@@ -1006,7 +1146,7 @@
               ]
             },
             {
-              "name": "The Second Generation (c. 65-95 AD)",
+              "name": "The Second Generation",
               "books": [
                 {
                   "book": "Hebrews",
@@ -1039,7 +1179,7 @@
               ]
             },
             {
-              "name": "The Johannine Writings (c. 90-100 AD)",
+              "name": "The Johannine Writings",
               "books": [
                 {
                   "book": "John",
@@ -1063,7 +1203,33 @@
                 }
               ]
             }
-          ]
+          ],
+          "sources": {
+            "why": [
+              {
+                "title": "Pauline epistles",
+                "by": "Wikipedia",
+                "url": "https://en.wikipedia.org/wiki/Pauline_epistles"
+              },
+              {
+                "title": "Gospel of Mark",
+                "by": "Wikipedia",
+                "url": "https://en.wikipedia.org/wiki/Gospel_of_Mark"
+              },
+              {
+                "title": "Gospel of John",
+                "by": "Wikipedia",
+                "url": "https://en.wikipedia.org/wiki/Gospel_of_John"
+              }
+            ],
+            "tradeoff": [
+              {
+                "title": "Pauline epistles",
+                "by": "Wikipedia",
+                "url": "https://en.wikipedia.org/wiki/Pauline_epistles"
+              }
+            ]
+          }
         },
         {
           "id": "nt_canonical",
@@ -1074,7 +1240,7 @@
           "primary": true,
           "best_for": "Readers who want the traditional arrangement",
           "tradeoff": "Four gospels back to back means reading the same story four times before anything moves forward",
-          "why": "The order every printed Bible uses: gospels, Acts, Paul by descending length, general letters, Revelation.",
+          "why": "The order printed Bibles use: gospels, Acts, Paul's letters, the general letters, Revelation. Paul's go by length, longest first, with the letters to individuals last.",
           "phases": [
             {
               "name": "Gospels and Acts",
@@ -1156,6 +1322,14 @@
                   "book": "Philemon",
                   "chapters": 1
                 }
+              ],
+              "note": "Roughly in the order they are usually dated, so you can watch his thinking develop. Some dates, and who wrote some of them, are debated.",
+              "note_sources": [
+                {
+                  "title": "Pauline epistles",
+                  "by": "Wikipedia",
+                  "url": "https://en.wikipedia.org/wiki/Pauline_epistles"
+                }
               ]
             },
             {
@@ -1204,7 +1378,16 @@
                 }
               ]
             }
-          ]
+          ],
+          "sources": {
+            "why": [
+              {
+                "title": "Pauline epistles",
+                "by": "Wikipedia",
+                "url": "https://en.wikipedia.org/wiki/Pauline_epistles"
+              }
+            ]
+          }
         }
       ]
     },
@@ -1221,7 +1404,7 @@
           "primary": true,
           "best_for": "Almost everyone reading the whole Bible for the first time",
           "tradeoff": "Mark is split from the other three gospels, and four books are held to the end",
-          "why": "Opens with the shortest gospel so you meet the main character in week one, then goes back to the beginning and runs the whole story forward. Maccabees sits right before the gospels so the 400-year gap is filled in rather than skipped.",
+          "why": "Opens with the shortest gospel so you meet the main character in week one, then goes back to the beginning and runs the whole story forward. Maccabees sits right before the gospels, so the years between the testaments are filled in: John's Feast of the Dedication begins there.",
           "phases": [
             {
               "name": "The Hook",
@@ -1230,6 +1413,11 @@
                 {
                   "book": "Mark",
                   "chapters": 16
+                }
+              ],
+              "note_sources": [
+                {
+                  "ref": "Luke 24:27"
                 }
               ]
             },
@@ -1245,6 +1433,11 @@
                   "book": "Exodus",
                   "chapters": 40,
                   "skimmable": "25-40"
+                }
+              ],
+              "note_sources": [
+                {
+                  "ref": "Genesis 1:1"
                 }
               ]
             },
@@ -1294,7 +1487,7 @@
             },
             {
               "name": "Prophets of the Divided Kingdom",
-              "note": "These men were shouting during 2 Kings. Read them here and they finally make sense.",
+              "note": "These men were preaching during 2 Kings, and their books name its kings. Read them here and they finally make sense.",
               "books": [
                 {
                   "book": "Amos",
@@ -1315,6 +1508,23 @@
                 {
                   "book": "Isaiah",
                   "chapters": 66
+                }
+              ],
+              "note_sources": [
+                {
+                  "ref": "Amos 1:1"
+                },
+                {
+                  "ref": "Hosea 1:1"
+                },
+                {
+                  "ref": "Isaiah 1:1"
+                },
+                {
+                  "ref": "Micah 1:1"
+                },
+                {
+                  "ref": "2 Kings 14:25"
                 }
               ]
             },
@@ -1369,6 +1579,14 @@
                   "book": "Tobit",
                   "chapters": 14,
                   "deuterocanonical": true
+                }
+              ],
+              "note_sources": [
+                {
+                  "ref": "Tobit 1:3"
+                },
+                {
+                  "ref": "Tobit 1:10"
                 }
               ]
             },
@@ -1445,11 +1663,22 @@
                   "skimmable": "44-50",
                   "deuterocanonical": true
                 }
+              ],
+              "note_sources": [
+                {
+                  "ref": "Psalms 51:1"
+                },
+                {
+                  "ref": "Psalms 137:1"
+                },
+                {
+                  "ref": "Proverbs 25:1"
+                }
               ]
             },
             {
               "name": "The Silent Years",
-              "note": "The 400-year gap. Where the Pharisees, Hanukkah and the Roman occupation come from.",
+              "note": "The years between the testaments, where Hanukkah begins and Rome first enters the story.",
               "books": [
                 {
                   "book": "1 Maccabees",
@@ -1460,6 +1689,19 @@
                   "book": "2 Maccabees",
                   "chapters": 15,
                   "deuterocanonical": true
+                }
+              ],
+              "note_sources": [
+                {
+                  "ref": "1 Maccabees 4:59"
+                },
+                {
+                  "ref": "1 Maccabees 8:17-20"
+                },
+                {
+                  "title": "Hanukkah",
+                  "by": "Wikipedia",
+                  "url": "https://en.wikipedia.org/wiki/Hanukkah"
                 }
               ]
             },
@@ -1486,7 +1728,7 @@
             },
             {
               "name": "Paul's Letters",
-              "note": "Roughly in the order he wrote them, so you watch his thinking develop",
+              "note": "Roughly in the order they are usually dated, so you can watch his thinking develop. Some dates, and who wrote some of them, are debated.",
               "books": [
                 {
                   "book": "1 Thessalonians",
@@ -1540,6 +1782,13 @@
                   "book": "2 Timothy",
                   "chapters": 4
                 }
+              ],
+              "note_sources": [
+                {
+                  "title": "Pauline epistles",
+                  "by": "Wikipedia",
+                  "url": "https://en.wikipedia.org/wiki/Pauline_epistles"
+                }
               ]
             },
             {
@@ -1581,17 +1830,25 @@
             },
             {
               "name": "The End",
-              "note": "Read it first and it is noise. Read it last and it is a summation.",
+              "note": "Read it first and it is noise. Read it last and it is a summation, ending at the tree of life that Genesis began with.",
               "books": [
                 {
                   "book": "Revelation",
                   "chapters": 22
                 }
+              ],
+              "note_sources": [
+                {
+                  "ref": "Genesis 2:9"
+                },
+                {
+                  "ref": "Revelation 22:2"
+                }
               ]
             },
             {
               "name": "The Deep Cuts",
-              "note": "Now you have the framework. Hebrews only makes sense against Leviticus.",
+              "note": "Now you have the framework. Hebrews leans on Leviticus throughout, and Chronicles retells kings you already know.",
               "books": [
                 {
                   "book": "Leviticus",
@@ -1615,9 +1872,30 @@
                   "chapters": 36,
                   "deferred": true
                 }
+              ],
+              "note_sources": [
+                {
+                  "ref": "Hebrews 9:7"
+                },
+                {
+                  "ref": "Leviticus 16:2"
+                },
+                {
+                  "ref": "1 Chronicles 10:6"
+                }
               ]
             }
-          ]
+          ],
+          "sources": {
+            "why": [
+              {
+                "ref": "1 Maccabees 4:59"
+              },
+              {
+                "ref": "John 10:22"
+              }
+            ]
+          }
         },
         {
           "id": "blended_daily",
@@ -1628,7 +1906,7 @@
           "primary": true,
           "best_for": "People who want the whole Bible in a year and burn out on one genre",
           "tradeoff": "You jump between eras every day, so you lose the sense of continuous story",
-          "why": "Runs four parallel streams at once. Variety prevents burnout because you are never stuck in a difficult section for more than a few minutes. Widely considered the most sustainable long-term approach.",
+          "why": "Runs four streams at once: three chapters of the Old Testament a day, one of the New, a psalm and a proverb. Proverbs has thirty-one chapters, one for each day of a long month.",
           "structure": "parallel_streams",
           "streams": [
             {
@@ -1667,7 +1945,14 @@
           ],
           "completion_denominator": "ot + nt streams only",
           "estimated_daily_minutes": 18,
-          "estimated_days": 365
+          "estimated_days": 365,
+          "sources": {
+            "why": [
+              {
+                "ref": "Proverbs 31:31"
+              }
+            ]
+          }
         },
         {
           "id": "full_canonical",
@@ -1677,8 +1962,8 @@
           "recommended": false,
           "primary": true,
           "best_for": "Disciplined readers, or a second time through",
-          "tradeoff": "Highest dropout rate of any approach. It takes months to reach the gospels.",
-          "why": "The traditional arrangement. Simple to follow and requires no planning, but it puts you in ceremonial law and genealogies before you have built any momentum.",
+          "tradeoff": "It is 1,074 chapters before you reach the gospels.",
+          "why": "The traditional arrangement. Simple to follow and needs no planning, but it puts you in the law of offerings and a census before you have built any momentum.",
           "phases": [
             {
               "name": "Old Testament",
@@ -1688,7 +1973,22 @@
               "name": "New Testament",
               "reference": "nt_canonical"
             }
-          ]
+          ],
+          "sources": {
+            "why": [
+              {
+                "ref": "Leviticus 1:2"
+              },
+              {
+                "ref": "Numbers 1:2"
+              },
+              {
+                "title": "Biblical canon",
+                "by": "Wikipedia",
+                "url": "https://en.wikipedia.org/wiki/Biblical_canon"
+              }
+            ]
+          }
         },
         {
           "id": "full_chronological",
@@ -1699,7 +1999,7 @@
           "primary": false,
           "best_for": "History lovers, or a second pass through the Bible",
           "tradeoff": "Jesus does not appear until roughly 80 percent through, and some placements are debated",
-          "why": "All 73 books arranged by when their events occur. Best for cause and effect across generations, weakest as a first read because the payoff comes so late.",
+          "why": "All 73 books arranged by when their events occur, so Hosea and Amos are read beside the kings they name. Best for cause and effect across generations, weakest as a first read because the payoff comes so late.",
           "phases": [
             {
               "name": "Old Testament",
@@ -1709,7 +2009,20 @@
               "name": "New Testament",
               "reference": "nt_story_first"
             }
-          ]
+          ],
+          "sources": {
+            "why": [
+              {
+                "ref": "Hosea 1:1"
+              },
+              {
+                "ref": "Amos 1:1"
+              },
+              {
+                "ref": "2 Kings 14:23-25"
+              }
+            ]
+          }
         }
       ]
     }
