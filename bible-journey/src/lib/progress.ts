@@ -1,4 +1,4 @@
-import type { ChapterRef, PhasedTrack } from '../data/tracks';
+import type { ChapterRef, Track } from '../data/tracks';
 import { addDays, daysBetween, today, type DayKey } from './dates';
 import { chapterKey, type ReadMap } from './storage';
 
@@ -32,7 +32,7 @@ export function bookProgress(read: ReadMap, name: string, chapters: number): Boo
   return { name, chapters, read: n, done: n === chapters, started: n > 0 };
 }
 
-export function phaseProgressAll(read: ReadMap, plan: PhasedTrack): PhaseProgress[] {
+export function phaseProgressAll(read: ReadMap, plan: Track): PhaseProgress[] {
   return plan.phases.map((p) => {
     const books = p.books.map((b) => bookProgress(read, b.name, b.chapters));
     const chapters = books.reduce((n, b) => n + b.chapters, 0);
@@ -74,7 +74,7 @@ export type OverallProgress = {
   percent: number;
 };
 
-export function overallProgress(phases: PhaseProgress[], plan: PhasedTrack): OverallProgress {
+export function overallProgress(phases: PhaseProgress[], plan: Track): OverallProgress {
   const planRead = phases.reduce((n, p) => n + p.read, 0);
   const booksDone = phases.reduce((n, p) => n + p.books.filter((b) => b.done).length, 0);
   return {
@@ -87,7 +87,7 @@ export function overallProgress(phases: PhaseProgress[], plan: PhasedTrack): Ove
 }
 
 /** Next unread chapters in plan order, starting from wherever you left off. */
-export function nextUnread(read: ReadMap, count: number, plan: PhasedTrack): ChapterRef[] {
+export function nextUnread(read: ReadMap, count: number, plan: Track): ChapterRef[] {
   /*
    * Nothing asked for is nothing returned. Without this the loop below never
    * satisfies `out.length === count`, so it runs to the end of the track and a
@@ -245,7 +245,7 @@ export type Pace = {
   remaining: number;
 };
 
-export function pace(read: ReadMap, planRead: number, plan: PhasedTrack): Pace {
+export function pace(read: ReadMap, planRead: number, plan: Track): Pace {
   const byDay = readsByDay(read);
   const days = [...byDay.keys()].sort();
   const chaptersLogged = [...byDay.values()].reduce((a, b) => a + b, 0);

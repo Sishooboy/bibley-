@@ -6,7 +6,7 @@ import type {
   PhaseStatus,
   Streak,
 } from '../lib/progress';
-import type { PhasedTrack } from '../data/tracks';
+import type { Track } from '../data/tracks';
 import type { Prefs } from '../lib/prefs';
 import type { Cue } from '../lib/sound';
 import type { DayKey } from '../lib/dates';
@@ -14,7 +14,7 @@ import type { AppData, Highlight, HighlightColour, LoadResult, Note, Slot } from
 
 export type Derived = {
   /** The reading track in force, resolved from the stored choice. */
-  plan: PhasedTrack;
+  plan: Track;
   phases: PhaseProgress[];
   statuses: Map<number, PhaseStatus>;
   overall: OverallProgress;
@@ -57,6 +57,8 @@ export type Store = {
   toggleChapter: (book: string, chapter: number) => void;
   /** Marks the next `count` unread chapters in plan order. */
   markNext: (count: number) => void;
+  /** Marks a list of chapters, across books, as one change with one undo. */
+  markRefs: (refs: { book: string; chapter: number }[]) => void;
   /** Marks an explicit set of chapters, re-dating any that were already read. */
   markChapters: (book: string, chapters: number[]) => void;
   clearChapters: (book: string, chapters: number[]) => void;
