@@ -3,6 +3,7 @@ import { CANON } from '../data/canon';
 import { loadBook } from '../lib/bible';
 import { excerpt, findInBook, type VerseHit } from '../lib/bibleSearch';
 import { plural } from '../lib/format';
+import { useTranslation } from '../lib/translations';
 import { Search } from './icons';
 
 /**
@@ -34,6 +35,9 @@ export function BibleSearch({
   const [done, setDone] = useState(0);
   const [running, setRunning] = useState(false);
   const [missing, setMissing] = useState<string[]>([]);
+  // Searches the words the reader is showing, so "thee" finds the King James
+  // and a hit opens on the same wording it was found in.
+  const translation = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   /** Bumped to abandon a run: a new search, a stop, or the panel closing. */
   const runId = useRef(0);
@@ -67,7 +71,7 @@ export function BibleSearch({
     for (let i = 0; i < CANON.length; i++) {
       if (runId.current !== id) return;
       try {
-        const text = await loadBook(CANON[i]);
+        const text = await loadBook(CANON[i], translation);
         if (runId.current !== id) return;
         const room = LIMIT - found.length;
         if (room > 0) {

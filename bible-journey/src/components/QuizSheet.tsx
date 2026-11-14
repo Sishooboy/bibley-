@@ -247,7 +247,9 @@ export function QuizSheet({ book, onClose }: { book: string; onClose: () => void
 
             {picked !== null && (
               <div className="quiz__proof">
-                <p className="quiz__proofHead">From {proofOf(text, current).label}</p>
+                {/* Always the WEB: every answer's evidence was cut from its words,
+                    whatever translation the reader happens to have open. */}
+                <p className="quiz__proofHead">From {proofOf(text, current).label}, World English Bible</p>
                 <blockquote className="quiz__verse">
                   {(() => {
                     const p = proofOf(text, current);

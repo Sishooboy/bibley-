@@ -21,6 +21,7 @@ npm run bible    # re-download public/bible/ from the WEB. Output is committed, 
 npm run layout   # add paragraph structure to public/bible/ from the WEB's USFM. Also committed
 npm run sections # import section headings into insights.json from the Berean. Also committed
 npm run audio    # rebuild src/data/audioBooks.ts by probing the recording host. Also committed
+npm run kjv      # rebuild public/bible/kjv/ from an unzipped eng-kjv USFM. Also committed
 npm run preview  # serves dist on 4173, the only way to exercise the service worker
 npm run icons    # regenerate public/icon-*.png from brand/logo-source.png
 ```
@@ -934,8 +935,10 @@ all, so the ceiling was low and no amount of ranking, pitching or resetting move
 here said what would actually change the answer, and it was right: **not better synthesis, a real
 recording of this exact translation.** That is what this is.
 
-- **The recording is the World English Bible read by David Williams**, made in 2000 and placed into
-  the public domain by the narrator in 2016. It is the same translation the app ships, so the words
+- **The recording is the World English Bible read by David Williams**, recorded in 2000 and 2001 and
+  released into the public domain without restriction, which is what the host's own index page
+  says. This line used to say "placed into the public domain by the narrator in 2016", and nothing
+  anybody could find supports the year, so it went. It is the same translation the app ships, so the words
   on screen and the words in the ear are the same words, which no synthesised reading of a different
   edition could promise. `AUDIO_CREDIT` names him wherever it plays, the same reasoning that keeps
   the two text credits in the reader's footer: the licence does not ask, and printing somebody's
@@ -1014,6 +1017,94 @@ recording of this exact translation.** That is what this is.
   chimes never arrive together. Those chimes, `open` and `note` in `sound.ts`, are **not on the
   cue ladder**: nothing in the journal changed, so they are not the reducer's business. They play
   on the first arrival only; a re-open from the pill rises but makes no sound.
+
+### Sources, and why every note names one
+
+**Everything the app says in its own words names what it rests on**: the three facts introducing
+each of the 73 books, every chapter note, Mark's 21 heading notes, all 135 verses of the day, and
+every reading order's reasoning and phase notes. It is printed under the words, `SourceLine` for a
+note and `SourcesFold` for a book's introduction, and Settings has a **Sources and credits** card
+for the works the app is built from. A summary nobody can trace is a summary nobody can trust,
+and this one sits beside scripture.
+
+- **A source is a verse or a work, nothing else.** `Source` in `src/lib/sources.ts` is `{ ref }`,
+  checked against the shipped text, or `{ title, by?, url }` for a page outside the Bible. Book
+  facts carry theirs in `factSources`, **a parallel array beside `facts` rather than a change to
+  `facts`**, so an older build that reads `facts` as strings keeps working; chapter notes carry
+  `sources`, heading notes `s`, quotes `sources`, tracks `sources.why`, `sources.tradeoff` and
+  `note_sources` per phase.
+- **`sources.test.ts` is the whole credibility of it.** Everything collected must carry a source,
+  every cited verse must exist and be non-null, every work needs a title and an https link, and the
+  strong check: **anything in quotation marks of two words or more must be found, after `fold()`,
+  in the verses the item cites.** A note quoting somebody other than the Bible cites that work and
+  the check steps aside, since that text is not shipped to look in. It caught real mistakes every
+  batch: "rend your heart" is "Tear your heart" here, "the righteous shall live by his faith" is
+  "will live", and a note that quoted the words Philemon never contains ("free him") failed because
+  the words are not there. The test also counts what it collects, so it cannot pass by collecting
+  nothing. The exemption list it used while the work went book by book is gone.
+- **The quote check cannot read meaning, so every batch was also read against the verses.** That
+  found more than the test did. Song of Songs does name God in this translation, once, at 8:6.
+  Isaiah is not the longest prophetic book. Lamentations 3:22 is a third of the way into its
+  chapter, not its centre. Peter's confession is verse 312 of Mark's 678, not exactly halfway.
+  Judith takes her maid into the camp. Galatians lists seventeen works of the flesh here, not
+  fifteen, and Titus has no opening thanksgiving either. This text runs straight from Mark 16:8
+  into verse 9, so "you can see the seam" was false.
+- **A claim nobody can check is removed, not sourced.** "Highest completion rate of any
+  approach", "read at more funerals than almost any other", "the most quoted sentence in the
+  Bible", "every communion service in the world": none of them has a page that says so, and
+  finding one that does would only move the guess somewhere else. Where a number could be counted,
+  it was counted from the shipped text instead: "immediately" 41 times in Mark, Mark the shortest
+  Gospel at 678 verses, Obadiah the shortest of the 46 Old Testament books, 3 John shorter than
+  2 John by words, "God is love" only at 1 John 4:8 and 4:16, Luke and Acts 27% of the New
+  Testament, the Timeline track reading 80.5% before Jesus appears.
+- **Outside claims cite the page they were read on, and the page's own wording wins.** Lamentations
+  is Jeremiah's "by tradition", because the page says most scholars think otherwise. Paul's letters
+  are "roughly in the order they are usually dated", because the cited table puts Galatians first
+  and calls three of them widely pseudepigraphic. Dies Irae "seems to have" come from Zephaniah
+  1:15, because the page hedges. **Wikipedia, newadvent.org and ccel.org can be read by the fetch
+  tools; USCCB (beyond one page), Britannica and Bible Odyssey refuse with 403.** Ask for the
+  sentence verbatim: the fetch tool's summaries of long pages repeatedly said a claim was absent
+  when the verbatim text held it, and a summary is not a reading.
+- **Phase names are display only**, keyed by position in `tracks.ts`, which is why the written-order
+  track could lose its unsourced "(c. 45-60 AD)" dates without moving anybody's progress.
+- **`insights.json` lives under `/bible/`, so every change to a note needs `CACHE` bumped in
+  `sw.js`**, the same as the text. Quotes and tracks are bundled and need nothing.
+
+### Translations, and why the notes stay in one
+
+**The reader offers the King James Version beside the World English Bible**, one tap on a pill under
+the chapter heading. The King James is the verse of the day's text already, so a reader who met a
+line there can now read its chapter in the same words.
+
+- **The text is eBible.org's `eng-kjv` USFM**, the 1769 standardised text with the Apocrypha,
+  courtesy of CrossWire and eBible.org. `scripts/build-kjv.mjs` (`npm run kjv`) strips the Strong's
+  numbers and markers, writes `public/bible/kjv/<slug>.json` in the same shape as the WEB files
+  with its own `layout`, prepends psalm titles to verse 1 the way the WEB does, and joins the
+  Greek Esther, Susanna and Bel onto Esther 10:4, Daniel 13 and Daniel 14, exactly the appends the
+  WEB has. It omits the books this canon does not print and **refuses to write a book whose chapter
+  count differs from the WEB's**.
+- **Only four chapters number their verses differently**: Romans 14 and 16, where the King James
+  keeps the doxology at the end of 16, and Sirach 20 and 23. `kjv.test.ts` pins exactly that set,
+  because any other drift would move every King James highlight in the chapter.
+- **Its licence has a real caveat and the credit says it.** Public domain everywhere except the
+  United Kingdom, where it remains under letters patent; the reader's footer and the credits card
+  both say so, and `kjv.test.ts` keeps the footer's caveat there.
+- **The preference is device-local** (`bible-journey/translation`, read through
+  `useSyncExternalStore` in `src/lib/translations.ts`), the same reasoning as the folded footer: it
+  is a way of looking, not part of the journal, and a new `prefs` field would need a staged release.
+- **A highlight belongs to the text it was made in.** Offsets index one translation's verse
+  strings, so a highlight carries `translation`, absent meaning the WEB, which is what every
+  highlight made before this already is. `normalizeHighlights` passes it through untouched, so no
+  staged release. **An id this build does not know is kept as itself, never folded into the WEB**,
+  or a later translation's highlights would be drawn over the WEB's words at the wrong offsets. The
+  reader shows only the open translation's marks and says how many are in the other, with a button
+  to switch.
+- **Notes, headings, quizzes and audio stay in the WEB, and say so when the King James is open.**
+  Every quoted phrase in a note is checked against the WEB, the quiz evidence is cut from it, and
+  the recording reads it, so translating them would break all three checks. The note's source line
+  adds "Quotes are from the World English Bible", the quiz proof names it, and the listen strip
+  says whose reading it is. **The Berean headings still align**, since they key on verse numbers
+  and the King James numbering matches outside those four chapters.
 
 ### Quizzes, and why every answer is cut from the text
 
@@ -1122,7 +1213,12 @@ follows the system by default, and Settings has "Match this device", "Light" and
   somebody switches their phone to dark. **`theme.test.ts` fails if `color:` ever takes
   `--red-700`, `--red-800`, `--ink-700` or `--ink-500`**: none of the four has a dark or gold
   ground it can be read on, so as a text colour it can only be on paper. Ink is allowed only where
-  the same rule paints the gold under it. Hex literals on paper cannot be caught that way, so a
+  the same rule paints the gold under it. **It earned its place on the first merge**: the
+  translations work arrived with `.reader__translationSwitch` and `.reader__elsewhereSwitch` on
+  `--red-700`, which this test named, and on `--paper-red-700` they measure 7.54 at night. The
+  sources lines needed nothing, because they inherit the colour of the note they sit under, which
+  is the right design for a theme as much as for the three grounds they were written against.
+  Hex literals on paper cannot be caught that way, so a
   new one needs a token by hand: `--wash`, `--sunk`, the `--gold-wash` family and `--red-wash`
   cover the grounds, `--gold-ink` and `--red-ink` the words on them.
 - **The day theme computes identically, and that was checked, not assumed.** Every literal that
@@ -1475,6 +1571,8 @@ sign-in behind a gate,
 per-account sync with the merge rules above, chapter marking by slider, quick amounts and tap,
 undo, backdating so a chapter counts on the day it was read, an optional time of day, the text
 itself in a reader that sets it in paragraphs and poetry and opens at any book and any chapter,
+in the World English Bible or the King James, a source under every note, verse of the day and
+reading order with a credits card in Settings,
 headings over every chapter of the 66 with a note on the turning points, highlighting with a
 thought attached,
 notes, stats, streaks, an offline app shell, full text search over all 73 books, five synthesised sounds with a synced mute switch, a card introducing every book and a

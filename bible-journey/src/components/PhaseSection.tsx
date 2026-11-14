@@ -2,6 +2,7 @@ import type { Phase } from '../data/plan';
 import { formatNumber, plural } from '../lib/format';
 import type { PhaseProgress, PhaseStatus } from '../lib/progress';
 import { BookRow } from './BookRow';
+import { SourceLine } from './Sources';
 import { ProgressBar } from './ProgressBar';
 import { Chevron } from './icons';
 
@@ -79,6 +80,7 @@ export function PhaseSection({
       {open && (
         <div className="phase__panel" id={panelId}>
           <p className="phase__why">{phase.why}</p>
+          <SourceLine sources={phase.whySources} />
 
           <div className="books">
             {progress.books.map((book) => (

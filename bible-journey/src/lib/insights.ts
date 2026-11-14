@@ -11,7 +11,9 @@
  * any other file under it.
  */
 
-export type ChapterNote = { title: string; note: string };
+import type { Source } from './sources';
+
+export type ChapterNote = { title: string; note: string; sources?: Source[] };
 
 /**
  * A heading over a paragraph, and sometimes a word about why it is there.
@@ -25,14 +27,23 @@ export type ChapterNote = { title: string; note: string };
  * that turns a heading into a moment worth stopping on. Most have no note: a
  * heading every few paragraphs is what makes a chapter navigable, and a chapter
  * where every heading demanded attention would be a chapter nobody could read.
+ * `s` is what the note rests on. The heading itself needs none of its own,
+ * since every heading comes from the Berean and the reader's footer says so.
  */
-export type Section = { v: number; t: string; n?: string };
+export type Section = { v: number; t: string; n?: string; s?: Source[] };
 
 export type BookInsight = {
   /** One line under the name: what this book is. */
   eyebrow: string;
   /** Three short facts, each a sentence. */
   facts: string[];
+  /**
+   * What each fact rests on, by the same index. A list beside `facts` rather
+   * than objects inside it, because the file is cached first under `/bible/`
+   * and an app that had not yet updated would print an object where it expected
+   * a sentence. Beside it, an older app simply never looks.
+   */
+  factSources?: Source[][];
   /** Keyed by chapter number as a string, since JSON keys are. */
   chapters?: Record<string, ChapterNote>;
   /** Headings over the paragraphs, keyed by chapter number as a string. */

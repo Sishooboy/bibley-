@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { AccountPanel } from '../components/AccountPanel';
 import { AppearancePanel } from '../components/AppearancePanel';
+import { CREDITS } from '../data/credits';
 import { SUPPORT_EMAIL } from '../lib/contact';
 import { DeleteAccountPanel } from '../components/DeleteAccountPanel';
 import { ExportPanel } from '../components/ExportPanel';
@@ -408,6 +409,36 @@ export function SettingsView() {
             Reports are read and acted on within a day. You can block somebody from their row in
             Friends, which takes effect straight away and does not wait for us.
           </p>
+        </section>
+
+        {/*
+          Everything the app did not write itself, named with its terms and a
+          link to the page that states them. The notes the app did write carry
+          their own sources under each one, so this card says how that works
+          rather than listing five hundred references a second time.
+        */}
+        <section ref={reveal} className="card reveal">
+          <div className="card__head">
+            <div>
+              <h3 className="card__title">Sources and credits</h3>
+              <p className="card__note">
+                The book introductions, chapter notes, verse contexts and reading-order notes are
+                written for Bibley. Each one names the verses or the published work it rests on,
+                directly under it. Every quiz answer shows the verse it comes from.
+              </p>
+            </div>
+          </div>
+          <ul className="credits">
+            {CREDITS.map((credit) => (
+              <li key={credit.work} className="credits__item">
+                <a className="credits__work" href={credit.url} target="_blank" rel="noreferrer">
+                  {credit.work}
+                </a>
+                <span className="credits__use">{credit.usedFor}</span>
+                <span className="credits__terms">{credit.terms}</span>
+              </li>
+            ))}
+          </ul>
         </section>
       </div>
     </>

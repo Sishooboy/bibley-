@@ -19,8 +19,12 @@
  * and they are cached first with no revalidation, so a reader who already had
  * esther.json would have kept the ten chapter one and found Esther 11 missing.
  * Any future change to the text needs this bumping for the same reason.
+ *
+ * v6 retires the unsourced notes. insights.json sits under /bible/ too, so a
+ * device that had opened a book would have kept its old introduction, with no
+ * sources and with the errors the sourcing pass corrected, for good.
  */
-const CACHE = 'bibley-v5';
+const CACHE = 'bibley-v6';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (event) => {

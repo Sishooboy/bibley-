@@ -1,6 +1,7 @@
 import { useEffect, useRef, type CSSProperties } from 'react';
 import type { BookInsight, ChapterNote as Note, NoteMode } from '../lib/insights';
 import { reducedMotion } from '../lib/motion';
+import { SourceLine, SourcesFold } from './Sources';
 
 /**
  * A book introducing itself, over the text, the first time it is opened.
@@ -18,11 +19,13 @@ export function BookSheet({
   insight,
   replay,
   onBegin,
+  quotesFrom,
 }: {
   book: string;
   insight: BookInsight;
   replay: boolean;
   onBegin: () => void;
+  quotesFrom?: string;
 }) {
   const go = useRef<HTMLButtonElement>(null);
 
@@ -50,6 +53,7 @@ export function BookSheet({
             </li>
           ))}
         </ul>
+        <SourcesFold groups={insight.facts.map((_, i) => insight.factSources?.[i])} quotesFrom={quotesFrom} />
         <button ref={go} type="button" className="btn btn--primary insightSheet__go" onClick={onBegin}>
           <span className="today__goMain">Begin {book}</span>
         </button>
@@ -65,7 +69,7 @@ export function BookSheet({
  * puts this in the margin and so does this. `reveal` rises the lines in once;
  * `static` is the same card simply present, for every open after the first.
  */
-export function ChapterNoteCard({ note, mode }: { note: Note; mode: NoteMode }) {
+export function ChapterNoteCard({ note, mode, quotesFrom }: { note: Note; mode: NoteMode; quotesFrom?: string }) {
   if (mode === 'none') return null;
   return (
     <aside
@@ -76,6 +80,7 @@ export function ChapterNoteCard({ note, mode }: { note: Note; mode: NoteMode }) 
       <p className="chapterNote__eyebrow">Why this chapter matters</p>
       <p className="chapterNote__title">{note.title}</p>
       <p className="chapterNote__text">{note.note}</p>
+      <SourceLine sources={note.sources} quotesFrom={quotesFrom} />
     </aside>
   );
 }

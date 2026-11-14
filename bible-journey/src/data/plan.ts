@@ -1,9 +1,13 @@
+import type { Source } from '../lib/sources';
+
 export type Book = { name: string; chapters: number };
 
 export type Phase = {
   phase: number;
   title: string;
   why: string;
+  /** What `why` rests on, when it says something about history. */
+  whySources?: Source[];
   books: Book[];
 };
 
