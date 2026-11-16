@@ -27,6 +27,17 @@ export function formatNumber(n: number): string {
 }
 
 /**
+ * A size the way a phone's storage screen gives one: decimal units, megabytes
+ * to one place and kilobytes whole. Never "0 kB", since a size is only printed
+ * for something there is still to save.
+ */
+export function formatBytes(bytes: number): string {
+  // 999.5 kB would round to "1000 kB", which is a megabyte written badly.
+  if (bytes < 999_500) return `${Math.max(1, Math.round(bytes / 1000))} kB`;
+  return `${(bytes / 1_000_000).toFixed(1)} MB`;
+}
+
+/**
  * The digits of a streak, most significant first, for the celebration's slot
  * reels: one entry per reel, so "12" is two reels reading left to right rather
  * than one reel and a stray digit.

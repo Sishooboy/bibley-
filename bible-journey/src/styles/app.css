@@ -7792,6 +7792,42 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
+/* ── The whole Bible, kept on this device ───────────────────────────────── */
+/*
+ * Stacked at every width, the button under the words rather than beside them.
+ * Settings is two columns from 720px, so the room beside "World English Bible"
+ * runs from about 300px to 450px depending on the screen, and a label that
+ * names its size takes about 220px of it. Side by side, the row would wrap at
+ * some widths and not at others, and jump between the two when Save became
+ * Stop, which is a control moving under the thumb that just pressed it.
+ *
+ * Below the base `.settingRow` on purpose: same specificity, so file order is
+ * what lets `align-items` and `gap` here win.
+ */
+.offlineRow {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+
+.offlineRow > .settingRow__main {
+  align-self: stretch;
+}
+
+.offlineRow__bar {
+  margin-top: 0.5rem;
+}
+
+/*
+ * Full width under a finger, so the Stop that replaces Save is still under it.
+ * A pointer lands where it is aimed, so there the button keeps its own width.
+ */
+@media (pointer: coarse) {
+  .offlineRow > .btn {
+    align-self: stretch;
+  }
+}
+
 /* ── The streak and the finished book, as moments ──────────── */
 /*
  * Full screen and in the middle, over everything including the reader, since a
