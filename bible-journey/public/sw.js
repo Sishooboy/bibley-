@@ -23,6 +23,16 @@
  * v6 retires the unsourced notes. insights.json sits under /bible/ too, so a
  * device that had opened a book would have kept its old introduction, with no
  * sources and with the errors the sourcing pass corrected, for good.
+ *
+ * **A bump also wipes every book a reader saved for offline reading.** The
+ * "Reading offline" card in Settings saves the whole Bible into this cache, up
+ * to ten megabytes for both translations, and activate below deletes every
+ * cache with another name. That is the point of a bump and there is no keeping
+ * the old books, since a bump means they are wrong. Nothing re-saves them
+ * unasked; the card reads the emptied cache and offers the save again. So bump
+ * when the text or the notes change, not for anything else, and
+ * `src/lib/offline.ts` names this cache too: `offline.test.ts` fails until both
+ * say the same thing.
  */
 const CACHE = 'bibley-v6';
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
@@ -89,9 +99,11 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Scripture is fetched a book at a time, so every book you open is a book you
-  // can still read on a plane. Not precached: 4.4 MB of text nobody asked for is
-  // not a courtesy. Nothing here is fingerprinted, so CACHE is the only way to
-  // retire it.
+  // can still read on a plane. Not precached: five megabytes of text nobody
+  // asked for is not a courtesy. Settings offers to save the rest when somebody
+  // does ask, and it fetches through this same rule rather than a route of its
+  // own, so a saved book and an opened one are stored and served identically.
+  // Nothing here is fingerprinted, so CACHE is the only way to retire it.
   if (url.pathname.startsWith('/bible/')) {
     event.respondWith(cacheFirst(request));
     return;

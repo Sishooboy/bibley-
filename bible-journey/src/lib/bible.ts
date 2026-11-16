@@ -45,6 +45,16 @@ export function bookSlug(book: string): string {
   return book.toLowerCase().replace(/\s+/g, '-');
 }
 
+/**
+ * Where a book's file is served. The offline save in Settings fetches through
+ * this too, because the service worker keys its cache by URL: a save that asked
+ * for a different spelling of the same file would store a copy the reader never
+ * looks up.
+ */
+export function bookUrl(book: string, translation: TranslationId = DEFAULT_TRANSLATION): string {
+  return `${translationById(translation).dir}${bookSlug(book)}.json`;
+}
+
 export function cachedBook(book: string, translation: TranslationId = DEFAULT_TRANSLATION): BookText | undefined {
   return cache.get(keyOf(book, translation));
 }
@@ -73,7 +83,7 @@ export async function loadBook(book: string, translation: TranslationId = DEFAUL
   const pending = inFlight.get(key);
   if (pending) return pending;
 
-  const url = `${translationById(translation).dir}${bookSlug(book)}.json`;
+  const url = bookUrl(book, translation);
   const request = (async () => {
     if (await missingWithNoWayToGetIt(url)) {
       throw new Error(`${book} has not been downloaded`);

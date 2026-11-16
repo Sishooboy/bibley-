@@ -446,7 +446,7 @@ export function Reader({
       .catch(() => {
         if (!live) return;
         setError(
-          'That book has not been downloaded yet, and there is no connection to fetch it. Anything you have already opened still works offline.',
+          'That book has not been saved on this device yet, and there is no connection to fetch it. Anything you have already opened still works offline, and Settings can save the rest for next time.',
         );
       });
     return () => {

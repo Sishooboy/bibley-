@@ -5,6 +5,7 @@ import { CREDITS } from '../data/credits';
 import { SUPPORT_EMAIL } from '../lib/contact';
 import { DeleteAccountPanel } from '../components/DeleteAccountPanel';
 import { ExportPanel } from '../components/ExportPanel';
+import { OfflinePanel } from '../components/OfflinePanel';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
 import { Check, Compass, Lock, Route } from '../components/icons';
 import {
@@ -62,7 +63,7 @@ export function SettingsView() {
       <ViewHeader
         eyebrow="Account, plan and reminders"
         title="Settings"
-        lede="Saved to your account, except how this device looks."
+        lede="Saved to your account, except how this device looks and what it keeps offline."
         meta={
           <>
             <HeadChip gold>{plan.label}</HeadChip>
@@ -143,6 +144,10 @@ export function SettingsView() {
             question after what to read, and night mode is what people come
             to Settings looking for. */}
         <AppearancePanel reveal={reveal} />
+
+        {/* Beside Appearance, because both are about this device rather than
+            the account: what it shows, and what it can show with no signal. */}
+        <OfflinePanel reveal={reveal} />
 
         <AccountPanel reveal={reveal} />
 
