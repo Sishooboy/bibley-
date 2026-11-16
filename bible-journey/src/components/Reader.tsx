@@ -66,6 +66,7 @@ import { chapterKey, newId, type Highlight } from '../lib/storage';
 import { useQuiz } from '../state/useQuiz';
 import { useStore } from '../state/useStore';
 import { BibleSearch } from './BibleSearch';
+import { ChapterNoteSheet } from './ChapterNoteSheet';
 import { HighlightSheet } from './HighlightSheet';
 import { AboutPill, BookSheet, ChapterNoteCard } from './Insight';
 import { SourceLine } from './Sources';
@@ -239,7 +240,7 @@ export function Reader({
   onNavigate: (book: string, chapter: number) => void;
   onClose: () => void;
 }) {
-  const { data, derived, toggleChapter, addHighlight, setPrefs } = useStore();
+  const { data, derived, toggleChapter, addHighlight, setPrefs, noteFor } = useStore();
   const { plan } = derived;
   const prefs = data.prefs ?? DEFAULT_PREFS;
   const translation = useTranslation();
@@ -291,6 +292,8 @@ export function Reader({
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sheetReplay, setSheetReplay] = useState(false);
   const [noteMode, setNoteMode] = useState<NoteMode>('none');
+  /** Whether the reader's own note on this chapter is open for writing. */
+  const [noting, setNoting] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
@@ -456,6 +459,7 @@ export function Reader({
     bodyRef.current?.scrollTo({ top: 0 });
     setPending(null);
     setEditing(null);
+    setNoting(false);
   }, [book, chapter]);
 
   useEffect(() => {
@@ -464,19 +468,20 @@ export function Reader({
         if (editing || pending) {
           setEditing(null);
           setPending(null);
-        } else if (searching) setSearching(false);
+        } else if (noting) setNoting(false);
+        else if (searching) setSearching(false);
         else onClose();
         return;
       }
-      // Arrow keys would fight a text selection, and a search field, so they
-      // stay out of the way of both.
-      if (editing || pending || searching) return;
+      // Arrow keys would fight a text selection, a note being typed and a
+      // search field, so they stay out of the way of all three.
+      if (editing || pending || noting || searching) return;
       if (e.key === 'ArrowLeft' && previous) onNavigate(previous.book, previous.chapter);
       if (e.key === 'ArrowRight' && next) onNavigate(next.book, next.chapter);
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [onClose, onNavigate, previous, next, editing, pending, searching]);
+  }, [onClose, onNavigate, previous, next, editing, pending, noting, searching]);
 
   // The page behind must not scroll while a full-screen sheet is open.
   useEffect(() => {
@@ -875,6 +880,24 @@ export function Reader({
                   Switch to {nextTranslation.short}
                 </span>
               </button>
+              {/*
+                A chapter note could only be written from the journey's book
+                panel, so somebody reading had to close the reader, find the
+                book, open it, and pick the chapter from a list to write down a
+                thought they were having now. Here it is one tap from the words.
+              */}
+              <button
+                type="button"
+                className="aboutPill reader__notePill"
+                data-has={noteFor(book, chapter) ? '' : undefined}
+                onClick={() => {
+                  setPending(null);
+                  setEditing(null);
+                  setNoting(true);
+                }}
+              >
+                {noteFor(book, chapter) ? 'Your note' : 'Add a note'}
+              </button>
             </div>
             {/* Held back while the sheet is up, so its lines rise after the
                 card has gone rather than underneath it. */}
@@ -977,6 +1000,11 @@ export function Reader({
             setEditing(null);
           }}
         />
+      )}
+
+      {/* One sheet at a time: a selection made while the note is open wins. */}
+      {noting && !pending && !open && (
+        <ChapterNoteSheet book={book} chapter={chapter} onClose={() => setNoting(false)} />
       )}
 
       {/*

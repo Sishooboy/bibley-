@@ -94,6 +94,8 @@ function Shell() {
     <QuizProvider>
     <ReaderProvider>
     <div className="app">
+      {/* Never seen: it is under the header, for Safari to sample. See the CSS. */}
+      <div className="edgeTint" aria-hidden="true" />
       <header className="topbar">
         <div className="container topbar__inner">
           <div className="wordmark">

@@ -454,7 +454,7 @@ export function StatsView() {
             <div>
               <h3 className="card__title">Reading rhythm</h3>
               <p className="card__note">
-                Every day of the last eighteen weeks, strongest where you read most
+                Every day since you started, strongest where you read most
               </p>
             </div>
           </div>

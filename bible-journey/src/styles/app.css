@@ -479,6 +479,33 @@ select {
   padding-top: env(safe-area-inset-top);
 }
 
+/*
+ * Ink for Safari to see, under the header, so the status bar matches it.
+ *
+ * Safari 26 on iOS ignores `theme-color` and tints the strip behind the status
+ * bar from the page instead: from a fixed element touching the top edge if
+ * there is one, otherwise from the document's background. The header is sticky
+ * inside `#root`, the pane that scrolls, which Safari does not take as the top
+ * of the page, so by day it fell back to the cream behind everything and
+ * faded a pale band down into the black header, the "white cloud". At night
+ * the page is ink, so it never showed.
+ *
+ * This is that fixed element. It is exactly the header's height and sits one
+ * layer under it, so nothing about the screen changes; it exists to be sampled.
+ * Rendered by `Shell` only, because the gate, the chooser and the splash have
+ * no header for it to hide under and would lose their top 60px to it.
+ */
+.edgeTint {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--topbar-h) + env(safe-area-inset-top));
+  background: var(--ink);
+  z-index: 19;
+  pointer-events: none;
+}
+
 .topbar__inner {
   display: flex;
   align-items: center;
@@ -3562,13 +3589,53 @@ select {
 /* ── Heatmap ────────────────────────────────────────────────────────────── */
 .heat {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.45rem;
+}
+
+/*
+ * The window onto every week since the first reading. It is the query
+ * container, so `100cqi` below is its own width and eighteen columns fill it
+ * exactly, which is the size the grid always had; a longer history adds columns
+ * past the right edge rather than shrinking the ones on screen. Opened scrolled
+ * to the right, today's end, by the component.
+ *
+ * `contain` on the x axis so a swipe that reaches the oldest week stops there
+ * rather than carrying on into the browser's own back gesture.
+ */
+.heat__scroll {
+  container-type: inline-size;
+  display: grid;
+  gap: 0.45rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+/* Room for the scrollbar. A phone's is an overlay drawn on top of the content,
+   so without this its thumb sits across Saturday's row while you scroll. */
+.heat__scroll[data-scrolls] {
+  padding-bottom: 0.6rem;
+}
+
+/* Fades the oldest visible weeks into the card while there are older ones
+   behind them, which is the only sign on a phone that the grid scrolls. */
+.heat__scroll[data-more] {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 2.25rem);
+  mask-image: linear-gradient(to right, transparent, #000 2.25rem);
+}
+
+.heat__scroll:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 3px;
 }
 
 .heat__months,
 .heat__grid {
   display: grid;
-  grid-template-columns: repeat(18, minmax(0, 1fr));
+  /* A fixed column first, for a browser without container units. */
+  grid-template-columns: repeat(var(--weeks, 18), 14px);
+  grid-template-columns: repeat(var(--weeks, 18), calc((100cqi - 17 * 3px) / 18));
   gap: 3px;
 }
 
@@ -10583,6 +10650,28 @@ select {
   padding-left: 0.45rem;
   border-left: 1px solid var(--line-strong);
   color: var(--paper-red-700);
+}
+
+/*
+ * A written note is marked the way a noted highlight is, in red, so "there is
+ * something of yours here" reads the same everywhere in the reader. The dot is
+ * `--paper-red-600` because it is a graphic on paper: plain `--red-600` is 2.89
+ * against a night card, under the 3:1 a graphic needs.
+ */
+.reader__notePill {
+  gap: 0.4rem;
+}
+
+.reader__notePill[data-has] {
+  color: var(--text);
+}
+
+.reader__notePill[data-has]::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--paper-red-600);
 }
 
 /*

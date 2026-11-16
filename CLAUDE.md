@@ -226,6 +226,14 @@ redeploy.**
   document's loaded faces, so `readyFonts()` awaits them before the first stroke. It exports JPEG,
   not PNG: the full-bleed gradient makes the same image 1.4 MB as a PNG against 129 KB as a JPEG,
   and it exists to be sent to someone.
+- **A chapter note can be written from the reader.** It could only be written from the journey's
+  book panel, so a thought had while reading meant closing the reader and finding the chapter in
+  a list. "Add a note" sits in the pill row under the chapter's name and becomes "Your note" with
+  a red dot once there is one, the same red that marks a noted highlight. `ChapterNoteSheet` is
+  **the same note, `noteFor(book, chapter)`, not a second kind**, and it borrows the highlight
+  sheet's frame because that frame already sits on the keyboard. An emptied box deletes, which
+  writes the tombstone a sync needs. It focuses the box only when there is no note yet, so an
+  existing one opens to be read rather than under a keyboard.
 - The reader is a real modal: it claims `aria-modal`, so it moves focus in on open, traps Tab, and
   hands focus back to whatever opened it. Reading size lives in `prefs`, so it syncs with the
   account, and scales the whole passage through `--verse-scale` rather than the verses alone.
@@ -467,6 +475,16 @@ redeploy.**
   there is nothing is the least encouraging thing a new reader can open, so `overall.planRead === 0`
   returns `NothingYet` instead: what will appear here, and one button into the next chapter. One
   chapter brings the real page back.
+- **Reading rhythm runs back to the first chapter read, and the card is a window onto it.** It was
+  the last eighteen weeks and nothing else, so once those filled up, the start of the habit was
+  simply gone. `Heatmap` now draws every week since the earliest day in the journal, never fewer
+  than eighteen and capped at ten years, opens scrolled to today with a layout effect so the
+  first frame is already at the right, and scrolls back. **The columns keep their old size
+  through `100cqi` on the scroller**, which is the query container, so eighteen still fill the
+  card and a short history looks exactly as it did. A fade at the left edge says there is more
+  and goes when there is not, the scroller pads its bottom so a phone's overlay scrollbar does
+  not sit across Saturday, and a month label drops its year, or the first one drops out, when
+  the next label leaves it no room.
 - **Stats says each number once.** Books done was on screen four times: the masthead chip, the hero
   facts, a stat square and a donut the size of a bar chart carrying the same two figures. The donut
   is gone and the square holds the completion ring instead, which is `StatRing` at `size={104}` with
@@ -1489,6 +1507,14 @@ Progress is never lost, only occasionally resurrected. That direction is deliber
   `auto` is expected and fine, the browser intersects the whole ancestor chain at hit-test time.
   None of this touches desktop browser zoom, or the system text size, and the reader's own four step
   text size is the accessible way to make the words bigger.
+- **Safari 26 on iOS ignores `theme-color` and tints the status bar from the page.** It samples a
+  fixed element touching the top edge if there is one, otherwise the document's background. The
+  header is sticky inside `#root`, which Safari does not treat as the top of the page, so by day it
+  fell back to the cream behind everything and faded a pale band into the black header, reported
+  as "a white cloud". At night the page is ink, so it never showed. `.edgeTint` is a fixed ink strip
+  exactly under the header, rendered by `Shell` only, which exists to be sampled and changes nothing
+  on screen. **This rests on developer reports, not an Apple statement**, so the place to confirm it
+  is a real iPhone in Safari, not a desktop emulator, which draws no status bar at all.
 - **A transformed ancestor becomes the containing block for `position: fixed`.** The app entrance
   animation is opacity-only for exactly this reason: a transform there silently broke the nav and
   the undo chip.
