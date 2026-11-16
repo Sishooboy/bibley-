@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getTrack, type PhasedTrack } from '../data/tracks';
+import { getTrack } from '../data/tracks';
 import { formatNumber } from '../lib/format';
 
 export const PREPARING_MS = 3200;
@@ -10,11 +10,14 @@ export const PREPARING_MS = 3200;
  * them makes a decision feel like it landed somewhere.
  */
 export function Preparing({ trackId }: { trackId: string }) {
-  const plan = getTrack(trackId) as PhasedTrack;
+  const plan = getTrack(trackId);
   const [step, setStep] = useState(0);
 
   const steps = [
-    `Laying out ${plan.phases.length} phases`,
+    // A mix's phases are only what it covers; what it lays out is the day.
+    plan.kind === 'streams'
+      ? `Setting out ${plan.streams.length} readings a day`
+      : `Laying out ${plan.phases.length} phases`,
     `Ordering ${formatNumber(plan.chapterCount)} chapters`,
     'Saving your choice',
     'Ready',

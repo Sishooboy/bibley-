@@ -52,6 +52,9 @@ export type BookInsight = {
 
 export type Insights = { version: number; books: Record<string, BookInsight> };
 
+/** Exported so the offline save in Settings asks for the same URL this does. */
+export const INSIGHTS_URL = '/bible/insights.json';
+
 const EMPTY: Insights = { version: 1, books: {} };
 
 let cache: Insights | undefined;
@@ -70,7 +73,7 @@ export function cachedInsights(): Insights | undefined {
 export function loadInsights(): Promise<Insights> {
   if (cache) return Promise.resolve(cache);
   if (inFlight) return inFlight;
-  inFlight = fetch('/bible/insights.json')
+  inFlight = fetch(INSIGHTS_URL)
     .then((res) => (res.ok ? (res.json() as Promise<Insights>) : EMPTY))
     .then((data) => {
       if (data && typeof data === 'object' && data.books) cache = data;

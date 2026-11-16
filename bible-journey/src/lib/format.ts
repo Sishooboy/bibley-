@@ -1,7 +1,7 @@
 import type { ChapterRef } from '../data/plan';
 
 /** "Genesis 1–3", or "Genesis 50 · Exodus 1–2" when a run crosses books. */
-export function formatRefs(refs: ChapterRef[]): string {
+export function formatRefs(refs: Pick<ChapterRef, 'book' | 'chapter'>[]): string {
   if (refs.length === 0) return '';
   const groups: { book: string; chapters: number[] }[] = [];
   for (const ref of refs) {
@@ -24,6 +24,17 @@ export function plural(n: number, one: string, many = `${one}s`): string {
 
 export function formatNumber(n: number): string {
   return n.toLocaleString();
+}
+
+/**
+ * A size the way a phone's storage screen gives one: decimal units, megabytes
+ * to one place and kilobytes whole. Never "0 kB", since a size is only printed
+ * for something there is still to save.
+ */
+export function formatBytes(bytes: number): string {
+  // 999.5 kB would round to "1000 kB", which is a megabyte written badly.
+  if (bytes < 999_500) return `${Math.max(1, Math.round(bytes / 1000))} kB`;
+  return `${(bytes / 1_000_000).toFixed(1)} MB`;
 }
 
 /**

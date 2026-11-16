@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { countWords, digitsOf, readingMinutes } from './format';
+import { countWords, digitsOf, formatBytes, readingMinutes } from './format';
 
 /**
  * Feeds the streak celebration's slot reels, one entry per reel, so "12" is
@@ -44,5 +44,19 @@ describe('countWords', () => {
 
   it('is not fooled by runs of whitespace', () => {
     expect(countWords(['  one   two  '])).toBe(2);
+  });
+});
+
+describe('formatBytes', () => {
+  it('gives megabytes to one place and kilobytes whole', () => {
+    expect(formatBytes(4_950_767)).toBe('5.0 MB');
+    expect(formatBytes(4_730_358)).toBe('4.7 MB');
+    expect(formatBytes(220_409)).toBe('220 kB');
+  });
+
+  it('never prints a thousand kilobytes or nothing at all', () => {
+    expect(formatBytes(999_600)).toBe('1.0 MB');
+    expect(formatBytes(999_400)).toBe('999 kB');
+    expect(formatBytes(120)).toBe('1 kB');
   });
 });

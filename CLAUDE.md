@@ -59,7 +59,8 @@ nothing to a binary already built.
 - **The text lives in `public/bible/`**, one JSON file per book, World English Bible, public domain.
   It is fetched a book at a time rather than bundled: 4.4 MB has no business in the JS. `src/lib/bible.ts`
   caches in memory and dedupes concurrent loads, and the service worker keeps every book you open,
-  so a book you have read once reads again on a plane. **A null verse is deliberate**: verse
+  so a book you have read once reads again on a plane, and Settings can save the rest ahead of
+  time (see "Reading offline" below). **A null verse is deliberate**: verse
   numbering follows the King James tradition, and 39 numbers have nothing behind them in this
   translation's source. Four are the familiar ones (Luke 17:36, Acts 8:37, 15:34, 24:7); the other
   35 are in Sirach, where the longer Greek text carries verses the shorter one this is translated
@@ -280,10 +281,10 @@ nothing to a binary already built.
   tracks for a testament with the recommended one first, and that one is pre-selected so Begin is
   reachable in one tap. Settings groups the same nine the same way, under `.planGroup`, with the
   book and chapter count on the group heading rather than repeated on all three cards.
-- **Daily Mix (`blended_daily`) is deliberately not offered yet.** It is the one `streams` track,
-  it has no code path, and `activeTrack` silently falls back to the default for one, so listing it
-  would start the reader on something other than what they picked. Both the chooser and Settings
-  filter to `kind === 'phased'`. Offer it the moment its own path exists, and not before.
+- **Daily Mix (`blended_daily`) is offered now**, in the chooser and in Settings, and has its own
+  section below. It was held back while it had no code path, because `activeTrack` silently fell
+  back to the default for a streams track and listing it would have started the reader on
+  something other than what they picked.
 - `src/state/reducer.ts` holds every rule about how the journal changes; `src/state/store.tsx` is
   only the provider around it, persisting to `localStorage` under `bible-journey/v1`.
   **They are two files because exporting a plain function beside a component turns off Vite's fast
@@ -455,7 +456,9 @@ nothing to a binary already built.
   a Supabase response can never be served from cache. Bump `CACHE` to retire every old cache.
   **Changing the text under `public/bible/` requires that bump.** Those filenames are not
   fingerprinted and they are cached first with no revalidation, so a reader who already had
-  `esther.json` would keep the ten chapter one forever and find Esther 11 missing.
+  `esther.json` would keep the ten chapter one forever and find Esther 11 missing. **A bump also
+  wipes every book a reader saved for offline reading**, up to ten megabytes each, so bump for a
+  change to the text or the notes and for nothing else.
 - **Chapters are named by number, not hit.** Two fields, "I read chapters N to M", plus the date.
   Three earlier designs all asked the reader to hit the chapter squares themselves, by tapping, then
   by dragging, then by double tapping each end. Every one was a poor target on a phone, and every
@@ -1319,6 +1322,132 @@ follows the system by default, and Settings has "Match this device", "Light" and
   the splash an installed web app shows on Android, is cream at night too, because a manifest
   cannot vary by scheme; the Capacitor shell will decide that natively.
 
+### Daily Mix, and why an order waits but a cursor keeps the calendar
+
+Four readings a day instead of one run: three chapters of the Old Testament, one of the New, a
+psalm and a proverb, about eighteen minutes and the whole Bible in about a year. It is for the
+reader who stalls three weeks into Leviticus, at the cost of jumping between eras every day.
+
+- **It is a plan like any other to every screen but one.** Its Old and New Testament streams walk
+  `ot_story_first` and `nt_story_first`, and those two orders are together the 73 books exactly
+  once, 1,334 chapters, which a test pins. So `tracks.ts` gives a streams track the phases of the
+  streams it counts, one order after the other, and the journey, the book grid, Stats, the Quiz tab,
+  Notes, the share card and the Friends projection all read Daily Mix's 15 phases as they would any
+  track's. **Only the day is different**, and only `src/lib/mix.ts` and `MixCard` know about days.
+  The alternative, a second code path through every screen, was the reason it went unbuilt.
+- **`activeTrack` returns the track asked for.** It used to fall back to The Full Arc for a streams
+  track, because a streams track had no phases and every screen reads them. A test now pins that
+  marking on Daily Mix marks Daily Mix's chapters.
+- **An order waits for you.** A day's part of the Old or New Testament is the next few chapters not
+  read *before today*, so a missed day leaves the same chapters waiting rather than skipping any,
+  which is the only honest answer for a plan whose point is reading every chapter. Cutting it from
+  before today is also what makes the part **hold still while it is read**: marking Genesis 40
+  ticks it off instead of sliding Genesis 43 into view. A chapter backdated to yesterday, or read
+  before the journal began (`null` in `read`), was never part of today.
+- **A cursor keeps the calendar.** The psalm and the proverb are companions to the day rather than
+  progress through anything. The proverb is the day of the month, how Proverbs' 31 chapters have
+  always been read. The psalm walks from Psalm 1 a day at a time from `startedAt`, round again
+  after 150, because `startedAt` is synced and merges to the earliest, so two devices agree on
+  today's psalm. Storing a start date of its own would have needed a `normalize()` release first.
+- **A cursor's chapter counts as read if it was ever read.** This app records which chapters a
+  reader has read, not how many times, and `read` holds one day per chapter: marking a psalm again
+  would move the day it was first read, which can shorten a streak already earned. So today's psalm
+  shows as read from a reading in March, and the row still opens it for anyone who wants it again.
+- **Finishing means the two orders.** The psalm and the proverb never run out, so `mixFinished`
+  asks only the streams that count toward completion, which is what `completion_denominator` in
+  the track data says.
+- **`markRefs` marks a list of chapters across books** as one change, with one undo and one sound,
+  and `markNext` is now that action applied to the next few of an order. A day's Old Testament part
+  can be Genesis 50 and Exodus 1 and 2, which `markChapters`, one book at a time, could not mark
+  as one change.
+- **`MixCard` keeps the today card's shape**: one wide red button for the next thing to read,
+  saying how long it is, and "I read it somewhere else" folded underneath, here with a button a
+  stream and one for the whole day. The rows between are buttons into the reader, ticked in gold
+  as each is read. The streak lines above both cards are one component, `TodayAlerts`, so the two
+  plans say the same thing about a streak. **`useToday` keeps the date current while the app is
+  open**, a minute check and a check on becoming visible, since the mix is the first card that
+  depends on the date and a phone left on the bedside table overnight would show yesterday's.
+- Measured at night like everything else: stream names 6.62, references 14.01, a read reference
+  6.62, the gold tick 10.18 as ink on solid gold. All of them paper tokens, so nothing was added
+  to the night set.
+
+### Reading offline, and why the count is read from the cache
+
+The service worker has always kept every book the reader opens, which covers the book you were
+reading and not the one you reach for on a plane. **"Reading offline" in Settings saves the rest**
+for the translation being read: it says how many of the 73 are on the device, names the size on
+the button before the tap ("Save the other 61, 3.7 MB"), shows progress, can be stopped, and says
+when it is done. The other translation is a second row with its own button, never part of the
+first: nearly ten megabytes for both is a lot to spend on a phone for a translation somebody may
+never open. `src/lib/offline.ts` is the logic and `OfflinePanel` the card.
+
+- **What is saved is read off the Cache API every time, never remembered.** `cachedPaths` reads
+  `keys()` from the cache the worker writes to, on mount, whenever the screen comes back into view,
+  after every file and at the end of a save. A flag saying "this device has the whole Bible" would
+  be wrong the moment a browser cleared storage to make room, which it is entitled to do, and wrong
+  again after every `CACHE` bump. It also told the truth about a first visit: the today card
+  prefetches its book before the new worker has claimed the page, so that book reaches the reader
+  without being cached, and the card said 0 of 73 over a reader that had just shown Mark.
+- **`SW_CACHE` in `offline.ts` names the same cache as `CACHE` in `sw.js`**, and `offline.test.ts`
+  reads `sw.js` and fails if they differ. A page counting one cache while the worker fills another
+  would say nothing is saved over a full one. **Bumping `CACHE` wipes every saved book**, since
+  activate deletes every cache with another name, and nothing re-saves them unasked: five
+  megabytes nobody asked for, on a phone's data, is not a courtesy. The card reads the empty cache
+  and offers the save again.
+- **It saves through the URLs the reader uses, so the worker's existing rule stores them.**
+  `bookUrl` in `bible.ts` and `INSIGHTS_URL` in `insights.ts` are the one spelling of each, used by
+  both the reader and the save, because the cache is keyed by URL and a different spelling of the
+  same file would be a copy the reader never looks up. `cacheFirst` awaits its `put` before it
+  hands the response over, so a file is in the cache by the time the page has it. A hard reload and
+  a first visit both bypass the worker, so `saveOne` puts the file in itself when the cache does
+  not have it, then asks the cache again before counting it.
+- **`insights.json` belongs to both translations**, so it is in every save and counted once. A
+  translation is complete only once it is there too, since without it the reader still works but
+  loses every heading and every book's introduction.
+- **The sizes are measured by `vite.config.ts` at build time**, from the files the build is about
+  to ship, and arrive as `__BIBLE_BYTES__` through `define`. A committed table would be wrong the
+  first time somebody ran `npm run layout` and forgot it, and a manifest file under `/bible/`
+  would be cached first forever. The test checks every size against the file on disk. Sizes are
+  decimal, the way a phone's storage screen gives them.
+- **Stop lets the files in flight land, and that was found in a browser rather than reasoned
+  out.** The first Stop aborted the page's fetches and recounted at once, and the card said three
+  King James books over a cache holding six: aborting the page's fetch does not abort the worker's,
+  which went on storing the file after the count had been read. Now Stop only stops new files
+  starting, the button says "Stopping" while at most four land, and `saveEach` resolves only once
+  nothing more can arrive. Checked three times against the cache 1.5 seconds later, and pinned by
+  a test that fails if the run resolves early.
+- **A file gets one retry, and a second failure stops the run.** A phone's connection drops for a
+  second far more often than for good, and when it is gone for good, or the device is out of room,
+  every remaining file fails the same way. The page cannot tell those two apart, since a worker's
+  failed `put` reaches it as a failed fetch, so the notice names both and says that what is saved
+  stays saved. Trying again carries on, because the count it starts from is the cache's.
+- **The save is module state, not component state**, so it keeps going when somebody leaves
+  Settings to read, and the card shows it still running when they come back.
+- **`navigator.storage.persist()` is asked on the tap**, where a browser that prompts for it has a
+  gesture to prompt from, and a refusal is not reported. Chromium refused it in testing, which it
+  does by its own reckoning for a site with little history, and the books saved all the same.
+- **The development server has no worker** (see `main.tsx`), so under `npm run dev` the card says
+  so instead of offering a save into a cache nothing reads. A browser with no worker at all gets a
+  sentence too. `detect()` waits up to five seconds for a registration, because `main.tsx`
+  registers on window load and Settings can be opened first.
+- **The rows stack at every width, the button under the words.** Settings is two columns from
+  720px, so the room beside a translation's name runs from about 300 to 450px, and a label that
+  names its size is 220 of it: side by side the row would wrap at some widths and not others, and
+  swap between the two when Save became Stop. Under `pointer: coarse` the button spans the row, so
+  the Stop that replaces Save is still under the thumb that pressed it.
+- **Not saved: JavaScript the app has not loaded yet.** Stats and each book's quiz are lazy chunks,
+  cache first once fetched, so one never opened before is not there offline. The text, the
+  headings and the reader itself are.
+- **The desktop app's browser pane cannot register a service worker.** `register()` fails with
+  "an unknown error occurred when fetching the script" although `/sw.js` fetches fine from the
+  page, so the pane only shows the card's no-worker sentence. The save, the stop and reading with
+  the server killed were checked in a headless Edge driven over the DevTools protocol, with a
+  throwaway profile: save the World English Bible, stop the King James part way, stop
+  `vite preview`, reload, and open Obadiah, which had never been opened. It read in full with its
+  introduction, and an unsaved King James Revelation gave the reader's offline message. On Windows
+  stopping the `npx vite preview` task leaves the node child listening, so check the port is
+  actually closed before calling anything offline.
+
 ### The data model
 
 One row per account in `public.journals`: `user_id`, `data` jsonb, `updated_at`. Row-level security
@@ -1334,6 +1463,14 @@ chapters outside the new plan simply stop being counted.
 existed only inside the Supabase project, so the schema had no history anywhere a reader could
 follow. All three files are byte identical to what is deployed, checked by md5 against
 `supabase_migrations.schema_migrations` rather than by eye.
+
+**A migration file's name has to carry the version the database recorded**, not the time it was
+written. All five were checked again on 2026-11-14 and all five are byte identical to production,
+but the blocks migration was filed as `20260909140000` while the project had applied it as
+`20260909060317`. The CLI matches by version, so `supabase db push` would have taken it for one
+never applied and tried to create the blocks tables a second time. It is renamed to match. **Check
+`list_migrations` after applying one through the dashboard or the MCP**, since both stamp their own
+time.
 
 ### Friends, and why it is four new tables
 
@@ -1750,7 +1887,7 @@ in the World English Bible or the King James, a source under every note, verse o
 reading order with a credits card in Settings,
 headings over every chapter of the 66 with a note on the turning points, highlighting with a
 thought attached,
-notes, stats, streaks, an offline app shell, full text search over all 73 books, five synthesised sounds with a synced mute switch, a card introducing every book and a
+notes, stats, streaks, an offline app shell with the whole Bible saved on request, full text search over all 73 books, five synthesised sounds with a synced mute switch, a card introducing every book and a
 note on the chapters that matter, a streak that celebrates itself when it grows and can be
 protected by rest days it earns, a finished book and a finished plan that each get their own
 moment, a reader that turns its pages, a knock and a dip on every press in the app, a six panel welcome guide that
@@ -1768,13 +1905,6 @@ The gate is in `reminderDue` rather than the view so an account that already had
 stops being nudged too. Saved prefs are untouched, so flipping the flag restores each reader's own
 time. Unlock it on native once the shell schedules local notifications, and only there. The in-app
 streak nudge on the journey is separate and still runs.
-
-**Next session: Daily Mix (`blended_daily`), the last track with no code path.** Four parallel
-streams, Old Testament 3 a day, New Testament 1, a psalm and a proverb, with **position cursors
-rather than next-unread**: the psalm advances one a day whatever the journal says, and a psalm
-already read shows as read rather than skipping ahead. Completion counts the OT and NT streams
-only. Until it exists, both the chooser and Settings filter it out rather than offering a track
-that would quietly start you on The Full Arc.
 
 Also worth doing: **phase progress weighted by chapters**, and never "phase 4 of 11" as the primary
 number. A phase is not a unit of work, and eleven of wildly different sizes read as a progress bar
@@ -2013,6 +2143,20 @@ Not built yet, roughly in order:
    simply reading the Bible. Sync and friends are genuine account features so it is arguable, but it
    is the kind of thing that gets rejected. The plumbing half exists already: `status === 'off'`
    renders `<Shell />` against local-only storage.
+7. **Tear down the four demo accounts before submission.** Hana, Marc, Ruth and Sam from
+   `supabase/seed/friends-demo.sql` were still live in production on 2026-11-14, beside the one
+   real profile. A reviewer adding friends would meet invented people. `friends-demo-teardown.sql`
+   removes all four, and it deletes accounts, so it is a deliberate step and not a cleanup.
+8. **Telling somebody a verse arrived.** Nothing does today short of opening Friends. While the app
+   is open, a Supabase Realtime subscription on `passages` filtered to `to_user` is enough, and RLS
+   already decides what it may deliver. With the app closed it is a push notification, which needs
+   the Capacitor shell, a table of device tokens with an owner-only policy, and a database webhook
+   on `passages` insert calling an edge function that sends it. Blocked on item 2.
+9. **Somebody has to read the reports.** `reports` collects them and nothing tells anyone one was
+   filed, while the rules page promises action within a day. The same webhook pattern, on
+   `reports` insert, emailing `SUPPORT_EMAIL`, closes it, and it does not need the shell. Guideline
+   1.2 also asks for a way to filter what is posted; a word list checked in a trigger on `passages`,
+   `broadcasts` and `profiles` is the smallest version that satisfies it.
 
 **Export is the only undo there is.** `ExportPanel` in Settings writes the whole blob to a file,
 because the server row is the only copy and a sync that writes the wrong thing cannot be walked

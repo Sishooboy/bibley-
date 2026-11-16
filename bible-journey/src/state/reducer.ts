@@ -7,7 +7,7 @@
  * wiring from an action to a cue is worth pinning in tests.
  */
 import { BOOK_BY_NAME } from '../data/plan';
-import { getTrack, type PhasedTrack } from '../data/tracks';
+import { getTrack, type Track } from '../data/tracks';
 import { relativeDay, today, type DayKey } from '../lib/dates';
 import { plural } from '../lib/format';
 import { noteKey } from '../lib/merge';
@@ -29,6 +29,7 @@ import {
 export type Action =
   | { type: 'toggleChapter'; book: string; chapter: number; day: DayKey; slot: Slot | null }
   | { type: 'markNext'; count: number; day: DayKey; slot: Slot | null }
+  | { type: 'markRefs'; refs: { book: string; chapter: number }[]; day: DayKey; slot: Slot | null }
   | { type: 'markChapters'; book: string; chapters: number[]; day: DayKey; slot: Slot | null }
   | { type: 'clearChapters'; book: string; chapters: number[] }
   | { type: 'clearBook'; book: string; chapters: number }
@@ -115,7 +116,7 @@ function markLabel(finished: string[], fallback: string): { label: string; tone?
 }
 
 /** Every chapter the track asks for, read. */
-function trackComplete(read: ReadMap, plan: PhasedTrack): boolean {
+function trackComplete(read: ReadMap, plan: Track): boolean {
   return plan.sequence.every((ref) => chapterKey(ref.book, ref.chapter) in read);
 }
 
@@ -130,7 +131,7 @@ function markCue(
   before: ReadMap,
   after: ReadMap,
   finished: string[],
-  plan: PhasedTrack,
+  plan: Track,
   marked: number,
 ): Cue | null {
   return chooseCue({
@@ -148,16 +149,49 @@ function markCue(
 }
 
 /**
- * The track in force, guaranteed to be one with phases.
- *
- * Everything downstream of `Derived` reads `plan.phases`, and the streams track
- * has none. Until Daily Mix has its own path, resolving to it here would hand
- * every view an object missing the field it is about to read, so a streams track
- * falls back to the default. Nothing can select one yet.
+ * The track in force. Every track has phases now, a streams track included: it
+ * covers what its counted streams cover, so everything downstream of `Derived`
+ * that reads `plan.phases` works for Daily Mix without knowing it is one. This
+ * used to fall back to the default for a streams track, which is why Daily Mix
+ * could not be offered until it had a path of its own.
  */
-export function activeTrack(id: string | undefined): PhasedTrack {
-  const track = getTrack(id);
-  return track.kind === 'phased' ? track : (getTrack(undefined) as PhasedTrack);
+export function activeTrack(id: string | undefined): Track {
+  return getTrack(id);
+}
+
+/** Marks a list of chapters against one day, the work `markNext` and `markRefs` share. */
+function markRefs(
+  state: State,
+  refs: { book: string; chapter: number }[],
+  day: DayKey,
+  slot: Slot | null,
+): State {
+  const data = state.data;
+  if (refs.length === 0) return state;
+  const read = { ...data.read };
+  const keys = refs.map((ref) => chapterKey(ref.book, ref.chapter));
+  for (const key of keys) read[key] = day;
+  const label =
+    refs.length === 1
+      ? `Marked ${refs[0].book} ${refs[0].chapter}`
+      : `Marked ${refs.length} chapters`;
+  const finished = booksFinishedBy(data.read, read, refs.map((ref) => ref.book));
+  const done = markLabel(finished, label + whenSuffix(day));
+  const next = withUndo(
+    state,
+    {
+      ...data,
+      read,
+      removed: untomb(data, keys),
+      markedAt: stampMarks(data, keys),
+      slots: stampSlots(data, keys, slot),
+    },
+    done.label,
+    done.tone,
+  );
+  // Five chapters at once is one sound, not five.
+  const cue = markCue(data.read, read, finished, activeTrack(data.planId), keys.length);
+  return cue ? { ...next, cue: fire(state, cue, finished) } : next;
 }
 
 /**
@@ -303,35 +337,20 @@ export function reducer(state: State, action: Action): State {
         cue: cue ? fire(state, cue, finished) : state.cue,
       };
     }
-    case 'markNext': {
-      const plan = activeTrack(data.planId);
-      const refs = nextUnread(data.read, action.count, plan);
-      if (refs.length === 0) return state;
-      const read = { ...data.read };
-      const keys = refs.map((ref) => chapterKey(ref.book, ref.chapter));
-      for (const key of keys) read[key] = action.day;
-      const label =
-        refs.length === 1
-          ? `Marked ${refs[0].book} ${refs[0].chapter}`
-          : `Marked ${refs.length} chapters`;
-      const finished = booksFinishedBy(data.read, read, refs.map((ref) => ref.book));
-      const done = markLabel(finished, label + whenSuffix(action.day));
-      const next = withUndo(
+    case 'markNext':
+      return markRefs(
         state,
-        {
-          ...data,
-          read,
-          removed: untomb(data, keys),
-          markedAt: stampMarks(data, keys),
-          slots: stampSlots(data, keys, action.slot),
-        },
-        done.label,
-        done.tone,
+        nextUnread(data.read, action.count, activeTrack(data.planId)),
+        action.day,
+        action.slot,
       );
-      // Five chapters at once is one sound, not five.
-      const cue = markCue(data.read, read, finished, plan, keys.length);
-      return cue ? { ...next, cue: fire(state, cue, finished) } : next;
-    }
+    /**
+     * Marks an explicit list of chapters, which may cross books. The mix card
+     * marks one stream's part of the day, or all of it, as a single change: one
+     * undo and one sound, exactly as marking the next few of a single order is.
+     */
+    case 'markRefs':
+      return markRefs(state, action.refs, action.day, action.slot);
     /**
      * Marks an explicit set of chapters against one day. Chapters already read
      * are included rather than skipped: re-marking a selection is how a reader

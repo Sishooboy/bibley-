@@ -171,12 +171,12 @@ type TrackBase = {
 };
 
 /**
- * A phased track, shaped so it drops straight into the existing contract:
+ * What every track covers, whatever shape its days take: the books, in phases.
  * `label`, `blurb`, `rationale`, `phases`, `books`, `bookCount`, `chapterCount`,
- * `sequence` and `phaseOfBook` are all what the old `Plan` provided.
+ * `sequence` and `phaseOfBook` are what the old `Plan` provided, so a track of
+ * either kind drops straight into the existing contract.
  */
-export type PhasedTrack = TrackBase & {
-  kind: 'phased';
+type Coverage = {
   phases: Phase[];
   books: { name: string; chapters: number }[];
   bookCount: number;
@@ -185,16 +185,69 @@ export type PhasedTrack = TrackBase & {
   phaseOfBook: Map<string, number>;
 };
 
-export type StreamTrack = TrackBase & {
-  kind: 'streams';
-  streams: TrackStream[];
-  /** The testament's own total. Psalms and Proverbs run alongside, uncounted. */
-  chapterCount: number;
-  estimatedDailyMinutes?: number;
-  estimatedDays?: number;
+/** One order, read from the front: the next unread chapter is the next one. */
+export type PhasedTrack = TrackBase & Coverage & { kind: 'phased' };
+
+/** A stream with its chapters laid out, so a day's reading can be cut from it. */
+export type ResolvedStream = TrackStream & {
+  /** The referenced track's order, or one book's chapters from the first. */
+  sequence: { book: string; chapter: number }[];
 };
 
+/**
+ * Several streams read side by side, a few chapters of each a day.
+ *
+ * **It covers what its counted streams cover, in their phases.** Daily Mix
+ * counts its Old and New Testament streams, whose orders are together the 73
+ * books exactly once, so its phases are those two orders' phases one after the
+ * other. That is what lets every screen about the plan as a whole, the journey,
+ * the book grid, Stats, the Quiz tab and the share card, work unchanged: only
+ * the day is different, and only `mix.ts` and the mix card know about days.
+ */
+export type StreamTrack = TrackBase &
+  Coverage & {
+    kind: 'streams';
+    streams: ResolvedStream[];
+    estimatedDailyMinutes?: number;
+    estimatedDays?: number;
+  };
+
 export type Track = PhasedTrack | StreamTrack;
+
+/** Numbers phases in order and lays their books out as one sequence. */
+function coverage(raw: TrackPhase[]): Coverage {
+  const phases: Phase[] = raw.map((phase, i) => ({
+    phase: i + 1,
+    title: phase.name,
+    why: phase.note ?? '',
+    whySources: phase.note_sources,
+    books: (phase.books ?? []).map((b) => ({ name: b.book, chapters: b.chapters })),
+    entries: phase.books ?? [],
+  }));
+  const books = phases.flatMap((p) => p.books);
+  return {
+    phases,
+    books,
+    bookCount: books.length,
+    chapterCount: books.reduce((n, b) => n + b.chapters, 0),
+    sequence: phases.flatMap((p) =>
+      p.books.flatMap((b) =>
+        Array.from({ length: b.chapters }, (_, i) => ({
+          book: b.name,
+          chapter: i + 1,
+          phase: p.phase,
+        })),
+      ),
+    ),
+    phaseOfBook: new Map(phases.flatMap((p) => p.books.map((b) => [b.name, p.phase] as const))),
+  };
+}
+
+function referenced(owner: string, id: string): RawTrack {
+  const target = rawById.get(id);
+  if (!target) throw new Error(`Reading tracks: ${owner} references unknown track ${id}`);
+  return target;
+}
 
 function build(track: RawTrack): Track {
   const testament = testamentOf.get(track.id)!;
@@ -215,44 +268,48 @@ function build(track: RawTrack): Track {
   };
 
   if (track.kind === 'streams') {
+    const streams = track.streams ?? [];
+    // The plan is what the counted streams cover. A stream that loops, the
+    // proverb of the day, would otherwise make a plan that can never finish.
+    const covered = coverage(
+      streams
+        .filter((s) => s.counts_toward_completion && s.order_ref)
+        .flatMap((s) => resolvePhases(referenced(track.id, s.order_ref!))),
+    );
+    const chaptersOf = new Map(covered.books.map((b) => [b.name, b.chapters]));
     return {
       ...base,
+      ...covered,
       kind: 'streams',
-      streams: track.streams ?? [],
-      chapterCount: TESTAMENT_TOTALS[testament].chapters,
+      streams: streams.map((stream) => ({
+        ...stream,
+        sequence: stream.order_ref
+          ? coverage(resolvePhases(referenced(track.id, stream.order_ref))).sequence.map(
+              ({ book, chapter }) => ({ book, chapter }),
+            )
+          : bookChapters(track.id, stream.book, chaptersOf),
+      })),
       estimatedDailyMinutes: track.estimated_daily_minutes,
       estimatedDays: track.estimated_days,
     };
   }
 
-  const phases: Phase[] = resolvePhases(track).map((phase, i) => ({
-    phase: i + 1,
-    title: phase.name,
-    why: phase.note ?? '',
-    whySources: phase.note_sources,
-    books: (phase.books ?? []).map((b) => ({ name: b.book, chapters: b.chapters })),
-    entries: phase.books ?? [],
-  }));
+  return { ...base, ...coverage(resolvePhases(track)), kind: 'phased' };
+}
 
-  const books = phases.flatMap((p) => p.books);
-  return {
-    ...base,
-    kind: 'phased',
-    phases,
-    books,
-    bookCount: books.length,
-    chapterCount: books.reduce((n, b) => n + b.chapters, 0),
-    sequence: phases.flatMap((p) =>
-      p.books.flatMap((b) =>
-        Array.from({ length: b.chapters }, (_, i) => ({
-          book: b.name,
-          chapter: i + 1,
-          phase: p.phase,
-        })),
-      ),
-    ),
-    phaseOfBook: new Map(phases.flatMap((p) => p.books.map((b) => [b.name, p.phase] as const))),
-  };
+/**
+ * Every chapter of one book, for a stream that names a book rather than an
+ * order. The count comes from the plan the track covers, so a stream can only
+ * name a book its own plan contains, which is what lets it credit that plan.
+ */
+function bookChapters(
+  owner: string,
+  book: string | undefined,
+  chaptersOf: Map<string, number>,
+): { book: string; chapter: number }[] {
+  const count = book ? chaptersOf.get(book) : undefined;
+  if (!book || !count) throw new Error(`Reading tracks: ${owner} has a stream with no known book`);
+  return Array.from({ length: count }, (_, i) => ({ book, chapter: i + 1 }));
 }
 
 export const TRACKS: Map<string, Track> = new Map(

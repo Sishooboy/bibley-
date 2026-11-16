@@ -5,13 +5,13 @@ import { CREDITS } from '../data/credits';
 import { SUPPORT_EMAIL } from '../lib/contact';
 import { DeleteAccountPanel } from '../components/DeleteAccountPanel';
 import { ExportPanel } from '../components/ExportPanel';
+import { OfflinePanel } from '../components/OfflinePanel';
 import { HeadChip, ViewHeader } from '../components/ViewHeader';
 import { Check, Compass, Lock, Route } from '../components/icons';
 import {
   TESTAMENTS,
   TESTAMENT_LABELS,
   tracksFor,
-  type PhasedTrack,
 } from '../data/tracks';
 import { formatDay } from '../lib/dates';
 import { formatNumber, plural } from '../lib/format';
@@ -43,7 +43,7 @@ export function SettingsView() {
       TESTAMENTS.map((id) => ({
         id,
         label: TESTAMENT_LABELS[id],
-        tracks: tracksFor(id).filter((t) => t.kind === 'phased') as PhasedTrack[],
+        tracks: tracksFor(id),
       })),
     [],
   );
@@ -63,7 +63,7 @@ export function SettingsView() {
       <ViewHeader
         eyebrow="Account, plan and reminders"
         title="Settings"
-        lede="Saved to your account, except how this device looks."
+        lede="Saved to your account, except how this device looks and what it keeps offline."
         meta={
           <>
             <HeadChip gold>{plan.label}</HeadChip>
@@ -144,6 +144,10 @@ export function SettingsView() {
             question after what to read, and night mode is what people come
             to Settings looking for. */}
         <AppearancePanel reveal={reveal} />
+
+        {/* Beside Appearance, because both are about this device rather than
+            the account: what it shows, and what it can show with no signal. */}
+        <OfflinePanel reveal={reveal} />
 
         <AccountPanel reveal={reveal} />
 
