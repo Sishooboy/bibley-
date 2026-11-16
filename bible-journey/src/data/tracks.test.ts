@@ -109,10 +109,15 @@ describe('reference expansion', () => {
 });
 
 describe('the streams track', () => {
-  it('is kept out of the phase model', () => {
+  it('has the phases of the orders it counts, one after the other', () => {
+    // It used to be kept out of the phase model, which is why nothing could
+    // select it: every screen about the plan reads `phases`. Its phases are what
+    // its counted streams cover, so those screens work without knowing.
     const daily = getTrack('blended_daily');
     expect(daily.kind).toBe('streams');
-    expect('phases' in daily).toBe(false);
+    expect(daily.phases).toHaveLength(
+      getTrack('ot_story_first').phases.length + getTrack('nt_story_first').phases.length,
+    );
   });
 
   it('carries its four streams, saying which ones count', () => {

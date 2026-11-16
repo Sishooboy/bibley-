@@ -11,7 +11,6 @@ import {
   TESTAMENTS,
   TESTAMENT_LABELS,
   tracksFor,
-  type PhasedTrack,
 } from '../data/tracks';
 import { formatDay } from '../lib/dates';
 import { formatNumber, plural } from '../lib/format';
@@ -43,7 +42,7 @@ export function SettingsView() {
       TESTAMENTS.map((id) => ({
         id,
         label: TESTAMENT_LABELS[id],
-        tracks: tracksFor(id).filter((t) => t.kind === 'phased') as PhasedTrack[],
+        tracks: tracksFor(id),
       })),
     [],
   );

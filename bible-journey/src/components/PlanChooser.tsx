@@ -5,7 +5,6 @@ import {
   TESTAMENT_TOTALS,
   recommendedFor,
   tracksFor,
-  type PhasedTrack,
   type TestamentId,
 } from '../data/tracks';
 import { formatNumber, plural } from '../lib/format';
@@ -42,18 +41,7 @@ export function PlanChooser({ onChoose }: { onChoose: (id: string) => void }) {
   const [testament, setTestament] = useState<TestamentId | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
 
-  /*
-   * Phased only. The streams track, Daily Mix, has no code path yet and
-   * `activeTrack` quietly falls back to the default for one, so offering it
-   * here would start the reader on something other than what they picked.
-   */
-  const options = useMemo(
-    () =>
-      testament
-        ? (tracksFor(testament).filter((t) => t.kind === 'phased') as PhasedTrack[])
-        : [],
-    [testament],
-  );
+  const options = useMemo(() => (testament ? tracksFor(testament) : []), [testament]);
   const chosen = options.find((t) => t.id === selected) ?? null;
 
   const open = (id: TestamentId) => {
@@ -91,7 +79,7 @@ export function PlanChooser({ onChoose }: { onChoose: (id: string) => void }) {
             <div className="chooser__grid" role="list">
               {TESTAMENTS.map((id) => {
                 const total = TESTAMENT_TOTALS[id];
-                const ways = tracksFor(id).filter((t) => t.kind === 'phased').length;
+                const ways = tracksFor(id).length;
                 return (
                   <button
                     key={id}
@@ -154,7 +142,11 @@ export function PlanChooser({ onChoose }: { onChoose: (id: string) => void }) {
                         {track.recommended && <span className="planCard__rec">Suggested</span>}
                       </span>
                       <span className="planCard__count">
-                        {plural(track.phases.length, 'phase')}
+                        {/* A mix's phases are only what it covers; what the
+                            reader meets is the day, so that is what it counts. */}
+                        {track.kind === 'streams'
+                          ? `${track.streams.length} readings a day`
+                          : plural(track.phases.length, 'phase')}
                       </span>
                     </span>
                     <span className="planCard__blurb">{track.tagline}</span>

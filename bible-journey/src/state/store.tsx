@@ -131,6 +131,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         dispatch({ type: 'markNext', count, day: effectiveDay(), slot: logSlot });
         setPickedDay(null);
       },
+      markRefs: (refs) => {
+        dispatch({ type: 'markRefs', refs, day: effectiveDay(), slot: logSlot });
+        setPickedDay(null);
+      },
       /*
        * The chosen day lasts for one recording and then goes back to today.
        * Carrying it over was meant to help fill in a week at a time, and instead

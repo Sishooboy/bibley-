@@ -275,10 +275,10 @@ redeploy.**
   tracks for a testament with the recommended one first, and that one is pre-selected so Begin is
   reachable in one tap. Settings groups the same nine the same way, under `.planGroup`, with the
   book and chapter count on the group heading rather than repeated on all three cards.
-- **Daily Mix (`blended_daily`) is deliberately not offered yet.** It is the one `streams` track,
-  it has no code path, and `activeTrack` silently falls back to the default for one, so listing it
-  would start the reader on something other than what they picked. Both the chooser and Settings
-  filter to `kind === 'phased'`. Offer it the moment its own path exists, and not before.
+- **Daily Mix (`blended_daily`) is offered now**, in the chooser and in Settings, and has its own
+  section below. It was held back while it had no code path, because `activeTrack` silently fell
+  back to the default for a streams track and listing it would have started the reader on
+  something other than what they picked.
 - `src/state/reducer.ts` holds every rule about how the journal changes; `src/state/store.tsx` is
   only the provider around it, persisting to `localStorage` under `bible-journey/v1`.
   **They are two files because exporting a plain function beside a component turns off Vite's fast
@@ -1314,6 +1314,55 @@ follows the system by default, and Settings has "Match this device", "Light" and
   the splash an installed web app shows on Android, is cream at night too, because a manifest
   cannot vary by scheme; the Capacitor shell will decide that natively.
 
+### Daily Mix, and why an order waits but a cursor keeps the calendar
+
+Four readings a day instead of one run: three chapters of the Old Testament, one of the New, a
+psalm and a proverb, about eighteen minutes and the whole Bible in about a year. It is for the
+reader who stalls three weeks into Leviticus, at the cost of jumping between eras every day.
+
+- **It is a plan like any other to every screen but one.** Its Old and New Testament streams walk
+  `ot_story_first` and `nt_story_first`, and those two orders are together the 73 books exactly
+  once, 1,334 chapters, which a test pins. So `tracks.ts` gives a streams track the phases of the
+  streams it counts, one order after the other, and the journey, the book grid, Stats, the Quiz tab,
+  Notes, the share card and the Friends projection all read Daily Mix's 15 phases as they would any
+  track's. **Only the day is different**, and only `src/lib/mix.ts` and `MixCard` know about days.
+  The alternative, a second code path through every screen, was the reason it went unbuilt.
+- **`activeTrack` returns the track asked for.** It used to fall back to The Full Arc for a streams
+  track, because a streams track had no phases and every screen reads them. A test now pins that
+  marking on Daily Mix marks Daily Mix's chapters.
+- **An order waits for you.** A day's part of the Old or New Testament is the next few chapters not
+  read *before today*, so a missed day leaves the same chapters waiting rather than skipping any,
+  which is the only honest answer for a plan whose point is reading every chapter. Cutting it from
+  before today is also what makes the part **hold still while it is read**: marking Genesis 40
+  ticks it off instead of sliding Genesis 43 into view. A chapter backdated to yesterday, or read
+  before the journal began (`null` in `read`), was never part of today.
+- **A cursor keeps the calendar.** The psalm and the proverb are companions to the day rather than
+  progress through anything. The proverb is the day of the month, how Proverbs' 31 chapters have
+  always been read. The psalm walks from Psalm 1 a day at a time from `startedAt`, round again
+  after 150, because `startedAt` is synced and merges to the earliest, so two devices agree on
+  today's psalm. Storing a start date of its own would have needed a `normalize()` release first.
+- **A cursor's chapter counts as read if it was ever read.** This app records which chapters a
+  reader has read, not how many times, and `read` holds one day per chapter: marking a psalm again
+  would move the day it was first read, which can shorten a streak already earned. So today's psalm
+  shows as read from a reading in March, and the row still opens it for anyone who wants it again.
+- **Finishing means the two orders.** The psalm and the proverb never run out, so `mixFinished`
+  asks only the streams that count toward completion, which is what `completion_denominator` in
+  the track data says.
+- **`markRefs` marks a list of chapters across books** as one change, with one undo and one sound,
+  and `markNext` is now that action applied to the next few of an order. A day's Old Testament part
+  can be Genesis 50 and Exodus 1 and 2, which `markChapters`, one book at a time, could not mark
+  as one change.
+- **`MixCard` keeps the today card's shape**: one wide red button for the next thing to read,
+  saying how long it is, and "I read it somewhere else" folded underneath, here with a button a
+  stream and one for the whole day. The rows between are buttons into the reader, ticked in gold
+  as each is read. The streak lines above both cards are one component, `TodayAlerts`, so the two
+  plans say the same thing about a streak. **`useToday` keeps the date current while the app is
+  open**, a minute check and a check on becoming visible, since the mix is the first card that
+  depends on the date and a phone left on the bedside table overnight would show yesterday's.
+- Measured at night like everything else: stream names 6.62, references 14.01, a read reference
+  6.62, the gold tick 10.18 as ink on solid gold. All of them paper tokens, so nothing was added
+  to the night set.
+
 ### The data model
 
 One row per account in `public.journals`: `user_id`, `data` jsonb, `updated_at`. Row-level security
@@ -1329,6 +1378,14 @@ chapters outside the new plan simply stop being counted.
 existed only inside the Supabase project, so the schema had no history anywhere a reader could
 follow. All three files are byte identical to what is deployed, checked by md5 against
 `supabase_migrations.schema_migrations` rather than by eye.
+
+**A migration file's name has to carry the version the database recorded**, not the time it was
+written. All five were checked again on 2026-11-14 and all five are byte identical to production,
+but the blocks migration was filed as `20260909140000` while the project had applied it as
+`20260909060317`. The CLI matches by version, so `supabase db push` would have taken it for one
+never applied and tried to create the blocks tables a second time. It is renamed to match. **Check
+`list_migrations` after applying one through the dashboard or the MCP**, since both stamp their own
+time.
 
 ### Friends, and why it is four new tables
 
@@ -1620,13 +1677,6 @@ stops being nudged too. Saved prefs are untouched, so flipping the flag restores
 time. Unlock it when the Capacitor shell lands. The in-app streak nudge on the journey is separate
 and still runs.
 
-**Next session: Daily Mix (`blended_daily`), the last track with no code path.** Four parallel
-streams, Old Testament 3 a day, New Testament 1, a psalm and a proverb, with **position cursors
-rather than next-unread**: the psalm advances one a day whatever the journal says, and a psalm
-already read shows as read rather than skipping ahead. Completion counts the OT and NT streams
-only. Until it exists, both the chooser and Settings filter it out rather than offering a track
-that would quietly start you on The Full Arc.
-
 Also worth doing: **phase progress weighted by chapters**, and never "phase 4 of 11" as the primary
 number. A phase is not a unit of work, and eleven of wildly different sizes read as a progress bar
 that lurches.
@@ -1865,6 +1915,20 @@ Not built yet, roughly in order:
    simply reading the Bible. Sync and friends are genuine account features so it is arguable, but it
    is the kind of thing that gets rejected. The plumbing half exists already: `status === 'off'`
    renders `<Shell />` against local-only storage.
+7. **Tear down the four demo accounts before submission.** Hana, Marc, Ruth and Sam from
+   `supabase/seed/friends-demo.sql` were still live in production on 2026-11-14, beside the one
+   real profile. A reviewer adding friends would meet invented people. `friends-demo-teardown.sql`
+   removes all four, and it deletes accounts, so it is a deliberate step and not a cleanup.
+8. **Telling somebody a verse arrived.** Nothing does today short of opening Friends. While the app
+   is open, a Supabase Realtime subscription on `passages` filtered to `to_user` is enough, and RLS
+   already decides what it may deliver. With the app closed it is a push notification, which needs
+   the Capacitor shell, a table of device tokens with an owner-only policy, and a database webhook
+   on `passages` insert calling an edge function that sends it. Blocked on item 2.
+9. **Somebody has to read the reports.** `reports` collects them and nothing tells anyone one was
+   filed, while the rules page promises action within a day. The same webhook pattern, on
+   `reports` insert, emailing `SUPPORT_EMAIL`, closes it, and it does not need the shell. Guideline
+   1.2 also asks for a way to filter what is posted; a word list checked in a trigger on `passages`,
+   `broadcasts` and `profiles` is the smallest version that satisfies it.
 
 **Export is the only undo there is.** `ExportPanel` in Settings writes the whole blob to a file,
 because the server row is the only copy and a sync that writes the wrong thing cannot be walked

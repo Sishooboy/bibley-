@@ -5,7 +5,7 @@ import { plural } from '../lib/format';
 import { HIGHLIGHT_COLOURS, type HighlightColour } from '../lib/colours';
 import { colourOf, highlightRef } from '../lib/highlight';
 import { useReveal } from '../lib/motion';
-import type { PhasedTrack } from '../data/tracks';
+import type { Track } from '../data/tracks';
 import type { Highlight, Note } from '../lib/storage';
 import { DEFAULT_TRANSLATION, highlightTranslation, translationShort } from '../lib/translations';
 import { useReader } from '../state/useReader';
@@ -33,7 +33,7 @@ function entryPreview(e: Entry): string {
   return e.kind === 'highlight' ? e.highlight.text : '';
 }
 
-function phaseLabel(book: string, plan: PhasedTrack): string {
+function phaseLabel(book: string, plan: Track): string {
   const phase = plan.phaseOfBook.get(book);
   if (phase === undefined) return 'Not in this plan';
   const title = plan.phases.find((p) => p.phase === phase)?.title ?? '';
@@ -71,7 +71,7 @@ function EntryRow({
 }: {
   entry: Entry;
   query: string;
-  plan: PhasedTrack;
+  plan: Track;
   open: boolean;
   onToggle: () => void;
   reveal: (node: Element | null) => void;

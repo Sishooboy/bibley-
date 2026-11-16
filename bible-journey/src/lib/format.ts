@@ -1,7 +1,7 @@
 import type { ChapterRef } from '../data/plan';
 
 /** "Genesis 1–3", or "Genesis 50 · Exodus 1–2" when a run crosses books. */
-export function formatRefs(refs: ChapterRef[]): string {
+export function formatRefs(refs: Pick<ChapterRef, 'book' | 'chapter'>[]): string {
   if (refs.length === 0) return '';
   const groups: { book: string; chapters: number[] }[] = [];
   for (const ref of refs) {

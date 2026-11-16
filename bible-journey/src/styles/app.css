@@ -1875,6 +1875,88 @@ select {
   color: var(--muted);
 }
 
+/*
+ * Daily Mix's four readings, one row a stream. The name is the small label and
+ * the reference is the thing you read, so the reference takes the display face
+ * and the right edge, where a run down the four rows compares at a glance.
+ * Paper tokens throughout, so the rows are right at night without a word more.
+ */
+.mix {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.mix > li {
+  border-bottom: 1px solid var(--line);
+}
+
+.mix__row {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  min-height: 46px;
+  padding: 0.55rem 0.1rem;
+  border: 0;
+  background: none;
+  text-align: left;
+  color: var(--text);
+}
+
+.mix__row:disabled {
+  cursor: default;
+}
+
+/* Empty ring until read; gold once it is, the progress colour, with ink on it. */
+.mix__tick {
+  display: grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+}
+
+.mix__row[data-done] .mix__tick {
+  border-color: var(--yellow);
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+.mix__name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+.mix__ref {
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 600;
+  text-align: right;
+  color: var(--paper-ink);
+}
+
+.mix__row[data-done] .mix__ref {
+  color: var(--muted);
+}
+
+@media (hover: hover) {
+  .mix__row:not(:disabled):hover .mix__ref {
+    color: var(--paper-red-700);
+  }
+}
+
+.mix__done {
+  margin-top: 0;
+}
+
 .quote__context {
   color: var(--muted-dark);
   font-size: 0.88rem;
