@@ -24,6 +24,8 @@ npm run audio    # rebuild src/data/audioBooks.ts by probing the recording host.
 npm run kjv      # rebuild public/bible/kjv/ from an unzipped eng-kjv USFM. Also committed
 npm run preview  # serves dist on 4173, the only way to exercise the service worker
 npm run icons    # regenerate public/icon-*.png from brand/logo-source.png
+npm run ios:sync # build, then copy dist into the iOS shell. Works on Windows, compiling does not
+npm run ios:open # open the shell in Xcode, macOS only
 ```
 
 The service worker is production only, so `npm run dev` never has one in front of it. To test
@@ -33,7 +35,8 @@ offline behaviour, build, `npm run preview`, then stop the server and reload the
 
 Vite, React 19, TypeScript, recharts, `@supabase/supabase-js`. Fraunces and Inter self-hosted via
 `@fontsource-variable` (no CDN). No CSS framework: one stylesheet, `src/styles/app.css`, with
-design tokens at the top.
+design tokens at the top. Capacitor 8 wraps the same build as an iOS app in `bible-journey/ios/`,
+see "The iOS shell" below.
 
 ## Services
 
@@ -44,10 +47,12 @@ design tokens at the top.
 | Live URL | https://bibley-charbeljdagher-4033s-projects.vercel.app |
 | Repo | https://github.com/Sishooboy/bibley- |
 | Sign-in | Google OAuth only, via Supabase |
+| CI | GitHub Actions, `.github/workflows/ios.yml`, compiles the iOS shell for the simulator |
 
-Env vars `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` live in `.env.local` (gitignored)
-and in Vercel. **Vite bakes them in at build time, so changing one in Vercel does nothing until you
-redeploy.**
+Env vars `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` live in `.env.local` (gitignored),
+in Vercel, and as GitHub repository secrets for the iOS workflow. **Vite bakes them in at build
+time, so changing one in Vercel does nothing until you redeploy**, and changing one in GitHub does
+nothing to a binary already built.
 
 ## Architecture
 
@@ -674,15 +679,15 @@ redeploy.**
   buffer, which is +1.6 kB gzipped against shipping five files, carries no licence into an App Store
   build, and lets a chime be tuned by editing a number rather than re-exporting a wav. A bell is
   `PARTIALS`, inharmonic ratios above the strike tone that decay faster than it does, and a tick is
-  filtered noise over a pitched thud: the noise alone is a click and the sine alone is a beep.
-  **Web Audio and nothing else, because that is what respects the iOS silent switch.** An `<audio>`
-  element is the known way to play through a silenced phone, so do not introduce one; the Capacitor
-  shell decides this natively instead, through the audio session category, and needs checking when
-  it lands. `MASTER` was **measured, not judged**, the same way contrast is: rendered through an
-  `OfflineAudioContext`, 0.5 put the chapter tick at -20 dBFS, which vanishes under a phone speaker.
-  0.9 puts the tick at -14.9 and the loudest celebration, the finished book, at -8.7, which is where
-  interface sound sits and still leaves 8.7 dB of headroom. `schedule()` is exported so the voices
-  can be rendered offline and measured rather than only listened to.
+  filtered noise over a pitched thud: the noise alone is a click and the sine alone is a beep. **Web
+  Audio and nothing else, because that is what respects the iOS silent switch.** An `<audio>`
+  element is the known way to play through a silenced phone, so do not introduce one. In the
+  Capacitor shell the audio session category decides it, and the one order that needs a device check
+  is under "The iOS shell". `MASTER` was **measured, not judged**, the same way contrast is:
+  rendered through an `OfflineAudioContext`, 0.5 put the chapter tick at -20 dBFS, which vanishes
+  under a phone speaker. 0.9 puts the tick at -14.9 and the loudest celebration, the finished book,
+  at -8.7, which is where interface sound sits and still leaves 8.7 dB of headroom. `schedule()` is
+  exported so the voices can be rendered offline and measured rather than only listened to.
 - **The four celebration voices are scored against their screens, and the score is not written
   down twice.** `src/lib/celebration.ts` is one table of milliseconds, `STREAK`, `MILESTONE`,
   `BOOK` and `PLAN`, and both halves read it: `StreakCelebration` hands every entry to the stylesheet as a
@@ -1492,6 +1497,150 @@ the four accounts, since every table cascades from `auth.users`.
 Consequence to keep in mind: unmarking does not travel to a device that is offline with stale data.
 Progress is never lost, only occasionally resurrected. That direction is deliberate.
 
+### The iOS shell, and what breaks inside it
+
+`bible-journey/ios/` is a Capacitor 8 project wrapped around the same web build. **It is a scaffold,
+not a release.** CI compiles it for the simulator, and it exists so the native work the web cannot
+do, a home screen widget, reminders that fire with the app closed, Sign in with Apple, haptics, has
+somewhere to live. Signing in does not work in it yet, for the reasons below.
+
+- **Swift Package Manager, not CocoaPods**, which is what a new Capacitor 8 project gets. That is
+  why there is no Podfile and no `.xcworkspace`: the thing to build is `ios/App/App.xcodeproj`,
+  scheme `App`, and `CapApp-SPM/Package.swift` is where plugins land. It is rewritten by
+  `cap sync` and says not to edit it, so do not. Capacitor 8 needs Xcode 26 and iOS 15.
+- **The binary carries its own copy of the web app, so a deploy does not reach it.** `cap sync`
+  copies `dist` into `ios/App/App/public`, which is gitignored and must be regenerated, which is
+  why `npm run ios:sync` builds first. A push to main updates Vercel and nothing else; a fixed note
+  in `insights.json` reaches the app only in a new binary, and bumping `CACHE` in `sw.js` means
+  nothing there. The Supabase env vars are baked into whichever build was synced, so a sync on a
+  machine with no `.env.local` makes a local-only app.
+- **The bundle id is `com.example.bibley`, a placeholder on purpose.** `example.com` is the domain
+  reserved for examples, so the id reads as a stand-in wherever it appears and is not ours to
+  register. When the paid account exists, pick the real one and change it in `capacitor.config.ts` **and** in both
+  `PRODUCT_BUNDLE_IDENTIFIER` lines of `project.pbxproj`, since `cap sync` does not rewrite the
+  Xcode project. Settle it before the URL scheme, the App Group and the widget, because all three
+  are named after it.
+- **`Info.plist` carries two usage strings, the photo library and the camera.** The avatar input is
+  `accept="image/jpeg,image/png,image/webp"`, and iOS answers a file input like that with Photo
+  Library, Take Photo and Choose File. Picking either of the first two without its string kills the
+  app, which is a rejection for a broken feature rather than for a missing line, so the camera one
+  is there too although nothing asked for it. Both say plainly what the picture is for.
+  Xcode's plist editor drops comments when it saves, which is why this paragraph repeats them.
+- **The status bar is light text, always**, `UIStatusBarStyleLightContent`. The top of every screen
+  is ink in both schemes, so the system's dark text by day would be black on black. View controller
+  based appearance stays on, because the SystemBars plugin Capacitor 8 bundles in core needs it and
+  reads its starting style from that key. **Not yet seen on a screen**, the CI screenshot is the
+  first place to check it.
+- **The launch screen, the icon and the splash are Capacitor's placeholders.** The launch screen is
+  white, which flashes before the ink page, and the icon is Capacitor's own. Both wait on the 1024px
+  mark under "Not built yet".
+
+**Building it.** On Windows, `npm run ios:sync` works, it copies the assets and writes
+`Package.swift`, and compiling does not. Compiling is `.github/workflows/ios.yml` on a `macos-26`
+runner: `npm ci`, `npm run build`, `npx cap sync ios`, then `xcodebuild build -project App.xcodeproj
+-scheme App -sdk iphonesimulator -destination 'generic/platform=iOS Simulator'` with
+`CODE_SIGNING_ALLOWED=NO`, which is the one iOS build that needs no account, no certificate and no
+device. It runs on pull requests that touch `bible-journey/` or the workflow, on pushes to main,
+and by hand from the Actions tab. After the build it boots a simulator, installs and launches the
+app and keeps a screenshot as the `ios-shell-screenshot` artifact for 14 days, **with
+`continue-on-error`**, since that is a picture for somebody who has no Mac and the compile is what
+the check means. The repo is public, so macOS minutes are free; private, they count ten times over.
+
+**The workflow needs two repository secrets, and the owner has to add them**: on GitHub, Settings,
+Secrets and variables, Actions, New repository secret, `VITE_SUPABASE_URL` and
+`VITE_SUPABASE_PUBLISHABLE_KEY`, the same values as `.env.local` and Vercel. **Never commit them.**
+Without them the job warns and still builds, a local-only app that proves it compiles, and that is
+also what a pull request from a fork always gets, since GitHub withholds secrets from forks.
+
+What breaks inside the shell, investigated and not yet fixed:
+
+- **Google sign-in fails, and not in the way you would guess.** Google refuses OAuth inside an
+  embedded web view (`disallowed_useragent`), but the web view never gets that far: Capacitor's
+  `WebViewDelegationHandler` cancels any top-level navigation off the app's own origin and hands it
+  to `UIApplication.open`, so tapping the button opens Safari. Google is happy in Safari, and then
+  Supabase redirects to `redirectTo: window.location.origin`, which in the shell is
+  `capacitor://localhost`. That is not on the allowlist, so Supabase falls back to the Site URL and
+  the reader would end up signed in to **the website, in Safari**, with the app still at the gate.
+  Allowlisting it would not help either: `capacitor://` is a scheme handler inside the web view,
+  not a URL scheme the app registers, so nothing outside can open it.
+- **The fix is a system browser session, a deep link back, and PKCE.** Register a custom URL scheme
+  named after the real bundle id, call `signInWithOAuth` with `skipBrowserRedirect: true` and
+  `redirectTo: '<scheme>://auth-callback'`, open the URL it returns in `ASWebAuthenticationSession`,
+  and hand the `code` from the callback to `exchangeCodeForSession`. `ASWebAuthenticationSession`
+  rather than `@capacitor/browser`: it is Apple's API for exactly this, Google accepts it, it
+  catches the callback and closes itself, and Sign in with Apple lives in the same framework. About
+  forty lines of Swift as a local plugin. **That needs `flowType: 'pkce'`, which is not the
+  default**: supabase-js defaults to `implicit`, which is what the web uses today and why
+  `returnedFromOAuth` looks for `access_token=` too. Set it on native only, or test the web flow
+  with it before switching both. `returnedFromOAuth` reads `window.location`, which a native sign-in
+  never touches, so the full splash `Gate` holds after a fresh sign-in needs telling another way.
+  A custom scheme needs no Apple account; universal links would, and a domain.
+- **Supabase needs the scheme on its allowlist**: Authentication, URL Configuration, Redirect URLs,
+  add `<scheme>://auth-callback`. The Site URL stays the Vercel address. Google Cloud needs nothing,
+  because Google redirects to Supabase and never to the app; only the native Google SDK route,
+  `signInWithIdToken`, would want an iOS client there, and the browser route is preferred precisely
+  because it reuses the provider already configured.
+- **The service worker does not run in the shell, and does not need to.** The page is served from
+  `capacitor://localhost`, and the service worker spec rejects registering any script whose URL is
+  not http or https, so `register('/sw.js')` fails into the `.catch` in `main.tsx` that already
+  calls offline support a bonus. Nothing is lost, since every file is in the bundle: the shell is
+  offline by construction for the text, the notes and the fonts, and Supabase and the recordings are
+  remote exactly as they are on the web.
+- **Chimes and the silent switch: probably right, with one order that needs a real phone.**
+  Capacitor never touches `AVAudioSession`, there is no mention of it anywhere in `@capacitor/ios`,
+  so WebKit's own choice stands, and in Safari that choice is the one `sound.ts` relies on: Web
+  Audio alone plays as ambient sound, which the switch mutes. The risk is the recording. A playing
+  `<audio>` element moves the session to playback, which ignores the switch, and whether it drops
+  back before the next chime is what to check: switch on, mark a chapter, expect silence; play and
+  pause a recording; mark another, and expect silence still. If the second one rings, the answer is
+  `navigator.audioSession.type`, ambient for cues and playback while `ListenBar` plays, rather than
+  a native category, which WebKit may well reset the next time media starts. The simulator has no
+  switch, so this is a device check. Listening with the screen locked would also need
+  `UIBackgroundModes` `audio`, deliberately not added: review asks that an app actually uses it,
+  and the strip stops when the reader closes.
+- **`target="_blank"` goes to `UIApplication.open`**, which is Capacitor's `createWebViewWith`.
+  External links, the sources and the credits, open in Safari, which is right, and `mailto:` opens
+  Mail. But Settings' Rules and Privacy buttons are `/rules.html` and `/privacy.html` with
+  `target="_blank"`, which resolve to `capacitor://localhost/...`, which no app can open, so **they
+  silently do nothing**. Open the hosted copies in a browser sheet on native.
+- **The journal's local copy is no longer safe from the OS.** Capacitor's storage guide says iOS
+  "will reclaim local storage from Web Views" when a device runs low on space. localStorage holds
+  the journal, the Supabase session and every device-local preference: sync puts the journal back,
+  but the session and the preferences would simply go. `@capacitor/preferences` is native storage,
+  and the widget will need a native copy of some of it anyway.
+- **The share card calls `navigator.share` with a file**, which needs checking in the shell before
+  anyone relies on it; `@capacitor/share` is the native route if the web view refuses.
+- **The recording host passes App Transport Security**, which applies to web view loads: TLS 1.2,
+  ECDHE, a 2048 bit RSA key and a certificate signed with SHA-256, checked with `openssl`. The
+  shell does not block listening; the host going away still would.
+
+**Blocked on the Apple Developer account**, $99 a year, and none of it can be started properly
+before it exists: registering the real bundle id, signing for a device, TestFlight and App Store
+Connect, **Sign in with Apple** (the capability, a Services ID and a key for Supabase's Apple
+provider), push notifications through APNs, and **App Groups**, which the widget needs to read
+anything the app wrote. An unsigned simulator build embeds no entitlements, so even CI cannot
+exercise an App Group.
+
+**What comes next, in this order:**
+
+1. **Native sign-in.** Without it the shell is a gate nobody can pass. Google through
+   `ASWebAuthenticationSession` and PKCE as above can be written now, but it can only be tried on a
+   Mac or a signed device, since CI compiles and screenshots and cannot tap. Sign in with Apple
+   follows as soon as the account exists, and has to ship with it: guideline 4.8 asks for an
+   equivalent the moment Google sign-in is offered in the app, and this is the one that answers it.
+2. **Local notifications for reminders**, `@capacitor/local-notifications`, scheduled on the device
+   at the reader's own time from `prefs`. That is what `REMINDERS_UNLOCKED` was waiting for: unlock
+   it when `Capacitor.isNativePlatform()` and leave the web locked, since the reason it is locked,
+   a notification that only fires while the tab is alive, is still true of the web. No push, no
+   server, no account needed to write it.
+3. **A WidgetKit widget reading shared data through an App Group.** A small native plugin writes a
+   snapshot to `UserDefaults(suiteName: "group.<bundle id>")` and asks `WidgetCenter` to reload;
+   the widget extension reads only that. **The snapshot is a projection like `progress`, never the
+   journal**: explicit fields, the streak, today's reading, how far in, because whatever is written
+   there leaves the web view's storage and sits in a container another process reads.
+4. Haptics, `@capacitor/haptics`, beside the knock in `press.ts`, which is the obvious place for
+   them and the cheapest of the four.
+
 ## Gotchas that cost real time
 
 - **iOS zooms any focused input under 16px**, and the zoomed page then pans sideways. All controls
@@ -1617,8 +1766,8 @@ notification only fires while the tab is alive, which is the wrong promise for a
 settings panel shows a locked state and `reminderDue()` returns false before it reads any pref.
 The gate is in `reminderDue` rather than the view so an account that already had the toggle on
 stops being nudged too. Saved prefs are untouched, so flipping the flag restores each reader's own
-time. Unlock it when the Capacitor shell lands. The in-app streak nudge on the journey is separate
-and still runs.
+time. Unlock it on native once the shell schedules local notifications, and only there. The in-app
+streak nudge on the journey is separate and still runs.
 
 **Next session: Daily Mix (`blended_daily`), the last track with no code path.** Four parallel
 streams, Old Testament 3 a day, New Testament 1, a psalm and a proverb, with **position cursors
@@ -1851,16 +2000,15 @@ Not built yet, roughly in order:
    thing that also solves the reviewer demo account: handing Apple a Google login is awkward and
    Google often refuses it from an unfamiliar device. Needs the paid Apple account before it can be
    configured, so it is blocked rather than merely unstarted.
-2. **Capacitor shell**, which is what makes notifications fire with the app closed, and what
-   unlocks reminders. Needs macOS or GitHub Actions to build, and $99/year for Apple.
+2. **The Capacitor shell is scaffolded, not finished.** `bible-journey/ios/` exists and CI
+   compiles it for the simulator, but sign-in does not work inside it yet, and everything that
+   needs signing waits on the $99/year account. "The iOS shell, and what breaks inside it" above
+   has the list and the order.
 3. A custom domain, which fixes the consent screen and gives the support address somewhere to live.
 4. **A 1024px app icon.** `brand/logo-source.png` is 639x639 and there is no vector anywhere in the
    repo, so `npm run icons` cannot produce one and upscaling would ship a soft mark. It needs a
    re-export from whatever drew it.
-5. **`NSPhotoLibraryUsageDescription`**, the moment the iOS project exists. The avatar file input
-   opens the photo picker, and without that key iOS does not prompt, it crashes, which is a
-   rejection for a broken feature rather than a missing string.
-6. **Letting the reader work signed out.** Guideline 5.1.1(i) says an app without significant
+5. **Letting the reader work signed out.** Guideline 5.1.1(i) says an app without significant
    account-based features must not force a login, and right now `App.tsx` gates everything including
    simply reading the Bible. Sync and friends are genuine account features so it is arguable, but it
    is the kind of thing that gets rejected. The plumbing half exists already: `status === 'off'`
