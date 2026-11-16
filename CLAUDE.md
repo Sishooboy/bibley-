@@ -54,7 +54,8 @@ redeploy.**
 - **The text lives in `public/bible/`**, one JSON file per book, World English Bible, public domain.
   It is fetched a book at a time rather than bundled: 4.4 MB has no business in the JS. `src/lib/bible.ts`
   caches in memory and dedupes concurrent loads, and the service worker keeps every book you open,
-  so a book you have read once reads again on a plane. **A null verse is deliberate**: verse
+  so a book you have read once reads again on a plane, and Settings can save the rest ahead of
+  time (see "Reading offline" below). **A null verse is deliberate**: verse
   numbering follows the King James tradition, and 39 numbers have nothing behind them in this
   translation's source. Four are the familiar ones (Luke 17:36, Acts 8:37, 15:34, 24:7); the other
   35 are in Sirach, where the longer Greek text carries verses the shorter one this is translated
@@ -450,7 +451,9 @@ redeploy.**
   a Supabase response can never be served from cache. Bump `CACHE` to retire every old cache.
   **Changing the text under `public/bible/` requires that bump.** Those filenames are not
   fingerprinted and they are cached first with no revalidation, so a reader who already had
-  `esther.json` would keep the ten chapter one forever and find Esther 11 missing.
+  `esther.json` would keep the ten chapter one forever and find Esther 11 missing. **A bump also
+  wipes every book a reader saved for offline reading**, up to ten megabytes each, so bump for a
+  change to the text or the notes and for nothing else.
 - **Chapters are named by number, not hit.** Two fields, "I read chapters N to M", plus the date.
   Three earlier designs all asked the reader to hit the chapter squares themselves, by tapping, then
   by dragging, then by double tapping each end. Every one was a poor target on a phone, and every
@@ -1314,6 +1317,83 @@ follows the system by default, and Settings has "Match this device", "Light" and
   the splash an installed web app shows on Android, is cream at night too, because a manifest
   cannot vary by scheme; the Capacitor shell will decide that natively.
 
+### Reading offline, and why the count is read from the cache
+
+The service worker has always kept every book the reader opens, which covers the book you were
+reading and not the one you reach for on a plane. **"Reading offline" in Settings saves the rest**
+for the translation being read: it says how many of the 73 are on the device, names the size on
+the button before the tap ("Save the other 61, 3.7 MB"), shows progress, can be stopped, and says
+when it is done. The other translation is a second row with its own button, never part of the
+first: nearly ten megabytes for both is a lot to spend on a phone for a translation somebody may
+never open. `src/lib/offline.ts` is the logic and `OfflinePanel` the card.
+
+- **What is saved is read off the Cache API every time, never remembered.** `cachedPaths` reads
+  `keys()` from the cache the worker writes to, on mount, whenever the screen comes back into view,
+  after every file and at the end of a save. A flag saying "this device has the whole Bible" would
+  be wrong the moment a browser cleared storage to make room, which it is entitled to do, and wrong
+  again after every `CACHE` bump. It also told the truth about a first visit: the today card
+  prefetches its book before the new worker has claimed the page, so that book reaches the reader
+  without being cached, and the card said 0 of 73 over a reader that had just shown Mark.
+- **`SW_CACHE` in `offline.ts` names the same cache as `CACHE` in `sw.js`**, and `offline.test.ts`
+  reads `sw.js` and fails if they differ. A page counting one cache while the worker fills another
+  would say nothing is saved over a full one. **Bumping `CACHE` wipes every saved book**, since
+  activate deletes every cache with another name, and nothing re-saves them unasked: five
+  megabytes nobody asked for, on a phone's data, is not a courtesy. The card reads the empty cache
+  and offers the save again.
+- **It saves through the URLs the reader uses, so the worker's existing rule stores them.**
+  `bookUrl` in `bible.ts` and `INSIGHTS_URL` in `insights.ts` are the one spelling of each, used by
+  both the reader and the save, because the cache is keyed by URL and a different spelling of the
+  same file would be a copy the reader never looks up. `cacheFirst` awaits its `put` before it
+  hands the response over, so a file is in the cache by the time the page has it. A hard reload and
+  a first visit both bypass the worker, so `saveOne` puts the file in itself when the cache does
+  not have it, then asks the cache again before counting it.
+- **`insights.json` belongs to both translations**, so it is in every save and counted once. A
+  translation is complete only once it is there too, since without it the reader still works but
+  loses every heading and every book's introduction.
+- **The sizes are measured by `vite.config.ts` at build time**, from the files the build is about
+  to ship, and arrive as `__BIBLE_BYTES__` through `define`. A committed table would be wrong the
+  first time somebody ran `npm run layout` and forgot it, and a manifest file under `/bible/`
+  would be cached first forever. The test checks every size against the file on disk. Sizes are
+  decimal, the way a phone's storage screen gives them.
+- **Stop lets the files in flight land, and that was found in a browser rather than reasoned
+  out.** The first Stop aborted the page's fetches and recounted at once, and the card said three
+  King James books over a cache holding six: aborting the page's fetch does not abort the worker's,
+  which went on storing the file after the count had been read. Now Stop only stops new files
+  starting, the button says "Stopping" while at most four land, and `saveEach` resolves only once
+  nothing more can arrive. Checked three times against the cache 1.5 seconds later, and pinned by
+  a test that fails if the run resolves early.
+- **A file gets one retry, and a second failure stops the run.** A phone's connection drops for a
+  second far more often than for good, and when it is gone for good, or the device is out of room,
+  every remaining file fails the same way. The page cannot tell those two apart, since a worker's
+  failed `put` reaches it as a failed fetch, so the notice names both and says that what is saved
+  stays saved. Trying again carries on, because the count it starts from is the cache's.
+- **The save is module state, not component state**, so it keeps going when somebody leaves
+  Settings to read, and the card shows it still running when they come back.
+- **`navigator.storage.persist()` is asked on the tap**, where a browser that prompts for it has a
+  gesture to prompt from, and a refusal is not reported. Chromium refused it in testing, which it
+  does by its own reckoning for a site with little history, and the books saved all the same.
+- **The development server has no worker** (see `main.tsx`), so under `npm run dev` the card says
+  so instead of offering a save into a cache nothing reads. A browser with no worker at all gets a
+  sentence too. `detect()` waits up to five seconds for a registration, because `main.tsx`
+  registers on window load and Settings can be opened first.
+- **The rows stack at every width, the button under the words.** Settings is two columns from
+  720px, so the room beside a translation's name runs from about 300 to 450px, and a label that
+  names its size is 220 of it: side by side the row would wrap at some widths and not others, and
+  swap between the two when Save became Stop. Under `pointer: coarse` the button spans the row, so
+  the Stop that replaces Save is still under the thumb that pressed it.
+- **Not saved: JavaScript the app has not loaded yet.** Stats and each book's quiz are lazy chunks,
+  cache first once fetched, so one never opened before is not there offline. The text, the
+  headings and the reader itself are.
+- **The desktop app's browser pane cannot register a service worker.** `register()` fails with
+  "an unknown error occurred when fetching the script" although `/sw.js` fetches fine from the
+  page, so the pane only shows the card's no-worker sentence. The save, the stop and reading with
+  the server killed were checked in a headless Edge driven over the DevTools protocol, with a
+  throwaway profile: save the World English Bible, stop the King James part way, stop
+  `vite preview`, reload, and open Obadiah, which had never been opened. It read in full with its
+  introduction, and an unsaved King James Revelation gave the reader's offline message. On Windows
+  stopping the `npx vite preview` task leaves the node child listening, so check the port is
+  actually closed before calling anything offline.
+
 ### The data model
 
 One row per account in `public.journals`: `user_id`, `data` jsonb, `updated_at`. Row-level security
@@ -1601,7 +1681,7 @@ in the World English Bible or the King James, a source under every note, verse o
 reading order with a credits card in Settings,
 headings over every chapter of the 66 with a note on the turning points, highlighting with a
 thought attached,
-notes, stats, streaks, an offline app shell, full text search over all 73 books, five synthesised sounds with a synced mute switch, a card introducing every book and a
+notes, stats, streaks, an offline app shell with the whole Bible saved on request, full text search over all 73 books, five synthesised sounds with a synced mute switch, a card introducing every book and a
 note on the chapters that matter, a streak that celebrates itself when it grows and can be
 protected by rest days it earns, a finished book and a finished plan that each get their own
 moment, a reader that turns its pages, a knock and a dip on every press in the app, a six panel welcome guide that
