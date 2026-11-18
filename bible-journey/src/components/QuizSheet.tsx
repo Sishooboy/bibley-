@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cachedBook, loadBook, type BookText } from '../lib/bible';
 import { fold } from '../lib/bibleSearch';
 import { verseRef } from '../lib/highlight';
-import { useCountUp } from '../lib/motion';
+import { reducedMotion, useCountUp } from '../lib/motion';
 import { bookQuizKey, prepare, type AskedQuestion } from '../lib/quiz';
 import { loadQuiz } from '../lib/quizData';
 import { chime } from '../lib/sound';
@@ -62,11 +62,15 @@ export function QuizSheet({ book, onClose }: { book: string; onClose: () => void
   const [picked, setPicked] = useState<number | null>(null);
   const [right, setRight] = useState(0);
   const [missed, setMissed] = useState<AskedQuestion[]>([]);
+  /** Right or not, question by question, for the marks along the masthead. */
+  const [results, setResults] = useState<boolean[]>([]);
   const [finished, setFinished] = useState(false);
   /** Bumped by Try again: a fresh order of the same questions. */
   const [attempt, setAttempt] = useState(0);
   const shellRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const proofRef = useRef<HTMLDivElement>(null);
   // Held in a ref, so the focus effect below runs once rather than on every
   // render the provider gives a new arrow function.
   const closing = useRef(onClose);
@@ -136,8 +140,39 @@ export function QuizSheet({ book, onClose }: { book: string; onClose: () => void
     const ok = i === current.answer;
     if (ok) setRight((n) => n + 1);
     else setMissed((m) => [...m, current]);
+    setResults((r) => [...r, ok]);
     chime(ok ? 'right' : 'miss');
   };
+
+  // Each question starts at its own top, the way a new tab does.
+  useEffect(() => {
+    bodyRef.current?.scrollTo({ top: 0 });
+  }, [index, finished]);
+
+  /*
+   * The verse arrives under the answers, and on a short phone that is below the
+   * fold. Scrolled by hand rather than with `scrollIntoView`, which also scrolls
+   * every scroller above this one, `#root` included, and would move the app
+   * behind the quiz. Only as far as it takes to show the verse, and never so far
+   * that the answers it explains leave the top.
+   */
+  useEffect(() => {
+    if (picked === null) return;
+    const body = bodyRef.current;
+    const proof = proofRef.current;
+    if (!body || !proof) return;
+    const frame = requestAnimationFrame(() => {
+      const b = body.getBoundingClientRect();
+      const p = proof.getBoundingClientRect();
+      const short = p.bottom - b.bottom + 16;
+      if (short <= 0) return;
+      body.scrollBy({
+        top: Math.min(short, p.top - b.top - 16),
+        behavior: reducedMotion() ? 'auto' : 'smooth',
+      });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [picked]);
 
   const next = () => {
     if (!asked) return;
@@ -157,6 +192,7 @@ export function QuizSheet({ book, onClose }: { book: string; onClose: () => void
     setPicked(null);
     setRight(0);
     setMissed([]);
+    setResults([]);
     setFinished(false);
     setAttempt((n) => n + 1);
   };
@@ -168,45 +204,89 @@ export function QuizSheet({ book, onClose }: { book: string; onClose: () => void
     reader.open(a.book, chapter, from);
   };
 
-  // How far along, counting a question as done once it is answered.
-  const done = finished ? total : index + (picked === null ? 0 : 1);
+  /*
+   * One mark a question along the masthead, standing in for a progress bar. A
+   * bar says how far; these also say how it went, gold for remembered and an
+   * outline for missed, which is the picture the end of the quiz then counts.
+   * Decoration only: the count beside the title says the same thing in words.
+   */
+  const marks = Array.from({ length: total }, (_, i) =>
+    i < results.length ? (results[i] ? 'right' : 'missed') : i === index && !finished ? 'now' : 'later',
+  );
 
   return (
-    <div className="quiz" role="dialog" aria-modal="true" aria-label={`${book} quiz`} ref={shellRef}>
-      <header className="quiz__bar">
-        <button
-          ref={closeRef}
-          type="button"
-          className="reader__tool quiz__close"
-          onClick={onClose}
-          aria-label="Close the quiz"
-        >
-          <span aria-hidden="true">×</span>
-        </button>
-        <p className="quiz__title">
-          <span className="quiz__eyebrow">Quiz</span>
-          {book}
-        </p>
-        {total > 0 && !finished && (
-          <p className="quiz__count">
-            {index + 1} <span>of {total}</span>
+    <div
+      className="quiz"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${book} quiz`}
+      ref={shellRef}
+      data-finished={finished ? '' : undefined}
+      // Nothing missed: the score is the whole screen, there is no list under it.
+      data-clean={finished && missed.length === 0 ? '' : undefined}
+    >
+      <header className="quiz__head">
+        <div className="quiz__top">
+          <button
+            ref={closeRef}
+            type="button"
+            className="reader__tool quiz__close"
+            onClick={onClose}
+            aria-label="Close the quiz"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+          <p className="quiz__title">
+            <span className="quiz__eyebrow">Quiz</span>
+            {book}
           </p>
+          {total > 0 && !finished && (
+            <p className="quiz__count">
+              {index + 1} <span>of {total}</span>
+            </p>
+          )}
+        </div>
+
+        {total > 0 && (
+          <ol className="quiz__marks" aria-hidden="true">
+            {marks.map((state, i) => (
+              <li key={i} data-state={state} />
+            ))}
+          </ol>
         )}
+
+        {/* The question is the headline, set in the masthead the way every
+            other screen sets its title, and keyed so each one arrives. */}
+        <div className="quiz__lead">
+          {error ? (
+            <p className="quiz__message">{error}</p>
+          ) : !asked ? (
+            <p className="quiz__message quiz__message--quiet">Opening the {book} quiz…</p>
+          ) : current ? (
+            <h2 key={`${attempt}-${index}`} className="quiz__q">
+              {current.question.q}
+            </h2>
+          ) : (
+            <div className="quiz__result" aria-live="polite">
+              <Score right={right} of={total} />
+              <span className="quiz__rule" aria-hidden="true" />
+              <p className="quiz__verdict">
+                {right === total
+                  ? 'Every one. You know this book.'
+                  : `You remembered ${right} of ${total}.`}
+                {before && before.best / before.of > right / total && (
+                  <> Your best is still {before.best} of {before.of}.</>
+                )}
+              </p>
+              <span className="sr-only">{`${right} of ${total} right.`}</span>
+            </div>
+          )}
+        </div>
       </header>
 
-      {/* Outside the keyed stage, so it grows rather than starting again each question. */}
-      <div className="quiz__rail" aria-hidden="true">
-        <span style={{ '--done': total === 0 ? 0 : done / total } as CSSProperties} />
-      </div>
-
-      <div className="quiz__body">
-        {error ? (
-          <p className="quiz__message">{error}</p>
-        ) : !asked ? (
-          <p className="quiz__message quiz__message--quiet">Opening the {book} quiz…</p>
-        ) : current ? (
+      <div className="quiz__body" ref={bodyRef}>
+        {current ? (
           <section key={`${attempt}-${index}`} className="quiz__stage">
-            <h2 className="quiz__q">{current.question.q}</h2>
             <div className="quiz__options" role="group" aria-label="Answers">
               {current.options.map((option, i) => {
                 const state =
@@ -246,7 +326,7 @@ export function QuizSheet({ book, onClose }: { book: string; onClose: () => void
             </p>
 
             {picked !== null && (
-              <div className="quiz__proof">
+              <div className="quiz__proof" ref={proofRef}>
                 {/* Always the WEB: every answer's evidence was cut from its words,
                     whatever translation the reader happens to have open. */}
                 <p className="quiz__proofHead">From {proofOf(text, current).label}, World English Bible</p>
@@ -262,62 +342,62 @@ export function QuizSheet({ book, onClose }: { book: string; onClose: () => void
                     );
                   })()}
                 </blockquote>
-                <div className="quiz__actions">
-                  <button type="button" className="btn btn--sm" onClick={() => inContext(current)}>
-                    Read it in context
-                  </button>
-                  <button type="button" className="btn btn--primary quiz__next" onClick={next}>
-                    {index + 1 < total ? 'Next question' : 'See how it went'}
-                  </button>
-                </div>
               </div>
             )}
           </section>
-        ) : (
-          <section className="quiz__done" aria-live="polite">
-            <p className="eyebrow">{book}</p>
-            <Score right={right} of={total} />
-            <span className="quiz__rule" aria-hidden="true" />
-            <p className="quiz__verdict">
-              {right === total
-                ? 'Every one. You know this book.'
-                : `You remembered ${right} of ${total}.`}
-              {before && before.best / before.of > right / total && (
-                <> Your best is still {before.best} of {before.of}.</>
-              )}
-            </p>
-            <span className="sr-only">{`${right} of ${total} right.`}</span>
+        ) : finished && missed.length > 0 ? (
+          <section className="quiz__missed">
+            <p className="quiz__proofHead">Worth another look</p>
+            <ul>
+              {missed.map((a) => (
+                <li key={a.question.id}>
+                  <p className="quiz__missedQ">{a.question.q}</p>
+                  <p className="quiz__missedA">
+                    <b>{a.options[a.answer]}</b>
+                  </p>
+                  <button type="button" className="quiz__ref" onClick={() => inContext(a)}>
+                    {proofOf(text, a).label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+      </div>
 
-            {missed.length > 0 && (
-              <div className="quiz__missed">
-                <p className="quiz__proofHead">Worth another look</p>
-                <ul>
-                  {missed.map((a) => (
-                    <li key={a.question.id}>
-                      <p className="quiz__missedQ">{a.question.q}</p>
-                      <p className="quiz__missedA">
-                        <b>{a.options[a.answer]}</b>
-                      </p>
-                      <button type="button" className="quiz__ref" onClick={() => inContext(a)}>
-                        {proofOf(text, a).label}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <div className="quiz__actions">
-              <button type="button" className="btn" onClick={again}>
+      {/*
+        Pinned under the thumb, so the next thing to press is always in the
+        same place: a hint before answering, Next after it, and the two ways
+        out at the end. It is in the layout and never over it, so nothing it
+        covers is ever out of reach.
+      */}
+      {asked && (
+        <footer className="quiz__foot">
+          {current && picked === null && (
+            <p className="quiz__hint">Pick one. The verse it comes from follows.</p>
+          )}
+          {current && picked !== null && (
+            <>
+              <button type="button" className="btn quiz__context" onClick={() => inContext(current)}>
+                Read it in context
+              </button>
+              <button type="button" className="btn btn--primary quiz__next" onClick={next}>
+                {index + 1 < total ? 'Next question' : 'See how it went'}
+              </button>
+            </>
+          )}
+          {finished && (
+            <>
+              <button type="button" className="btn quiz__context" onClick={again}>
                 Try again
               </button>
-              <button type="button" className="btn btn--primary" onClick={onClose}>
+              <button type="button" className="btn btn--primary quiz__next" onClick={onClose}>
                 Done
               </button>
-            </div>
-          </section>
-        )}
-      </div>
+            </>
+          )}
+        </footer>
+      )}
     </div>
   );
 }

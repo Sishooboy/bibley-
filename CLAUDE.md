@@ -1198,6 +1198,19 @@ numbers section, and the suite is what holds it there.
 - **After each answer the sheet shows the verse with the evidence marked**, and "Read it in
   context" opens the reader at that verse through `landOn`. The quiz sends you back to the text,
   which is the point of it.
+- **The sheet is a masthead, a body and a foot, and fills the screen at every height.** It was a
+  thin ink bar over a column of paper, which on a phone put four answers in the top half and left
+  the bottom half empty. Now the question is the headline of a red masthead, `.viewHead`'s measured
+  gradient value for value, taking two fifths of a phone and less on a laptop; the answers are 64px
+  cards under it; and the foot is pinned under the thumb, a hint before answering and Next after.
+  Every child names its grid row, the reader's rule. **Progress is one mark a question**, gold for
+  remembered and an outline for missed, so the bar also says how it is going and differs in shape
+  as well as colour. At the end the score takes the masthead in gold, and with nothing missed the
+  masthead takes the whole screen. Measured at the brightest point of the sweep under its weave:
+  the question and verdict 5.7:1, the count 4.65:1, the eyebrow 5.2:1, and the gold score 3.6:1,
+  which clears the 3:1 for text that large. **The verse is scrolled into view by hand**, with
+  `scrollBy` on the body, because `scrollIntoView` also scrolls every scroller above it, `#root`
+  included, and would move the app behind the quiz.
 - **Scores sync, and shipped in two releases.** `quizzes` on `AppData` is `{ best, of, at }` by
   key. `normalizeQuizzes` shipped first and read only (f7540b0), and nothing wrote the field until
   the next release (3b12b35), because `normalize()` is a whitelist and an older client would strip
@@ -1836,14 +1849,18 @@ exercise an App Group.
   `auto` is expected and fine, the browser intersects the whole ancestor chain at hit-test time.
   None of this touches desktop browser zoom, or the system text size, and the reader's own four step
   text size is the accessible way to make the words bigger.
-- **Safari 26 on iOS ignores `theme-color` and tints the status bar from the page.** It samples a
-  fixed element touching the top edge if there is one, otherwise the document's background. The
-  header is sticky inside `#root`, which Safari does not treat as the top of the page, so by day it
-  fell back to the cream behind everything and faded a pale band into the black header, reported
-  as "a white cloud". At night the page is ink, so it never showed. `.edgeTint` is a fixed ink strip
-  exactly under the header, rendered by `Shell` only, which exists to be sampled and changes nothing
-  on screen. **This rests on developer reports, not an Apple statement**, so the place to confirm it
-  is a real iPhone in Safari, not a desktop emulator, which draws no status bar at all.
+- **Safari 26 on iOS ignores `theme-color` and tints the status bar from the page**, and on this
+  page it reads the root background and nothing else. By day that was cream, so Safari laid a cream
+  fade over the top of the black header, reported as "a white cloud"; at night the page is ink, so
+  it never showed. **The first fix was wrong and shipped**: a fixed ink strip under the header,
+  `.edgeTint`, on the strength of developer reports that Safari samples a fixed or sticky element
+  touching the top edge. The sticky header itself was already exactly that and was ignored too. The
+  likely reason is this app's own layout: the document never scrolls, so `window.scrollY` is always
+  0, and the reports agree that at 0, or with `body { overflow: hidden }`, Safari uses the root
+  colour. So `html` and `body` are ink in both schemes and the cream lives on `#root`, which covers
+  them. **The cost is the bottom**: the same colour tints the strip under Safari's bottom bar, so by
+  day it is ink under a cream page. Still developer reports and not an Apple statement, so the place
+  to confirm either end is a real iPhone in Safari; a desktop emulator draws no status bar at all.
 - **A transformed ancestor becomes the containing block for `position: fixed`.** The app entrance
   animation is opacity-only for exactly this reason: a transform there silently broke the nav and
   the undo chip.

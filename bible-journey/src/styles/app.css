@@ -340,11 +340,28 @@ html {
    * once did inside the Psalms chapter grid.
    */
   touch-action: manipulation;
+
+  /*
+   * Ink, in both schemes, because this is the colour Safari paints behind the
+   * clock. Safari 26 on iOS ignores `theme-color` and tints the status bar from
+   * the page, and for a page whose document never scrolls (see `body` below) it
+   * reads the root background rather than any element pinned to the top: a
+   * sticky ink header and a fixed ink strip under it were both tried and both
+   * ignored. With this cream, by day Safari laid a cream fade over the top of
+   * the black header, the "white cloud"; at night the page was already ink.
+   * The cream the reader sees is `#root`'s, which covers all of this.
+   *
+   * **The same colour tints the bar at the bottom**, so by day that strip is ink
+   * too, under the cream page. That is the trade, and the frame it makes, ink at
+   * both ends, is the app's own header colour. Only a real iPhone in Safari can
+   * show either end; a desktop emulator draws no status bar at all.
+   */
+  background: var(--ink);
 }
 
 body {
   margin: 0;
-  background: var(--page);
+  background: var(--ink);
   color: var(--text);
   font-family: var(--font-body);
   font-size: 16px;
@@ -385,6 +402,8 @@ body {
  */
 #root {
   height: 100%;
+  /* The page colour lives here and not on body, which is ink for Safari. */
+  background: var(--page);
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior-y: none;
@@ -477,33 +496,6 @@ select {
   z-index: 20;
   border-bottom: 1px solid #000;
   padding-top: env(safe-area-inset-top);
-}
-
-/*
- * Ink for Safari to see, under the header, so the status bar matches it.
- *
- * Safari 26 on iOS ignores `theme-color` and tints the strip behind the status
- * bar from the page instead: from a fixed element touching the top edge if
- * there is one, otherwise from the document's background. The header is sticky
- * inside `#root`, the pane that scrolls, which Safari does not take as the top
- * of the page, so by day it fell back to the cream behind everything and
- * faded a pale band down into the black header, the "white cloud". At night
- * the page is ink, so it never showed.
- *
- * This is that fixed element. It is exactly the header's height and sits one
- * layer under it, so nothing about the screen changes; it exists to be sampled.
- * Rendered by `Shell` only, because the gate, the chooser and the splash have
- * no header for it to hide under and would lose their top 60px to it.
- */
-.edgeTint {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: calc(var(--topbar-h) + env(safe-area-inset-top));
-  background: var(--ink);
-  z-index: 19;
-  pointer-events: none;
 }
 
 .topbar__inner {
@@ -10896,31 +10888,81 @@ select {
 
 /* ── Quizzes ────────────────────────────────────────────────────────────── */
 /*
- * The quiz sheet. Paper like the reader with the reader's own dark bar,
- * because a quiz is about reading and should feel like a page of it, not like
- * a game show. Above the reader at 60, so "Read it in context" can drop back
- * into the same reader, and under the guide and the celebrations. Nothing
- * inside it is fixed, so rising in on a transform is safe.
+ * The quiz sheet, built the way every other screen in the app is built: a red
+ * masthead with a gold rule under it, paper below, and the next thing to press
+ * pinned where the thumb already is. The question is the masthead's headline.
+ *
+ * It used to be a thin dark bar over a column of paper, and on a phone that put
+ * four answers in the top half and left the bottom half empty. Now the masthead
+ * takes about a third of the screen, the answers the middle, and the foot the
+ * bottom edge, so the screen is full at every height without anything being
+ * stretched to fill it.
+ *
+ * Above the reader at 70, so "Read it in context" can drop back into the same
+ * reader, and under the guide and the celebrations. Nothing inside it is fixed,
+ * so rising in on a transform is safe. Every child names its own grid row, the
+ * reader's rule, so the foot not being there while the quiz loads leaves an
+ * empty track rather than moving the body into the foot's.
  */
 .quiz {
   position: fixed;
   inset: 0;
   z-index: 70;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-columns: minmax(0, 1fr);
   background: var(--page);
   animation: readerIn 320ms var(--ease-out);
 }
 
-.quiz__bar {
+/*
+ * The masthead is `.viewHead`'s gradient and weave, value for value, because
+ * those were measured: every colour on it clears AA at the brightest point of
+ * the sweep. It is the same in both schemes, like every dark surface here.
+ */
+.quiz__head {
+  grid-row: 1;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* Two fifths of a phone, so the question carries the weight of a title. */
+  min-height: clamp(13rem, 40svh, 24rem);
+  padding: calc(0.6rem + env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 1.6rem
+    max(0.75rem, env(safe-area-inset-left));
+  color: #fff;
+  border-bottom: 3px solid var(--yellow);
+  background:
+    radial-gradient(120% 150% at 88% -40%, rgba(247, 184, 1, 0.18), transparent 58%),
+    linear-gradient(135deg, #3d070c 0%, #7e121c 48%, #96161f 100%);
+}
+
+.quiz__head::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.5;
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0 1px,
+    transparent 1px 7px
+  );
+}
+
+/* A laptop is wide and short, where two fifths of the height is mostly empty
+   red pushing the answers below the fold. Below the base rule, so it wins. */
+@media (min-width: 720px) {
+  .quiz__head {
+    min-height: clamp(11rem, 30svh, 18rem);
+  }
+}
+
+.quiz__top {
   display: flex;
   align-items: center;
   gap: 0.9rem;
-  padding: 0.7rem max(1rem, env(safe-area-inset-right)) 0.7rem max(0.6rem, env(safe-area-inset-left));
-  padding-top: calc(0.7rem + env(safe-area-inset-top));
-  background: var(--ink);
-  color: var(--cream);
 }
 
 .quiz__close {
@@ -10938,7 +10980,7 @@ select {
   line-height: 1.15;
 }
 
-/* Soft gold on the ink bar, measured at 14.7:1. */
+/* Soft gold, the masthead eyebrow's own colour. */
 .quiz__eyebrow {
   font-family: var(--font-body);
   font-size: 0.66rem;
@@ -10959,71 +11001,106 @@ select {
 
 .quiz__count span {
   font-size: 0.85rem;
-  color: var(--muted-dark);
+  color: rgb(255 255 255 / 0.8);
 }
 
-/* How far along, a question counted once it is answered. It grows rather than
-   resetting, which is why it sits outside the keyed stage. */
-.quiz__rail {
-  height: 3px;
-  background: rgb(var(--shade-ink) / 0.08);
+/*
+ * One mark a question, which says how far and how it went at once: gold for
+ * remembered, an outline for missed, brighter for the one being asked. The
+ * outline and the fill differ in shape as well as colour, so the two never
+ * depend on telling gold from white. Up to fifteen, Psalms, which at 375px is
+ * still 18px a mark.
+ */
+.quiz__marks {
+  display: flex;
+  gap: 4px;
+  width: min(36rem, 100%);
+  margin: 0.9rem auto 0;
+  padding: 0;
+  list-style: none;
 }
 
-.quiz__rail span {
-  display: block;
-  height: 100%;
+.quiz__marks li {
+  flex: 1;
+  height: 5px;
+  border-radius: 99px;
+  background: rgb(255 255 255 / 0.2);
+  transition:
+    background 300ms ease,
+    box-shadow 300ms ease;
+}
+
+.quiz__marks li[data-state='now'] {
+  background: rgb(255 255 255 / 0.6);
+}
+
+.quiz__marks li[data-state='right'] {
   background: var(--yellow);
-  transform-origin: 0 50%;
-  transform: scaleX(var(--done));
-  transition: transform 420ms var(--ease-out);
 }
 
-/* A panel over the app scrolls itself and never the app behind it. */
-.quiz__body {
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: clamp(1.5rem, 5vw, 2.75rem) max(1.25rem, env(safe-area-inset-right))
-    calc(2.5rem + env(safe-area-inset-bottom)) max(1.25rem, env(safe-area-inset-left));
+.quiz__marks li[data-state='missed'] {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.6);
 }
 
-.quiz__stage,
-.quiz__done {
-  width: min(34rem, 100%);
-  margin-inline: auto;
+/* The question sits at the foot of the masthead, right above its answers. */
+.quiz__lead {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: min(36rem, 100%);
+  margin: 1.4rem auto 0;
 }
 
-/* Each question arrives the way a page does in the reader: from the right. */
-.quiz__stage {
+.quiz__q {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 7vw, 2.3rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  color: var(--cream);
   animation: turnNext 340ms var(--ease-out);
 }
 
 .quiz__message {
-  margin: clamp(3rem, 12vh, 6rem) auto;
-  text-align: center;
-  color: var(--muted);
+  margin: 0;
+  color: rgb(255 255 255 / 0.85);
 }
 
 .quiz__message--quiet {
   animation: quietPulse 1.4s ease-in-out infinite;
 }
 
-.quiz__q {
-  margin: 0 0 1.25rem;
-  font-family: var(--font-display);
-  font-size: clamp(1.35rem, 5vw, 1.7rem);
-  line-height: 1.25;
-  letter-spacing: -0.01em;
-  text-wrap: balance;
-  color: var(--paper-ink);
+/* A panel over the app scrolls itself and never the app behind it. */
+.quiz__body {
+  grid-row: 2;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.25rem max(1.25rem, env(safe-area-inset-right)) 1.5rem
+    max(1.25rem, env(safe-area-inset-left));
+}
+
+.quiz__stage,
+.quiz__missed {
+  width: min(36rem, 100%);
+  margin-inline: auto;
+}
+
+/* Each question's answers arrive the way a page does in the reader. */
+.quiz__stage {
+  animation: turnNext 340ms var(--ease-out);
 }
 
 .quiz__options {
   display: grid;
-  gap: 0.6rem;
+  gap: 0.75rem;
 }
 
 /*
- * An answer is a large, raised card with its letter in a circle, 56px tall at
+ * An answer is a large, raised card with its letter in a circle, 64px tall at
  * least so a thumb cannot miss it. Once one is picked they all stop answering,
  * and the result is said three ways at once, never by colour alone: the tint,
  * the mark in the circle (a tick or a cross), and a sentence for a screen
@@ -11031,20 +11108,20 @@ select {
  */
 .quiz__option {
   display: grid;
-  grid-template-columns: 2rem minmax(0, 1fr);
+  grid-template-columns: 2.1rem minmax(0, 1fr);
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
   width: 100%;
-  min-height: 56px;
-  padding: 0.7rem 0.9rem;
+  min-height: 64px;
+  padding: 0.75rem 1rem;
   text-align: left;
   font: inherit;
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1.35;
   color: var(--text);
   background: var(--paper);
   border: 1px solid var(--line-strong);
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / var(--gleam)),
     0 1px 2px rgb(var(--shade-deep) / 0.06);
@@ -11068,8 +11145,8 @@ select {
 .quiz__letter {
   display: grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.1rem;
+  height: 2.1rem;
   border-radius: 50%;
   border: 1px solid var(--line-strong);
   background: var(--surface);
@@ -11137,8 +11214,6 @@ select {
  */
 .quiz__proof {
   margin-top: 1.4rem;
-  padding-top: 1.1rem;
-  border-top: 1px solid var(--line);
   animation: celebrateFade 380ms ease-out both;
 }
 
@@ -11170,22 +11245,59 @@ select {
   box-shadow: inset 0 -0.42em 0 var(--evidence);
 }
 
-.quiz__actions {
+/*
+ * The foot, pinned under the thumb. Its padding centres what is in it on the
+ * same 36rem column as everything above, so on a laptop Next lines up with the
+ * answers instead of running the width of the screen. A percentage in padding
+ * is of the sheet's width, which is what makes that one line.
+ */
+.quiz__foot {
+  grid-row: 3;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
   gap: 0.6rem;
-  margin-top: 1rem;
+  min-height: calc(4.5rem + env(safe-area-inset-bottom));
+  padding: 0.75rem max(1.25rem, calc((100% - 36rem) / 2), env(safe-area-inset-right))
+    calc(0.75rem + env(safe-area-inset-bottom)) max(1.25rem, calc((100% - 36rem) / 2), env(safe-area-inset-left));
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.quiz__hint {
+  margin: 0 auto;
+  font-size: 0.88rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.quiz__context,
+.quiz__next {
+  min-height: 52px;
 }
 
 .quiz__next {
   flex: 1 1 auto;
-  min-height: 48px;
 }
 
 /* ── The end of a quiz ── */
-.quiz__done {
+/*
+ * The score takes the masthead's place as the headline, gold on the red, the
+ * way the celebrations put their figure. With nothing missed there is no list
+ * to make room for, so the masthead takes the whole screen above the foot.
+ */
+.quiz[data-finished] .quiz__lead {
+  justify-content: center;
+}
+
+.quiz[data-clean] .quiz__head {
+  grid-row: 1 / 3;
+}
+
+.quiz[data-clean] .quiz__body {
+  display: none;
+}
+
+.quiz__result {
   display: grid;
   justify-items: center;
   gap: 0.4rem;
@@ -11194,22 +11306,22 @@ select {
 }
 
 .quiz__score {
-  margin: 0.2rem 0 0;
+  margin: 0;
   font-family: var(--font-display);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--paper-red-800);
+  color: var(--yellow);
 }
 
 .quiz__score b {
-  font-size: clamp(4rem, 18vw, 5.5rem);
+  font-size: clamp(4.5rem, 22vw, 6.5rem);
   line-height: 1;
 }
 
 .quiz__score span {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--cream);
 }
 
 .quiz__rule {
@@ -11221,15 +11333,9 @@ select {
 
 .quiz__verdict {
   max-width: 30ch;
-  margin: 0.4rem 0 0.6rem;
-  font-size: 1rem;
-  color: var(--text);
-}
-
-.quiz__missed {
-  width: 100%;
-  margin-top: 0.6rem;
-  text-align: left;
+  margin: 0.5rem 0 0;
+  font-size: 1.05rem;
+  color: var(--cream);
 }
 
 .quiz__missed ul {
@@ -11243,7 +11349,7 @@ select {
 .quiz__missed li {
   padding: 0.75rem 0.9rem;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--paper);
 }
 
@@ -11273,12 +11379,6 @@ select {
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
-}
-
-.quiz__done .quiz__actions {
-  width: 100%;
-  justify-content: center;
-  margin-top: 1.2rem;
 }
 
 /* ── The Quiz tab ── */
@@ -11424,9 +11524,10 @@ select {
    keeps falling into. */
 @media (prefers-reduced-motion: reduce) {
   .quiz,
+  .quiz__q,
   .quiz__stage,
   .quiz__proof,
-  .quiz__done,
+  .quiz__result,
   .quiz__rule,
   .quiz__message--quiet,
   .quiz__option[data-state],
@@ -11434,7 +11535,7 @@ select {
     animation: none;
   }
 
-  .quiz__rail span {
+  .quiz__marks li {
     transition: none;
   }
 }
