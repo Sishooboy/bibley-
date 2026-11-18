@@ -4,6 +4,7 @@ import { HIGHLIGHT_COLOURS, type HighlightColour } from '../lib/colours';
 import { colourOf, highlightRef } from '../lib/highlight';
 import { lastHighlightColour, setLastHighlightColour } from '../lib/prefs';
 import type { Highlight } from '../lib/storage';
+import { useCloud } from '../state/useCloud';
 import { useStore } from '../state/useStore';
 
 /** What each colour is called, for the one reader who cannot see which is which. */
@@ -74,6 +75,7 @@ export function HighlightSheet({
   onClose: () => void;
 }) {
   const { noteHighlight, removeHighlight, colourHighlight } = useStore();
+  const { userId } = useCloud();
   const [draft, setDraft] = useState(highlight?.note ?? '');
   /*
    * A saved highlight shows its own colour. A new one starts as whichever was
@@ -236,7 +238,9 @@ export function HighlightSheet({
               </button>
             </>
           )}
-          {sendable && (
+          {/* Both need somebody to send to and an account to send from, so a
+              reader without one is not offered a door that leads to a sign-in. */}
+          {sendable && userId && (
             <>
               <button
                 type="button"

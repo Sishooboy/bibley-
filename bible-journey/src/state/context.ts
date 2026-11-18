@@ -77,6 +77,8 @@ export type Store = {
   importData: (data: AppData) => void;
   /** Applies an already-merged journal pulled from the cloud. Not undoable. */
   mergeRemote: (data: AppData) => void;
+  /** Empties this device's journal on sign out, undo snapshot included. */
+  resetJournal: () => void;
   choosePlan: (id: string) => void;
   setPrefs: (prefs: Prefs) => void;
   undo: () => void;

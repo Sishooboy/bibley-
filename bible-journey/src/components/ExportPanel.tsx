@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { buildExport, countJournal, exportFilename } from '../lib/exportJournal';
 import { formatNumber, plural } from '../lib/format';
+import { useCloud } from '../state/useCloud';
 import { useStore } from '../state/useStore';
 import { Download } from './icons';
 
@@ -18,6 +19,7 @@ type Props = { reveal?: (node: Element | null) => void };
  */
 export function ExportPanel({ reveal }: Props) {
   const { data } = useStore();
+  const { email } = useCloud();
   const [saved, setSaved] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -49,8 +51,17 @@ export function ExportPanel({ reveal }: Props) {
         <div>
           <h3 className="card__title">Your own copy</h3>
           <p className="card__note">
-            Everything in your journal as one file, saved to this device. Your account is the only
-            copy there is, so this is the one that does not depend on it.
+            {email ? (
+              <>
+                Everything in your journal as one file, saved to this device. Your account is the
+                only copy there is, so this is the one that does not depend on it.
+              </>
+            ) : (
+              <>
+                Everything in your journal as one file. Without an account this browser holds the
+                only copy, and a browser short of room can clear it, so this is worth keeping.
+              </>
+            )}
           </p>
         </div>
       </div>

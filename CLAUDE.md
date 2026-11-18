@@ -1448,6 +1448,46 @@ never open. `src/lib/offline.ts` is the logic and `OfflinePanel` the card.
   stopping the `npx vite preview` task leaves the node child listening, so check the port is
   actually closed before calling anything offline.
 
+### Reading without an account, and why signing out empties the device
+
+**The sign-in screen is a front door, not a wall.** It offers Google and "Start without an
+account", and both lead into the same app. App Store guideline 5.1.1(i) says an app whose core is
+not an account feature must not demand a login, and reading the Bible is not one. Sync and Friends
+are, so they ask at the point they are needed: Friends shows a card with a sign-in button, the
+account card in Settings offers Google, and the send and post buttons in the highlight sheet are
+simply not there, since both lead to a sign-in.
+
+- **The choice is device-local**, `bible-journey/guest` in `src/lib/guest.ts`, never a `prefs`
+  field: it answers a question about this browser before there is an account to sync it to. It
+  holds in memory when storage refuses it, or private browsing would bounce straight back to the
+  sign-in screen on the next render. Signing in clears it, so signing out later offers the sign-in
+  screen rather than an empty journal nobody asked for.
+- **A guest's journal is an ordinary journal with no `ownerId`**, and that is what makes signing in
+  later cost nothing. `syncNow` merges any local journal that has no owner into the account, so
+  everything read without one comes with the reader, by the same merge rules as two devices.
+- **Signing out empties the device, and that is a change.** It used to leave the journal where it
+  was, which was harmless while the sign-in screen led nowhere. Now anybody can pick the device up
+  and start reading, and they would have been reading in your journal, notes and highlights
+  included. `signOut` pushes unsaved edits first and empties the device only if that worked, through
+  a `reset` action that also drops the undo snapshot, since that snapshot is a copy of the journal
+  just left. **If the push fails, offline or an expired token, it signs out anyway and keeps the
+  copy**, which is the old behaviour and loses nothing; refusing would trap somebody whose token
+  expired, since the advice for that is to sign out and back in.
+- **Three things in `signOut` are load bearing.** It clears the session itself rather than waiting
+  for the auth listener, so the empty journal and the missing session land in one render: the other
+  way round, the debounced push would see an empty journal with a live session and write it over the
+  account. It clears `dirtyRef`, because `syncNow` pushes a dirty journal before it pulls, and a flag
+  left from one account would write that journal over the next account to sign in, before the
+  `ownerId` check could run. That was a real hole before this change: mark a chapter, sign out within
+  a second and a half, sign in as somebody else. And `accountRef` lets a sync that was mid-read when
+  the sign out happened see that it no longer applies, rather than putting the journal back.
+- **Close your account is hidden without one**, and the export card says the browser is the only
+  copy, because for a guest it is.
+- **Verified in the browser** as a new reader on an empty device: the gate, the chooser, the guide,
+  Friends, Settings, a reload going straight back in, and a highlight sheet with no send buttons.
+  **Signing out was not exercised end to end**, since it needs a real Google account in the pane;
+  the reducer half is tested and the rest is the reasoning above.
+
 ### The data model
 
 One row per account in `public.journals`: `user_id`, `data` jsonb, `updated_at`. Row-level security
@@ -1639,7 +1679,8 @@ Progress is never lost, only occasionally resurrected. That direction is deliber
 `bible-journey/ios/` is a Capacitor 8 project wrapped around the same web build. **It is a scaffold,
 not a release.** CI compiles it for the simulator, and it exists so the native work the web cannot
 do, a home screen widget, reminders that fire with the app closed, Sign in with Apple, haptics, has
-somewhere to live. Signing in does not work in it yet, for the reasons below.
+somewhere to live. Signing in does not work in it yet, for the reasons below, but reading does,
+through "Start without an account", so the shell is a working local app rather than a gate.
 
 - **Swift Package Manager, not CocoaPods**, which is what a new Capacitor 8 project gets. That is
   why there is no Podfile and no `.xcworkspace`: the thing to build is `ios/App/App.xcodeproj`,
@@ -1760,7 +1801,9 @@ exercise an App Group.
 
 **What comes next, in this order:**
 
-1. **Native sign-in.** Without it the shell is a gate nobody can pass. Google through
+1. **Native sign-in.** Without it the shell is local only: a reader gets in without an account, but
+   sync and Friends are out of reach, and "Continue with Google" opens Safari and signs in to the
+   website instead, so hide it on native until this lands. Google through
    `ASWebAuthenticationSession` and PKCE as above can be written now, but it can only be tried on a
    Mac or a signed device, since CI compiles and screenshots and cannot tap. Sign in with Apple
    follows as soon as the account exists, and has to ship with it: guideline 4.8 asks for an
@@ -1873,13 +1916,15 @@ exercise an App Group.
   the point of it: a watermark behind the plan chooser, and the finish line on the today card when
   a plan is complete. Anywhere else it stops being a mark and becomes wallpaper. Warm near-black and cream carry the rest.
 - Fraunces for headings, nav and figures. Inter for body.
-- Verify UI changes in the browser rather than assuming. The gate blocks a signed-out session, so
-  temporarily bypassing it in `Gate()` is the usual trick. **Always revert the bypass.**
+- Verify UI changes in the browser rather than assuming. "Start without an account" on the sign-in
+  screen gets a signed-out session into every screen, so no bypass is needed for most work. The
+  screens that change with an account, Friends past its sign-in card and the signed-in account
+  card, still need one: temporarily bypassing the gate in `Gate()`. **Always revert the bypass.**
 
 ## State and what is next
 
-Working: nine reading tracks behind a two-step chooser and a preparing transition, Google-only
-sign-in behind a gate,
+Working: nine reading tracks behind a two-step chooser and a preparing transition, Google
+sign-in that is optional, since reading needs no account,
 per-account sync with the merge rules above, chapter marking by slider, quick amounts and tap,
 undo, backdating so a chapter counts on the day it was read, an optional time of day, the text
 itself in a reader that sets it in paragraphs and poetry and opens at any book and any chapter,
@@ -2138,21 +2183,16 @@ Not built yet, roughly in order:
 4. **A 1024px app icon.** `brand/logo-source.png` is 639x639 and there is no vector anywhere in the
    repo, so `npm run icons` cannot produce one and upscaling would ship a soft mark. It needs a
    re-export from whatever drew it.
-5. **Letting the reader work signed out.** Guideline 5.1.1(i) says an app without significant
-   account-based features must not force a login, and right now `App.tsx` gates everything including
-   simply reading the Bible. Sync and friends are genuine account features so it is arguable, but it
-   is the kind of thing that gets rejected. The plumbing half exists already: `status === 'off'`
-   renders `<Shell />` against local-only storage.
-7. **Tear down the four demo accounts before submission.** Hana, Marc, Ruth and Sam from
+5. **Tear down the four demo accounts before submission.** Hana, Marc, Ruth and Sam from
    `supabase/seed/friends-demo.sql` were still live in production on 2026-11-14, beside the one
    real profile. A reviewer adding friends would meet invented people. `friends-demo-teardown.sql`
    removes all four, and it deletes accounts, so it is a deliberate step and not a cleanup.
-8. **Telling somebody a verse arrived.** Nothing does today short of opening Friends. While the app
+6. **Telling somebody a verse arrived.** Nothing does today short of opening Friends. While the app
    is open, a Supabase Realtime subscription on `passages` filtered to `to_user` is enough, and RLS
    already decides what it may deliver. With the app closed it is a push notification, which needs
    the Capacitor shell, a table of device tokens with an owner-only policy, and a database webhook
    on `passages` insert calling an edge function that sends it. Blocked on item 2.
-9. **Somebody has to read the reports.** `reports` collects them and nothing tells anyone one was
+7. **Somebody has to read the reports.** `reports` collects them and nothing tells anyone one was
    filed, while the rules page promises action within a day. The same webhook pattern, on
    `reports` insert, emailing `SUPPORT_EMAIL`, closes it, and it does not need the shell. Guideline
    1.2 also asks for a way to filter what is posted; a word list checked in a trigger on `passages`,

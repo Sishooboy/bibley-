@@ -791,8 +791,44 @@ select {
   cursor: default;
 }
 
+/*
+ * The second way in, and plainly second: the same width and the same corner as
+ * Google's, so the two read as a pair of choices, but a tenth of white rather
+ * than cream, the way `.guide__back` sits beside Next. Measured: cream on the
+ * button over the gate's ink is 13.9:1, and 9.6:1 against a ground lightened by
+ * an eighth, a generous bracket for the light turning behind the mark.
+ */
+.gate__guest {
+  width: 100%;
+  /* Google's height, which its 46px mark sets, so the pair line up as equals. */
+  min-height: 54px;
+  margin-top: 0.7rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--cream);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background 140ms ease, border-color 140ms ease;
+  animation: gateRise 600ms var(--ease-out) 940ms backwards;
+}
+
+@media (hover: hover) {
+  .gate__guest:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.11);
+    border-color: rgba(255, 255, 255, 0.28);
+  }
+}
+
+.gate__guest:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .gate__google {
+  .gate__google,
+  .gate__guest {
     transition: none;
   }
 
@@ -803,7 +839,8 @@ select {
   .gate__eyebrow,
   .gate__lede,
   .gate__signIn::before,
-  .gate__google {
+  .gate__google,
+  .gate__guest {
     animation: none;
   }
 

@@ -164,6 +164,11 @@ describe('silence', () => {
     expect(next.cue).toBe(before.cue);
   });
 
+  it('says nothing when signing out empties the device', () => {
+    const before = state({ read: { 'Jude|1': TODAY } }, { id: 3, name: 'chapter' });
+    expect(reducer(before, { type: 'reset' }).cue).toBe(before.cue);
+  });
+
   it('says nothing for a note or a plan switch', () => {
     const before = state({}, { id: 3, name: 'chapter' });
     const quiet = [
@@ -273,5 +278,41 @@ describe('recording a quiz', () => {
     const next = record(state({}, { id: 4, name: 'chapter' }), 6);
     expect(next.cue).toEqual({ id: 4, name: 'chapter' });
     expect(next.previous).toBeNull();
+  });
+});
+
+/**
+ * Signing out empties the device, because anybody can now pick it up and start
+ * reading without an account, and they would otherwise be reading in yours.
+ */
+describe('signing out', () => {
+  it('leaves an empty journal with no plan', () => {
+    const before = state({
+      read: { 'John|3': TODAY },
+      notes: [{ id: 'n', book: 'John', chapter: 3, text: 'mine', createdAt: TODAY, updatedAt: TODAY }],
+      highlights: [],
+      ownerId: 'someone',
+    });
+    const next = reducer(before, { type: 'reset' });
+    expect(next.data.read).toEqual({});
+    expect(next.data.notes).toEqual([]);
+    expect(next.data.planId).toBeUndefined();
+    expect(next.data.ownerId).toBeUndefined();
+  });
+
+  it('takes the undo snapshot with it', () => {
+    // The snapshot is a copy of the journal just signed out of. An undo bar
+    // still on screen would hand it to whoever picks the device up next.
+    const marked = reducer(state(), {
+      type: 'markChapters',
+      book: 'John',
+      chapters: [1, 2, 3],
+      day: TODAY,
+      slot: null,
+    });
+    expect(marked.previous).not.toBeNull();
+    const next = reducer(marked, { type: 'reset' });
+    expect(next.previous).toBeNull();
+    expect(reducer(next, { type: 'undo' }).data.read).toEqual({});
   });
 });

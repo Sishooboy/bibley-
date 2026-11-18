@@ -158,6 +158,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       deleteNote: (id) => dispatch({ type: 'deleteNote', id }),
       importData: (imported) => dispatch({ type: 'importData', data: imported }),
       mergeRemote: (merged) => dispatch({ type: 'mergeRemote', data: merged }),
+      resetJournal: () => dispatch({ type: 'reset' }),
       choosePlan: (id) => dispatch({ type: 'choosePlan', id }),
       setPrefs: (prefs) => dispatch({ type: 'setPrefs', prefs }),
       undo: () => dispatch({ type: 'undo' }),

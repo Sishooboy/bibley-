@@ -17,6 +17,7 @@ import { isBetter } from '../lib/quiz';
 import { chooseCue, type Cue } from '../lib/sound';
 import {
   chapterKey,
+  emptyData,
   newId,
   type AppData,
   type Highlight,
@@ -44,6 +45,7 @@ export type Action =
   | { type: 'choosePlan'; id: string }
   | { type: 'setPrefs'; prefs: Prefs }
   | { type: 'recordQuiz'; key: string; best: number; of: number; at: string }
+  | { type: 'reset' }
   | { type: 'undo' };
 
 export type State = {
@@ -591,6 +593,16 @@ export function reducer(state: State, action: Action): State {
        * the one way this feature could feel broken rather than absent.
        */
       return { ...state, data: action.data };
+    case 'reset':
+      /*
+       * Signing out. The undo snapshot goes too, and that is the point of this
+       * being its own action rather than `mergeRemote(emptyData())`: the
+       * snapshot is a copy of the journal that was just signed out of, and an
+       * undo bar still on screen would put it back in front of whoever picks the
+       * device up next. The cue stays, since the effect turns on its id changing
+       * and an unchanged one is inert.
+       */
+      return { data: emptyData(), previous: null, cue: state.cue };
     case 'undo':
       return state.previous
         ? { data: state.previous.data, previous: null, cue: fire(state, 'undo') }

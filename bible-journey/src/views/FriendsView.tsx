@@ -57,7 +57,7 @@ import { useCloud } from '../state/useCloud';
  * engagement loop is a bad thing for a Bible app to grow.
  */
 export function FriendsView() {
-  const { userId, displayName } = useCloud();
+  const { userId, displayName, status, signInWithGoogle } = useCloud();
   const reveal = useReveal();
 
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -159,9 +159,22 @@ export function FriendsView() {
         <div className="container">
           <section className="card">
             <p className="card__note">
-              Friends lives in your account, so it needs you signed in. Everything you have read is
-              kept on this device either way.
+              Friends lives in your account, so it needs you signed in. Everything you have read on
+              this device comes with you when you do.
             </p>
+            {/* Not offered by a build with no cloud project, where there is
+                nothing to sign in to. */}
+            {status !== 'off' && (
+              <div className="card__actions">
+                <button
+                  type="button"
+                  className="btn btn--sm btn--primary"
+                  onClick={() => void signInWithGoogle()}
+                >
+                  Continue with Google
+                </button>
+              </div>
+            )}
           </section>
         </div>
       </>

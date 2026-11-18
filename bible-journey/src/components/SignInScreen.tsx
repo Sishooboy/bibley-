@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { TOTAL_BOOK_COUNT, TOTAL_CHAPTER_COUNT } from '../data/plan';
 import { formatNumber } from '../lib/format';
+import { setGuest } from '../lib/guest';
 import { useCloud } from '../state/useCloud';
 
 /** The official mark. Google's branding rules govern this button's wording and icon. */
@@ -60,9 +61,23 @@ export function SignInScreen() {
             <span>{busy ? 'Opening Google…' : 'Continue with Google'}</span>
           </button>
 
+          {/*
+            Reading the Bible is not an account feature, so it never waits on
+            one. App Store guideline 5.1.1(i) says as much, and it is also what
+            makes the iOS shell usable before Google sign-in works inside it.
+          */}
+          <button
+            type="button"
+            className="gate__guest"
+            disabled={busy}
+            onClick={() => setGuest(true)}
+          >
+            Start without an account
+          </button>
+
           <p className="gate__note">
-            Your streak, notes and progress follow the account you pick, so your phone and your
-            laptop stay on the same journey.
+            An account keeps your streak, notes and progress on every device you use. Without one
+            they stay on this one, and come with you whenever you sign in.
           </p>
         </div>
 

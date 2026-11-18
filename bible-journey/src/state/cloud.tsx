@@ -4,6 +4,7 @@ import { mergeJournals, sameJournal } from '../lib/merge';
 import { emptyData, normalize, type AppData } from '../lib/storage';
 import { JOURNALS_TABLE, cloudConfigured, supabase } from '../lib/supabase';
 import { publishPresence } from '../lib/friendsApi';
+import { isGuest, setGuest } from '../lib/guest';
 import { CloudContext, type Cloud, type CloudStatus } from './cloudContext';
 import { useStore } from './useStore';
 
@@ -49,7 +50,7 @@ function describeSyncError(err: unknown): string {
 }
 
 export function CloudProvider({ children }: { children: ReactNode }) {
-  const { data, derived, mergeRemote } = useStore();
+  const { data, derived, mergeRemote, resetJournal } = useStore();
   const [session, setSession] = useState<Session | null>(null);
   const [status, setStatus] = useState<CloudStatus>(cloudConfigured ? 'loading' : 'off');
   const [ready, setReady] = useState(!cloudConfigured);
@@ -67,6 +68,13 @@ export function CloudProvider({ children }: { children: ReactNode }) {
   derivedRef.current = derived;
   /** When presence was last published, so the throttle survives a re-render. */
   const presenceAtRef = useRef(0);
+  /**
+   * The account this device is signed in to, read by a sync that resumes after
+   * an await. Set on render and cleared directly by sign out, because a sync
+   * resuming between the two would otherwise still see the old account.
+   */
+  const accountRef = useRef<string | null>(null);
+  accountRef.current = session?.user.id ?? null;
 
   useEffect(() => {
     if (!supabase) return;
@@ -111,6 +119,9 @@ export function CloudProvider({ children }: { children: ReactNode }) {
         .eq('user_id', userId)
         .maybeSingle();
       if (readError) throw readError;
+      // Signed out while the read was in flight. Applying it now would put the
+      // journal just signed out of back on a device that was emptied of it.
+      if (accountRef.current !== userId) return;
 
       const local = dataRef.current;
       const remote = row ? normalize(row.data) : null;
@@ -147,8 +158,12 @@ export function CloudProvider({ children }: { children: ReactNode }) {
   // Pull whenever a session appears, and whenever the tab comes back into view.
   useEffect(() => {
     if (!ready) return;
-    if (session) void syncNow();
-    else if (cloudConfigured) setStatus('signed-out');
+    if (session) {
+      // A guest who signs in has an account now. Signing out later should
+      // offer the sign-in screen, not an empty journal they never asked for.
+      if (isGuest()) setGuest(false);
+      void syncNow();
+    } else if (cloudConfigured) setStatus('signed-out');
   }, [ready, session, syncNow]);
 
   useEffect(() => {
@@ -240,12 +255,54 @@ export function CloudProvider({ children }: { children: ReactNode }) {
     if (authError) setError(authError.message);
   }, []);
 
+  /*
+   * Signing out leaves nothing of yours on this device.
+   *
+   * It used to leave the journal where it was, which was harmless while the
+   * only thing behind the sign-in screen was the sign-in screen. Now anybody can
+   * pick the device up and start reading without an account, and they would
+   * have been reading in your journal, notes and highlights included.
+   *
+   * **Only once the account has everything.** Unsaved edits are pushed first,
+   * and the device is emptied only if that worked. If it did not, offline or an
+   * expired token, the sign out still happens and the local copy stays, which is
+   * the old behaviour: nothing is lost, and signing back in merges it. Refusing
+   * to sign out instead would trap somebody whose token expired, since the
+   * advice for that is to sign out and back in.
+   *
+   * The session is cleared here rather than left to the auth listener, so the
+   * empty journal and the missing session land in the same render. The other way
+   * round, the debounced push would see an empty journal with a live session and
+   * write it over the account.
+   */
   const signOut = useCallback(async () => {
     if (!supabase) return;
+    const userId = session?.user.id;
+    let saved = !dirtyRef.current;
+    if (userId && dirtyRef.current) {
+      try {
+        await push(dataRef.current, userId);
+        dirtyRef.current = false;
+        saved = true;
+      } catch (err) {
+        console.warn('Signing out with edits the account has not got. Keeping them here.', err);
+      }
+    }
     await supabase.auth.signOut();
+    accountRef.current = null;
+    /*
+     * Never carried into the next sign in. `syncNow` pushes a dirty journal
+     * before it pulls, so a flag left over from this account would write this
+     * journal over whichever account signs in next, before the ownership check
+     * that guards against exactly that had a chance to run. Whatever is kept
+     * here is merged on the way back in instead, by that check.
+     */
+    dirtyRef.current = false;
+    setSession(null);
     setLastSyncedAt(null);
-    // The local journal stays put: signing out is not deleting anything.
-  }, []);
+    setError(null);
+    if (saved) resetJournal();
+  }, [session, push, resetJournal]);
 
   /*
    * Delete the account, which App Store guideline 5.1.1(v) requires and which

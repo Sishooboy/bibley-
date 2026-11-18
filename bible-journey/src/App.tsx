@@ -10,6 +10,7 @@ import { SyncBadge } from './components/SyncBadge';
 import { Tour } from './components/Tour';
 import { UndoBar } from './components/UndoBar';
 import { Menu } from './components/icons';
+import { useGuest } from './lib/guest';
 import { scrollAppToTop } from './lib/scroll';
 import { returnedFromOAuth } from './lib/supabase';
 import { TOUR_EVENT } from './lib/tour';
@@ -231,12 +232,15 @@ function TourHost({
 }
 
 /**
- * The app is behind a sign-in wall whenever a cloud project is configured. If it
- * isn't (a build with no Supabase env vars), gating would lock everyone out of a
- * perfectly working local journal, so it falls through with a visible warning.
+ * The sign-in screen is the front door, not a wall. It offers Google and it
+ * offers reading without an account, and either one leads into the same app;
+ * the second keeps the journal on this device until somebody signs in, when it
+ * merges into the account. A build with no Supabase env vars skips the screen
+ * altogether, with a visible warning, since there is nothing to sign in to.
  */
 function Gate() {
   const { status, email } = useCloud();
+  const guest = useGuest();
   const { data, choosePlan } = useStore();
   /** Set while the chosen track is being laid out, purely for the transition. */
   const [preparing, setPreparing] = useState<string | null>(null);
@@ -262,7 +266,8 @@ function Gate() {
   }
 
   if (status === 'loading') return <Splash held={held} />;
-  if (!email) return <SignInScreen />;
+  // Reading never needs an account. See `lib/guest.ts`.
+  if (!email && !guest) return <SignInScreen />;
   if (held) return <Splash held />;
   if (preparing) return <Preparing trackId={preparing} />;
 

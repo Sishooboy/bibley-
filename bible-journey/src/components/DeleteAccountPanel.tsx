@@ -36,6 +36,9 @@ export function DeleteAccountPanel({ reveal }: Props) {
   const counts = countJournal(data);
   const ready = typed.trim().toLowerCase() === PHRASE;
 
+  // Reading without an account: there is nothing on a server to close.
+  if (!email) return null;
+
   return (
     <section ref={reveal} className="card reveal">
       <div className="card__head">
