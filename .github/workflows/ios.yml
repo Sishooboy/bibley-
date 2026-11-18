@@ -1,0 +1,121 @@
+# Proves the Capacitor iOS shell still compiles, on a Mac nobody here owns.
+#
+# It builds for the simulator with signing switched off, which is the one iOS
+# build that needs no Apple Developer account, no certificate and no device.
+# A green run means the web build, `cap sync` and the Xcode project agree with
+# each other. It does not mean the app is ready to ship: see "The iOS shell" in
+# CLAUDE.md for what is still blocked on the paid account.
+name: iOS shell
+
+on:
+  pull_request:
+    paths:
+      - 'bible-journey/**'
+      - '.github/workflows/ios.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'bible-journey/**'
+      - '.github/workflows/ios.yml'
+  workflow_dispatch:
+
+# A second push to the same branch makes the first run worthless, and a macOS
+# runner is the slowest queue GitHub has.
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  simulator:
+    # Capacitor 8 requires Xcode 26, which is the default on this image.
+    runs-on: macos-26
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: bible-journey
+    env:
+      # Vite bakes these into the bundle at build time, exactly as Vercel does,
+      # so the binary carries whatever the job had. They come from repository
+      # secrets and are never written into the repo. A pull request from a fork
+      # gets neither, and the build still succeeds: without them the app runs
+      # as a local-only journal, which is enough to prove it compiles.
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: bible-journey/package-lock.json
+
+      - name: Say so if the Supabase secrets are missing
+        if: env.VITE_SUPABASE_URL == '' || env.VITE_SUPABASE_PUBLISHABLE_KEY == ''
+        run: >-
+          echo "::warning::VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY is not set,
+          so this build has no sync and no sign-in. Add both as repository secrets."
+
+      - run: npm ci
+
+      - name: Build the web app
+        run: npm run build
+
+      # Copies dist into ios/App/App/public, which is gitignored, and rewrites
+      # CapApp-SPM/Package.swift from the installed plugins. Without this the
+      # app compiles around an empty folder and launches to a white screen.
+      - name: Sync into the iOS project
+        run: npx cap sync ios
+
+      - name: Show the toolchain
+        run: xcodebuild -version
+
+      - name: Build for the simulator, unsigned
+        working-directory: bible-journey/ios/App
+        # The project, not a workspace: this shell uses Swift Package Manager,
+        # so there is no CocoaPods workspace, and this is the same invocation
+        # `cap run ios` uses. A generic destination needs no booted simulator.
+        run: |
+          xcodebuild build \
+            -project App.xcodeproj \
+            -scheme App \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      # The owner has no Mac, so a picture of the shell actually running is the
+      # only way to see it between now and a device. This is evidence, not the
+      # gate: the build above is what the check means, so a simulator that is
+      # slow to boot must not turn a good compile red.
+      - name: Launch it in a simulator and take a screenshot
+        continue-on-error: true
+        working-directory: bible-journey/ios/App
+        run: |
+          APP="$RUNNER_TEMP/DerivedData/Build/Products/Debug-iphonesimulator/App.app"
+          BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$APP/Info.plist")
+          UDID=$(xcrun simctl list devices available -j \
+            | jq -r '[.devices | to_entries[] | select(.key | test("iOS")) | .value[] | select(.name | startswith("iPhone"))][0].udid')
+          echo "Booting $UDID for $BUNDLE_ID"
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" "$APP"
+          xcrun simctl launch "$UDID" "$BUNDLE_ID"
+          # Long enough for the web view to load and the entrance to settle.
+          sleep 20
+          xcrun simctl io "$UDID" screenshot "$RUNNER_TEMP/shell.png"
+
+      - name: Keep the screenshot
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ios-shell-screenshot
+          path: ${{ runner.temp }}/shell.png
+          if-no-files-found: ignore
+          retention-days: 14
