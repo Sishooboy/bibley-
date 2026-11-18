@@ -17,10 +17,10 @@ type Props = { reveal?: (node: Element | null) => void };
 /**
  * The whole Bible, kept on this device.
  *
- * The translation being read comes first, and the other is offered underneath
- * as a choice of its own rather than folded into one button: nearly ten
- * megabytes for both is a lot to spend on a phone for a translation somebody
- * may never open. Device-local like Appearance, because what a phone keeps is
+ * The translation being read comes first, and the others are offered underneath
+ * as choices of their own rather than folded into one button: fourteen
+ * megabytes for all three is a lot to spend on a phone for translations
+ * somebody may never open. Device-local like Appearance, because what a phone keeps is
  * a fact about the phone.
  */
 export function OfflinePanel({ reveal }: Props) {
@@ -123,22 +123,30 @@ type RowProps = {
 };
 
 function OfflineRow({ translation, first, coverage: c, saving, stopping, busy }: RowProps) {
-  const { name } = translationById(translation);
+  const { name, lacksBooks } = translationById(translation);
   const complete = c !== null && c.missing.length === 0;
   const left = c ? c.total - c.books : 0;
 
+  /*
+   * A translation without the deuterocanon says so here too, so "all 66" is
+   * never read as a Bible with seven books lost from it.
+   */
   const hint =
     c === null
       ? 'Checking this device…'
       : saving
         ? `Saving, ${c.books} of ${c.total} books on this device`
         : complete
-          ? `All ${c.total} books, ready with no connection`
+          ? lacksBooks
+            ? `All ${c.total} of its books, ready with no connection`
+            : `All ${c.total} books, ready with no connection`
           : c.books > 0
             ? `${c.books} of ${c.total} books on this device`
             : first
               ? 'Only the books you open are kept'
-              : 'Saved separately, if you read it too';
+              : lacksBooks
+                ? `${c.total} books, without the deuterocanon`
+                : 'Saved separately, if you read it too';
 
   /*
    * The label names what the press does and what it costs, so the size is read

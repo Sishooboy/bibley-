@@ -88,10 +88,14 @@ describe('which translation a highlight belongs to', () => {
 });
 
 describe('the translations', () => {
-  it('have a file for every book of the canon', () => {
+  // Every book but the ones a translation says it lacks, and none of those: a
+  // file the reader was told is not there would never be opened, and a missing
+  // file it was not told about is a book that waits forever.
+  it('have a file for every book of the canon they have', () => {
     for (const t of TRANSLATIONS) {
       for (const book of CANON) {
-        expect(existsSync(join(process.cwd(), 'public', t.dir, `${bookSlug(book)}.json`)), `${t.id} ${book}`).toBe(true);
+        const has = !t.lacksBooks?.includes(book);
+        expect(existsSync(join(process.cwd(), 'public', t.dir, `${bookSlug(book)}.json`)), `${t.id} ${book}`).toBe(has);
       }
     }
   });

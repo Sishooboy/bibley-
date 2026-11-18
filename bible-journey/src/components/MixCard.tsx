@@ -4,7 +4,7 @@ import { cachedBook, loadBook, type BookText } from '../lib/bible';
 import { useToday } from '../lib/clock';
 import { countWords, formatNumber, formatRefs, readingMinutes } from '../lib/format';
 import { mixFinished, todaysMix } from '../lib/mix';
-import { useTranslation } from '../lib/translations';
+import { textTranslation, useTranslation } from '../lib/translations';
 import { useReader } from '../state/useReader';
 import { useStore } from '../state/useStore';
 import { Check } from './icons';
@@ -33,7 +33,8 @@ export function MixCard({ plan }: { plan: StreamTrack }) {
   // The book the red button opens, fetched now so the button can say how long
   // it takes and the reader opens on the text. The today card's reasoning.
   const nextBook = next?.book;
-  const translation = useTranslation();
+  const chosen = useTranslation();
+  const translation = nextBook ? textTranslation(chosen, nextBook) : chosen;
   const [text, setText] = useState<BookText | undefined>(() =>
     nextBook ? cachedBook(nextBook, translation) : undefined,
   );

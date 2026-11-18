@@ -20,6 +20,8 @@ export type Credit = {
   terms: string;
   /** The page that states the terms. */
   url: string;
+  /** The licence itself, linked, where the terms are a licence that asks for that. */
+  licence?: { name: string; url: string };
 };
 
 export const CREDITS: Credit[] = [
@@ -41,6 +43,16 @@ export const CREDITS: Credit[] = [
     terms:
       'The 1769 standardised text. Public domain outside the United Kingdom, where it remains under letters patent. Text courtesy of CrossWire and eBible.org.',
     url: 'https://ebible.org/KJV/copr.htm',
+  },
+  {
+    work: 'Free Bible Version',
+    usedFor: 'The plain, easy to read translation in the reader. It has the 66 books of a protestant Bible.',
+    // The licence's conditions, kept: the copyright and source, a note of what
+    // was changed, and the same licence on what is shared from it.
+    terms:
+      'Copyright © 2018 Dr. Jonathan Gallagher, from eBible.org, under the Creative Commons Attribution Share-Alike license 4.0. The footnotes and word tags are left out here and the text is otherwise unchanged; the files made from it are shared under the same licence.',
+    url: 'https://ebible.org/engfbv/copyright.htm',
+    licence: { name: 'CC BY-SA 4.0', url: 'https://creativecommons.org/licenses/by-sa/4.0/' },
   },
   {
     work: 'World English Bible audio, read by David Williams',

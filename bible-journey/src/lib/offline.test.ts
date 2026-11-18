@@ -39,10 +39,23 @@ describe('what a save fetches', () => {
   it('is every book of the translation and the shared headings, by the URLs the reader uses', () => {
     for (const t of TRANSLATIONS) {
       const files = filesFor(t.id);
-      expect(files).toHaveLength(CANON.length + 1);
-      expect(files).toEqual([...CANON.map((book) => bookUrl(book, t.id)), INSIGHTS_URL]);
+      const books = CANON.filter((book) => !t.lacksBooks?.includes(book));
+      expect(files).toHaveLength(books.length + 1);
+      expect(files).toEqual([...books.map((book) => bookUrl(book, t.id)), INSIGHTS_URL]);
       expect(new Set(files).size).toBe(files.length);
     }
+  });
+
+  /*
+   * The Free Bible Version is a protestant Bible. A save that asked for Tobit
+   * would fail on a file that was never shipped, and stop the run there; a card
+   * that counted 73 would never reach "all of them" however much it saved.
+   */
+  it('is never a book the translation does not have', () => {
+    expect(filesFor('fbv')).not.toContain(bookUrl('Tobit', 'fbv'));
+    expect(coverage('fbv', new Set()).total).toBe(66);
+    const all = new Set(filesFor('fbv'));
+    expect(coverage('fbv', all)).toMatchObject({ books: 66, total: 66, missing: [] });
   });
 
   /*

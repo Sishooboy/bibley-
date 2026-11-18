@@ -439,7 +439,17 @@ export function SettingsView() {
                   {credit.work}
                 </a>
                 <span className="credits__use">{credit.usedFor}</span>
-                <span className="credits__terms">{credit.terms}</span>
+                <span className="credits__terms">
+                  {credit.terms}
+                  {credit.licence && (
+                    <>
+                      {' '}
+                      <a href={credit.licence.url} target="_blank" rel="noreferrer license">
+                        {credit.licence.name}
+                      </a>
+                    </>
+                  )}
+                </span>
               </li>
             ))}
           </ul>

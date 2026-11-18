@@ -3,7 +3,7 @@ import { CANON } from '../data/canon';
 import { loadBook } from '../lib/bible';
 import { excerpt, findInBook, type VerseHit } from '../lib/bibleSearch';
 import { plural } from '../lib/format';
-import { useTranslation } from '../lib/translations';
+import { booksIn, useTranslation } from '../lib/translations';
 import { Search } from './icons';
 
 /**
@@ -38,6 +38,10 @@ export function BibleSearch({
   // Searches the words the reader is showing, so "thee" finds the King James
   // and a hit opens on the same wording it was found in.
   const translation = useTranslation();
+  // Only the books it has: a protestant translation has no Tobit to fetch, and
+  // looking for one would count as a book that could not be reached.
+  const books = booksIn(translation, CANON);
+  const without = CANON.length - books.length;
   const inputRef = useRef<HTMLInputElement>(null);
   /** Bumped to abandon a run: a new search, a stop, or the panel closing. */
   const runId = useRef(0);
@@ -68,10 +72,10 @@ export function BibleSearch({
     const found: VerseHit[] = [];
     const absent: string[] = [];
 
-    for (let i = 0; i < CANON.length; i++) {
+    for (let i = 0; i < books.length; i++) {
       if (runId.current !== id) return;
       try {
-        const text = await loadBook(CANON[i], translation);
+        const text = await loadBook(books[i], translation);
         if (runId.current !== id) return;
         const room = LIMIT - found.length;
         if (room > 0) {
@@ -84,7 +88,7 @@ export function BibleSearch({
       } catch {
         // Offline with that book never opened. Worth saying at the end rather
         // than stopping the search over.
-        absent.push(CANON[i]);
+        absent.push(books[i]);
       }
       setDone(i + 1);
     }
@@ -128,13 +132,13 @@ export function BibleSearch({
       <p className="bibleSearch__status" aria-live="polite">
         {running ? (
           <>
-            Looking through the Bible, {done} of {CANON.length} books.{' '}
+            Looking through the Bible, {done} of {books.length} books.{' '}
             <button type="button" className="linkBtn" onClick={stop}>
               Stop
             </button>
           </>
         ) : asked === '' ? (
-          'Every word of all 73 books. The first search fetches the books you have not opened yet, so it takes a moment.'
+          `Every word of ${without > 0 ? `its ${books.length} books, without the deuterocanon` : `all ${books.length} books`}. The first search fetches the books you have not opened yet, so it takes a moment.`
         ) : hits.length === 0 ? (
           `Nothing matched “${asked}”.`
         ) : (

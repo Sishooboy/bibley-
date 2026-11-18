@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Reader } from '../components/Reader';
 import { loadBook } from '../lib/bible';
-import { currentTranslation } from '../lib/translations';
+import { currentTranslation, textTranslation } from '../lib/translations';
 import { reducedMotion } from '../lib/motion';
 import { ReaderContext, type ReaderApi } from './readerContext';
 
@@ -37,7 +37,7 @@ export function ReaderProvider({ children }: { children: ReactNode }) {
     setClosing(false);
     // Start the download on the tap rather than on the first render, so the
     // sheet and the text race each other instead of queueing.
-    void loadBook(book, currentTranslation()).catch(() => undefined);
+    void loadBook(book, textTranslation(currentTranslation(), book)).catch(() => undefined);
     setAt({ book, chapter, verse });
   }, []);
 

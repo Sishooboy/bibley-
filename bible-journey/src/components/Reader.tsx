@@ -9,9 +9,12 @@ import {
 } from 'react';
 import { CANON, NEW_TESTAMENT, OLD_TESTAMENT } from '../data/canon';
 import { cachedBook, loadBook, type BookText } from '../lib/bible';
+import { BOOK_BY_NAME } from '../data/plan';
 import {
   DEFAULT_TRANSLATION,
   TRANSLATIONS,
+  hasBook,
+  hasChapter,
   highlightTranslation,
   isKnownTranslation,
   setTranslation,
@@ -243,10 +246,27 @@ export function Reader({
   const { data, derived, toggleChapter, addHighlight, setPrefs, noteFor } = useStore();
   const { plan } = derived;
   const prefs = data.prefs ?? DEFAULT_PREFS;
-  const translation = useTranslation();
+  const chosen = useTranslation();
+  /*
+   * A book or chapter the chosen translation does not have, the deuterocanon in
+   * the Free Bible Version, is never an empty page and never another
+   * translation's words passed off under its name. The page says it is not
+   * there, and offers the World English Bible, which has every book. Taking
+   * that offer borrows the WEB for this book only: the device keeps its choice,
+   * so the next book opens in the chosen translation again without anyone
+   * having to remember to switch back.
+   *
+   * `translation` is the words on the page, which is what highlights, quotes
+   * and the credit all have to agree with, so it is the borrowed one while the
+   * WEB is standing in.
+   */
+  const [borrowed, setBorrowed] = useState<string | null>(null);
+  const absent = !hasChapter(chosen, book, chapter);
+  const translation: TranslationId = absent && borrowed === book ? DEFAULT_TRANSLATION : chosen;
+  const missing = absent && borrowed !== book;
   const reading = translationById(translation);
-  const nextTranslation =
-    TRANSLATIONS[(TRANSLATIONS.findIndex((t) => t.id === translation) + 1) % TRANSLATIONS.length];
+  /** Whether the list of translations is open under the chapter's name. */
+  const [choosing, setChoosing] = useState(false);
   /*
    * The app's own notes quote the World English Bible, and when another
    * translation is open the words on the page will not match theirs, so the
@@ -433,6 +453,13 @@ export function Reader({
 
   useEffect(() => {
     let live = true;
+    // No file was shipped for a book the translation does not have, so there is
+    // nothing to wait for; the page says so instead.
+    if (!hasBook(translation, book)) {
+      setText(undefined);
+      setError(null);
+      return;
+    }
     const hit = cachedBook(book, translation);
     if (hit) {
       setText(hit);
@@ -460,6 +487,7 @@ export function Reader({
     setPending(null);
     setEditing(null);
     setNoting(false);
+    setChoosing(false);
   }, [book, chapter]);
 
   useEffect(() => {
@@ -655,7 +683,9 @@ export function Reader({
     [pending, text, book, chapter, addHighlight, quoteFor, translation],
   );
 
-  const chapterCount = text?.chapters.length ?? 0;
+  // A book the translation does not have has no file to count, and the chapter
+  // picker is the way on from it, so the canon answers instead.
+  const chapterCount = text?.chapters.length ?? (missing ? (BOOK_BY_NAME.get(book)?.chapters ?? 0) : 0);
   const verses = text?.chapters[chapter - 1];
   /*
    * Where the paragraphs are. Memoised on the chapter rather than worked out
@@ -681,6 +711,102 @@ export function Reader({
     [verses, text, chapter, headings],
   );
   const open = marks.find((h) => h.id === editing);
+
+  /*
+   * The row under the chapter's name, shared by the text and by the page that
+   * says a chapter is not in this translation, since that page is exactly where
+   * somebody needs a way to another translation.
+   */
+  const pills = (
+    <>
+      {absent && !missing && (
+        <p className="reader__elsewhere">
+          {hasBook(chosen, book) ? `${book} ${chapter}` : book} is not in the{' '}
+          {translationById(chosen).name}, so this is the {reading.name}. Other books still open in
+          the {translationById(chosen).name}.
+        </p>
+      )}
+      {/*
+        The translation lives here and not in the bar. It was a fourth 38px
+        circle there first, and on a 375px phone it squeezed the book picker to
+        54px, which printed Genesis as "G": the failure the bar's gap rule
+        exists to prevent. Under the chapter's name it costs the bar nothing and
+        has room to name the translation in full.
+
+        It opens a list rather than flipping to the next one. A flip was right
+        with two, where "Switch to KJV" says exactly what a tap does; with three
+        it is a cycle, and somebody after the plain one would have to read past
+        the King James to reach it, which is the wrong way round for the
+        reader it exists for. The list says what each one is like, so the
+        choice can be made without trying all three.
+      */}
+      <div className="reader__pills">
+        {bookInsight(insights, book) && !sheetOpen && (
+          <AboutPill
+            book={book}
+            onOpen={() => {
+              setSheetReplay(true);
+              setSheetOpen(true);
+            }}
+          />
+        )}
+        <button
+          type="button"
+          className="aboutPill reader__translationPill"
+          aria-expanded={choosing}
+          aria-controls="reader-translations"
+          onClick={() => setChoosing((was) => !was)}
+          aria-label={`Reading the ${reading.name}. Choose a translation.`}
+        >
+          {reading.name}
+          <span className="reader__translationSwitch" aria-hidden="true">
+            {choosing ? 'Close' : 'Change'}
+          </span>
+        </button>
+        {/*
+          A chapter note could only be written from the journey's book
+          panel, so somebody reading had to close the reader, find the
+          book, open it, and pick the chapter from a list to write down a
+          thought they were having now. Here it is one tap from the words.
+        */}
+        <button
+          type="button"
+          className="aboutPill reader__notePill"
+          data-has={noteFor(book, chapter) ? '' : undefined}
+          onClick={() => {
+            setPending(null);
+            setEditing(null);
+            setNoting(true);
+          }}
+        >
+          {noteFor(book, chapter) ? 'Your note' : 'Add a note'}
+        </button>
+      </div>
+      {choosing && (
+        <div id="reader-translations" className="translationList" role="group" aria-label="Translations">
+          {TRANSLATIONS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className="translationList__item"
+              aria-pressed={t.id === translation}
+              onClick={() => {
+                setTranslation(t.id);
+                setBorrowed(null);
+                setChoosing(false);
+              }}
+            >
+              <span className="translationList__name">{t.name}</span>
+              <span className="translationList__about">
+                {t.about}
+                {t.lacksBooks && `, without the ${t.lacksBooks.length} deuterocanonical books`}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </>
+  );
 
   return (
     <div
@@ -817,6 +943,29 @@ export function Reader({
               if (toBook !== book || toChapter !== chapter) onNavigate(toBook, toChapter);
             }}
           />
+        ) : missing ? (
+          <div key={`${book}|${chapter}`} className="reader__text" data-turn={place.turn ?? undefined}>
+            <h2 className="reader__heading">
+              {book} {chapter}
+            </h2>
+            {pills}
+            <div className="absent" role="status">
+              <p className="absent__title">
+                {hasBook(chosen, book) ? `${book} ${chapter}` : book} is not in the{' '}
+                {translationById(chosen).name}
+              </p>
+              <p className="absent__why">
+                {hasBook(chosen, book)
+                  ? `This chapter comes from the Greek text of ${book}, which the ${translationById(chosen).name} leaves out, as most protestant Bibles do.`
+                  : `The ${translationById(chosen).name} is a protestant Bible, so it does not have the seven deuterocanonical books. The World English Bible has every book this app prints.`}
+              </p>
+              {/* Not red: the mark button below already is, and there is one red
+                  button at a time. */}
+              <button type="button" className="btn" onClick={() => setBorrowed(book)}>
+                Read it in the {translationById(DEFAULT_TRANSLATION).name}
+              </button>
+            </div>
+          </div>
         ) : error ? (
           <p className="reader__message">{error}</p>
         ) : !verses ? (
@@ -851,54 +1000,7 @@ export function Reader({
                 )}
               </p>
             )}
-            {/*
-              The translation lives here and not in the bar. It was a fourth
-              38px circle there first, and on a 375px phone it squeezed the book
-              picker to 54px, which printed Genesis as "G": the failure the bar's
-              gap rule exists to prevent. Under the chapter's name it costs the
-              bar nothing, has room to name the translation in full, and says
-              what a tap does, the way every button here does.
-            */}
-            <div className="reader__pills">
-              {bookInsight(insights, book) && !sheetOpen && (
-                <AboutPill
-                  book={book}
-                  onOpen={() => {
-                    setSheetReplay(true);
-                    setSheetOpen(true);
-                  }}
-                />
-              )}
-              <button
-                type="button"
-                className="aboutPill reader__translationPill"
-                onClick={() => setTranslation(nextTranslation.id)}
-                aria-label={`Reading the ${reading.name}. Switch to the ${nextTranslation.name}.`}
-              >
-                {reading.name}
-                <span className="reader__translationSwitch" aria-hidden="true">
-                  Switch to {nextTranslation.short}
-                </span>
-              </button>
-              {/*
-                A chapter note could only be written from the journey's book
-                panel, so somebody reading had to close the reader, find the
-                book, open it, and pick the chapter from a list to write down a
-                thought they were having now. Here it is one tap from the words.
-              */}
-              <button
-                type="button"
-                className="aboutPill reader__notePill"
-                data-has={noteFor(book, chapter) ? '' : undefined}
-                onClick={() => {
-                  setPending(null);
-                  setEditing(null);
-                  setNoting(true);
-                }}
-              >
-                {noteFor(book, chapter) ? 'Your note' : 'Add a note'}
-              </button>
-            </div>
+            {pills}
             {/* Held back while the sheet is up, so its lines rise after the
                 card has gone rather than underneath it. */}
             {!sheetOpen && chapterNote(insights, book, chapter) && (
@@ -971,6 +1073,15 @@ export function Reader({
             */}
             <p className="reader__credit">
               {reading.credit}
+              {/* A Creative Commons licence asks for a link to itself, not only its name. */}
+              {reading.licence && (
+                <>
+                  {', '}
+                  <a href={reading.licence.url} target="_blank" rel="noreferrer license">
+                    {reading.licence.name}
+                  </a>
+                </>
+              )}
               {headings.size > 0 && <span>Headings from the Berean Standard Bible</span>}
             </p>
           </article>

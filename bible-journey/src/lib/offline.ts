@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 import { CANON } from '../data/canon';
 import { bookUrl } from './bible';
 import { INSIGHTS_URL } from './insights';
-import type { TranslationId } from './translations';
+import { booksIn, type TranslationId } from './translations';
 
 /**
  * Saving the whole Bible on this device, and knowing how much of it already is.
@@ -49,18 +49,20 @@ export function bytesOf(url: string): number {
 }
 
 /**
- * Everything reading one translation offline needs: its 73 books, and the
- * headings, introductions and notes, which are one file both translations share.
+ * Everything reading one translation offline needs: its books, and the
+ * headings, introductions and notes, which are one file every translation shares.
+ * Its books, not the canon's: the Free Bible Version has 66, and a save that
+ * asked for the seven it does not have would fail on the first of them.
  * Without that file the reader still works, but every heading disappears.
  */
 export function filesFor(translation: TranslationId): string[] {
-  return [...CANON.map((book) => bookUrl(book, translation)), INSIGHTS_URL];
+  return [...booksIn(translation, CANON).map((book) => bookUrl(book, translation)), INSIGHTS_URL];
 }
 
 export type Coverage = {
   /** Books of this translation already in the cache. */
   books: number;
-  /** Books in the canon, 73. */
+  /** Books this translation has: 73, or 66 for one without the deuterocanon. */
   total: number;
   /** What a save still has to fetch, in printed order, the shared file last. */
   missing: string[];
@@ -69,7 +71,7 @@ export type Coverage = {
 };
 
 export function coverage(translation: TranslationId, have: ReadonlySet<string>): Coverage {
-  const books = CANON.map((book) => bookUrl(book, translation));
+  const books = booksIn(translation, CANON).map((book) => bookUrl(book, translation));
   const missing = filesFor(translation).filter((url) => !have.has(url));
   return {
     books: books.filter((url) => have.has(url)).length,

@@ -22,6 +22,7 @@ npm run layout   # add paragraph structure to public/bible/ from the WEB's USFM.
 npm run sections # import section headings into insights.json from the Berean. Also committed
 npm run audio    # rebuild src/data/audioBooks.ts by probing the recording host. Also committed
 npm run kjv      # rebuild public/bible/kjv/ from an unzipped eng-kjv USFM. Also committed
+npm run fbv      # rebuild public/bible/fbv/ from an unzipped engfbv USFM. Also committed
 npm run preview  # serves dist on 4173, the only way to exercise the service worker
 npm run icons    # regenerate public/icon-*.png from brand/logo-source.png
 npm run ios:sync # build, then copy dist into the iOS shell. Works on Windows, compiling does not
@@ -1098,11 +1099,76 @@ and this one sits beside scripture.
 
 ### Translations, and why the notes stay in one
 
-**The reader offers the King James Version beside the World English Bible**, one tap on a pill under
-the chapter heading. The King James is the verse of the day's text already, so a reader who met a
-line there can now read its chapter in the same words.
+**The reader offers three translations: the World English Bible, the Free Bible Version and the
+King James Version**, chosen from a pill under the chapter heading. The King James is the verse of
+the day's text already, so a reader who met a line there can read its chapter in the same words.
+The Free Bible Version is the plain one, and the reason there are three.
 
-- **The text is eBible.org's `eng-kjv` USFM**, the 1769 standardised text with the Apocrypha,
+- **The pill opens a list now, and it used to flip.** With two translations "Switch to KJV" said
+  exactly what a tap does. With three a flip is a cycle, and somebody after the plain one would
+  read past the King James to reach it. The list names each one and says in a line what reading
+  it is like (`about` on each entry in `TRANSLATIONS`), so the choice is made without trying all
+  three. The one on the page has a red inside edge: 5.61 by day and 5.21 at night as a graphic.
+
+**The text is the Free Bible Version because nothing plainer can ship.** The owner reads the Good
+News Translation and finds the WEB and the King James too hard for a lot of readers, vocabulary and
+grammar both. The Good News, the ERV, the NLT, the NIrV and the CEV are all under copyright. Every
+plain English text eBible.org lists was checked against its publisher's own licence page on
+2026-11-17, and a side by side of five passages went to the owner, who picked the FBV:
+
+| Translation | Licence | Why not |
+|---|---|---|
+| **Free Bible Version**, Dr. Jonathan Gallagher | CC BY-SA 4.0 | Chosen: plain and modern, closest to the Good News |
+| Bible in Basic English | Public domain | 850 words, but 1949 grammar: "At the first God made the heaven" |
+| unfoldingWord Simplified Text | CC BY-SA 4.0 with a trademark rule | Explains rather than translates; a modified copy must drop the unfoldingWord name |
+| Open English Bible | Public domain | Only 17 Old Testament books |
+| Plain English Version | CC BY-SA 4.0 | Portions only, 30 books |
+| Berean Standard Bible | Public domain | Modern but formal: "justified", "forbearance" |
+| Translation for Translators | CC BY-SA 4.0 | Carries translator tags and "(OR, ...)" alternatives in the text |
+
+- **The FBV is `scripts/build-fbv.mjs`, `npm run fbv`, from eBible.org's `engfbv` USFM**, written to
+  `public/bible/fbv/` in the same shape with its own `layout`, psalm titles on verse 1 and the
+  footnotes taken out. **The USFM reading is shared with the King James** in `scripts/usfm.mjs`. It
+  was moved, not rewritten, and checked by rebuilding the King James through it: every file came
+  out byte identical except one Sirach verse, which differs because eBible.org has since updated
+  its source. The committed King James was kept.
+- **Its licence is the reason it can ship, so the credit is a condition, not a courtesy.** CC BY-SA
+  asks for "the above copyright and source information", a note of any change, and the same
+  licence on what is shared from it. The reader's footer prints "Free Bible Version, Copyright ©
+  2018 Dr. Jonathan Gallagher, from eBible.org" with **CC BY-SA 4.0 linked**, from `licence` on its
+  `TRANSLATIONS` entry. The credits card says the footnotes and word tags are left out and that
+  the files made from it are under the same licence. `fbv.test.ts` pins both.
+- **It is a protestant Bible, and that is said rather than papered over.** No file is shipped for
+  Tobit, Judith, Wisdom, Sirach, Baruch and 1 and 2 Maccabees, and Esther 11 to 16 and Daniel 13
+  and 14 are empty chapters, so the book still has every chapter the app counts. `lacksBooks` and
+  `lacksChapters` on the entry say so **in code, not by a failed fetch**: a host that serves the
+  app for unknown paths answers a missing file with a page, and the reader would wait forever.
+  `hasBook` and `hasChapter` read them and `fbv.test.ts` checks the files agree exactly.
+- **A missing chapter is a page that says so, never an empty one and never the WEB under the FBV's
+  name.** "Tobit is not in the Free Bible Version", why, and "Read it in the World English Bible".
+  That button **borrows the WEB for this book only**: `borrowed` in `Reader` is a book name, the
+  device keeps the FBV as its choice, and the next book opens in the FBV again without anybody
+  having to remember to switch back. While borrowed, a line under the heading says so, and the
+  credit, highlights and quotes all follow the words on the page, since `translation` in `Reader`
+  is what is shown, not what is chosen. The button is not red: the mark button already is.
+- **Everything else that loads a book asks `textTranslation` or `booksIn`.** The today card, the
+  mix card and the reader's prefetch fetch a book the FBV lacks in the WEB, which is what the
+  reader offers in its place. Search looks through the 66 and says it is without the
+  deuterocanon. The offline card counts 66, says "All 66 of its books", and never asks for a file
+  that was not shipped, or the first one would stop the save.
+- **Sixteen verse numbers are empty in the FBV**, against four in the WEB: its source is the
+  critical text, so Matthew 17:21, Mark 9:44 and the rest are null slots and every verse after
+  them keeps its number. A trailing null is dropped, since it holds no later number in place;
+  Revelation 12 printed an empty verse 18. **Only four chapters number their verses differently
+  from the WEB**: Esther 10, which stops at the Hebrew verse 3, Romans 14 and 16 as in the King
+  James, and 3 John, which splits its last verse in two. `fbv.test.ts` pins the empty slots and the
+  four chapters exactly.
+- **Checked offline in a headless Edge**, the way the offline card was: saving the FBV from
+  Settings put 66 books and the shared headings in the cache and no Tobit, and with `vite preview`
+  stopped, Obadiah and Revelation, never opened before, read in the FBV and Tobit gave its page.
+  No `CACHE` bump: every FBV file is at a new path, and nothing already under `/bible/` changed.
+
+- **The King James text is eBible.org's `eng-kjv` USFM**, the 1769 standardised text with the Apocrypha,
   courtesy of CrossWire and eBible.org. `scripts/build-kjv.mjs` (`npm run kjv`) strips the Strong's
   numbers and markers, writes `public/bible/kjv/<slug>.json` in the same shape as the WEB files
   with its own `layout`, prepends psalm titles to verse 1 the way the WEB does, and joins the
@@ -1125,12 +1191,12 @@ line there can now read its chapter in the same words.
   or a later translation's highlights would be drawn over the WEB's words at the wrong offsets. The
   reader shows only the open translation's marks and says how many are in the other, with a button
   to switch.
-- **Notes, headings, quizzes and audio stay in the WEB, and say so when the King James is open.**
+- **Notes, headings, quizzes and audio stay in the WEB, and say so when another translation is open.**
   Every quoted phrase in a note is checked against the WEB, the quiz evidence is cut from it, and
   the recording reads it, so translating them would break all three checks. The note's source line
   adds "Quotes are from the World English Bible", the quiz proof names it, and the listen strip
   says whose reading it is. **The Berean headings still align**, since they key on verse numbers
-  and the King James numbering matches outside those four chapters.
+  and both other translations' numbering matches outside their four chapters each.
 
 ### Quizzes, and why every answer is cut from the text
 
@@ -1945,7 +2011,7 @@ sign-in that is optional, since reading needs no account,
 per-account sync with the merge rules above, chapter marking by slider, quick amounts and tap,
 undo, backdating so a chapter counts on the day it was read, an optional time of day, the text
 itself in a reader that sets it in paragraphs and poetry and opens at any book and any chapter,
-in the World English Bible or the King James, a source under every note, verse of the day and
+in the World English Bible, the plain Free Bible Version or the King James, a source under every note, verse of the day and
 reading order with a credits card in Settings,
 headings over every chapter of the 66 with a note on the turning points, highlighting with a
 thought attached,

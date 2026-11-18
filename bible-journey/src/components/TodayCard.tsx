@@ -8,7 +8,7 @@ import { LogDayPicker } from './LogDayPicker';
 import { Cross } from './Ornament';
 import { SourceLine } from './Sources';
 import { TodayAlerts } from './TodayAlerts';
-import { useTranslation } from '../lib/translations';
+import { textTranslation, useTranslation } from '../lib/translations';
 import { Check } from './icons';
 
 const SUGGESTION_SIZE = 3;
@@ -34,7 +34,10 @@ export function TodayCard({ onOpenBook }: { onOpenBook: (book: string) => void }
   const firstBook = first?.book;
   // The open translation, so the minutes promised are the minutes it takes to
   // read the words the reader will actually show, and the prefetch warms them.
-  const translation = useTranslation();
+  // A book the open translation does not have is read in the World English
+  // Bible, which is what the reader offers, so that is what gets counted.
+  const chosen = useTranslation();
+  const translation = firstBook ? textTranslation(chosen, firstBook) : chosen;
   const [text, setText] = useState<BookText | undefined>(() =>
     firstBook ? cachedBook(firstBook, translation) : undefined,
   );

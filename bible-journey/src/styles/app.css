@@ -10844,6 +10844,91 @@ select {
   cursor: pointer;
 }
 
+/*
+ * The translations, listed under the pill when it is opened. Each row says what
+ * reading it is like, so the plain one can be found without trying all three.
+ * The one on the page carries a red edge, which is a graphic on paper and so
+ * takes the paper red: 5.21 against a night card where plain red-600 is 2.89.
+ */
+.translationList {
+  display: grid;
+  gap: 0.4rem;
+  margin: -0.4rem 0 1.2rem;
+}
+
+.translationList__item {
+  display: grid;
+  gap: 0.15rem;
+  min-height: 44px;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  font: inherit;
+  text-align: left;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.translationList__item[aria-pressed='true'] {
+  box-shadow: inset 3px 0 0 var(--paper-red-600);
+}
+
+.translationList__name {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+}
+
+.translationList__about {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+@media (hover: hover) {
+  .translationList__item:hover {
+    border-color: var(--yellow);
+  }
+}
+
+/*
+ * A chapter the open translation does not have. A panel in the text's place,
+ * never an empty page and never the World English Bible's words under another
+ * translation's name: it says what is missing, why, and offers the way to it.
+ */
+.absent {
+  display: grid;
+  justify-items: start;
+  gap: 0.6rem;
+  margin: 0.5rem 0 1.5rem;
+  padding: 1.1rem 1.15rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.absent__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.absent__why {
+  margin: 0 0 0.3rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* The licence link in the credit, in the credit's own colour. */
+.reader__credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* A highlight in Notes made in the King James says so beside its reference. */
 .entry__translation {
   font-family: var(--font-body);
@@ -10884,6 +10969,13 @@ select {
 .credits__terms {
   font-size: 0.82rem;
   color: var(--muted);
+}
+
+/* A licence named in the terms is a link to it, in the terms' own colour. */
+.credits__terms a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* ── Quizzes ────────────────────────────────────────────────────────────── */
